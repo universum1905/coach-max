@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mind Boost – Coach Max</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-900 to-indigo-700 text-white font-sans flex flex-col items-center justify-center min-h-screen px-4 text-center">
+
+  <h1 class="text-3xl font-bold mb-4">🧠 Mind Boost</h1>
+  <p class="text-lg mb-6 italic">"One click. One powerful shift."</p>
+
+  <div id="affirmation-box" class="text-xl font-semibold bg-white text-indigo-800 px-6 py-4 rounded-2xl shadow max-w-xl mb-6">
+    Loading affirmation...
+  </div>
+
+  <button onclick="showRandomAffirmation()" class="bg-pink-500 hover:bg-pink-600 text-white px-5 py-2 rounded-full shadow">
+    New Affirmation ✨
+  </button>
+
+  <a href="index.html" class="mt-12 text-pink-300 hover:underline block">← Back to Coach Max</a>
+
+  <!-- Script -->
+  <script>
+    let affirmations = [];
+
+    fetch('affirmations.json')
+      .then(response => response.json())
+      .then(data => {
+        affirmations = data;
+        showRandomAffirmation(); // Initial anzeigen
+      })
+      .catch(err => {
+        document.getElementById("affirmation-box").textContent = "You are doing better than you think.";
+      });
+
+    function showRandomAffirmation() {
+      if (affirmations.length > 0) {
+        const random = affirmations[Math.floor(Math.random() * affirmations.length)];
+        document.getElementById("affirmation-box").textContent = `"${random}"`;
+      }
+    }
+  </script>
+</body>
+</html>
