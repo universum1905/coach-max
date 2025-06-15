@@ -96,8 +96,9 @@
     }
 
     if (avatarName && document.getElementById("avatarGreeting")) {
-      const nameOnly = avatarName.split(" ")[1];
-      document.getElementById("avatarGreeting").textContent = `Hi, I'm ${nameOnly}`;
+      const nameParts = avatarName.split(" ");
+const nameToShow = nameParts.length > 1 ? nameParts[1] : nameParts[0];
+document.getElementById("avatarGreeting").textContent = `Hi, I'm ${nameToShow}`;
     }
   </script>
 
