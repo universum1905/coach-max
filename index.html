@@ -97,10 +97,15 @@
   </div>
 
   <script>
-  const childName = window.coachData?.name || 'Buddy';
-  document.getElementById('childName').textContent = `Welcome, ${childName}!`;
+  // Beispiel: Name wurde beim Onboarding gespeichert
+  const childName = localStorage.getItem('childName') || 'Coachie';
+
+  // Element selektieren und Text einfügen
+  const nameElement = document.getElementById('childName');
+  nameElement.textContent = `Welcome, ${childName}!`;
 </script>
-  
+
+   
    <!-- Zitate laden -->
   <script>
     fetch('quotes.json')
