@@ -84,6 +84,17 @@
 </script>
 
   <script>
+  // Check: Ist Name & Avatar gesetzt?
+  const hasName = localStorage.getItem('coachUserName');
+  const hasAvatar = localStorage.getItem('coachAvatar');
+
+  if (!hasName || !hasAvatar) {
+    window.location.href = "onboarding.html";
+  }
+</script>
+
+
+  <script>
   // Fortschritt aus dem lokalen Speicher lesen
   let day = parseInt(localStorage.getItem('coachingDay')) || 1;
 
