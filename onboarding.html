@@ -6,7 +6,8 @@
   <title>Coach Max – Welcome</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-yellow-100 to-pink-200 text-gray-800 font-sans min-h-screen flex items-center justify-center px-4">
+<body id="mainBody" class="font-sans min-h-screen px-4">
+
   <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
     <h1 class="text-2xl font-bold mb-6">👋 Welcome to Coach Max!</h1>
 
@@ -59,5 +60,24 @@
       cursor: pointer;
     }
   </style>
+
+<script>
+  const now = new Date();
+  const hour = now.getHours();
+  const body = document.getElementById('mainBody');
+
+  if (hour >= 6 && hour < 12) {
+    // ☀️ Morning
+    body.classList.add('bg-yellow-50', 'text-gray-800');
+  } else if (hour >= 12 && hour < 18) {
+    // 🌤 Afternoon
+    body.classList.add('bg-blue-50', 'text-gray-800');
+  } else {
+    // 🌙 Evening / Night
+    body.classList.add('bg-gray-900', 'text-white');
+  }
+</script>
+
+  
 </body>
 </html>
