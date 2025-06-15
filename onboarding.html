@@ -13,7 +13,6 @@
 
     <input id="userName" type="text" placeholder="Your name..." class="w-full mb-6 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring" />
 
-
     <p class="font-semibold mb-2">Choose your avatar:</p>
 
     <div class="grid grid-cols-2 gap-4 mb-6">
@@ -32,9 +31,9 @@
         <img src="images/momo.png" alt="Momo" class="rounded-xl w-24 h-24 mx-auto mb-1" />
         <p class="text-sm font-medium">Momo</p>
       </div>
-       <!-- Foxy -->
+      <!-- Foxy -->
       <div onclick="selectAvatar('🦊 Foxy', 'images/foxy.png')" class="cursor-pointer border-2 border-transparent hover:border-blue-400 rounded-xl p-2" id="avatar-foxy">
-        <img src="images/foxy.png" alt="Momo" class="rounded-xl w-24 h-24 mx-auto mb-1" />
+        <img src="images/foxy.png" alt="Foxy" class="rounded-xl w-24 h-24 mx-auto mb-1" />
         <p class="text-sm font-medium">Foxy</p>
       </div>
     </div>
@@ -46,6 +45,7 @@
     <p id="warning" class="mt-4 text-red-500 hidden">Please enter your name and choose an avatar.</p>
   </div>
 
+  <!-- Hauptskript -->
   <script>
     let selectedAvatar = '';
     let selectedImage = '';
@@ -59,7 +59,6 @@
         div.classList.remove("ring-4", "ring-blue-400");
       });
 
-      // Aktiven Avatar hervorheben
       if (avatarName.includes("Benny")) document.getElementById("avatar-benny").classList.add("ring-4", "ring-blue-400");
       if (avatarName.includes("Luna")) document.getElementById("avatar-luna").classList.add("ring-4", "ring-blue-400");
       if (avatarName.includes("Momo")) document.getElementById("avatar-momo").classList.add("ring-4", "ring-blue-400");
@@ -68,34 +67,31 @@
 
     function saveAndGo() {
       let name = document.getElementById("userName").value.trim();
+      if (!name) {
+        name = localStorage.getItem("coachUserName") || "";
+      }
 
-// Falls Name schon gespeichert ist, wiederverwenden
-if (!name) {
-  name = localStorage.getItem("coachUserName") || "";
-}
-
-if (!name || !selectedAvatar) {
-  document.getElementById("warning").classList.remove("hidden");
-  return;
-}
+      if (!name || !selectedAvatar) {
+        document.getElementById("warning").classList.remove("hidden");
+        return;
+      }
 
       localStorage.setItem("coachUserName", name);
       localStorage.setItem("coachAvatar", selectedAvatar);
       localStorage.setItem("coachAvatarImage", selectedImage);
       window.location.href = "index.html";
     }
-
-    <script>
-  // Beim Laden des Dokuments: Name vorausfüllen
-  window.addEventListener("DOMContentLoaded", () => {
-    const savedName = localStorage.getItem("coachUserName");
-    if (savedName) {
-      document.getElementById("userName").value = savedName;
-    }
-  });
-</script>
-
-    
   </script>
+
+  <!-- Name vorausfüllen nach Laden -->
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedName = localStorage.getItem("coachUserName");
+      if (savedName) {
+        document.getElementById("userName").value = savedName;
+      }
+    });
+  </script>
+
 </body>
 </html>
