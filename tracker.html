@@ -6,7 +6,8 @@
   <title>Progress Tracker – Coach Max</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col items-center justify-center px-4">
+<body id="mainBody" class="font-sans min-h-screen px-4">
+
 
   <h1 class="text-3xl font-bold mb-6">📈 Your Progress Tracker</h1>
   <p class="mb-8 text-center text-lg">Tap the boxes to mark your active coaching days!</p>
@@ -64,5 +65,24 @@
       background-color: #cbd5e1;
     }
   </style>
+
+<script>
+  const now = new Date();
+  const hour = now.getHours();
+  const body = document.getElementById('mainBody');
+
+  if (hour >= 6 && hour < 12) {
+    // ☀️ Morning
+    body.classList.add('bg-yellow-50', 'text-gray-800');
+  } else if (hour >= 12 && hour < 18) {
+    // 🌤 Afternoon
+    body.classList.add('bg-blue-50', 'text-gray-800');
+  } else {
+    // 🌙 Evening / Night
+    body.classList.add('bg-gray-900', 'text-white');
+  }
+</script>
+
+  
 </body>
 </html>
