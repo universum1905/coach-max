@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coach Max – Welcome</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-yellow-100 to-pink-200 text-gray-800 font-sans min-h-screen flex items-center justify-center px-4">
+  <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
+    <h1 class="text-2xl font-bold mb-6">👋 Welcome to Coach Max!</h1>
+
+    <input id="userName" type="text" placeholder="Your name..." class="w-full mb-4 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring" />
+
+    <p class="font-semibold mb-2">Choose your avatar:</p>
+    <div class="flex justify-center gap-4 mb-6">
+      <button onclick="selectAvatar('🐶 Benny')" class="avatar-btn">🐶</button>
+      <button onclick="selectAvatar('🐱 Luna')" class="avatar-btn">🐱</button>
+      <button onclick="selectAvatar('🦊 Foxy')" class="avatar-btn">🦊</button>
+    </div>
+
+    <button onclick="saveAndGo()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full font-semibold shadow">
+      Let's go →
+    </button>
+  </div>
+
+  <script>
+    let selectedAvatar = '';
+
+    function selectAvatar(avatar) {
+      selectedAvatar = avatar;
+      document.querySelectorAll('.avatar-btn').forEach(btn => btn.classList.remove('ring-4', 'ring-blue-400'));
+      event.target.classList.add('ring-4', 'ring-blue-400');
+    }
+
+    function saveAndGo() {
+      const name = document.getElementById('userName').value.trim();
+      if (!name || !selectedAvatar) {
+        alert("Please enter your name and select an avatar.");
+        return;
+      }
+      localStorage.setItem('coachUserName', name);
+      localStorage.setItem('coachAvatar', selectedAvatar);
+      window.location.href = "index.html";
+    }
+  </script>
+
+  <style>
+    .avatar-btn {
+      font-size: 2rem;
+      background: white;
+      border-radius: 9999px;
+      padding: 0.5rem 1rem;
+      border: 2px solid transparent;
+      transition: 0.2s;
+    }
+    .avatar-btn:hover {
+      background: #f3f4f6;
+      cursor: pointer;
+    }
+  </style>
+</body>
+</html>
