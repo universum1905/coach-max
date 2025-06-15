@@ -2,95 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Coach Max – Welcome</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coach Max – Onboarding</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    .fredoka {
+      font-family: 'Fredoka', sans-serif;
+    }
+    .avatar-option {
+      transition: transform 0.2s;
+    }
+    .avatar-option:hover {
+      transform: scale(1.05);
+    }
+    .avatar-selected {
+      border: 4px solid #6366f1;
+      box-shadow: 0 0 10px #6366f1;
+    }
+  </style>
 </head>
-<body id="mainBody" class="font-sans min-h-screen flex items-center justify-center px-4 bg-yellow-50 text-gray-800">
+<body class="min-h-screen bg-cyan-100 text-gray-800 flex flex-col items-center justify-center p-4 fredoka">
 
-  <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
-    <h1 class="text-2xl font-bold mb-6">👋 Welcome to Coach Max!</h1>
+  <h1 class="text-4xl font-bold text-center mb-2">Let’s get started!</h1>
+  <p class="text-lg text-center mb-6">Choose your coach and tell us your name</p>
 
-    <input id="userName" type="text" placeholder="Your name..." class="w-full mb-6 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring" />
-
-    <p class="font-semibold mb-2">Choose your avatar:</p>
-
-    <div class="grid grid-cols-2 gap-4 mb-6">
-      <!-- Benny -->
-      <div onclick="selectAvatar('🐶 Benny', 'images/benny-bark.png')" class="cursor-pointer border-2 border-transparent hover:border-blue-400 rounded-xl p-2" id="avatar-benny">
-        <img src="images/benny-bark.png" alt="Benny" class="rounded-xl w-24 h-24 mx-auto mb-1" />
-        <p class="text-sm font-medium">Benny</p>
-      </div>
-      <!-- Luna -->
-      <div onclick="selectAvatar('🐱 Luna', 'images/luna.png')" class="cursor-pointer border-2 border-transparent hover:border-blue-400 rounded-xl p-2" id="avatar-luna">
-        <img src="images/luna.png" alt="Luna" class="rounded-xl w-24 h-24 mx-auto mb-1" />
-        <p class="text-sm font-medium">Luna</p>
-      </div>
-      <!-- Momo -->
-      <div onclick="selectAvatar('🐵 Momo', 'images/momo.png')" class="cursor-pointer border-2 border-transparent hover:border-blue-400 rounded-xl p-2" id="avatar-momo">
-        <img src="images/momo.png" alt="Momo" class="rounded-xl w-24 h-24 mx-auto mb-1" />
-        <p class="text-sm font-medium">Momo</p>
-      </div>
-      <!-- Foxy -->
-      <div onclick="selectAvatar('🦊 Foxy', 'images/foxy.png')" class="cursor-pointer border-2 border-transparent hover:border-blue-400 rounded-xl p-2" id="avatar-foxy">
-        <img src="images/foxy.png" alt="Foxy" class="rounded-xl w-24 h-24 mx-auto mb-1" />
-        <p class="text-sm font-medium">Foxy</p>
-      </div>
-    </div>
-
-    <button onclick="saveAndGo()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full font-semibold shadow">
-      Let’s go →
-    </button>
-
-    <p id="warning" class="mt-4 text-red-500 hidden">Please enter your name and choose an avatar.</p>
+  <!-- Avatar Auswahl -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+    <img src="images/benny-bark.png" alt="Benny" class="w-24 h-24 rounded-full shadow-md cursor-pointer avatar-option" onclick="selectAvatar('Benny Bark', this, 'images/benny-bark.png')">
+    <img src="images/luna-cat.png" alt="Luna" class="w-24 h-24 rounded-full shadow-md cursor-pointer avatar-option" onclick="selectAvatar('Luna Cat', this, 'images/luna-cat.png')">
+    <img src="images/momo-monkey.png" alt="Momo" class="w-24 h-24 rounded-full shadow-md cursor-pointer avatar-option" onclick="selectAvatar('Momo Monkey', this, 'images/momo-monkey.png')">
+    <img src="images/foxy-fox.png" alt="Foxy" class="w-24 h-24 rounded-full shadow-md cursor-pointer avatar-option" onclick="selectAvatar('Foxy Fox', this, 'images/foxy-fox.png')">
   </div>
 
-  <!-- Hauptskript -->
+  <!-- Namenseingabe -->
+  <div class="w-full max-w-xs mb-6">
+    <label for="username" class="block text-lg mb-2">What's your name?</label>
+    <input type="text" id="username" class="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 fredoka text-center text-lg" placeholder="Type your name..." oninput="validateInput()">
+  </div>
+
+  <!-- Button -->
+  <button id="startBtn" onclick="startJourney()" disabled class="px-6 py-3 bg-indigo-400 text-white font-semibold rounded-full shadow disabled:opacity-40 hover:bg-indigo-600 transition">
+    Let's Go!
+  </button>
+
   <script>
-    let selectedAvatar = '';
-    let selectedImage = '';
+    let selectedAvatar = null;
+    let selectedImagePath = null;
 
-    function selectAvatar(avatarName, imagePath) {
-      selectedAvatar = avatarName;
-      selectedImage = imagePath;
-
-      // Rahmen zurücksetzen
-      document.querySelectorAll('[id^="avatar-"]').forEach(div => {
-        div.classList.remove("ring-4", "ring-blue-400");
-      });
-
-      if (avatarName.includes("Benny")) document.getElementById("avatar-benny").classList.add("ring-4", "ring-blue-400");
-      if (avatarName.includes("Luna")) document.getElementById("avatar-luna").classList.add("ring-4", "ring-blue-400");
-      if (avatarName.includes("Momo")) document.getElementById("avatar-momo").classList.add("ring-4", "ring-blue-400");
-      if (avatarName.includes("Foxy")) document.getElementById("avatar-foxy").classList.add("ring-4", "ring-blue-400");
+    function selectAvatar(name, element, imagePath) {
+      document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('avatar-selected'));
+      element.classList.add('avatar-selected');
+      selectedAvatar = name;
+      selectedImagePath = imagePath;
+      validateInput();
     }
 
-    function saveAndGo() {
-      let name = document.getElementById("userName").value.trim();
-      if (!name) {
-        name = localStorage.getItem("coachUserName") || "";
-      }
-
-      if (!name || !selectedAvatar) {
-        document.getElementById("warning").classList.remove("hidden");
-        return;
-      }
-
-      localStorage.setItem("coachUserName", name);
-      localStorage.setItem("coachAvatar", selectedAvatar);
-      localStorage.setItem("coachAvatarImage", selectedImage);
-      window.location.href = "index.html";
+    function validateInput() {
+      const name = document.getElementById('username').value.trim();
+      const btn = document.getElementById('startBtn');
+      btn.disabled = !(name.length >= 2 && selectedAvatar);
     }
-  </script>
 
-  <!-- Name vorausfüllen nach Laden -->
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      const savedName = localStorage.getItem("coachUserName");
-      if (savedName) {
-        document.getElementById("userName").value = savedName;
+    function startJourney() {
+      const name = document.getElementById('username').value.trim();
+      if (name.length >= 2 && selectedAvatar) {
+        localStorage.setItem('coachUserName', name);
+        localStorage.setItem('coachAvatar', selectedAvatar);
+        localStorage.setItem('coachAvatarImage', selectedImagePath);
+        window.location.href = 'index.html';
       }
-    });
+    }
   </script>
 
 </body>
