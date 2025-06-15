@@ -122,7 +122,10 @@
   </script>
 
   <script>
-    let day = parseInt(localStorage.getItem('coachingDay')) || 0;
+  if (!localStorage.getItem('coachingDay')) {
+    localStorage.setItem('coachingDay', 0);
+  }
+  let day = parseInt(localStorage.getItem('coachingDay')) || 0;
 
     function updateProgress() {
       const display = document.getElementById('progress-display');
