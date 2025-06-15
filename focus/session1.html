@@ -21,29 +21,29 @@
   <img src="../images/nature.jpg" alt="Peaceful Nature" class="absolute w-full h-full object-cover opacity-70 z-0" />
 
   <!-- Start Screen -->
-  <div id="startScreen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/60">
-    <h1 class="text-3xl font-bold mb-6 text-white">Welcome to Coach Max</h1>
-    <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-xl rounded-xl shadow-lg">
+  <div id="startScreen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
+    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-white">Welcome to Coach Max</h1>
+    <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-4 text-lg sm:text-xl rounded-xl shadow-lg w-64 max-w-full">
       🎬 Let's Begin
     </button>
   </div>
 
   <!-- Benny Video -->
-  <video id="bennyVideo" class="hidden absolute bottom-2 right-2 max-w-[30vw] max-h-[30vw] rounded-xl shadow-xl border-2 border-white z-40">
-    <source src="../videos/benny-focus.mp4" type="video/mp4" />
+  <video id="bennyVideo" class="hidden absolute bottom-2 right-2 w-[40vw] max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-40">
+    <source src="../benny-focus.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
 
   <!-- Atmungsanimation + Text -->
   <div id="breathingContainer" class="hidden absolute inset-0 flex flex-col items-center justify-center z-20">
-    <div class="w-48 h-48 bg-white/30 rounded-full animate-[breathe_11s_ease-in-out_infinite] flex items-center justify-center">
-      <p id="breatheText" class="text-2xl font-semibold text-white">Breathe In</p>
+    <div class="w-36 h-36 sm:w-48 sm:h-48 bg-white/30 rounded-full animate-[breathe_11s_ease-in-out_infinite] flex items-center justify-center">
+      <p id="breatheText" class="text-lg sm:text-2xl font-semibold text-white">Breathe In</p>
     </div>
   </div>
 
   <!-- Musik -->
   <audio id="bgMusic" loop>
-    <source src="../audio/focus-loop.mp3" type="audio/mpeg" />
+    <source src="../focus-loop.mp3" type="audio/mpeg" />
   </audio>
 
   <script>
