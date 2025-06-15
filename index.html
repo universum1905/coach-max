@@ -23,18 +23,22 @@
 <section class="text-center mb-10">
   <p id="progress-display" class="text-lg font-semibold text-green-700">Loading progress...</p>
 
-<div id="reward-box" class="hidden mt-4 p-4 bg-yellow-100 text-yellow-800 rounded-xl shadow max-w-md mx-auto font-semibold">
-  🎁 Reward text will appear here.
-</div>
 
-  
   <button onclick="advanceDay()" class="mt-2 px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 shadow">
     Mark Today as Done ✅
   </button>
 
+  <div id="reward-box" class="hidden mt-4 p-4 bg-yellow-100 text-yellow-800 rounded-xl shadow max-w-md mx-auto font-semibold">
+  🎁 Reward text will appear here.
+</div>
+
+  <p id="motivation-level" class="mt-2 text-sm italic text-indigo-400"></p>
+
 <button onclick="resetProgress()" class="mt-2 px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 shadow">
   Reset Progress 🔄
 </button>
+
+
 
   
 </section>
