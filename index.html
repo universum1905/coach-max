@@ -22,6 +22,12 @@
   <!-- Fortschrittsanzeige -->
 <section class="text-center mb-10">
   <p id="progress-display" class="text-lg font-semibold text-green-700">Loading progress...</p>
+
+<div id="reward-box" class="hidden mt-4 p-4 bg-yellow-100 text-yellow-800 rounded-xl shadow max-w-md mx-auto font-semibold">
+  🎁 Reward text will appear here.
+</div>
+
+  
   <button onclick="advanceDay()" class="mt-2 px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 shadow">
     Mark Today as Done ✅
   </button>
@@ -76,13 +82,20 @@
   let day = parseInt(localStorage.getItem('coachingDay')) || 1;
 
   function updateProgress() {
-    const display = document.getElementById('progress-display');
-    if (day <= 7) {
-      display.textContent = `✅ Day ${day} of 7 – You're doing great!`;
-    } else {
-      display.textContent = `🎉 Challenge completed! Start again?`;
+  const display = document.getElementById('progress-display');
+  if (day <= 7) {
+    display.textContent = `✅ Day ${day} of 7 – You're doing great!`;
+
+    if (day === 5) {
+      showReward("🎉 You reached 5 days! You earned a Focus Badge 🧠✨");
+    } else if (day === 7) {
+      showReward("🏆 7 Days Complete – You’re a Champion! 🌟");
     }
+  } else {
+    display.textContent = `🎉 Challenge completed! Start again?`;
   }
+}
+
 
   function advanceDay() {
     if (day <= 7) {
