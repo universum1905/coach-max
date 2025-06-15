@@ -96,9 +96,7 @@
     }
 
     if (avatarName && document.getElementById("avatarGreeting")) {
-      const nameParts = avatarName.split(" ");
-const nameToShow = nameParts.length > 1 ? nameParts[1] : nameParts[0];
-document.getElementById("avatarGreeting").textContent = `Hi, I'm ${nameToShow}`;
+      document.getElementById("avatarGreeting").textContent = `Hi, I'm ${avatarName}`;
     }
   </script>
 
@@ -124,13 +122,16 @@ document.getElementById("avatarGreeting").textContent = `Hi, I'm ${nameToShow}`;
   </script>
 
   <script>
-    let day = parseInt(localStorage.getItem('coachingDay')) || 1;
+    let day = parseInt(localStorage.getItem('coachingDay')) || 0;
 
     function updateProgress() {
       const display = document.getElementById('progress-display');
       const motivationText = document.getElementById('motivation-level');
 
-      if (day <= 7) {
+      if (day === 0) {
+        display.textContent = `👋 Ready to begin your journey? Tap below to start Day 1!`;
+        motivationText.textContent = "✨ A new beginning";
+      } else if (day <= 7) {
         display.textContent = `✅ Day ${day} of 7 – You're doing great!`;
 
         if (day === 5) {
@@ -148,7 +149,7 @@ document.getElementById("avatarGreeting").textContent = `Hi, I'm ${nameToShow}`;
     }
 
     function advanceDay() {
-      if (day <= 7) {
+      if (day < 7) {
         day++;
         localStorage.setItem('coachingDay', day);
         updateProgress();
@@ -156,7 +157,7 @@ document.getElementById("avatarGreeting").textContent = `Hi, I'm ${nameToShow}`;
     }
 
     function resetProgress() {
-      day = 1;
+      day = 0;
       localStorage.setItem('coachingDay', day);
       updateProgress();
     }
