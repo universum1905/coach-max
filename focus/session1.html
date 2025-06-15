@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coach Max – Focus with Benny</title>
+  <title>Coach Max – Focus Start</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @keyframes breathe {
@@ -18,21 +18,24 @@
 <body class="relative w-screen h-screen bg-black text-white overflow-hidden">
 
   <!-- Hintergrundbild -->
-  <img src="../images/nature.jpg" alt="Peaceful Nature" class="absolute w-full h-full object-cover opacity-70" />
+  <img src="../images/nature.jpg" alt="Peaceful Nature" class="absolute w-full h-full object-cover opacity-70 z-0" />
 
-  <!-- Musik Start Button (für iOS/Android Unterstützung) -->
-  <button onclick="document.getElementById('bgMusic').play()" class="absolute top-4 left-4 bg-indigo-600 text-white px-4 py-2 rounded-xl shadow z-50">
-    🎵 Start Music
-  </button>
+  <!-- Start Screen -->
+  <div id="startScreen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/60">
+    <h1 class="text-3xl font-bold mb-6 text-white">Welcome to Coach Max</h1>
+    <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-xl rounded-xl shadow-lg">
+      🎬 Let's Begin
+    </button>
+  </div>
 
-  <!-- Benny Video unten rechts mobilfreundlich -->
-  <video autoplay playsinline controls class="absolute bottom-2 right-2 max-w-[30vw] max-h-[30vw] rounded-xl shadow-xl border-2 border-white z-50">
-    <source src="../benny-focus.mp4" type="video/mp4">
+  <!-- Benny Video -->
+  <video id="bennyVideo" class="hidden absolute bottom-2 right-2 max-w-[30vw] max-h-[30vw] rounded-xl shadow-xl border-2 border-white z-40">
+    <source src="../videos/benny-focus.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
 
-  <!-- Atmungsanimation + Text zentriert -->
-  <div class="absolute inset-0 flex flex-col items-center justify-center">
+  <!-- Atmungsanimation + Text -->
+  <div id="breathingContainer" class="hidden absolute inset-0 flex flex-col items-center justify-center z-20">
     <div class="w-48 h-48 bg-white/30 rounded-full animate-[breathe_11s_ease-in-out_infinite] flex items-center justify-center">
       <p id="breatheText" class="text-2xl font-semibold text-white">Breathe In</p>
     </div>
@@ -40,12 +43,10 @@
 
   <!-- Musik -->
   <audio id="bgMusic" loop>
-    <source src="../focus-loop.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
+    <source src="../audio/focus-loop.mp3" type="audio/mpeg" />
   </audio>
 
   <script>
-    // Textwechsel passend zur Atmung
     const texts = ["Breathe In", "Hold", "Breathe Out", "Hold"];
     const durations = [4000, 2000, 5000, 2000];
     let index = 0;
@@ -59,7 +60,23 @@
       }, durations[index]);
     }
 
-    updateBreathText();
+    function startSession() {
+      // Hide start screen
+      document.getElementById('startScreen').classList.add('hidden');
+
+      // Show video and play
+      const video = document.getElementById('bennyVideo');
+      video.classList.remove('hidden');
+      video.play();
+
+      // Start music
+      const audio = document.getElementById('bgMusic');
+      audio.play();
+
+      // Show breathing animation
+      document.getElementById('breathingContainer').classList.remove('hidden');
+      updateBreathText();
+    }
   </script>
 
 </body>
