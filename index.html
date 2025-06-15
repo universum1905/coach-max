@@ -164,9 +164,11 @@ if (userName && avatar) {
     
 
 
-  // Beim Laden anzeigen
+  // Beim Laden anzeigen – aber erst, wenn alles bereit ist
+window.addEventListener("DOMContentLoaded", () => {
   updateProgress();
-</script>
+});
+
 
 <footer class="mt-12 w-full text-center text-sm text-gray-400">
   <nav class="py-4 border-t border-gray-600 flex flex-wrap justify-center gap-4">
