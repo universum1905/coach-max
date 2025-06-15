@@ -12,6 +12,13 @@
     <h1 class="text-2xl font-bold mb-6">👋 Welcome to Coach Max!</h1>
 
     <input id="userName" type="text" placeholder="Your name..." class="w-full mb-6 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring" />
+<script>
+  // Falls der Name bereits im Speicher ist, trage ihn automatisch ein
+  const savedName = localStorage.getItem("coachUserName");
+  if (savedName) {
+    document.getElementById("userName").value = savedName;
+  }
+</script>
 
     <p class="font-semibold mb-2">Choose your avatar:</p>
 
@@ -66,11 +73,18 @@
     }
 
     function saveAndGo() {
-      const name = document.getElementById("userName").value.trim();
-      if (!name || !selectedAvatar) {
-        document.getElementById("warning").classList.remove("hidden");
-        return;
-      }
+      let name = document.getElementById("userName").value.trim();
+
+// Falls Name schon gespeichert ist, wiederverwenden
+if (!name) {
+  name = localStorage.getItem("coachUserName") || "";
+}
+
+if (!name || !selectedAvatar) {
+  document.getElementById("warning").classList.remove("hidden");
+  return;
+}
+
       localStorage.setItem("coachUserName", name);
       localStorage.setItem("coachAvatar", selectedAvatar);
       localStorage.setItem("coachAvatarImage", selectedImage);
