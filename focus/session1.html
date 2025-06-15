@@ -20,9 +20,14 @@
   <!-- Hintergrundbild -->
   <img src="../images/nature.jpg" alt="Peaceful Nature" class="absolute w-full h-full object-cover opacity-70" />
 
-  <!-- Benny Video unten rechts -->
-  <video autoplay muted class="absolute bottom-4 right-4 w-40 h-40 rounded-xl shadow-xl border-2 border-white">
-    <source src="../videos/benny-focus.mp4" type="video/mp4">
+  <!-- Musik Start Button (für iOS/Android Unterstützung) -->
+  <button onclick="document.getElementById('bgMusic').play()" class="absolute top-4 left-4 bg-indigo-600 text-white px-4 py-2 rounded-xl shadow z-50">
+    🎵 Start Music
+  </button>
+
+  <!-- Benny Video unten rechts mobilfreundlich -->
+  <video autoplay playsinline controls class="absolute bottom-2 right-2 max-w-[30vw] max-h-[30vw] rounded-xl shadow-xl border-2 border-white z-50">
+    <source src="../benny-focus.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
 
@@ -34,8 +39,8 @@
   </div>
 
   <!-- Musik -->
-  <audio id="bgMusic" autoplay loop>
-    <source src="audio/focus-loop.mp3" type="audio/mpeg">
+  <audio id="bgMusic" loop>
+    <source src="../focus-loop.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 
