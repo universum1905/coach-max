@@ -6,7 +6,7 @@
   <title>Coach Max – Start Your Journey</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body id="mainBody" class="font-sans min-h-screen px-4">
   <!-- Hero -->
   <section class="text-center py-12 px-4">
     <img src="images/benny-bark.png" alt="Coach Benny Bark" class="mx-auto w-32 h-32 rounded-full shadow-lg" />
@@ -172,6 +172,23 @@ if (userName && avatar) {
     <a href="index.html#progress-display" class="text-blue-300 hover:underline flex items-center gap-1">📈<span>Progress</span></a>
   </nav>
 </footer>
+
+  <script>
+  const now = new Date();
+  const hour = now.getHours();
+  const body = document.getElementById('mainBody');
+
+  if (hour >= 6 && hour < 12) {
+    // ☀️ Morning
+    body.classList.add('bg-yellow-50', 'text-gray-800');
+  } else if (hour >= 12 && hour < 18) {
+    // 🌤 Afternoon
+    body.classList.add('bg-blue-50', 'text-gray-800');
+  } else {
+    // 🌙 Evening / Night
+    body.classList.add('bg-gray-900', 'text-white');
+  }
+</script>
 
 
   
