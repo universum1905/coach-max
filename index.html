@@ -7,52 +7,41 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body id="mainBody" class="font-sans min-h-screen px-4">
+
   <!-- Hero -->
-<section class="text-center py-12 px-4">
-  <img id="avatarImage" src="images/benny.png" alt="Coach Avatar" class="mx-auto w-32 h-32 rounded-full shadow-lg" />
-  <h1 id="avatarGreeting" class="text-3xl font-bold mt-4">Hi, I'm Benny</h1>
- <button onclick="changeAvatarOnly()" class="mt-3 px-4 py-2 bg-indigo-500 text-white text-sm rounded-full hover:bg-indigo-600 shadow">
-  🔁 Change Coach
-</button>
-
-  <p id="userWelcome" class="text-sm text-gray-500 text-center mb-4"></p>
-
-
-
-  <p class="mt-2 text-lg">Your playful coaching companion. Ready to boost your day?</p>
-</section>
-
+  <section class="text-center py-12 px-4">
+    <img id="avatarImage" src="images/benny.png" alt="Coach Avatar" class="mx-auto w-32 h-32 rounded-full shadow-lg" />
+    <h1 id="avatarGreeting" class="text-3xl font-bold mt-4">Hi, I'm Benny</h1>
+    <button onclick="changeAvatarOnly()" class="mt-3 px-4 py-2 bg-indigo-500 text-white text-sm rounded-full hover:bg-indigo-600 shadow">
+      🔁 Change Coach
+    </button>
+    <p id="userWelcome" class="text-sm text-gray-500 text-center mb-4"></p>
+    <p class="mt-2 text-lg">Your playful coaching companion. Ready to boost your day?</p>
+  </section>
 
   <!-- Daily Coaching Impulse -->
-<section class="text-center px-4 mb-10">
-  <div id="coaching-quote" class="text-lg italic text-gray-700">Loading quote...</div>
-</section>
+  <section class="text-center px-4 mb-10">
+    <div id="coaching-quote" class="text-lg italic text-gray-700">Loading quote...</div>
+  </section>
 
   <!-- Fortschrittsanzeige -->
-<section class="text-center mb-10">
-  <p id="progress-display" class="text-lg font-semibold text-green-700">Loading progress...</p>
+  <section class="text-center mb-10">
+    <p id="progress-display" class="text-lg font-semibold text-green-700">Loading progress...</p>
 
+    <button onclick="advanceDay()" class="mt-2 px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 shadow">
+      Mark Today as Done ✅
+    </button>
 
-  <button onclick="advanceDay()" class="mt-2 px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 shadow">
-    Mark Today as Done ✅
-  </button>
+    <div id="reward-box" class="hidden mt-4 p-4 bg-yellow-100 text-yellow-800 rounded-xl shadow max-w-md mx-auto font-semibold">
+      🎁 Reward text will appear here.
+    </div>
 
-  <div id="reward-box" class="hidden mt-4 p-4 bg-yellow-100 text-yellow-800 rounded-xl shadow max-w-md mx-auto font-semibold">
-  🎁 Reward text will appear here.
-</div>
+    <p id="motivation-level" class="mt-2 text-sm italic text-indigo-400"></p>
 
-  <p id="motivation-level" class="mt-2 text-sm italic text-indigo-400"></p>
-
-<button onclick="resetProgress()" class="mt-2 px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 shadow">
-  Reset Progress 🔄
-</button>
-
-
-
-  
-</section>
-
-
+    <button onclick="resetProgress()" class="mt-2 px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 shadow">
+      Reset Progress 🔄
+    </button>
+  </section>
 
   <!-- Coaching Bereiche -->
   <section class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 px-4 mb-12">
@@ -77,172 +66,144 @@
     </a>
   </div>
 
-<script>
-  fetch('quotes.json')
-    .then(response => response.json())
-    .then(quotes => {
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      document.getElementById("coaching-quote").textContent = `"${randomQuote}"`;
-    })
-    .catch(error => {
-      console.error("Quote loading failed", error);
-      document.getElementById("coaching-quote").textContent = "You are stronger than you think.";
-    });
-</script>
+  <!-- Footer -->
+  <footer class="mt-12 w-full text-center text-sm text-gray-400">
+    <nav class="py-4 border-t border-gray-600 flex flex-wrap justify-center gap-4">
+      <a href="index.html" class="text-blue-300 hover:underline flex items-center gap-1">🏠<span>Home</span></a>
+      <a href="focus.html" class="text-blue-300 hover:underline flex items-center gap-1">🎯<span>Focus</span></a>
+      <a href="mindboost.html" class="text-blue-300 hover:underline flex items-center gap-1">🧠<span>Mind Boost</span></a>
+      <a href="index.html#progress-display" class="text-blue-300 hover:underline flex items-center gap-1">📈<span>Progress</span></a>
+    </nav>
+  </footer>
 
+  <!-- Zitate laden -->
   <script>
-  // Check: Ist Name & Avatar gesetzt?
-  const hasName = localStorage.getItem('coachUserName');
-  const hasAvatar = localStorage.getItem('coachAvatar');
+    fetch('quotes.json')
+      .then(response => response.json())
+      .then(quotes => {
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        document.getElementById("coaching-quote").textContent = `"${randomQuote}"`;
+      })
+      .catch(error => {
+        console.error("Quote loading failed", error);
+        document.getElementById("coaching-quote").textContent = "You are stronger than you think.";
+      });
+  </script>
 
-  if (!hasName || !hasAvatar) {
-    window.location.href = "onboarding.html";
-  }
-</script>
-
-
+  <!-- Zugang prüfen -->
   <script>
-  // Fortschritt aus dem lokalen Speicher lesen
-  let day = parseInt(localStorage.getItem('coachingDay')) || 1;
+    const hasName = localStorage.getItem('coachUserName');
+    const hasAvatar = localStorage.getItem('coachAvatar');
+    if (!hasName || !hasAvatar) {
+      window.location.href = "onboarding.html";
+    }
+  </script>
 
-  function updateProgress() {
-  const display = document.getElementById('progress-display');
-  const motivationText = document.getElementById('motivation-level'); // ✅ Wichtig!
+  <!-- Fortschritt -->
+  <script>
+    let day = parseInt(localStorage.getItem('coachingDay')) || 1;
 
-  if (day <= 7) {
-    display.textContent = `✅ Day ${day} of 7 – You're doing great!`;
+    function updateProgress() {
+      const display = document.getElementById('progress-display');
+      const motivationText = document.getElementById('motivation-level');
 
-    if (day === 5) {
-      showReward("🎉 You reached 5 days! You earned a Focus Badge 🧠✨");
-    } else if (day === 7) {
-      showReward("🏆 7 Days Complete – You’re a Champion! 🌟");
+      if (day <= 7) {
+        display.textContent = `✅ Day ${day} of 7 – You're doing great!`;
+
+        if (day === 5) {
+          showReward("🎉 You reached 5 days! You earned a Focus Badge 🧠✨");
+        } else if (day === 7) {
+          showReward("🏆 7 Days Complete – You’re a Champion! 🌟");
+        }
+
+        motivationText.textContent =
+          day <= 3 ? "🌱 Growing Mind" :
+          day <= 6 ? "🔥 Focus Mode Active" : "🌟 Mind Master";
+      } else {
+        display.textContent = `🎉 Challenge completed! Start again?`;
+      }
     }
 
-    if (day <= 3) {
-      motivationText.textContent = "🌱 Growing Mind";
-    } else if (day <= 6) {
-      motivationText.textContent = "🔥 Focus Mode Active";
-    } else {
-      motivationText.textContent = "🌟 Mind Master";
+    function advanceDay() {
+      if (day <= 7) {
+        day++;
+        localStorage.setItem('coachingDay', day);
+        updateProgress();
+      }
     }
 
-  } else {
-    display.textContent = `🎉 Challenge completed! Start again?`;
-  }
-}
-
-
-
-  function advanceDay() {
-    if (day <= 7) {
-      day++;
+    function resetProgress() {
+      day = 1;
       localStorage.setItem('coachingDay', day);
       updateProgress();
     }
-  }
 
-    function resetProgress() {
-  day = 1;
-  localStorage.setItem('coachingDay', day);
-  updateProgress();
-}
+    function showReward(message) {
+      const rewardBox = document.getElementById('reward-box');
+      rewardBox.textContent = message;
+      rewardBox.classList.remove("hidden");
+      setTimeout(() => rewardBox.classList.add("hidden"), 10000);
+    }
 
-function showReward(message) {
-  const rewardBox = document.getElementById('reward-box');
-  rewardBox.textContent = message;
-  rewardBox.classList.remove("hidden");
+    window.addEventListener("DOMContentLoaded", () => {
+      updateProgress();
+    });
+  </script>
 
-  // Optional: automatisch ausblenden nach 10 Sek.
-  setTimeout(() => {
-    rewardBox.classList.add("hidden");
-  }, 10000);
-}
-
-    const userName = localStorage.getItem('coachUserName');
-const avatar = localStorage.getItem('coachAvatar');
-if (userName && avatar) {
-  document.getElementById("userWelcome").textContent = `Welcome back, ${userName}! Your avatar: ${avatar}`;
-}
-
-    
-
-
-  // Beim Laden anzeigen – aber erst, wenn alles bereit ist
-window.addEventListener("DOMContentLoaded", () => {
-  updateProgress();
-});
-
-
- <script>
-  const now = new Date();
-  const hour = now.getHours();
-  const body = document.getElementById('mainBody');
-
-  if (hour >= 6 && hour < 12) {
-    // ☀️ Morning
-    body.classList.add('bg-yellow-50', 'text-gray-800');
-  } else if (hour >= 12 && hour < 18) {
-    // 🌤 Afternoon
-    body.classList.add('bg-blue-50', 'text-gray-800');
-  } else {
-    // 🌙 Evening / Night
-    body.classList.add('bg-gray-900', 'text-white');
-  }
-</script>
-
-<script>
-  const avatarImagePath = localStorage.getItem("coachAvatarImage");
-  const avatarName = localStorage.getItem("coachAvatar");
-
-  if (avatarImagePath && document.getElementById("avatarImage")) {
-    document.getElementById("avatarImage").src = avatarImagePath;
-  }
-
-  if (avatarName && document.getElementById("avatarGreeting")) {
-    const nameOnly = avatarName.split(" ")[1]; // z. B. "Momo"
-    document.getElementById("avatarGreeting").textContent = `Hi, I'm ${nameOnly}`;
-  }
-</script>
-
+  <!-- Tageszeit-Hintergrund -->
   <script>
-  function changeAvatar() {
-    const confirmChange = confirm("Do you want to change your avatar?");
-    if (!confirmChange) return;
+    const now = new Date();
+    const hour = now.getHours();
+    const body = document.getElementById('mainBody');
 
-    // Avatar + Name löschen
-    localStorage.removeItem("coachAvatar");
-    localStorage.removeItem("coachAvatarImage");
-    localStorage.removeItem("coachUserName");
+    if (hour >= 6 && hour < 12) {
+      body.classList.add('bg-yellow-50', 'text-gray-800');
+    } else if (hour >= 12 && hour < 18) {
+      body.classList.add('bg-blue-50', 'text-gray-800');
+    } else {
+      body.classList.add('bg-gray-900', 'text-white');
+    }
+  </script>
 
-    // Weiterleitung zum Onboarding
-    window.location.href = "onboarding.html";
-  }
-</script>
-
+  <!-- Avatar-Anzeige -->
   <script>
-  function changeAvatarOnly() {
-    const confirmChange = confirm("Do you want to choose a different coach?");
-    if (!confirmChange) return;
+    const avatarImagePath = localStorage.getItem("coachAvatarImage");
+    const avatarName = localStorage.getItem("coachAvatar");
+    const userName = localStorage.getItem("coachUserName");
 
-    // Avatar-Werte löschen, Name bleibt erhalten
-    localStorage.removeItem("coachAvatar");
-    localStorage.removeItem("coachAvatarImage");
+    if (avatarImagePath && document.getElementById("avatarImage")) {
+      document.getElementById("avatarImage").src = avatarImagePath;
+    }
 
-    // Leite zur Onboarding-Seite weiter
-    window.location.href = "onboarding.html?changeOnly=true";
-  }
-</script>
+    if (avatarName && document.getElementById("avatarGreeting")) {
+      const nameOnly = avatarName.split(" ")[1];
+      document.getElementById("avatarGreeting").textContent = `Hi, I'm ${nameOnly}`;
+    }
 
-  <footer class="mt-12 w-full text-center text-sm text-gray-400">
-  <nav class="py-4 border-t border-gray-600 flex flex-wrap justify-center gap-4">
-    <a href="index.html" class="text-blue-300 hover:underline flex items-center gap-1">🏠<span>Home</span></a>
-    <a href="focus.html" class="text-blue-300 hover:underline flex items-center gap-1">🎯<span>Focus</span></a>
-    <a href="mindboost.html" class="text-blue-300 hover:underline flex items-center gap-1">🧠<span>Mind Boost</span></a>
-    <a href="index.html#progress-display" class="text-blue-300 hover:underline flex items-center gap-1">📈<span>Progress</span></a>
-  </nav>
-</footer>
+    if (userName && avatarName) {
+      document.getElementById("userWelcome").textContent = `Welcome back, ${userName}! Your avatar: ${avatarName}`;
+    }
+  </script>
 
+  <!-- Avatar wechseln -->
+  <script>
+    function changeAvatar() {
+      if (confirm("Do you want to change your avatar?")) {
+        localStorage.removeItem("coachAvatar");
+        localStorage.removeItem("coachAvatarImage");
+        localStorage.removeItem("coachUserName");
+        window.location.href = "onboarding.html";
+      }
+    }
 
-  
+    function changeAvatarOnly() {
+      if (confirm("Do you want to choose a different coach?")) {
+        localStorage.removeItem("coachAvatar");
+        localStorage.removeItem("coachAvatarImage");
+        window.location.href = "onboarding.html?changeOnly=true";
+      }
+    }
+  </script>
+
 </body>
 </html>
