@@ -84,6 +84,18 @@ if (!name || !selectedAvatar) {
       localStorage.setItem("coachAvatarImage", selectedImage);
       window.location.href = "index.html";
     }
+
+    <script>
+  // Beim Laden des Dokuments: Name vorausfüllen
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedName = localStorage.getItem("coachUserName");
+    if (savedName) {
+      document.getElementById("userName").value = savedName;
+    }
+  });
+</script>
+
+    
   </script>
 </body>
 </html>
