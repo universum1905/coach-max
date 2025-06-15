@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Focus Session – Coach Max</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans flex flex-col items-center justify-center min-h-screen px-4">
+  <!-- Timer & Motivator -->
+  <div class="text-center">
+    <h1 class="text-3xl font-bold mb-4">🎯 Deep Focus Session</h1>
+    <p class="text-lg mb-8 italic">"Give yourself 25 distraction-free minutes. You deserve it."</p>
+    
+    <!-- Timer Anzeige -->
+    <div id="timer" class="text-5xl font-mono mb-6">25:00</div>
+    
+    <!-- Button -->
+    <button onclick="startTimer()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full shadow">
+      Start Focus Timer
+    </button>
+
+    <!-- Nach Ablauf -->
+    <div id="doneMessage" class="mt-8 text-xl font-semibold text-green-300 hidden">
+      ✅ Well done! Take a short break. 💆‍♀️💆‍♂️
+    </div>
+  </div>
+
+  <!-- Zurück-Link -->
+  <a href="index.html" class="mt-12 text-blue-400 hover:underline">← Back to Coach Max</a>
+
+  <!-- Timer-Script -->
+  <script>
+    let countdown;
+    let totalSeconds = 25 * 60;
+
+    function startTimer() {
+      clearInterval(countdown); // Falls bereits gestartet
+
+      countdown = setInterval(() => {
+        if (totalSeconds <= 0) {
+          clearInterval(countdown);
+          document.getElementById('doneMessage').classList.remove('hidden');
+          return;
+        }
+
+        totalSeconds--;
+        const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+        document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
