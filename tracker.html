@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Progress Tracker – Coach Max</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col items-center justify-center px-4">
+
+  <h1 class="text-3xl font-bold mb-6">📈 Your Progress Tracker</h1>
+  <p class="mb-8 text-center text-lg">Tap the boxes to mark your active coaching days!</p>
+
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-sm w-full">
+    <!-- Tag-Felder -->
+    <div onclick="toggleDay(1)" id="day1" class="day-box">Day 1</div>
+    <div onclick="toggleDay(2)" id="day2" class="day-box">Day 2</div>
+    <div onclick="toggleDay(3)" id="day3" class="day-box">Day 3</div>
+    <div onclick="toggleDay(4)" id="day4" class="day-box">Day 4</div>
+    <div onclick="toggleDay(5)" id="day5" class="day-box">Day 5</div>
+    <div onclick="toggleDay(6)" id="day6" class="day-box">Day 6</div>
+    <div onclick="toggleDay(7)" id="day7" class="day-box">Day 7</div>
+  </div>
+
+  <!-- Zurück -->
+  <a href="index.html" class="mt-10 text-blue-500 hover:underline">← Back to Coach Max</a>
+
+  <script>
+    function toggleDay(dayNum) {
+      const key = 'tracker_day_' + dayNum;
+      const current = localStorage.getItem(key) === 'true';
+      localStorage.setItem(key, !current);
+      updateTracker();
+    }
+
+    function updateTracker() {
+      for (let i = 1; i <= 7; i++) {
+        const box = document.getElementById('day' + i);
+        const active = localStorage.getItem('tracker_day_' + i) === 'true';
+        if (active) {
+          box.classList.add('bg-green-400', 'text-white');
+          box.textContent = `✔️ Day ${i}`;
+        } else {
+          box.classList.remove('bg-green-400', 'text-white');
+          box.textContent = `Day ${i}`;
+        }
+      }
+    }
+
+    updateTracker();
+  </script>
+
+  <style>
+    .day-box {
+      padding: 1.5rem;
+      border-radius: 1rem;
+      background-color: #e2e8f0;
+      text-align: center;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .day-box:hover {
+      background-color: #cbd5e1;
+    }
+  </style>
+</body>
+</html>
