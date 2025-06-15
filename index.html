@@ -19,6 +19,15 @@
   <div id="coaching-quote" class="text-lg italic text-gray-700">Loading quote...</div>
 </section>
 
+  <!-- Fortschrittsanzeige -->
+<section class="text-center mb-10">
+  <p id="progress-display" class="text-lg font-semibold text-green-700">Loading progress...</p>
+  <button onclick="advanceDay()" class="mt-2 px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 shadow">
+    Mark Today as Done ✅
+  </button>
+</section>
+
+
 
   <!-- Coaching Bereiche -->
   <section class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 px-4 mb-12">
@@ -54,6 +63,31 @@
       console.error("Quote loading failed", error);
       document.getElementById("coaching-quote").textContent = "You are stronger than you think.";
     });
+</script>
+
+  <script>
+  // Fortschritt aus dem lokalen Speicher lesen
+  let day = parseInt(localStorage.getItem('coachingDay')) || 1;
+
+  function updateProgress() {
+    const display = document.getElementById('progress-display');
+    if (day <= 7) {
+      display.textContent = `✅ Day ${day} of 7 – You're doing great!`;
+    } else {
+      display.textContent = `🎉 Challenge completed! Start again?`;
+    }
+  }
+
+  function advanceDay() {
+    if (day <= 7) {
+      day++;
+      localStorage.setItem('coachingDay', day);
+      updateProgress();
+    }
+  }
+
+  // Beim Laden anzeigen
+  updateProgress();
 </script>
 
   
