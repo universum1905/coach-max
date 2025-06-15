@@ -11,6 +11,10 @@
 <section class="text-center py-12 px-4">
   <img id="avatarImage" src="images/benny.png" alt="Coach Avatar" class="mx-auto w-32 h-32 rounded-full shadow-lg" />
   <h1 id="avatarGreeting" class="text-3xl font-bold mt-4">Hi, I'm Benny</h1>
+  <button onclick="changeAvatar()" class="mt-2 px-4 py-1 bg-indigo-500 text-white text-sm rounded-full hover:bg-indigo-600 shadow">
+  Change Avatar
+</button>
+
   <p class="mt-2 text-lg">Your playful coaching companion. Ready to boost your day?</p>
 </section>
 
@@ -202,6 +206,22 @@ if (userName && avatar) {
     document.getElementById("avatarGreeting").textContent = `Hi, I'm ${nameOnly}`;
   }
 </script>
+
+  <script>
+  function changeAvatar() {
+    const confirmChange = confirm("Do you want to change your avatar?");
+    if (!confirmChange) return;
+
+    // Avatar + Name löschen
+    localStorage.removeItem("coachAvatar");
+    localStorage.removeItem("coachAvatarImage");
+    localStorage.removeItem("coachUserName");
+
+    // Weiterleitung zum Onboarding
+    window.location.href = "onboarding.html";
+  }
+</script>
+
 
   
 </body>
