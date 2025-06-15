@@ -24,6 +24,14 @@
 </head>
 <body class="min-h-screen bg-cyan-100 text-gray-800 flex flex-col items-center justify-center p-4 fredoka">
 
+  <!-- Audio Hinweis -->
+  <div id="audioNotice" class="fixed inset-0 bg-black bg-opacity-80 text-white flex items-center justify-center z-50">
+    <div class="text-center px-6">
+      <p class="text-xl font-bold mb-4">🔊 Tap anywhere to enable sound</p>
+      <p class="text-sm">Some browsers block autoplay with sound. Just tap to allow Benny and friends to talk!</p>
+    </div>
+  </div>
+
   <h1 class="text-4xl font-bold text-center mb-2">Let’s get started!</h1>
   <p class="text-lg text-center mb-6">Choose your coach and tell us your name</p>
 
@@ -105,6 +113,23 @@
         img.classList.remove('hidden');
       };
     }
+
+    // Audiofreigabe-Hinweis
+    window.addEventListener("DOMContentLoaded", () => {
+      const notice = document.getElementById("audioNotice");
+      const unlock = () => {
+        const silent = new Audio();
+        silent.play().catch(() => {});
+        notice.remove();
+        window.removeEventListener("click", unlock);
+      };
+      if (!localStorage.getItem("audioEnabledOnce")) {
+        window.addEventListener("click", unlock);
+        localStorage.setItem("audioEnabledOnce", "true");
+      } else {
+        notice.remove();
+      }
+    });
   </script>
 
 </body>
