@@ -17,8 +17,8 @@
 
     <div class="grid grid-cols-2 gap-4 mb-6">
       <!-- Benny -->
-      <div onclick="selectAvatar('🐶 Benny', 'images/benny.png')" class="cursor-pointer border-2 border-transparent hover:border-blue-400 rounded-xl p-2" id="avatar-benny">
-        <img src="images/benny.png" alt="Benny" class="rounded-xl w-24 h-24 mx-auto mb-1" />
+      <div onclick="selectAvatar('🐶 Benny', 'images/benny-bark.png')" class="cursor-pointer border-2 border-transparent hover:border-blue-400 rounded-xl p-2" id="avatar-benny">
+        <img src="images/benny-bark.png" alt="Benny" class="rounded-xl w-24 h-24 mx-auto mb-1" />
         <p class="text-sm font-medium">Benny</p>
       </div>
       <!-- Luna -->
@@ -30,6 +30,11 @@
       <div onclick="selectAvatar('🐵 Momo', 'images/momo.png')" class="cursor-pointer border-2 border-transparent hover:border-blue-400 rounded-xl p-2" id="avatar-momo">
         <img src="images/momo.png" alt="Momo" class="rounded-xl w-24 h-24 mx-auto mb-1" />
         <p class="text-sm font-medium">Momo</p>
+      </div>
+       <!-- Foxy -->
+      <div onclick="selectAvatar('🦊 Foxy', 'images/foxy.png')" class="cursor-pointer border-2 border-transparent hover:border-blue-400 rounded-xl p-2" id="avatar-momo">
+        <img src="images/foxy.png" alt="Momo" class="rounded-xl w-24 h-24 mx-auto mb-1" />
+        <p class="text-sm font-medium">Foxy</p>
       </div>
     </div>
 
@@ -57,6 +62,7 @@
       if (avatarName.includes("Benny")) document.getElementById("avatar-benny").classList.add("ring-4", "ring-blue-400");
       if (avatarName.includes("Luna")) document.getElementById("avatar-luna").classList.add("ring-4", "ring-blue-400");
       if (avatarName.includes("Momo")) document.getElementById("avatar-momo").classList.add("ring-4", "ring-blue-400");
+      if (avatarName.includes("Foxy")) document.getElementById("avatar-foxy").classList.add("ring-4", "ring-blue-400");
     }
 
     function saveAndGo() {
