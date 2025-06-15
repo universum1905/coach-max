@@ -111,6 +111,19 @@
   updateProgress();
 }
 
+function showReward(message) {
+  const rewardBox = document.getElementById('reward-box');
+  rewardBox.textContent = message;
+  rewardBox.classList.remove("hidden");
+
+  // Optional: automatisch ausblenden nach 10 Sek.
+  setTimeout(() => {
+    rewardBox.classList.add("hidden");
+  }, 10000);
+}
+
+    
+
 
   // Beim Laden anzeigen
   updateProgress();
