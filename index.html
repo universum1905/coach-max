@@ -87,6 +87,8 @@
 
   function updateProgress() {
   const display = document.getElementById('progress-display');
+  const motivationText = document.getElementById('motivation-level'); // ✅ Wichtig!
+
   if (day <= 7) {
     display.textContent = `✅ Day ${day} of 7 – You're doing great!`;
 
@@ -95,19 +97,20 @@
     } else if (day === 7) {
       showReward("🏆 7 Days Complete – You’re a Champion! 🌟");
     }
- 
-     if (day <= 3) {
-        motivationText.textContent = "🌱 Growing Mind";
-      } else if (day <= 6) {
-        motivationText.textContent = "🔥 Focus Mode Active";
-      } else {
-        motivationText.textContent = "🌟 Mind Master";
-      }
 
+    if (day <= 3) {
+      motivationText.textContent = "🌱 Growing Mind";
+    } else if (day <= 6) {
+      motivationText.textContent = "🔥 Focus Mode Active";
     } else {
-      display.textContent = `🎉 Challenge completed! Start again?`;
+      motivationText.textContent = "🌟 Mind Master";
     }
+
+  } else {
+    display.textContent = `🎉 Challenge completed! Start again?`;
   }
+}
+
 
 
   function advanceDay() {
