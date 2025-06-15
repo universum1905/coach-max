@@ -7,43 +7,55 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white font-sans flex flex-col items-center justify-center min-h-screen px-4">
-  <!-- Timer & Motivator -->
+
   <div class="text-center">
     <h1 class="text-3xl font-bold mb-4">🎯 Deep Focus Session</h1>
     <p class="text-lg mb-8 italic">"Give yourself 25 distraction-free minutes. You deserve it."</p>
     
-    <!-- Timer Anzeige -->
+    <!-- Timer -->
     <div id="timer" class="text-5xl font-mono mb-6">25:00</div>
-    
-    <!-- Button -->
     <button onclick="startTimer()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full shadow">
       Start Focus Timer
     </button>
 
-    <!-- Nach Ablauf -->
     <div id="doneMessage" class="mt-8 text-xl font-semibold text-green-300 hidden">
       ✅ Well done! Take a short break. 💆‍♀️💆‍♂️
     </div>
   </div>
 
+  <!-- 🎧 Fokusmusik -->
+  <div class="mt-12 w-full max-w-xl text-center">
+    <h2 class="text-xl font-semibold mb-2">🎧 Focus Music</h2>
+    <audio controls class="w-full rounded-xl shadow">
+      <source src="audio/focus-loop.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <!-- 🌙 Abendmusik -->
+  <div class="mt-8 w-full max-w-xl text-center">
+    <h2 class="text-xl font-semibold mb-2">🌙 Calm Music for Evening</h2>
+    <audio controls class="w-full rounded-xl shadow">
+      <source src="audio/lullaby.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
   <!-- Zurück-Link -->
   <a href="index.html" class="mt-12 text-blue-400 hover:underline">← Back to Coach Max</a>
 
-  <!-- Timer-Script -->
   <script>
     let countdown;
     let totalSeconds = 25 * 60;
 
     function startTimer() {
-      clearInterval(countdown); // Falls bereits gestartet
-
+      clearInterval(countdown);
       countdown = setInterval(() => {
         if (totalSeconds <= 0) {
           clearInterval(countdown);
           document.getElementById('doneMessage').classList.remove('hidden');
           return;
         }
-
         totalSeconds--;
         const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
         const seconds = (totalSeconds % 60).toString().padStart(2, '0');
@@ -51,16 +63,5 @@
       }, 1000);
     }
   </script>
-
-<footer class="mt-12 w-full text-center text-sm text-gray-400">
-  <nav class="py-4 border-t border-gray-600">
-    <a href="index.html" class="mx-3 text-blue-300 hover:underline">🏠 Home</a>
-    <a href="focus.html" class="mx-3 text-blue-300 hover:underline">🎯 Focus</a>
-    <a href="mindboost.html" class="mx-3 text-blue-300 hover:underline">🧠 Mind Boost</a>
-    <a href="index.html#progress-display" class="mx-3 text-blue-300 hover:underline">📈 Progress</a>
-  </nav>
-</footer>
-
-  
 </body>
 </html>
