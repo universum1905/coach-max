@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,15 +85,20 @@
       </div>
     </div>
 
-    <div id="controlButtons"
-         class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-40">
+    <!-- Control Buttons: Stop & Play unten links, Continue zentriert unten -->
+    <div id="controlButtons" class="absolute bottom-6 left-6 flex flex-col gap-3 items-start z-40">
       <button id="stopButton" onclick="stopSession()"
               class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
         ⏹️ Stop
       </button>
-      <button id="playAgainButton" onclick="resumeSession()" class="hidden bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow">
-        ▶️ Play Again
+      <button id="playAgainButton" onclick="resumeSession()"
+              class="hidden bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow">
+        ▶️ Play
       </button>
+    </div>
+
+    <!-- Continue Button zentriert unten -->
+    <div id="continueContainer" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-40">
       <a id="continueButton" href="session2.html"
          class="hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
         ➡️ Continue to Session 2
@@ -128,21 +134,26 @@
       document.getElementById('bennyVideo').play();
       document.getElementById('bgMusic').play();
       document.getElementById('breathingContainer').classList.remove('hidden');
+      document.getElementById('stopButton').classList.remove('hidden');
+
       breathing = true;
       sessionStart = Date.now();
       updateBreathText();
-      sessionTimeout = setTimeout(() => showContinue(), totalDuration);
+      sessionTimeout = setTimeout(showContinue, totalDuration - elapsed);
     }
 
     function stopSession() {
       clearTimeout(breathTimeout);
       clearTimeout(sessionTimeout);
+
       const now = Date.now();
       elapsed += now - sessionStart;
+
       breathing = false;
       document.getElementById('bennyVideo').pause();
       document.getElementById('bgMusic').pause();
       document.getElementById('breathingContainer').classList.add('hidden');
+
       document.getElementById('stopButton').classList.add('hidden');
       document.getElementById('playAgainButton').classList.remove('hidden');
       document.getElementById('continueButton').classList.remove('hidden');
@@ -151,17 +162,19 @@
     function resumeSession() {
       document.getElementById('playAgainButton').classList.add('hidden');
       document.getElementById('stopButton').classList.remove('hidden');
+
       document.getElementById('bennyVideo').play();
       document.getElementById('bgMusic').play();
       document.getElementById('breathingContainer').classList.remove('hidden');
+
       breathing = true;
       sessionStart = Date.now();
       updateBreathText();
-      sessionTimeout = setTimeout(() => showContinue(), totalDuration - elapsed);
+      sessionTimeout = setTimeout(showContinue, totalDuration - elapsed);
     }
 
     function showContinue() {
-      stopSession();
+      document.getElementById('continueButton').classList.remove('hidden');
     }
 
     function checkOrientation() {
