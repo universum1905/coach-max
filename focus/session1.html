@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Coach Max – Focus Start</n  >
+  <title>Coach Max – Focus Start</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Vollbild-Setup */
+    /* Vollbild-Setup + Hintergrund schwarz */
     html, body {
+      background-color: #000;
       margin: 0;
       padding: 0;
       width: 100vw;
@@ -30,11 +31,13 @@
       padding: 1rem;
     }
 
-    /* Wrapper um alle Session-Elemente */
+    /* Wrapper um alle Session-Elemente + schwarzer Hintergrund */
     #mainContent {
       display: block;
       width: 100vw;
       height: 100vh;
+      background-color: #000;
+      position: relative;
     }
 
     @media screen and (orientation: portrait) {
@@ -55,16 +58,16 @@
 </head>
 <body class="bg-black text-white">
 
-  <!-- 1) Overlay im Portrait -->
+  <!-- Overlay im Portrait-Modus -->
   <div id="orientationOverlay">
     <p class="text-2xl font-bold mb-2">🔄 Please rotate your device</p>
     <p>This content is best viewed in landscape mode.</p>
   </div>
 
-  <!-- 2) Haupt-Session -->
+  <!-- Haupt-Session -->
   <div id="mainContent">
 
-    <!-- Hintergrund -->
+    <!-- Hintergrundbild -->
     <img src="../images/nature.jpg" alt="Peaceful Nature"
          class="absolute inset-0 w-full h-full object-cover opacity-70 z-0"/>
 
@@ -85,7 +88,7 @@
       Your browser does not support the video tag.
     </video>
 
-    <!-- Atmung -->
+    <!-- Atmungsanimation + Text -->
     <div id="breathingContainer"
          class="hidden absolute inset-0 flex flex-col items-center justify-center pt-10 sm:pt-0 z-20">
       <div class="w-36 h-36 sm:w-48 sm:h-48 bg-white/30 rounded-full animate-[breathe_11s_ease-in-out_infinite] flex items-center justify-center">
@@ -133,35 +136,26 @@
     }
 
     function startSession() {
-      // Start-Screen ausblenden
       document.getElementById('startScreen').classList.add('hidden');
-      // Video & Audio starten
       const vid = document.getElementById('bennyVideo'),
             aud = document.getElementById('bgMusic');
       vid.classList.remove('hidden'); vid.play();
       aud.play();
-      // Atmung anzeigen
       document.getElementById('breathingContainer').classList.remove('hidden');
       breathing = true;
       updateBreathText();
-      // Stop-Button anzeigen
       document.getElementById('stopButton').classList.remove('hidden');
-      // Automatisches Ende nach 90 s
       setTimeout(() => stopSession(true), totalDuration);
     }
 
     function stopSession(auto = false) {
-      // Video & Audio stoppen
       const vid = document.getElementById('bennyVideo'),
             aud = document.getElementById('bgMusic');
       vid.pause(); vid.currentTime = 0;
       aud.pause(); aud.currentTime = 0;
-      // Atmung verbergen
       breathing = false;
       document.getElementById('breathingContainer').classList.add('hidden');
-      // Stop-Button verbergen
       document.getElementById('stopButton').classList.add('hidden');
-      // Continue-Button anzeigen
       document.getElementById('continueButton').classList.remove('hidden');
     }
 
