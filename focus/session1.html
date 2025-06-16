@@ -16,7 +16,7 @@
       background: #000;
     }
 
-    /* Hinweis-Overlay (desktop hidden, mobil gesteuert) */
+    /* Hinweis-Overlay */
     #orientationOverlay {
       display: none;
       position: fixed;
@@ -31,7 +31,7 @@
       padding: 1rem;
     }
 
-    /* Wrapper um alles außer Overlay */
+    /* Wrapper um alle Session-Elemente */
     #mainContent {
       display: block;
       width: 100vw;
@@ -61,13 +61,13 @@
 </head>
 <body class="bg-black text-white">
 
-  <!-- 1) Hinweis-Overlay -->
+  <!-- Hinweis im Portrait -->
   <div id="orientationOverlay">
     <p class="text-2xl font-bold mb-2">🔄 Please rotate your device</p>
     <p>This content is best viewed in landscape mode.</p>
   </div>
 
-  <!-- 2) Alles andere in diesem Wrapper -->
+  <!-- Haupt-Session -->
   <div id="mainContent">
 
     <!-- Hintergrundbild -->
@@ -99,23 +99,19 @@
       </div>
     </div>
 
-    <!-- Stop-Button (immer sichtbar während Session) -->
-    <div id="stopButton" class="hidden absolute bottom-6 left-6 z-40">
-      <button onclick="stopSession()"
+    <!-- Kontrollbuttons -->
+    <div id="controlButtons" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-40">
+      <button id="stopBtn" onclick="stopSession()"
               class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
         ⏹️ Stop
       </button>
-    </div>
-
-    <!-- Continue-Button (nach Ende/Stop) -->
-    <div id="continueButton" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-40">
-      <a href="session2.html"
-         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+      <a id="continueBtn" href="session2.html"
+         class="hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
         ➡️ Continue to Session 2
       </a>
     </div>
 
-    <!-- Musik -->
+    <!-- Hintergrundmusik -->
     <audio id="bgMusic" loop>
       <source src="../audio/focus-loop.mp3" type="audio/mpeg"/>
     </audio>
@@ -139,15 +135,16 @@
     }
 
     function startSession() {
-      // Start ausblenden, UI initialisieren
       document.getElementById('startScreen').classList.add('hidden');
+      document.getElementById('controlButtons').classList.remove('hidden');
+      document.getElementById('stopBtn').classList.remove('hidden');
+      document.getElementById('continueBtn').classList.add('hidden');
       document.getElementById('bennyVideo').classList.remove('hidden');
+      document.getElementById('bennyVideo').play();
       document.getElementById('bgMusic').play();
       document.getElementById('breathingContainer').classList.remove('hidden');
-      document.getElementById('stopButton').classList.remove('hidden');
       breathing = true;
       updateBreathText();
-      // Automatischer Stop nach 90s
       setTimeout(() => stopSession(true), totalDuration);
     }
 
@@ -158,8 +155,8 @@
       document.getElementById('bgMusic').currentTime = 0;
       breathing = false;
       document.getElementById('breathingContainer').classList.add('hidden');
-      document.getElementById('stopButton').classList.add('hidden');
-      document.getElementById('continueButton').classList.remove('hidden');
+      document.getElementById('stopBtn').classList.add('hidden');
+      document.getElementById('continueBtn').classList.remove('hidden');
     }
 
     function checkOrientation() {
