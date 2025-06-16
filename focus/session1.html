@@ -85,20 +85,17 @@
       </div>
     </div>
 
-    <!-- Control Buttons: Stop & Play unten links, Continue zentriert unten -->
-    <div id="controlButtons" class="absolute bottom-6 left-6 flex flex-col gap-3 items-start z-40">
-      <button id="stopButton" onclick="stopSession()"
-              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
+    <div id="controlButtons"
+         class="absolute bottom-6 left-6 flex flex-col gap-3 items-start z-40">
+      <button id="stopButton" onclick="stopSession()" class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
         ⏹️ Stop
       </button>
-      <button id="playAgainButton" onclick="resumeSession()"
-              class="hidden bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow">
+      <button id="playAgainButton" onclick="resumeSession()" class="hidden bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow">
         ▶️ Play
       </button>
     </div>
 
-    <!-- Continue Button zentriert unten -->
-    <div id="continueContainer" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-40">
+    <div id="continueContainer" class="absolute top-6 right-6 z-40">
       <a id="continueButton" href="session2.html"
          class="hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
         ➡️ Continue to Session 2
