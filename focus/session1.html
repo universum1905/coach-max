@@ -23,6 +23,11 @@
 </head>
 <body class="relative w-screen h-screen bg-black text-white">
 
+  <!-- Querformat-Hinweis -->
+  <div class="absolute top-2 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-4 py-1 rounded z-50 text-sm sm:hidden">
+    🔄 Please rotate your phone for the best experience
+  </div>
+
   <!-- Hintergrundbild -->
   <img src="../images/nature.jpg" alt="Peaceful Nature" class="absolute w-full h-full object-cover opacity-70 z-0" />
 
@@ -47,6 +52,16 @@
     </div>
   </div>
 
+  <!-- Kontrollbuttons -->
+  <div id="controlButtons" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-50">
+    <button onclick="stopSession()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
+      ⏹️ Stop
+    </button>
+    <a href="session2.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+      ➡️ Continue to Session 2
+    </a>
+  </div>
+
   <!-- Musik -->
   <audio id="bgMusic" loop>
     <source src="../audio/focus-loop.mp3" type="audio/mpeg" />
@@ -57,31 +72,49 @@
     const durations = [4000, 2000, 5000, 2000];
     let index = 0;
     const textEl = document.getElementById('breatheText');
+    let breathCycle = 0;
+    let breathMax = 3;
+    let breathing = true;
 
     function updateBreathText() {
+      if (!breathing) return;
       textEl.textContent = texts[index];
       setTimeout(() => {
         index = (index + 1) % texts.length;
+        if (index === 0) breathCycle++;
+        if (breathCycle >= breathMax) return;
         updateBreathText();
       }, durations[index]);
     }
 
     function startSession() {
-      // Hide start screen
       document.getElementById('startScreen').classList.add('hidden');
+      document.getElementById('controlButtons').classList.remove('hidden');
 
-      // Show video and play
       const video = document.getElementById('bennyVideo');
       video.classList.remove('hidden');
       video.play();
 
-      // Start music
       const audio = document.getElementById('bgMusic');
       audio.play();
 
-      // Show breathing animation
       document.getElementById('breathingContainer').classList.remove('hidden');
+      breathing = true;
+      breathCycle = 0;
       updateBreathText();
+    }
+
+    function stopSession() {
+      const video = document.getElementById('bennyVideo');
+      video.pause();
+      video.currentTime = 0;
+
+      const audio = document.getElementById('bgMusic');
+      audio.pause();
+      audio.currentTime = 0;
+
+      breathing = false;
+      document.getElementById('breathingContainer').classList.add('hidden');
     }
   </script>
 
