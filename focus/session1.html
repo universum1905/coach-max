@@ -6,6 +6,7 @@
   <title>Coach Max – Focus Start</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* Vollbild-Setup */
     html, body {
       margin: 0;
       padding: 0;
@@ -15,7 +16,7 @@
       background: #000;
     }
 
-    /* Hinweis-Overlay */
+    /* Hinweis-Overlay (desktop hidden, mobil gesteuert) */
     #orientationOverlay {
       display: none;
       position: fixed;
@@ -30,7 +31,7 @@
       padding: 1rem;
     }
 
-    /* Wrapper um Session-Inhalte */
+    /* Wrapper um alles außer Overlay */
     #mainContent {
       display: block;
       width: 100vw;
@@ -38,15 +39,19 @@
       position: relative;
     }
 
+    /* Portrait: Overlay an, MainContent aus */
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
     }
+
+    /* Landscape: Overlay aus, MainContent an */
     @media screen and (orientation: landscape) {
       #orientationOverlay { display: none; }
       #mainContent       { display: block; }
     }
 
+    /* Atmungs-Keyframes */
     @keyframes breathe {
       0%,100% { transform: scale(1); }
       25%,50% { transform: scale(1.2); }
@@ -56,20 +61,20 @@
 </head>
 <body class="bg-black text-white">
 
-  <!-- Overlay im Portrait -->
+  <!-- 1) Hinweis-Overlay -->
   <div id="orientationOverlay">
     <p class="text-2xl font-bold mb-2">🔄 Please rotate your device</p>
     <p>This content is best viewed in landscape mode.</p>
   </div>
 
-  <!-- Haupt-Session -->
+  <!-- 2) Alles andere in diesem Wrapper -->
   <div id="mainContent">
 
-    <!-- Hintergrund -->
+    <!-- Hintergrundbild -->
     <img src="../images/nature.jpg" alt="Peaceful Nature"
-         class="absolute inset-0 w-full h-full object-cover opacity-70 z-0" />
+         class="absolute inset-0 w-full h-full object-cover opacity-70 z-0"/>
 
-    <!-- Start-Bildschirm -->
+    <!-- Start Screen -->
     <div id="startScreen"
          class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
       <h1 class="text-2xl sm:text-3xl font-bold mb-6">Welcome to Coach Max</h1>
@@ -81,8 +86,8 @@
 
     <!-- Benny Video -->
     <video id="bennyVideo"
-           class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
-      <source src="../videos/benny-focus.mp4" type="video/mp4" />
+           class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
+      <source src="../videos/benny-focus.mp4" type="video/mp4"/>
       Your browser does not support the video tag.
     </video>
 
@@ -94,21 +99,25 @@
       </div>
     </div>
 
-    <!-- Steuer-Buttons: Stop & Continue -->
-    <div id="controlButtons" class="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-40" style="display:none;">
-      <button id="stopBtn" onclick="stopSession()"
+    <!-- Stop-Button (immer sichtbar während Session) -->
+    <div id="stopButton" class="hidden absolute bottom-6 left-6 z-40">
+      <button onclick="stopSession()"
               class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
         ⏹️ Stop
       </button>
-      <a id="continueBtn" href="session2.html"
-         class="hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+    </div>
+
+    <!-- Continue-Button (nach Ende/Stop) -->
+    <div id="continueButton" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-40">
+      <a href="session2.html"
+         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
         ➡️ Continue to Session 2
       </a>
     </div>
 
-    <!-- Hintergrundmusik -->
+    <!-- Musik -->
     <audio id="bgMusic" loop>
-      <source src="../audio/focus-loop.mp3" type="audio/mpeg" />
+      <source src="../audio/focus-loop.mp3" type="audio/mpeg"/>
     </audio>
 
   </div>
@@ -116,8 +125,8 @@
   <script>
     const texts = ["Breathe In", "Hold", "Breathe Out", "Hold"];
     const durations = [4000, 2000, 5000, 2000];
-    const totalDuration = 90000;
-    let index = 0, breathing = true;
+    const totalDuration = 90000; // 90 Sekunden
+    let index = 0, breathing = false;
     const textEl = document.getElementById('breatheText');
 
     function updateBreathText() {
@@ -130,14 +139,15 @@
     }
 
     function startSession() {
+      // Start ausblenden, UI initialisieren
       document.getElementById('startScreen').classList.add('hidden');
       document.getElementById('bennyVideo').classList.remove('hidden');
-      document.getElementById('bennyVideo').play();
       document.getElementById('bgMusic').play();
       document.getElementById('breathingContainer').classList.remove('hidden');
-      document.getElementById('controlButtons').style.display = 'flex';
+      document.getElementById('stopButton').classList.remove('hidden');
       breathing = true;
       updateBreathText();
+      // Automatischer Stop nach 90s
       setTimeout(() => stopSession(true), totalDuration);
     }
 
@@ -148,8 +158,8 @@
       document.getElementById('bgMusic').currentTime = 0;
       breathing = false;
       document.getElementById('breathingContainer').classList.add('hidden');
-      document.getElementById('stopBtn').classList.add('hidden');
-      document.getElementById('continueBtn').classList.remove('hidden');
+      document.getElementById('stopButton').classList.add('hidden');
+      document.getElementById('continueButton').classList.remove('hidden');
     }
 
     function checkOrientation() {
@@ -157,11 +167,9 @@
       if (window.innerWidth < window.innerHeight) {
         ov.classList.add('flex');
         ov.classList.remove('hidden');
-        document.getElementById('mainContent').style.display = 'none';
       } else {
         ov.classList.add('hidden');
         ov.classList.remove('flex');
-        document.getElementById('mainContent').style.display = 'block';
       }
     }
 
