@@ -31,13 +31,13 @@
       padding: 1rem;
     }
 
-    /* Wrapper um alle Session-Elemente + schwarzer Hintergrund */
+    /* Wrapper um alle Session-Elemente */
     #mainContent {
       display: block;
       width: 100vw;
       height: 100vh;
-      background-color: #000;
       position: relative;
+      background-color: #000;
     }
 
     @media screen and (orientation: portrait) {
@@ -81,9 +81,9 @@
       </button>
     </div>
 
-    <!-- Video -->
+    <!-- Video (angepasste Größe, damit nicht abgeschnitten) -->
     <video id="bennyVideo"
-           class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
+           class="hidden absolute bottom-6 right-6 w-auto h-24 sm:h-32 rounded-xl shadow-xl border-2 border-white z-30">
       <source src="../videos/benny-focus.mp4" type="video/mp4"/>
       Your browser does not support the video tag.
     </video>
@@ -139,7 +139,8 @@
       document.getElementById('startScreen').classList.add('hidden');
       const vid = document.getElementById('bennyVideo'),
             aud = document.getElementById('bgMusic');
-      vid.classList.remove('hidden'); vid.play();
+      vid.classList.remove('hidden');
+      vid.play();
       aud.play();
       document.getElementById('breathingContainer').classList.remove('hidden');
       breathing = true;
