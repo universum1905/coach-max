@@ -6,7 +6,6 @@
   <title>Coach Max – Focus Start</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Vollbild-Setup */
     html, body {
       margin: 0;
       padding: 0;
@@ -15,7 +14,7 @@
       overflow: hidden;
     }
 
-    /* Hinweis-Overlay (desktop hidden, mobil gesteuert) */
+    /* Hinweis-Overlay */
     #orientationOverlay {
       display: none;
       position: fixed;
@@ -30,26 +29,22 @@
       padding: 1rem;
     }
 
-    /* Wrapper um alles außer Overlay */
+    /* Wrapper um alle Session-Elemente */
     #mainContent {
       display: block;
       width: 100vw;
       height: 100vh;
     }
 
-    /* Portrait: Overlay an, MainContent aus */
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
     }
-
-    /* Landscape: Overlay aus, MainContent an */
     @media screen and (orientation: landscape) {
       #orientationOverlay { display: none; }
       #mainContent       { display: block; }
     }
 
-    /* Atmungs-Keyframes */
     @keyframes breathe {
       0%,100% { transform: scale(1); }
       25%,50% { transform: scale(1.2); }
@@ -59,20 +54,20 @@
 </head>
 <body class="bg-black text-white">
 
-  <!-- 1) Hinweis-Overlay -->
+  <!-- 1) Overlay im Portrait -->
   <div id="orientationOverlay">
     <p class="text-2xl font-bold mb-2">🔄 Please rotate your device</p>
     <p>This content is best viewed in landscape mode.</p>
   </div>
 
-  <!-- 2) Alles andere in diesem Wrapper -->
+  <!-- 2) Haupt-Session -->
   <div id="mainContent">
 
-    <!-- Hintergrundbild -->
+    <!-- Hintergrund -->
     <img src="../images/nature.jpg" alt="Peaceful Nature"
          class="absolute inset-0 w-full h-full object-cover opacity-70 z-0"/>
 
-    <!-- Start Screen -->
+    <!-- Start-Bildschirm -->
     <div id="startScreen"
          class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
       <h1 class="text-2xl sm:text-3xl font-bold mb-6">Welcome to Coach Max</h1>
@@ -82,14 +77,14 @@
       </button>
     </div>
 
-    <!-- Benny Video -->
+    <!-- Video -->
     <video id="bennyVideo"
            class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
       <source src="../videos/benny-focus.mp4" type="video/mp4"/>
       Your browser does not support the video tag.
     </video>
 
-    <!-- Atmungsanimation + Text -->
+    <!-- Atmung -->
     <div id="breathingContainer"
          class="hidden absolute inset-0 flex flex-col items-center justify-center pt-10 sm:pt-0 z-20">
       <div class="w-36 h-36 sm:w-48 sm:h-48 bg-white/30 rounded-full animate-[breathe_11s_ease-in-out_infinite] flex items-center justify-center">
@@ -97,7 +92,7 @@
       </div>
     </div>
 
-    <!-- Kontrollbuttons -->
+    <!-- Buttons werden jetzt **erst** nach Stop bzw. Ablauf angezeigt -->
     <div id="controlButtons"
          class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-40">
       <button onclick="stopSession()"
@@ -110,7 +105,7 @@
       </a>
     </div>
 
-    <!-- Musik -->
+    <!-- Hintergrundmusik -->
     <audio id="bgMusic" loop>
       <source src="../audio/focus-loop.mp3" type="audio/mpeg"/>
     </audio>
@@ -120,7 +115,7 @@
   <script>
     const texts = ["Breathe In", "Hold", "Breathe Out", "Hold"];
     const durations = [4000, 2000, 5000, 2000];
-    const totalDuration = 60000;
+    const totalDuration = 90000; // jetzt 90 Sekunden
     let index = 0, breathing = true;
     const textEl = document.getElementById('breatheText');
 
@@ -134,24 +129,32 @@
     }
 
     function startSession() {
+      // Start-Screen ausblenden
       document.getElementById('startScreen').classList.add('hidden');
-      document.getElementById('controlButtons').classList.remove('hidden');
-      document.getElementById('bennyVideo').classList.remove('hidden');
-      document.getElementById('bennyVideo').play();
-      document.getElementById('bgMusic').play();
+      // Video & Audio starten
+      const vid = document.getElementById('bennyVideo'),
+            aud = document.getElementById('bgMusic');
+      vid.classList.remove('hidden'); vid.play();
+      aud.play();
+      // Atmung anzeigen
       document.getElementById('breathingContainer').classList.remove('hidden');
       breathing = true;
       updateBreathText();
+      // Automatisches Ende nach 90 s
       setTimeout(stopSession, totalDuration);
     }
 
     function stopSession() {
+      // Video & Audio stoppen
       const vid = document.getElementById('bennyVideo'),
             aud = document.getElementById('bgMusic');
       vid.pause(); vid.currentTime = 0;
       aud.pause(); aud.currentTime = 0;
+      // Atmungs-Container verstecken
       breathing = false;
       document.getElementById('breathingContainer').classList.add('hidden');
+      // Buttons EINBLENDEN
+      document.getElementById('controlButtons').classList.remove('hidden');
     }
 
     function checkOrientation() {
