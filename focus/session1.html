@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Coach Max – Focus Start</title>
+  <title>Coach Max – Focus Start</n  >
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* Vollbild-Setup */
     html, body {
       margin: 0;
       padding: 0;
@@ -92,13 +93,16 @@
       </div>
     </div>
 
-    <!-- Buttons werden jetzt **erst** nach Stop bzw. Ablauf angezeigt -->
-    <div id="controlButtons"
-         class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-40">
+    <!-- Stop-Button (immer sichtbar während der Session) -->
+    <div id="stopButton" class="hidden absolute bottom-6 left-6 z-40">
       <button onclick="stopSession()"
               class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
         ⏹️ Stop
       </button>
+    </div>
+
+    <!-- Continue-Button (nach Ende oder Stop angezeigt) -->
+    <div id="continueButton" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-40">
       <a href="session2.html"
          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
         ➡️ Continue to Session 2
@@ -115,7 +119,7 @@
   <script>
     const texts = ["Breathe In", "Hold", "Breathe Out", "Hold"];
     const durations = [4000, 2000, 5000, 2000];
-    const totalDuration = 90000; // jetzt 90 Sekunden
+    const totalDuration = 90000; // 90 Sekunden
     let index = 0, breathing = true;
     const textEl = document.getElementById('breatheText');
 
@@ -140,21 +144,25 @@
       document.getElementById('breathingContainer').classList.remove('hidden');
       breathing = true;
       updateBreathText();
+      // Stop-Button anzeigen
+      document.getElementById('stopButton').classList.remove('hidden');
       // Automatisches Ende nach 90 s
-      setTimeout(stopSession, totalDuration);
+      setTimeout(() => stopSession(true), totalDuration);
     }
 
-    function stopSession() {
+    function stopSession(auto = false) {
       // Video & Audio stoppen
       const vid = document.getElementById('bennyVideo'),
             aud = document.getElementById('bgMusic');
       vid.pause(); vid.currentTime = 0;
       aud.pause(); aud.currentTime = 0;
-      // Atmungs-Container verstecken
+      // Atmung verbergen
       breathing = false;
       document.getElementById('breathingContainer').classList.add('hidden');
-      // Buttons EINBLENDEN
-      document.getElementById('controlButtons').classList.remove('hidden');
+      // Stop-Button verbergen
+      document.getElementById('stopButton').classList.add('hidden');
+      // Continue-Button anzeigen
+      document.getElementById('continueButton').classList.remove('hidden');
     }
 
     function checkOrientation() {
