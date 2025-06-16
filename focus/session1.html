@@ -6,79 +6,122 @@
   <title>Coach Max – Focus Start</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* Vollbild-Setup */
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       overflow: hidden;
     }
-    @keyframes breathe {
-      0%   { transform: scale(1); }
-      25%  { transform: scale(1.2); }
-      50%  { transform: scale(1.2); }
-      75%  { transform: scale(1); }
-      100% { transform: scale(1); }
+
+    /* Hinweis-Overlay (desktop hidden, mobil gesteuert) */
+    #orientationOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      color: #fff;
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
     }
+
+    /* Wrapper um alles außer Overlay */
+    #mainContent {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Portrait: Overlay an, MainContent aus */
     @media screen and (orientation: portrait) {
-      #orientationOverlay {
-        display: flex;
-      }
+      #orientationOverlay { display: flex; }
+      #mainContent       { display: none; }
+    }
+
+    /* Landscape: Overlay aus, MainContent an */
+    @media screen and (orientation: landscape) {
+      #orientationOverlay { display: none; }
+      #mainContent       { display: block; }
+    }
+
+    /* Atmungs-Keyframes */
+    @keyframes breathe {
+      0%,100% { transform: scale(1); }
+      25%,50% { transform: scale(1.2); }
+      75%     { transform: scale(1); }
     }
   </style>
 </head>
-<body class="relative w-screen h-screen bg-black text-white">
+<body class="bg-black text-white">
 
-  <!-- Querformat-Vollbild-Hinweis -->
-  <div id="orientationOverlay" class="hidden fixed inset-0 bg-black/90 text-white z-50 flex-col items-center justify-center text-center px-6">
-    <p class="text-2xl font-bold">🔄 Please rotate your device</p>
-    <p class="mt-2">This content is best viewed in landscape mode.</p>
+  <!-- 1) Hinweis-Overlay -->
+  <div id="orientationOverlay">
+    <p class="text-2xl font-bold mb-2">🔄 Please rotate your device</p>
+    <p>This content is best viewed in landscape mode.</p>
   </div>
 
-  <!-- Hintergrundbild -->
-  <img src="../images/nature.jpg" alt="Peaceful Nature" class="absolute w-full h-full object-cover opacity-70 z-0" />
+  <!-- 2) Alles andere in diesem Wrapper -->
+  <div id="mainContent">
 
-  <!-- Start Screen -->
-  <div id="startScreen" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
-    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-white">Welcome to Coach Max</h1>
-    <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-4 text-lg sm:text-xl rounded-xl shadow-lg w-64 max-w-full">
-      🎬 Let's Begin
-    </button>
-  </div>
+    <!-- Hintergrundbild -->
+    <img src="../images/nature.jpg" alt="Peaceful Nature"
+         class="absolute inset-0 w-full h-full object-cover opacity-70 z-0"/>
 
-  <!-- Benny Video -->
-  <video id="bennyVideo" class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
-    <source src="../videos/benny-focus.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
-
-  <!-- Atmungsanimation + Text -->
-  <div id="breathingContainer" class="hidden absolute inset-0 flex flex-col items-center justify-center pt-10 sm:pt-0 z-20">
-    <div class="w-36 h-36 sm:w-48 sm:h-48 bg-white/30 rounded-full animate-[breathe_11s_ease-in-out_infinite] flex items-center justify-center">
-      <p id="breatheText" class="text-lg sm:text-2xl font-semibold text-white">Breathe In</p>
+    <!-- Start Screen -->
+    <div id="startScreen"
+         class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
+      <h1 class="text-2xl sm:text-3xl font-bold mb-6">Welcome to Coach Max</h1>
+      <button onclick="startSession()"
+              class="bg-green-500 hover:bg-green-600 text-white px-6 py-4 text-lg sm:text-xl rounded-xl shadow-lg w-64 max-w-full">
+        🎬 Let's Begin
+      </button>
     </div>
-  </div>
 
-  <!-- Kontrollbuttons -->
-  <div id="controlButtons" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-40">
-    <button onclick="stopSession()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
-      ⏹️ Stop
-    </button>
-    <a href="session2.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
-      ➡️ Continue to Session 2
-    </a>
-  </div>
+    <!-- Benny Video -->
+    <video id="bennyVideo"
+           class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
+      <source src="../videos/benny-focus.mp4" type="video/mp4"/>
+      Your browser does not support the video tag.
+    </video>
 
-  <!-- Musik -->
-  <audio id="bgMusic" loop>
-    <source src="../audio/focus-loop.mp3" type="audio/mpeg" />
-  </audio>
+    <!-- Atmungsanimation + Text -->
+    <div id="breathingContainer"
+         class="hidden absolute inset-0 flex flex-col items-center justify-center pt-10 sm:pt-0 z-20">
+      <div class="w-36 h-36 sm:w-48 sm:h-48 bg-white/30 rounded-full animate-[breathe_11s_ease-in-out_infinite] flex items-center justify-center">
+        <p id="breatheText" class="text-lg sm:text-2xl font-semibold text-white">Breathe In</p>
+      </div>
+    </div>
+
+    <!-- Kontrollbuttons -->
+    <div id="controlButtons"
+         class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-40">
+      <button onclick="stopSession()"
+              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
+        ⏹️ Stop
+      </button>
+      <a href="session2.html"
+         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+        ➡️ Continue to Session 2
+      </a>
+    </div>
+
+    <!-- Musik -->
+    <audio id="bgMusic" loop>
+      <source src="../audio/focus-loop.mp3" type="audio/mpeg"/>
+    </audio>
+
+  </div>
 
   <script>
     const texts = ["Breathe In", "Hold", "Breathe Out", "Hold"];
     const durations = [4000, 2000, 5000, 2000];
     const totalDuration = 60000;
-    let index = 0;
-    let breathing = true;
+    let index = 0, breathing = true;
     const textEl = document.getElementById('breatheText');
 
     function updateBreathText() {
@@ -93,32 +136,20 @@
     function startSession() {
       document.getElementById('startScreen').classList.add('hidden');
       document.getElementById('controlButtons').classList.remove('hidden');
-
-      const video = document.getElementById('bennyVideo');
-      video.classList.remove('hidden');
-      video.play();
-
-      const audio = document.getElementById('bgMusic');
-      audio.play();
-
+      document.getElementById('bennyVideo').classList.remove('hidden');
+      document.getElementById('bennyVideo').play();
+      document.getElementById('bgMusic').play();
       document.getElementById('breathingContainer').classList.remove('hidden');
       breathing = true;
       updateBreathText();
-
-      setTimeout(() => {
-        stopSession();
-      }, totalDuration);
+      setTimeout(stopSession, totalDuration);
     }
 
     function stopSession() {
-      const video = document.getElementById('bennyVideo');
-      video.pause();
-      video.currentTime = 0;
-
-      const audio = document.getElementById('bgMusic');
-      audio.pause();
-      audio.currentTime = 0;
-
+      const vid = document.getElementById('bennyVideo'),
+            aud = document.getElementById('bgMusic');
+      vid.pause(); vid.currentTime = 0;
+      aud.pause(); aud.currentTime = 0;
       breathing = false;
       document.getElementById('breathingContainer').classList.add('hidden');
     }
@@ -126,9 +157,11 @@
     function checkOrientation() {
       const overlay = document.getElementById('orientationOverlay');
       if (window.innerWidth < window.innerHeight) {
+        overlay.classList.add('flex');
         overlay.classList.remove('hidden');
       } else {
         overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
       }
     }
 
@@ -136,6 +169,5 @@
     window.addEventListener('orientationchange', checkOrientation);
     window.addEventListener('load', checkOrientation);
   </script>
-
 </body>
 </html>
