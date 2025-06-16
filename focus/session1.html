@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Coach Max – Focus Start</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -19,20 +19,26 @@
       75%  { transform: scale(1); }
       100% { transform: scale(1); }
     }
+    @media screen and (orientation: portrait) {
+      #orientationOverlay {
+        display: flex;
+      }
+    }
   </style>
 </head>
 <body class="relative w-screen h-screen bg-black text-white">
 
-  <!-- Querformat-Hinweis -->
-  <div class="absolute top-2 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-4 py-1 rounded z-50 text-sm sm:hidden">
-    🔄 Please rotate your phone for the best experience
+  <!-- Querformat-Vollbild-Hinweis -->
+  <div id="orientationOverlay" class="hidden fixed inset-0 bg-black/90 text-white z-50 flex-col items-center justify-center text-center px-6">
+    <p class="text-2xl font-bold">🔄 Please rotate your device</p>
+    <p class="mt-2">This content is best viewed in landscape mode.</p>
   </div>
 
   <!-- Hintergrundbild -->
   <img src="../images/nature.jpg" alt="Peaceful Nature" class="absolute w-full h-full object-cover opacity-70 z-0" />
 
   <!-- Start Screen -->
-  <div id="startScreen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
+  <div id="startScreen" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
     <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-white">Welcome to Coach Max</h1>
     <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-4 text-lg sm:text-xl rounded-xl shadow-lg w-64 max-w-full">
       🎬 Let's Begin
@@ -40,7 +46,7 @@
   </div>
 
   <!-- Benny Video -->
-  <video id="bennyVideo" class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-40">
+  <video id="bennyVideo" class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
     <source src="../videos/benny-focus.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
@@ -53,7 +59,7 @@
   </div>
 
   <!-- Kontrollbuttons -->
-  <div id="controlButtons" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-50">
+  <div id="controlButtons" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-40">
     <button onclick="stopSession()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
       ⏹️ Stop
     </button>
@@ -70,7 +76,7 @@
   <script>
     const texts = ["Breathe In", "Hold", "Breathe Out", "Hold"];
     const durations = [4000, 2000, 5000, 2000];
-    const totalDuration = 60000; // 60 Sekunden
+    const totalDuration = 60000;
     let index = 0;
     let breathing = true;
     const textEl = document.getElementById('breatheText');
@@ -116,6 +122,19 @@
       breathing = false;
       document.getElementById('breathingContainer').classList.add('hidden');
     }
+
+    function checkOrientation() {
+      const overlay = document.getElementById('orientationOverlay');
+      if (window.innerWidth < window.innerHeight) {
+        overlay.classList.remove('hidden');
+      } else {
+        overlay.classList.add('hidden');
+      }
+    }
+
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('load', checkOrientation);
   </script>
 
 </body>
