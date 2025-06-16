@@ -13,12 +13,11 @@
       height: 100vh;
       overflow: hidden;
     }
-    /* Hinweis-Overlay (nur Portrait) */
     #orientationOverlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.9);
+      background: rgba(0, 0, 0, 0.9);
       color: #fff;
       z-index: 999;
       flex-direction: column;
@@ -27,12 +26,10 @@
       text-align: center;
       padding: 1rem;
     }
-    /* Wrapper um Session-Inhalte */
     #mainContent {
       display: block;
       width: 100vw;
       height: 100vh;
-      position: relative;
     }
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
@@ -51,78 +48,76 @@
 </head>
 <body class="bg-black text-white">
 
-  <!-- Hinweis im Portrait -->
   <div id="orientationOverlay">
     <p class="text-2xl font-bold mb-2">🔄 Please rotate your device</p>
     <p>This content is best viewed in landscape mode.</p>
   </div>
 
-  <!-- Haupt-Session -->
   <div id="mainContent">
 
-    <!-- Hintergrundbild -->
     <img src="../images/nature.jpg" alt="Peaceful Nature"
-         class="absolute inset-0 w-full h-full object-cover opacity-70 z-0" />
+         class="absolute inset-0 w-full h-full object-cover opacity-70 z-0"/>
 
-    <!-- Start Screen -->
-    <div id="startScreen" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
+    <div id="startScreen"
+         class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
       <h1 class="text-2xl sm:text-3xl font-bold mb-6">Welcome to Coach Max</h1>
-      <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-4 text-lg sm:text-xl rounded-xl shadow-lg w-64 max-w-full">
+      <button onclick="startSession()"
+              class="bg-green-500 hover:bg-green-600 text-white px-6 py-4 text-lg sm:text-xl rounded-xl shadow-lg w-64 max-w-full">
         🎬 Let's Begin
       </button>
     </div>
 
-    <!-- Benny Video -->
-    <video id="bennyVideo" class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
-      <source src="../videos/benny-focus.mp4" type="video/mp4" />
+    <video id="bennyVideo"
+           class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
+      <source src="../videos/benny-focus.mp4" type="video/mp4"/>
+      Your browser does not support the video tag.
     </video>
 
-    <!-- Atmungsanimation + Text -->
-    <div id="breathingContainer" class="hidden absolute inset-0 flex flex-col items-center justify-center pt-10 sm:pt-0 z-20">
+    <div id="breathingContainer"
+         class="hidden absolute inset-0 flex flex-col items-center justify-center pt-10 sm:pt-0 z-20">
       <div class="w-36 h-36 sm:w-48 sm:h-48 bg-white/30 rounded-full animate-[breathe_11s_ease-in-out_infinite] flex items-center justify-center">
         <p id="breatheText" class="text-lg sm:text-2xl font-semibold text-white">Breathe In</p>
       </div>
     </div>
 
-    <!-- Stop-Button unten links -->
-    <div id="stopContainer" class="hidden absolute bottom-4 left-4 z-40">
-      <button id="stopBtn" onclick="stopSession()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
+    <div id="musicControls"
+         class="absolute bottom-6 left-6 flex gap-2 z-50">
+      <button id="stopBtn"
+              onclick="pauseSession()"
+              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
         ⏹️ Stop
       </button>
-    </div>
-
-    <!-- Play-Again-Button unten links nach Stop -->
-    <div id="playContainer" class="hidden absolute bottom-4 left-4 z-40">
-      <button id="playBtn" onclick="startSession()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow">
-        ▶️ Play Again
+      <button id="playBtn"
+              onclick="resumeSession()"
+              class="hidden bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow">
+        ▶️ Play
       </button>
     </div>
 
-    <!-- Continue-Button zentriert unten nach Stop -->
-    <div id="continueContainer" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-40">
-      <a id="continueBtn" href="session2.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+    <div id="controlButtons"
+         class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-40">
+      <a href="session2.html"
+         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
         ➡️ Continue to Session 2
       </a>
     </div>
 
-    <!-- Hintergrundmusik -->
     <audio id="bgMusic" loop>
-      <source src="../audio/focus-loop.mp3" type="audio/mpeg" />
+      <source src="../audio/focus-loop.mp3" type="audio/mpeg"/>
     </audio>
-
   </div>
 
   <script>
-    const texts = ["Breathe In","Hold","Breathe Out","Hold"];
-    const durations = [4000,2000,5000,2000];
-    const totalDuration = 90000; // 90 Sekunden
-    let index = 0, breathing = false;
-    const txtEl = document.getElementById('breatheText');
+    const texts = ["Breathe In", "Hold", "Breathe Out", "Hold"];
+    const durations = [4000, 2000, 5000, 2000];
+    const totalDuration = 90000;
+    let index = 0, breathing = true, stoppedEarly = false, timeoutId;
+    const textEl = document.getElementById('breatheText');
 
     function updateBreathText() {
       if (!breathing) return;
-      txtEl.textContent = texts[index];
-      setTimeout(() => {
+      textEl.textContent = texts[index];
+      timeoutId = setTimeout(() => {
         index = (index + 1) % texts.length;
         updateBreathText();
       }, durations[index]);
@@ -131,37 +126,63 @@
     function startSession() {
       document.getElementById('startScreen').classList.add('hidden');
       document.getElementById('bennyVideo').classList.remove('hidden');
-      document.getElementById('bennyVideo').play();
-      document.getElementById('bgMusic').play();
       document.getElementById('breathingContainer').classList.remove('hidden');
-      document.getElementById('stopContainer').classList.remove('hidden');
-      document.getElementById('playContainer').classList.add('hidden');
-      document.getElementById('continueContainer').classList.add('hidden');
+
+      const vid = document.getElementById('bennyVideo'),
+            aud = document.getElementById('bgMusic');
+      vid.play();
+      aud.play();
+
       breathing = true;
       updateBreathText();
-      setTimeout(() => stopSession(true), totalDuration);
+
+      setTimeout(() => {
+        if (!stoppedEarly) {
+          showContinue();
+        }
+      }, totalDuration);
     }
 
-    function stopSession(auto = false) {
-      document.getElementById('bennyVideo').pause();
-      document.getElementById('bennyVideo').currentTime = 0;
-      document.getElementById('bgMusic').pause();
-      document.getElementById('bgMusic').currentTime = 0;
+    function pauseSession() {
+      const vid = document.getElementById('bennyVideo'),
+            aud = document.getElementById('bgMusic');
+
+      vid.pause();
+      aud.pause();
       breathing = false;
+      clearTimeout(timeoutId);
+
+      document.getElementById('playBtn').classList.remove('hidden');
+      document.getElementById('stopBtn').classList.add('hidden');
+      stoppedEarly = true;
+      showContinue();
+    }
+
+    function resumeSession() {
+      const vid = document.getElementById('bennyVideo'),
+            aud = document.getElementById('bgMusic');
+      vid.play();
+      aud.play();
+      breathing = true;
+      updateBreathText();
+
+      document.getElementById('playBtn').classList.add('hidden');
+      document.getElementById('stopBtn').classList.remove('hidden');
+    }
+
+    function showContinue() {
       document.getElementById('breathingContainer').classList.add('hidden');
-      document.getElementById('stopContainer').classList.add('hidden');
-      document.getElementById('playContainer').classList.remove('hidden');
-      document.getElementById('continueContainer').classList.remove('hidden');
+      document.getElementById('controlButtons').classList.remove('hidden');
     }
 
     function checkOrientation() {
-      const ov = document.getElementById('orientationOverlay');
+      const overlay = document.getElementById('orientationOverlay');
       if (window.innerWidth < window.innerHeight) {
-        ov.classList.add('flex');
-        ov.classList.remove('hidden');
+        overlay.classList.add('flex');
+        overlay.classList.remove('hidden');
       } else {
-        ov.classList.add('hidden');
-        ov.classList.remove('flex');
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
       }
     }
 
