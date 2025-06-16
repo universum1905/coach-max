@@ -13,13 +13,12 @@
       height: 100vh;
       overflow: hidden;
     }
-
-    /* Hinweis-Overlay */
+    /* Hinweis-Overlay (nur Portrait) */
     #orientationOverlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0,0,0,0.9);
       color: #fff;
       z-index: 999;
       flex-direction: column;
@@ -28,14 +27,13 @@
       text-align: center;
       padding: 1rem;
     }
-
-    /* Wrapper um alle Session-Elemente */
+    /* Wrapper um Session-Inhalte */
     #mainContent {
       display: block;
       width: 100vw;
       height: 100vh;
+      position: relative;
     }
-
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
@@ -44,7 +42,6 @@
       #orientationOverlay { display: none; }
       #mainContent       { display: block; }
     }
-
     @keyframes breathe {
       0%,100% { transform: scale(1); }
       25%,50% { transform: scale(1.2); }
@@ -54,53 +51,49 @@
 </head>
 <body class="bg-black text-white">
 
-  <!-- 1) Overlay im Portrait -->
+  <!-- Hinweis im Portrait -->
   <div id="orientationOverlay">
     <p class="text-2xl font-bold mb-2">🔄 Please rotate your device</p>
     <p>This content is best viewed in landscape mode.</p>
   </div>
 
-  <!-- 2) Haupt-Session -->
+  <!-- Haupt-Session -->
   <div id="mainContent">
 
-    <!-- Hintergrund -->
+    <!-- Hintergrundbild -->
     <img src="../images/nature.jpg" alt="Peaceful Nature"
          class="absolute inset-0 w-full h-full object-cover opacity-70 z-0"/>
 
-    <!-- Start-Bildschirm -->
-    <div id="startScreen"
-         class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
+    <!-- Start Screen -->
+    <div id="startScreen" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
       <h1 class="text-2xl sm:text-3xl font-bold mb-6">Welcome to Coach Max</h1>
-      <button onclick="startSession()"
-              class="bg-green-500 hover:bg-green-600 text-white px-6 py-4 text-lg sm:text-xl rounded-xl shadow-lg w-64 max-w-full">
+      <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-4 text-lg sm:text-xl rounded-xl shadow-lg w-64 max-w-full">
         🎬 Let's Begin
       </button>
     </div>
 
-    <!-- Video -->
-    <video id="bennyVideo"
-           class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
+    <!-- Benny Video -->
+    <video id="bennyVideo" class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
       <source src="../videos/benny-focus.mp4" type="video/mp4"/>
-      Your browser does not support the video tag.
     </video>
 
-    <!-- Atmung -->
-    <div id="breathingContainer"
-         class="hidden absolute inset-0 flex flex-col items-center justify-center pt-10 sm:pt-0 z-20">
+    <!-- Atmungsanimation + Text -->
+    <div id="breathingContainer" class="hidden absolute inset-0 flex flex-col items-center justify-center pt-10 sm:pt-0 z-20">
       <div class="w-36 h-36 sm:w-48 sm:h-48 bg-white/30 rounded-full animate-[breathe_11s_ease-in-out_infinite] flex items-center justify-center">
         <p id="breatheText" class="text-lg sm:text-2xl font-semibold text-white">Breathe In</p>
       </div>
     </div>
 
-    <!-- Buttons werden jetzt **erst** nach Stop bzw. Ablauf angezeigt -->
-    <div id="controlButtons"
-         class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center z-40">
-      <button onclick="stopSession()"
-              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
+    <!-- Stop-Button unten links -->
+    <div id="stopContainer" class="hidden absolute bottom-4 left-4 z-40">
+      <button id="stopBtn" onclick="stopSession()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow">
         ⏹️ Stop
       </button>
-      <a href="session2.html"
-         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+    </div>
+
+    <!-- Continue-Button zentriert unten -->
+    <div id="continueContainer" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-40">
+      <a id="continueBtn" href="session2.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
         ➡️ Continue to Session 2
       </a>
     </div>
@@ -113,64 +106,39 @@
   </div>
 
   <script>
-    const texts = ["Breathe In", "Hold", "Breathe Out", "Hold"];
-    const durations = [4000, 2000, 5000, 2000];
-    const totalDuration = 90000; // jetzt 90 Sekunden
-    let index = 0, breathing = true;
-    const textEl = document.getElementById('breatheText');
-
-    function updateBreathText() {
-      if (!breathing) return;
-      textEl.textContent = texts[index];
-      setTimeout(() => {
-        index = (index + 1) % texts.length;
-        updateBreathText();
-      }, durations[index]);
+    const texts = ["Breathe In","Hold","Breathe Out","Hold"];
+    const durations = [4000,2000,5000,2000];
+    const totalDuration = 90000; // 90 Sekunden
+    let index=0,breathing=false;
+    function updateBreathText(){ if(!breathing) return;
+      document.getElementById('breatheText').textContent=texts[index];
+      setTimeout(()=>{ index=(index+1)%texts.length; updateBreathText(); }, durations[index]);
     }
-
-    function startSession() {
-      // Start-Screen ausblenden
+    function startSession(){
       document.getElementById('startScreen').classList.add('hidden');
-      // Video & Audio starten
-      const vid = document.getElementById('bennyVideo'),
-            aud = document.getElementById('bgMusic');
-      vid.classList.remove('hidden'); vid.play();
-      aud.play();
-      // Atmung anzeigen
+      document.getElementById('bennyVideo').classList.remove('hidden'); document.getElementById('bennyVideo').play();
+      document.getElementById('bgMusic').play();
       document.getElementById('breathingContainer').classList.remove('hidden');
-      breathing = true;
-      updateBreathText();
-      // Automatisches Ende nach 90 s
-      setTimeout(stopSession, totalDuration);
+      document.getElementById('stopContainer').classList.remove('hidden');
+      breathing=true; updateBreathText();
+      setTimeout(()=>stopSession(true), totalDuration);
     }
-
-    function stopSession() {
-      // Video & Audio stoppen
-      const vid = document.getElementById('bennyVideo'),
-            aud = document.getElementById('bgMusic');
-      vid.pause(); vid.currentTime = 0;
-      aud.pause(); aud.currentTime = 0;
-      // Atmungs-Container verstecken
-      breathing = false;
+    function stopSession(auto=false){
+      document.getElementById('bennyVideo').pause(); document.getElementById('bennyVideo').currentTime=0;
+      document.getElementById('bgMusic').pause(); document.getElementById('bgMusic').currentTime=0;
+      breathing=false;
       document.getElementById('breathingContainer').classList.add('hidden');
-      // Buttons EINBLENDEN
-      document.getElementById('controlButtons').classList.remove('hidden');
+      document.getElementById('stopContainer').classList.add('hidden');
+      document.getElementById('continueContainer').classList.remove('hidden');
     }
-
-    function checkOrientation() {
-      const overlay = document.getElementById('orientationOverlay');
-      if (window.innerWidth < window.innerHeight) {
-        overlay.classList.add('flex');
-        overlay.classList.remove('hidden');
-      } else {
-        overlay.classList.add('hidden');
-        overlay.classList.remove('flex');
-      }
+    function checkOrientation(){
+      const ov=document.getElementById('orientationOverlay');
+      if(window.innerWidth<window.innerHeight){ ov.classList.add('flex'); ov.classList.remove('hidden'); }
+      else{ ov.classList.add('hidden'); ov.classList.remove('flex'); }
     }
-
-    window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', checkOrientation);
-    window.addEventListener('load', checkOrientation);
+    window.addEventListener('resize',checkOrientation);
+    window.addEventListener('orientationchange',checkOrientation);
+    window.addEventListener('load',checkOrientation);
   </script>
 </body>
 </html>
