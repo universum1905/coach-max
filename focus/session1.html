@@ -62,7 +62,7 @@
 
     <!-- Hintergrundbild -->
     <img src="../images/nature.jpg" alt="Peaceful Nature"
-         class="absolute inset-0 w-full h-full object-cover opacity-70 z-0"/>
+         class="absolute inset-0 w-full h-full object-cover opacity-70 z-0" />
 
     <!-- Start Screen -->
     <div id="startScreen" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/60 p-4 text-center">
@@ -74,7 +74,7 @@
 
     <!-- Benny Video -->
     <video id="bennyVideo" class="hidden absolute bottom-4 right-4 w-[35vw] max-w-[120px] sm:max-w-[160px] h-auto rounded-xl shadow-xl border-2 border-white z-30">
-      <source src="../videos/benny-focus.mp4" type="video/mp4"/>
+      <source src="../videos/benny-focus.mp4" type="video/mp4" />
     </video>
 
     <!-- Atmungsanimation + Text -->
@@ -107,7 +107,7 @@
 
     <!-- Hintergrundmusik -->
     <audio id="bgMusic" loop>
-      <source src="../audio/focus-loop.mp3" type="audio/mpeg"/>
+      <source src="../audio/focus-loop.mp3" type="audio/mpeg" />
     </audio>
 
   </div>
@@ -115,53 +115,59 @@
   <script>
     const texts = ["Breathe In","Hold","Breathe Out","Hold"];
     const durations = [4000,2000,5000,2000];
-    const totalDuration = 20000; // 20 Sekunden
-    let index=0,breathing=false;
+    const totalDuration = 90000; // 90 Sekunden
+    let index = 0, breathing = false;
     const txtEl = document.getElementById('breatheText');
 
-    function updateBreathText(){
-      if(!breathing) return;
+    function updateBreathText() {
+      if (!breathing) return;
       txtEl.textContent = texts[index];
-      setTimeout(()=>{ index=(index+1)%texts.length; updateBreathText(); }, durations[index]);
+      setTimeout(() => {
+        index = (index + 1) % texts.length;
+        updateBreathText();
+      }, durations[index]);
     }
 
-    function startSession(){
+    function startSession() {
       document.getElementById('startScreen').classList.add('hidden');
       document.getElementById('bennyVideo').classList.remove('hidden');
       document.getElementById('bennyVideo').play();
       document.getElementById('bgMusic').play();
       document.getElementById('breathingContainer').classList.remove('hidden');
-      // Buttons initialisieren
       document.getElementById('stopContainer').classList.remove('hidden');
       document.getElementById('playContainer').classList.add('hidden');
       document.getElementById('continueContainer').classList.add('hidden');
-      brewing = true; updateBreathText();
-      setTimeout(()=>stopSession(true), totalDuration);
+      breathing = true;
+      updateBreathText();
+      setTimeout(() => stopSession(true), totalDuration);
     }
 
-    function stopSession(auto=false){
-      document.getElementById('bennyVideo').pause(); document.getElementById('bennyVideo').currentTime=0;
-      document.getElementById('bgMusic').pause(); document.getElementById('bgMusic').currentTime=0;
-      breathing=false;
+    function stopSession(auto = false) {
+      document.getElementById('bennyVideo').pause();
+      document.getElementById('bennyVideo').currentTime = 0;
+      document.getElementById('bgMusic').pause();
+      document.getElementById('bgMusic').currentTime = 0;
+      breathing = false;
       document.getElementById('breathingContainer').classList.add('hidden');
-      // Buttons umschalten
       document.getElementById('stopContainer').classList.add('hidden');
       document.getElementById('playContainer').classList.remove('hidden');
       document.getElementById('continueContainer').classList.remove('hidden');
     }
 
-    function checkOrientation(){
-      const ov=document.getElementById('orientationOverlay');
-      if(window.innerWidth < window.innerHeight){
-        ov.classList.add('flex'); ov.classList.remove('hidden');
+    function checkOrientation() {
+      const ov = document.getElementById('orientationOverlay');
+      if (window.innerWidth < window.innerHeight) {
+        ov.classList.add('flex');
+        ov.classList.remove('hidden');
       } else {
-        ov.classList.add('hidden'); ov.classList.remove('flex');
+        ov.classList.add('hidden');
+        ov.classList.remove('flex');
       }
     }
 
-    window.addEventListener('resize',checkOrientation);
-    window.addEventListener('orientationchange',checkOrientation);
-    window.addEventListener('load',checkOrientation);
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('load', checkOrientation);
   </script>
 </body>
 </html>
