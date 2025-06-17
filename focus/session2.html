@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Coach Max – Session 2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: black;
+    }
+
+    #orientationOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      color: #fff;
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    @media screen and (orientation: portrait) {
+      #orientationOverlay { display: flex; }
+      #mainContent       { display: none; }
+    }
+    @media screen and (orientation: landscape) {
+      #orientationOverlay { display: none; }
+      #mainContent       { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <div id="orientationOverlay">
+    <p class="text-2xl font-bold mb-2">🔄 Please rotate your device</p>
+    <p>This content is best viewed in landscape mode.</p>
+  </div>
+
+  <div id="mainContent" class="w-screen h-screen relative">
+    <!-- Start Screen -->
+    <div id="startScreen" class="absolute inset-0 bg-black/80 z-50 flex items-center justify-center flex-col">
+      <h1 class="text-3xl font-bold text-white mb-6">Welcome to Session 2</h1>
+      <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎬 Let's Begin</button>
+    </div>
+
+    <!-- Fullscreen Video from Google Drive -->
+    <iframe id="sessionVideo" class="absolute inset-0 w-full h-full z-0" src="https://drive.google.com/file/d/1kG00ywbeXRxyomATrduIdHqXziPQKtJI/preview" allow="autoplay" allowfullscreen></iframe>
+
+    <!-- Background Music -->
+    <audio id="bgMusic" loop>
+      <source src="../audio/counting-benny-bg.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Stop/Play Button bottom right -->
+    <button id="toggleButton" onclick="togglePlayback()" class="hidden absolute bottom-4 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded z-50">⏹️ Stop</button>
+
+    <!-- Continue Button top right -->
+    <a id="continueButton" href="session3.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Continue to Session 3</a>
+  </div>
+
+  <script>
+    const audio = document.getElementById('bgMusic');
+    const toggleBtn = document.getElementById('toggleButton');
+    const continueBtn = document.getElementById('continueButton');
+    const startScreen = document.getElementById('startScreen');
+    let isPlaying = false;
+
+    function startSession() {
+      startScreen.classList.add('hidden');
+      audio.volume = 0.2;
+      audio.play();
+      toggleBtn.classList.remove('hidden');
+      isPlaying = true;
+    }
+
+    function togglePlayback() {
+      if (isPlaying) {
+        audio.pause();
+        toggleBtn.textContent = '▶️ Play';
+      } else {
+        audio.play();
+        toggleBtn.textContent = '⏹️ Stop';
+      }
+      isPlaying = !isPlaying;
+    }
+
+    function checkOrientation() {
+      const overlay = document.getElementById('orientationOverlay');
+      if (window.innerWidth < window.innerHeight) {
+        overlay.classList.add('flex');
+        overlay.classList.remove('hidden');
+      } else {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+      }
+    }
+
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('load', checkOrientation);
+  </script>
+</body>
+</html>
