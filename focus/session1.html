@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Coach Max – Focus Start</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
   <style>
     html, body {
       margin: 0;
@@ -13,14 +13,33 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(10deg); }
+      50% { transform: rotate(-10deg); }
+      75% { transform: rotate(5deg); }
+    }
+
+    .animate-wiggle {
+      animation: wiggle 1.5s infinite ease-in-out;
+      display: inline-block;
+    }
+
+    @keyframes breathe {
+      0%,100% { transform: scale(1); }
+      25%,50% { transform: scale(1.2); }
+      75%     { transform: scale(1); }
     }
 
     #orientationOverlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.9);
-      color: #fff;
+      background-color: #fef9c3;
+      color: #000;
       z-index: 999;
       flex-direction: column;
       align-items: center;
@@ -28,24 +47,6 @@
       text-align: center;
       padding: 1rem;
     }
-
-    #mainContent {
-      display: block;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    @keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(10deg); }
-  50% { transform: rotate(-10deg); }
-  75% { transform: rotate(5deg); }
-}
-
-.animate-wiggle {
-  animation: wiggle 1.5s infinite ease-in-out;
-  display: inline-block;
-}
 
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
@@ -55,29 +56,20 @@
       #orientationOverlay { display: none; }
       #mainContent       { display: block; }
     }
-
-    @keyframes breathe {
-      0%,100% { transform: scale(1); }
-      25%,50% { transform: scale(1.2); }
-      75%     { transform: scale(1); }
-    }
-   
   </style>
 </head>
-<body>
+<body class="text-white">
 
-  
+  <!-- Orientation Notice -->
+  <div id="orientationOverlay">
+    <img src="images/landscape-mode-child-cartoon.png" alt="Cartoon child holding smartphone" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
+    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
+  </div>
 
-<div id="orientationOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
-  <img src="../images/landscape-mode-child-cartoon.png" alt="Cartoon illustration of a child holding a smartphone in landscape mode" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
-  <div class="text-6xl mb-4 animate-wiggle">🔄</div>
-  <p class="text-2xl font-bold mb-2">Please rotate your device</p>
-  <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
-</div>
-
-
+  <!-- Main Content -->
   <div id="mainContent">
-
     <img src="../images/nature.jpg" alt="Peaceful Nature"
          class="absolute inset-0 w-full h-full object-cover opacity-70 z-0"/>
 
@@ -124,7 +116,6 @@
     <audio id="bgMusic" loop>
       <source src="../audio/focus-loop.mp3" type="audio/mpeg"/>
     </audio>
-
   </div>
 
   <script>
@@ -211,11 +202,12 @@
         overlay.classList.add('hidden');
         overlay.classList.remove('flex');
       }
-    }
+    
+}
 
-    window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', checkOrientation);
-    window.addEventListener('load', checkOrientation);
-  </script>
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('load', checkOrientation);
+  </script>
 </body>
 </html>
