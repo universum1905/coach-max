@@ -35,6 +35,18 @@
       height: 100vh;
     }
 
+    @keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(10deg); }
+  50% { transform: rotate(-10deg); }
+  75% { transform: rotate(5deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 1.5s infinite ease-in-out;
+  display: inline-block;
+}
+
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
@@ -49,21 +61,7 @@
       25%,50% { transform: scale(1.2); }
       75%     { transform: scale(1); }
     }
-
-
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(10deg); }
-  50% { transform: rotate(-10deg); }
-  75% { transform: rotate(5deg); }
-}
-
-.animate-wiggle {
-  animation: wiggle 1.5s infinite ease-in-out;
-  display: inline-block;
-}
-
-    
+   
   </style>
 </head>
 <body class="bg-yellow-100 text-black">
