@@ -24,8 +24,7 @@
       z-index: 999;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      text-align: center;
+           text-align: center;
       padding: 1rem;
     }
 
@@ -57,8 +56,8 @@
     </div>
 
     <!-- Embedded Video (Intro) -->
-    <div class="absolute inset-0 flex items-center justify-center">
-      <video id="introVideo" class="max-w-full w-[90vw] h-auto rounded-xl shadow-xl hidden" playsinline>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <video id="introVideo" class="max-w-[90vw] max-h-[90vh] w-auto h-auto rounded-xl shadow-xl hidden" playsinline>
         <source src="../videos/session2-intro.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
@@ -90,12 +89,10 @@
       video.classList.remove('hidden');
       video.muted = false;
 
-      // Versuche, Video und Audio zu starten
       const videoPromise = video.play();
       const audioPromise = audio.play();
       audio.volume = 0.2;
 
-      // Hinweis anzeigen, wenn Ton nicht automatisch startet
       Promise.allSettled([videoPromise, audioPromise]).then(results => {
         const audioFailed = results.some(r => r.status === 'rejected');
         if (audioFailed) {
@@ -106,7 +103,6 @@
         }
       });
 
-      // Button erscheint nach 12 Sekunden
       setTimeout(() => {
         continueBtn.classList.remove('hidden');
       }, 12000);
