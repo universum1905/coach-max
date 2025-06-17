@@ -29,6 +29,10 @@
       padding: 1rem;
     }
 
+    #audioNotice {
+      display: none;
+    }
+
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
@@ -54,7 +58,7 @@
 
     <!-- Embedded Video (Intro) -->
     <div class="absolute inset-0 flex items-center justify-center">
-      <video id="introVideo" class="w-[80vw] h-auto rounded-xl shadow-xl" autoplay muted playsinline>
+      <video id="introVideo" class="max-w-full w-[90vw] h-auto rounded-xl shadow-xl hidden" playsinline>
         <source src="../videos/session2-intro.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
@@ -67,17 +71,40 @@
 
     <!-- Continue Button top right -->
     <a id="continueButton" href="session2.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Continue to Session 2</a>
+
+    <!-- Audio Notice -->
+    <div id="audioNotice" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black px-4 py-2 rounded shadow z-50 text-sm">
+      🔊 Tip: If you don't hear sound, please tap the screen or check your volume settings.
+    </div>
   </div>
 
   <script>
     const audio = document.getElementById('bgMusic');
+    const video = document.getElementById('introVideo');
     const continueBtn = document.getElementById('continueButton');
     const startScreen = document.getElementById('startScreen');
+    const audioNotice = document.getElementById('audioNotice');
 
     function startSession() {
       startScreen.classList.add('hidden');
+      video.classList.remove('hidden');
+      video.muted = false;
+
+      // Versuche, Video und Audio zu starten
+      const videoPromise = video.play();
+      const audioPromise = audio.play();
       audio.volume = 0.2;
-      audio.play();
+
+      // Hinweis anzeigen, wenn Ton nicht automatisch startet
+      Promise.allSettled([videoPromise, audioPromise]).then(results => {
+        const audioFailed = results.some(r => r.status === 'rejected');
+        if (audioFailed) {
+          audioNotice.style.display = 'block';
+          setTimeout(() => {
+            audioNotice.style.display = 'none';
+          }, 8000);
+        }
+      });
 
       // Button erscheint nach 12 Sekunden
       setTimeout(() => {
