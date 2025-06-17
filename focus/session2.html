@@ -60,37 +60,26 @@
       <source src="../audio/counting-benny-bg.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Stop/Play Button bottom right -->
-    <button id="toggleButton" onclick="togglePlayback()" class="hidden absolute bottom-4 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded z-50">⏹️ Stop</button>
-
     <!-- Continue Button top right -->
-    <a id="continueButton" href="session3.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Continue to Session 3</a>
+    <a id="continueButton" href="focus/session3.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Continue to Session 3</a>
   </div>
 
   <script>
     const audio = document.getElementById('bgMusic');
-    const toggleBtn = document.getElementById('toggleButton');
     const continueBtn = document.getElementById('continueButton');
     const startScreen = document.getElementById('startScreen');
-    let isPlaying = false;
 
     function startSession() {
       startScreen.classList.add('hidden');
       audio.volume = 0.2;
       audio.play();
-      toggleBtn.classList.remove('hidden');
-      isPlaying = true;
-    }
+      const videoFrame = document.getElementById('sessionVideo');
 
-    function togglePlayback() {
-      if (isPlaying) {
-        audio.pause();
-        toggleBtn.textContent = '▶️ Play';
-      } else {
-        audio.play();
-        toggleBtn.textContent = '⏹️ Stop';
-      }
-      isPlaying = !isPlaying;
+      // Warte auf Ende des Videos (über postMessage nicht möglich bei Drive-Embed, daher Timer als Workaround)
+      // Setze Timeout auf Videolänge (z. B. 60 Sekunden)
+      setTimeout(() => {
+        continueBtn.classList.remove('hidden');
+      }, 40000); // Dauer in ms anpassen
     }
 
     function checkOrientation() {
