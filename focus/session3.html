@@ -80,6 +80,14 @@
       </video>
     </div>
 
+    <!-- You Did It Overlay -->
+    <div id="successOverlay" class="hidden absolute inset-0 z-40 flex items-center justify-center bg-black/80">
+      <div class="text-center text-white">
+        <h2 class="text-4xl font-bold mb-4 animate-bounce">🎉 You did it! 🎉</h2>
+        <p class="text-xl">Great job spotting the missing number!</p>
+      </div>
+    </div>
+
     <!-- Background Music -->
     <audio id="bgMusic" loop>
       <source src="../audio/counting-benny-bg.mp3" type="audio/mpeg">
@@ -93,15 +101,19 @@
     const audio = document.getElementById('bgMusic');
     const continueBtn = document.getElementById('continueButton');
     const startScreen = document.getElementById('startScreen');
+    const videoFrame = document.getElementById('introVideo');
+    const successOverlay = document.getElementById('successOverlay');
 
     function startSession() {
       startScreen.classList.add('hidden');
+      videoFrame.classList.remove('hidden');
+      videoFrame.play();
       audio.volume = 0.2;
       audio.play();
-      const videoFrame = document.getElementById('sessionVideo');
 
-      // Workaround: Zeige Button nach fester Zeit (z. B. 45 Sekunden)
+      // Nach 99 Sekunden Video-Ende simulieren
       setTimeout(() => {
+        successOverlay.classList.remove('hidden');
         continueBtn.classList.remove('hidden');
       }, 99000);
     }
