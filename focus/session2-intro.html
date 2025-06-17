@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Coach Max – Session 2 Intro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: black;
+    }
+    #orientationOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      color: #fff;
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+    }
+    @media screen and (orientation: portrait) {
+      #orientationOverlay { display: flex; }
+      #mainContent       { display: none; }
+    }
+    @media screen and (orientation: landscape) {
+      #orientationOverlay { display: none; }
+      #mainContent       { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <div id="orientationOverlay">
+    <p class="text-2xl font-bold mb-2">🔄 Please rotate your device</p>
+    <p>This content is best viewed in landscape mode.</p>
+  </div>
+
+  <div id="mainContent" class="w-screen h-screen relative">
+    <!-- Fullscreen Intro Video -->
+    <video id="introVideo" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline>
+      <source src="../videos/session2-intro.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+
+    <!-- Background Music (optional, same as Session 2) -->
+    <audio id="bgMusic" loop>
+      <source src="../audio/counting-benny-bg.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Continue Button to Session 2 -->
+    <a href="session2.html" id="continueBtn" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">
+      ➡️ Start Counting
+    </a>
+  </div>
+
+  <script>
+    const audio = document.getElementById('bgMusic');
+    const video = document.getElementById('introVideo');
+    const continueBtn = document.getElementById('continueBtn');
+
+    window.addEventListener('load', () => {
+      audio.volume = 0.2;
+      audio.play();
+    });
+
+    video.addEventListener('ended', () => {
+      continueBtn.classList.remove('hidden');
+    });
+
+    function checkOrientation() {
+      const overlay = document.getElementById('orientationOverlay');
+      if (window.innerWidth < window.innerHeight) {
+        overlay.classList.add('flex');
+        overlay.classList.remove('hidden');
+      } else {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+      }
+    }
+
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('load', checkOrientation);
+  </script>
+</body>
+</html>
