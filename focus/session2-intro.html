@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Coach Max – Session 2 Intro</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
   <style>
     html, body {
       margin: 0;
@@ -13,19 +14,19 @@
       height: 100vh;
       overflow: hidden;
       background-color: black;
+      font-family: 'Fredoka', sans-serif;
     }
 
-    #orientationOverlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.9);
-      color: #fff;
-      z-index: 999;
-      flex-direction: column;
-      align-items: center;
-           text-align: center;
-      padding: 1rem;
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(10deg); }
+      50% { transform: rotate(-10deg); }
+      75% { transform: rotate(5deg); }
+    }
+
+    .animate-wiggle {
+      animation: wiggle 1.5s infinite ease-in-out;
+      display: inline-block;
     }
 
     #audioNotice {
@@ -43,11 +44,15 @@
   </style>
 </head>
 <body>
-  <div id="orientationOverlay">
-    <p class="text-2xl font-bold mb-2">🔄 Please rotate your device</p>
-    <p>This content is best viewed in landscape mode.</p>
+  <!-- Orientation Notice -->
+  <div id="orientationOverlay" class="fixed inset-0 bg-yellow-100 text-black z-50 flex flex-col items-center justify-center text-center p-6 rounded-lg shadow-lg border-4 border-yellow-300">
+    <img src="../images/landscape-mode-child-cartoon.png" alt="Cartoon illustration of a child holding a smartphone in landscape mode" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
+    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-lg">So you can enjoy the video in full screen 😊</p>
   </div>
 
+  <!-- Main Content -->
   <div id="mainContent" class="w-screen h-screen relative">
     <!-- Start Screen -->
     <div id="startScreen" class="absolute inset-0 bg-black/80 z-50 flex items-center justify-center flex-col">
@@ -55,7 +60,7 @@
       <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎬 Let's Begin</button>
     </div>
 
-    <!-- Embedded Video (Intro) -->
+    <!-- Embedded Video -->
     <div class="absolute inset-0 flex items-center justify-center p-4">
       <video id="introVideo" class="max-w-[90vw] max-h-[90vh] w-auto h-auto rounded-xl shadow-xl hidden" playsinline>
         <source src="../videos/session2-intro.mp4" type="video/mp4">
@@ -68,7 +73,7 @@
       <source src="../audio/counting-benny-bg.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Continue Button top right -->
+    <!-- Continue Button -->
     <a id="continueButton" href="session2.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Continue to Session 2</a>
 
     <!-- Audio Notice -->
