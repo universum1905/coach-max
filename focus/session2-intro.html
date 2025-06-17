@@ -14,6 +14,7 @@
       overflow: hidden;
       background-color: black;
     }
+
     #orientationOverlay {
       display: none;
       position: fixed;
@@ -27,6 +28,7 @@
       text-align: center;
       padding: 1rem;
     }
+
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
@@ -44,36 +46,44 @@
   </div>
 
   <div id="mainContent" class="w-screen h-screen relative">
-    <!-- Fullscreen Intro Video -->
-    <video id="introVideo" class="w-[80vw] h-auto rounded-xl shadow-xl" autoplay playsinline>
-      <source src="../videos/session2-intro.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
+    <!-- Start Screen -->
+    <div id="startScreen" class="absolute inset-0 bg-black/80 z-50 flex items-center justify-center flex-col">
+      <h1 class="text-3xl font-bold text-white mb-6">Welcome to Session 2</h1>
+      <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎬 Let's Begin</button>
+    </div>
 
-    <!-- Background Music (optional, same as Session 2) -->
+    <!-- Embedded Video (Intro) -->
+    <div class="absolute inset-0 flex items-center justify-center">
+      <video id="introVideo" class="w-[80vw] h-auto rounded-xl shadow-xl" autoplay muted playsinline>
+        <source src="../videos/session2-intro.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <!-- Background Music -->
     <audio id="bgMusic" loop>
       <source src="../audio/counting-benny-bg.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Continue Button to Session 2 -->
-    <a href="session2.html" id="continueBtn" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">
-      ➡️ Start Counting
-    </a>
+    <!-- Continue Button top right -->
+    <a id="continueButton" href="session2.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Continue to Session 2</a>
   </div>
 
   <script>
     const audio = document.getElementById('bgMusic');
-    const video = document.getElementById('introVideo');
-    const continueBtn = document.getElementById('continueBtn');
+    const continueBtn = document.getElementById('continueButton');
+    const startScreen = document.getElementById('startScreen');
 
-    window.addEventListener('load', () => {
+    function startSession() {
+      startScreen.classList.add('hidden');
       audio.volume = 0.2;
       audio.play();
-    });
 
-    video.addEventListener('ended', () => {
-      continueBtn.classList.remove('hidden');
-    });
+      // Button erscheint nach 12 Sekunden
+      setTimeout(() => {
+        continueBtn.classList.remove('hidden');
+      }, 12000);
+    }
 
     function checkOrientation() {
       const overlay = document.getElementById('orientationOverlay');
