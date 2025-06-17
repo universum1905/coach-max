@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Coach Max – Session 2</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
   <style>
     html, body {
       margin: 0;
@@ -13,14 +15,27 @@
       height: 100vh;
       overflow: hidden;
       background-color: black;
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(10deg); }
+      50% { transform: rotate(-10deg); }
+      75% { transform: rotate(5deg); }
+    }
+
+    .animate-wiggle {
+      animation: wiggle 1.5s infinite ease-in-out;
+      display: inline-block;
     }
 
     #orientationOverlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.9);
-      color: #fff;
+      background-color: #fef9c3;
+      color: #000;
       z-index: 999;
       flex-direction: column;
       align-items: center;
@@ -37,34 +52,19 @@
       #orientationOverlay { display: none; }
       #mainContent       { display: block; }
     }
-
-
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(10deg); }
-  50% { transform: rotate(-10deg); }
-  75% { transform: rotate(5deg); }
-}
-
-.animate-wiggle {
-  animation: wiggle 1.5s infinite ease-in-out;
-  display: inline-block;
-}
-
-    
   </style>
 </head>
 <body>
-  
 
-<div id="orientationOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
-  <img src="../images/landscape-mode-child-cartoon.png" alt="Cartoon illustration of a child holding a smartphone in landscape mode" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
-  <div class="text-6xl mb-4 animate-wiggle">🔄</div>
-  <p class="text-2xl font-bold mb-2">Please rotate your device</p>
-  <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
-</div>
+  <!-- Orientation Notice -->
+  <div id="orientationOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
+    <img src="../images/landscape-mode-child-cartoon.png" alt="Cartoon illustration of a child holding a smartphone in landscape mode" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
+    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
+  </div>
 
-
+  <!-- Main Content -->
   <div id="mainContent" class="w-screen h-screen relative">
     <!-- Start Screen -->
     <div id="startScreen" class="absolute inset-0 bg-black/80 z-50 flex items-center justify-center flex-col">
@@ -96,7 +96,7 @@
       const videoFrame = document.getElementById('sessionVideo');
 
       // Warte auf Ende des Videos (über postMessage nicht möglich bei Drive-Embed, daher Timer als Workaround)
-      // Setze Timeout auf Videolänge (z. B. 60 Sekunden)
+      // Setze Timeout auf Videolänge (z. B. 60 Sekunden)
       setTimeout(() => {
         continueBtn.classList.remove('hidden');
       }, 40000); // Dauer in ms anpassen
