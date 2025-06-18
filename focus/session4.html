@@ -29,6 +29,10 @@
       display: inline-block;
     }
 
+    video {
+      object-fit: contain;
+    }
+
     #orientationOverlay {
       display: none;
       position: fixed;
@@ -73,9 +77,9 @@
     </div>
 
     <!-- Embedded Video -->
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-      <video id="introVideo" class="max-w-[90vw] max-h-[90vh] w-auto h-auto rounded-xl shadow-xl hidden" playsinline>
-        <source src="../videos/Session4.mp4" type="video/mp4">
+    <div class="absolute inset-0 flex items-center justify-center">
+      <video id="introVideo" class="max-w-full max-h-full w-auto h-auto rounded-xl shadow-xl hidden" playsinline>
+        <source src="../videos/session4.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
     </div>
@@ -111,11 +115,10 @@
       audio.volume = 0.2;
       audio.play();
 
-      // Zeige Success-Overlay nach ca. 99 Sekunden
       setTimeout(() => {
         successOverlay.classList.remove('hidden');
         continueBtn.classList.remove('hidden');
-      }, 14000);
+      }, 13000);
     }
 
     function checkOrientation() {
