@@ -75,6 +75,10 @@
   </div>
 </div>
 
+    <button onclick="toggleFullscreen()" class="absolute bottom-4 left-4 bg-gray-800 text-white px-3 py-1 rounded text-sm z-50">
+  🖥️ Fullscreen
+</button>
+
     <!-- Success Overlay -->
     <div id="successOverlay" class="hidden absolute inset-0 z-40 flex items-center justify-center bg-black/80">
       <div class="text-center text-white">
@@ -122,6 +126,17 @@
         overlay.classList.add('hidden');
       }
     }
+
+    function toggleFullscreen() {
+  const video = document.getElementById("introVideo");
+  if (video.requestFullscreen) {
+    video.requestFullscreen();
+  } else if (video.webkitRequestFullscreen) { // Safari
+    video.webkitRequestFullscreen();
+  } else if (video.msRequestFullscreen) { // IE/Edge
+    video.msRequestFullscreen();
+  }
+}
 
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
