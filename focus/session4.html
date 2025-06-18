@@ -51,9 +51,10 @@
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
     }
+
     @media screen and (orientation: landscape) {
       #orientationOverlay { display: none; }
-      #mainContent       { display: block; }
+      #mainContent       { display: flex; }
     }
   </style>
 </head>
@@ -68,7 +69,8 @@
   </div>
 
   <!-- Main Content -->
-  <div id="mainContent" class="w-screen h-screen relative bg-white text-black">
+  <div id="mainContent" class="w-screen h-screen relative bg-white text-black flex items-center justify-center">
+
     <!-- Start Screen -->
     <div id="startScreen" class="absolute inset-0 bg-white z-50 flex items-center justify-center flex-col text-black">
       <h1 class="text-3xl font-bold mb-6">Welcome to Session 4</h1>
@@ -78,11 +80,12 @@
 
     <!-- Embedded Video -->
     <div class="absolute inset-0 flex items-center justify-center p-4">
-  <div class="w-[90vw] h-[70vh] flex items-center justify-center">
-    <video id="introVideo" class="w-full h-full object-contain rounded-xl shadow-xl hidden" playsinline>
-        <source src="../videos/Session4.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
+      <div class="flex items-center justify-center w-[90vw] h-[70vh]">
+        <video id="introVideo" class="w-full h-full object-contain rounded-xl shadow-xl hidden" playsinline>
+          <source src="../videos/Session4.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
     </div>
 
     <!-- You Did It Overlay -->
