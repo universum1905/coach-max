@@ -49,7 +49,7 @@
   </div>
 
   <!-- Main Content -->
-  <div id="mainContent" class="flex flex-col items-center justify-center w-screen h-screen px-4 relative bg-white text-black">
+  <div id="mainContent" class="flex flex-col items-center justify-center w-screen h-screen px-4 relative bg-white text-black overflow-hidden">
 
     <!-- Start Screen -->
     <div id="startScreen" class="absolute inset-0 z-40 flex flex-col items-center justify-center text-center bg-white px-6">
@@ -59,7 +59,8 @@
     </div>
 
     <!-- Video Container -->
-    <div class="w-full max-w-[960px] aspect-video relative">
+    
+<div class="w-[90vw] max-w-[960px] aspect-video relative overflow-hidden">
       <video id="introVideo" class="w-full h-full rounded-xl shadow-xl hidden" playsinline>
         <source src="../videos/session3.mp4" type="video/mp4">
         Your browser does not support the video tag.
