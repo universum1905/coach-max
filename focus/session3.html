@@ -1,19 +1,20 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Coach Max – Session 3</title>
+  <title>Coach Max – Session 4</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background-color: black;
-      font-family: 'Fredoka', sans-serif;
+      width: 100vw;
+      height: 100vh;
       overflow: hidden;
+      background-color: white;
+      font-family: 'Fredoka', sans-serif;
     }
 
     @keyframes wiggle {
@@ -28,50 +29,62 @@
       display: inline-block;
     }
 
+    video {
+      object-fit: contain;
+    }
+
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
     }
-
     @media screen and (orientation: landscape) {
       #orientationOverlay { display: none; }
       #mainContent       { display: flex; }
     }
   </style>
 </head>
-<body class="bg-black text-white">
+<body class="bg-white text-black">
 
   <!-- Orientation Notice -->
   <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
-    <img src="../images/landscape-mode-child-cartoon.png" alt="Child holding a phone in landscape mode" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <img src="../images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
     <div class="text-6xl mb-4 animate-wiggle">🔄</div>
     <p class="text-2xl font-bold mb-2">Please rotate your device</p>
-    <p class="text-lg">Turn it sideways to enjoy the activity in full screen 😊</p>
+    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
   </div>
 
   <!-- Main Content -->
-  <div id="mainContent" class="flex flex-col items-center justify-center w-screen h-screen px-4 relative bg-white text-black overflow-hidden">
+  <div id="mainContent" class="w-screen h-screen relative bg-white text-black flex items-center justify-center">
 
     <!-- Start Screen -->
-    <div id="startScreen" class="absolute inset-0 z-40 flex flex-col items-center justify-center text-center bg-white px-6">
-      <h1 class="text-3xl font-bold mb-6">Welcome to Session 3</h1>
-      <p class="mb-4 text-lg max-w-xl">In this session, we’ll count together… but something’s a little strange. Can you figure out which number is missing? 🤔</p>
-      <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎮 Let’s Begin</button>
+    <div id="startScreen" class="absolute inset-0 z-50 flex items-center justify-center text-black bg-white">
+      <div class="flex flex-col items-center justify-center px-6 text-center">
+        <h1 class="text-3xl font-bold mb-6">Welcome to Session 3</h1>
+        <p class="mb-4 text-lg">In this session, we’ll count together… but something’s a little strange. Can you figure out which number is missing? 🤔</p>
+        <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎮 Let's Begin</button>
+      </div>
     </div>
 
     <!-- Embedded Video -->
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-      <iframe id="sessionVideo" class="absolute inset-0 w-full h-full z-0 rounded-xl shadow-xl" 
-              src="https://drive.google.com/file/d/1Ot7USG39EHG8i-sBDywlSsVz4a8hGBEb/view?usp=sharing" 
-              allow="autoplay" allowfullscreen>
-      </iframe>
+    <div class="absolute inset-0 flex items-center justify-center pt-4 pb-16">
+      <div class="flex items-center justify-center w-[90vw] h-[70vh]">
+        <video id="introVideo" class="w-full h-full object-contain rounded-xl shadow-xl hidden" playsinline>
+          <source src="../videos/session3.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
     </div>
 
+   <!-- Fullscreen Button (sichtbar unten rechts im Container) -->
+<button id="fullscreenButton" onclick="toggleFullscreen()" class="hidden fixed bottom-4 right-4 bg-gray-800 text-white px-3 py-1 rounded text-sm z-50">
+  🖥️ Fullscreen
+</button>
+
     <!-- Success Overlay -->
-    <div id="successOverlay" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/80 text-white">
-      <div class="text-center">
+    <div id="successOverlay" class="hidden absolute inset-0 z-40 flex items-center justify-center bg-black/80">
+      <div class="text-center text-white">
         <h2 class="text-4xl font-bold mb-4 animate-bounce">🎉 You did it! 🎉</h2>
-        <p class="text-xl">Great job spotting the missing number!</p>
+        <p class="text-xl">Great job counting backwards!</p>
       </div>
     </div>
 
@@ -81,28 +94,29 @@
     </audio>
 
     <!-- Continue Button -->
-    <a id="continueButton" href="session4.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Continue to Session 4</a>
+    <a id="continueButton" href="session4.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Continue to Session 5</a>
   </div>
 
   <script>
     const audio = document.getElementById('bgMusic');
     const continueBtn = document.getElementById('continueButton');
     const startScreen = document.getElementById('startScreen');
-    const videoFrame = document.getElementById('sessionVideo');
+    const videoFrame = document.getElementById('introVideo');
     const successOverlay = document.getElementById('successOverlay');
+    const fullscreenBtn = document.getElementById('fullscreenButton');
 
     function startSession() {
       startScreen.classList.add('hidden');
       videoFrame.classList.remove('hidden');
-      videoFrame.src += "&autoplay=1";
+      videoFrame.play();
       audio.volume = 0.2;
       audio.play();
+      fullscreenBtn.classList.remove('hidden');
 
-      // Simulate video end after 59 seconds
       setTimeout(() => {
         successOverlay.classList.remove('hidden');
         continueBtn.classList.remove('hidden');
-      }, 59000);
+      }, 16000);
     }
 
     function checkOrientation() {
@@ -111,8 +125,19 @@
         overlay.classList.add('flex');
         overlay.classList.remove('hidden');
       } else {
-        overlay.classList.add('hidden');
         overlay.classList.remove('flex');
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function toggleFullscreen() {
+      const video = document.getElementById("introVideo");
+      if (video.requestFullscreen) {
+        video.requestFullscreen();
+      } else if (video.webkitRequestFullscreen) { // Safari
+        video.webkitRequestFullscreen();
+      } else if (video.msRequestFullscreen) { // IE/Edge
+        video.msRequestFullscreen();
       }
     }
 
