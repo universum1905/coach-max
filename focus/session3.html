@@ -5,10 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Coach Max – Session 3</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://0;
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
       padding: 0;
       background-color: black;
       font-family: 'Fredoka', sans-serif;
+      overflow: hidden;
     }
 
     @keyframes wiggle {
@@ -30,7 +34,7 @@
 
     @media screen and (orientation: landscape) {
       #orientationOverlay { display: none; }
-      #mainContent       { display: block; }
+      #mainContent       { display: flex; }
     }
   </style>
 </head>
@@ -41,14 +45,14 @@
     <img src="../images/landscape-mode-child-cartoon.png" alt="Child holding a phone in landscape mode" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
     <div class="text-6xl mb-4 animate-wiggle">🔄</div>
     <p class="text-2xl font-bold mb-2">Please rotate your device</p>
-    <p class="text-lg">To enjoy the activity in full screen 😊</p>
+    <p class="text-lg">Turn it sideways to enjoy the activity in full screen 😊</p>
   </div>
 
   <!-- Main Content -->
-  <div id="mainContent" class="min-h-screen flex flex-col items-center justify-center px-4 relative">
+  <div id="mainContent" class="flex flex-col items-center justify-center w-screen h-screen px-4 relative bg-white text-black">
 
     <!-- Start Screen -->
-    <div id="startScreen" class="absolute inset-0 bg-black/80 z-50 flex flex-col items-center justify-center text-center px-6">
+    <div id="startScreen" class="absolute inset-0 z-40 flex flex-col items-center justify-center text-center bg-white px-6">
       <h1 class="text-3xl font-bold mb-6">Welcome to Session 3</h1>
       <p class="mb-4 text-lg max-w-xl">In this session, we’ll count together… but something’s a little strange. Can you figure out which number is missing? 🤔</p>
       <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎮 Let’s Begin</button>
@@ -66,7 +70,7 @@
     </div>
 
     <!-- Success Overlay -->
-    <div id="successOverlay" class="hidden absolute inset-0 z-40 flex items-center justify-center bg-black/80">
+    <div id="successOverlay" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/80 text-white">
       <div class="text-center">
         <h2 class="text-4xl font-bold mb-4 animate-bounce">🎉 You did it! 🎉</h2>
         <p class="text-xl">Great job spotting the missing number!</p>
