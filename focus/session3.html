@@ -59,15 +59,12 @@
       <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎮 Let’s Begin</button>
     </div>
 
-    <!-- Video Container -->
-    <div class="w-[90vw] max-w-[960px] aspect-video relative overflow-hidden">
-      <video id="introVideo" class="w-full h-full rounded-xl shadow-xl hidden" playsinline>
-        <source src="https://drive.google.com/file/d/1Ot7USG39EHG8i-sBDywlSsVz4a8hGBEb/view" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-      <button id="playButton" onclick="playVideo()" class="absolute inset-0 bg-black/60 text-white text-4xl font-bold flex items-center justify-center rounded-xl hover:bg-black/70 transition hidden">
-        ▶️
-      </button>
+    <!-- Embedded Video -->
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <iframe id="sessionVideo" class="absolute inset-0 w-full h-full z-0 rounded-xl shadow-xl" 
+              src="https://drive.google.com/file/d/1Ot7USG39EHG8i-sBDywlSsVz4a8hGBEb/preview" 
+              allow="autoplay" allowfullscreen>
+      </iframe>
     </div>
 
     <!-- Success Overlay -->
@@ -91,19 +88,13 @@
     const audio = document.getElementById('bgMusic');
     const continueBtn = document.getElementById('continueButton');
     const startScreen = document.getElementById('startScreen');
-    const videoFrame = document.getElementById('introVideo');
+    const videoFrame = document.getElementById('sessionVideo');
     const successOverlay = document.getElementById('successOverlay');
-    const playButton = document.getElementById('playButton');
 
     function startSession() {
       startScreen.classList.add('hidden');
       videoFrame.classList.remove('hidden');
-      playButton.classList.remove('hidden');
-    }
-
-    function playVideo() {
-      playButton.classList.add('hidden');
-      videoFrame.play();
+      videoFrame.src += "&autoplay=1";
       audio.volume = 0.2;
       audio.play();
 
