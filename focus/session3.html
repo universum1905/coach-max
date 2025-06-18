@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
@@ -59,32 +59,38 @@
   <div id="orientationOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
     <img src="../images/landscape-mode-child-cartoon.png" alt="Cartoon illustration of a child holding a smartphone in landscape mode" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
     <div class="text-6xl mb-4 animate-wiggle">🔄</div>
-    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
-    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
+    <p class="text-2xl font-bold mb-2">Bitte drehe dein Gerät</p>
+    <p class="text-lg">Damit du die Aktivität im Vollbild genießen kannst 😊</p>
   </div>
 
   <!-- Main Content -->
   <div id="mainContent" class="w-screen h-screen relative">
+
     <!-- Start Screen -->
     <div id="startScreen" class="absolute inset-0 bg-black/80 z-50 flex items-center justify-center flex-col">
-      <h1 class="text-3xl font-bold text-white mb-6">Welcome to Session 3</h1>
-      <p class="text-white mb-4 text-lg px-8 text-center">In this session, we'll count together... but something is a little strange. Can you spot what number is missing? 🤔</p>
-      <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎮 Let's Begin</button>
+      <h1 class="text-3xl font-bold text-white mb-6">Willkommen zu Session 3</h1>
+      <p class="text-white mb-4 text-lg px-8 text-center">In dieser Session zählen wir gemeinsam... aber irgendetwas ist seltsam. Welche Zahl fehlt wohl? 🤔</p>
+      <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎮 Los geht's</button>
     </div>
 
     <!-- Embedded Video -->
     <div class="absolute inset-0 flex items-center justify-center p-4">
-      <video id="introVideo" class="max-w-[90vw] max-h-[90vh] w-auto h-auto rounded-xl shadow-xl hidden" playsinline>
-        <source src="../videos/session3.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
+      <div class="w-[90vw] max-w-[960px] aspect-video relative">
+        <video id="introVideo" class="w-full h-full rounded-xl shadow-xl hidden" playsinline>
+          <source src="../videos/session3.mp4" type="video/mp4">
+          Dein Browser unterstützt das Video-Tag nicht.
+        </video>
+        <button id="playButton" onclick="playVideo()" class="absolute inset-0 bg-black/60 text-white text-4xl font-bold flex items-center justify-center rounded-xl hover:bg-black/70 transition hidden">
+          ▶️
+        </button>
+      </div>
     </div>
 
     <!-- You Did It Overlay -->
     <div id="successOverlay" class="hidden absolute inset-0 z-40 flex items-center justify-center bg-black/80">
       <div class="text-center text-white">
-        <h2 class="text-4xl font-bold mb-4 animate-bounce">🎉 You did it! 🎉</h2>
-        <p class="text-xl">Great job spotting the missing number!</p>
+        <h2 class="text-4xl font-bold mb-4 animate-bounce">🎉 Geschafft! 🎉</h2>
+        <p class="text-xl">Super gemacht – du hast die fehlende Zahl entdeckt!</p>
       </div>
     </div>
 
@@ -93,8 +99,8 @@
       <source src="../audio/counting-benny-bg.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Continue Button top right -->
-    <a id="continueButton" href="focus/session4.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Continue to Session 4</a>
+    <!-- Continue Button -->
+    <a id="continueButton" href="focus/session4.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Weiter zu Session 4</a>
   </div>
 
   <script>
@@ -103,15 +109,21 @@
     const startScreen = document.getElementById('startScreen');
     const videoFrame = document.getElementById('introVideo');
     const successOverlay = document.getElementById('successOverlay');
+    const playButton = document.getElementById('playButton');
 
     function startSession() {
       startScreen.classList.add('hidden');
       videoFrame.classList.remove('hidden');
+      playButton.classList.remove('hidden');
+    }
+
+    function playVideo() {
+      playButton.classList.add('hidden');
       videoFrame.play();
       audio.volume = 0.2;
       audio.play();
 
-      // Nach 99 Sekunden Video-Ende simulieren
+      // Simuliere Video-Ende nach 59 Sekunden
       setTimeout(() => {
         successOverlay.classList.remove('hidden');
         continueBtn.classList.remove('hidden');
