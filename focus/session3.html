@@ -1,18 +1,12 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Coach Max – Session 3</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    html, body {
-      margin: 0;
+  <link href="https://0;
       padding: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
       background-color: black;
       font-family: 'Fredoka', sans-serif;
     }
@@ -29,68 +23,53 @@
       display: inline-block;
     }
 
-    #orientationOverlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background-color: #fef9c3;
-      color: #000;
-      z-index: 999;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 1rem;
-    }
-
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
     }
+
     @media screen and (orientation: landscape) {
       #orientationOverlay { display: none; }
       #mainContent       { display: block; }
     }
   </style>
 </head>
-<body>
+<body class="bg-black text-white">
 
   <!-- Orientation Notice -->
-  <div id="orientationOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
-    <img src="../images/landscape-mode-child-cartoon.png" alt="Cartoon illustration of a child holding a smartphone in landscape mode" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+  <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
+    <img src="../images/landscape-mode-child-cartoon.png" alt="Child holding a phone in landscape mode" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
     <div class="text-6xl mb-4 animate-wiggle">🔄</div>
-    <p class="text-2xl font-bold mb-2">Bitte drehe dein Gerät</p>
-    <p class="text-lg">Damit du die Aktivität im Vollbild genießen kannst 😊</p>
+    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-lg">To enjoy the activity in full screen 😊</p>
   </div>
 
   <!-- Main Content -->
-  <div id="mainContent" class="w-screen h-screen relative">
+  <div id="mainContent" class="min-h-screen flex flex-col items-center justify-center px-4 relative">
 
     <!-- Start Screen -->
-    <div id="startScreen" class="absolute inset-0 bg-black/80 z-50 flex items-center justify-center flex-col">
-      <h1 class="text-3xl font-bold text-white mb-6">Willkommen zu Session 3</h1>
-      <p class="text-white mb-4 text-lg px-8 text-center">In dieser Session zählen wir gemeinsam... aber irgendetwas ist seltsam. Welche Zahl fehlt wohl? 🤔</p>
-      <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎮 Los geht's</button>
+    <div id="startScreen" class="absolute inset-0 bg-black/80 z-50 flex flex-col items-center justify-center text-center px-6">
+      <h1 class="text-3xl font-bold mb-6">Welcome to Session 3</h1>
+      <p class="mb-4 text-lg max-w-xl">In this session, we’ll count together… but something’s a little strange. Can you figure out which number is missing? 🤔</p>
+      <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎮 Let’s Begin</button>
     </div>
 
-    <!-- Embedded Video -->
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-      <div class="w-[90vw] max-w-[960px] aspect-video relative">
-        <video id="introVideo" class="w-full h-full rounded-xl shadow-xl hidden" playsinline>
-          <source src="../videos/session3.mp4" type="video/mp4">
-          Dein Browser unterstützt das Video-Tag nicht.
-        </video>
-        <button id="playButton" onclick="playVideo()" class="absolute inset-0 bg-black/60 text-white text-4xl font-bold flex items-center justify-center rounded-xl hover:bg-black/70 transition hidden">
-          ▶️
-        </button>
-      </div>
+    <!-- Video Container -->
+    <div class="w-full max-w-[960px] aspect-video relative">
+      <video id="introVideo" class="w-full h-full rounded-xl shadow-xl hidden" playsinline>
+        <source src="../videos/session3.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <button id="playButton" onclick="playVideo()" class="absolute inset-0 bg-black/60 text-white text-4xl font-bold flex items-center justify-center rounded-xl hover:bg-black/70 transition hidden">
+        ▶️
+      </button>
     </div>
 
-    <!-- You Did It Overlay -->
+    <!-- Success Overlay -->
     <div id="successOverlay" class="hidden absolute inset-0 z-40 flex items-center justify-center bg-black/80">
-      <div class="text-center text-white">
-        <h2 class="text-4xl font-bold mb-4 animate-bounce">🎉 Geschafft! 🎉</h2>
-        <p class="text-xl">Super gemacht – du hast die fehlende Zahl entdeckt!</p>
+      <div class="text-center">
+        <h2 class="text-4xl font-bold mb-4 animate-bounce">🎉 You did it! 🎉</h2>
+        <p class="text-xl">Great job spotting the missing number!</p>
       </div>
     </div>
 
@@ -100,7 +79,7 @@
     </audio>
 
     <!-- Continue Button -->
-    <a id="continueButton" href="focus/session4.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Weiter zu Session 4</a>
+    <a id="continueButton" href="focus/session4.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Continue to Session 4</a>
   </div>
 
   <script>
@@ -123,7 +102,7 @@
       audio.volume = 0.2;
       audio.play();
 
-      // Simuliere Video-Ende nach 59 Sekunden
+      // Simulate video end after 59 seconds
       setTimeout(() => {
         successOverlay.classList.remove('hidden');
         continueBtn.classList.remove('hidden');
