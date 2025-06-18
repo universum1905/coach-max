@@ -72,11 +72,13 @@
   <div id="mainContent" class="w-screen h-screen relative bg-white text-black flex items-center justify-center">
 
     <!-- Start Screen -->
-    <div id="startScreen" class="absolute inset-0 bg-white z-50 flex items-center justify-center flex-col text-black">
-      <h1 class="text-3xl font-bold mb-6">Welcome to Session 4</h1>
-      <p class="mb-4 text-lg px-8 text-center">Today we'll count backwards... but one number will be missing. Can you find it?</p>
-      <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎮 Let's Begin</button>
-    </div>
+    <div id="startScreen" class="absolute inset-0 z-50 flex items-center justify-center text-black bg-white">
+  <div class="flex flex-col items-center justify-center px-6 text-center">
+    <h1 class="text-3xl font-bold mb-6">Welcome to Session 4</h1>
+    <p class="mb-4 text-lg">Today we'll count backwards... but one number will be missing. Can you find it?</p>
+    <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎮 Let's Begin</button>
+  </div>
+</div>
 
     <!-- Embedded Video -->
     <div class="absolute inset-0 flex items-center justify-center p-4">
