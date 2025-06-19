@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Coach Max – Session 4</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: white;
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(10deg); }
+      50% { transform: rotate(-10deg); }
+      75% { transform: rotate(5deg); }
+    }
+
+    .animate-wiggle {
+      animation: wiggle 1.5s infinite ease-in-out;
+      display: inline-block;
+    }
+
+    video {
+      object-fit: contain;
+    }
+
+    @media screen and (orientation: portrait) {
+      #orientationOverlay { display: flex; }
+      #mainContent       { display: none; }
+    }
+    @media screen and (orientation: landscape) {
+      #orientationOverlay { display: none; }
+      #mainContent       { display: flex; }
+    }
+  </style>
+</head>
+<body class="bg-white text-black">
+
+  <!-- Orientation Notice -->
+  <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
+    <img src="../images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
+    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="w-screen h-screen relative bg-white text-black flex items-center justify-center">
+
+    <!-- Start Screen -->
+    <div id="startScreen" class="absolute inset-0 z-50 flex items-center justify-center text-black bg-white">
+      <div class="flex flex-col items-center justify-center px-6 text-center">
+        <h1 class="text-3xl font-bold mb-6">Welcome to Session 6</h1>
+        <p class="mb-4 text-lg">Are your ears ready? An animal is about to make a sound… Listen carefully and make your guess!</p>
+        <button onclick="startSession()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 text-lg rounded-xl">🎮 Let's Begin</button>
+      </div>
+    </div>
+
+    <!-- Embedded Video -->
+    <div class="absolute inset-0 flex items-center justify-center pt-4 pb-16">
+      <div class="flex items-center justify-center w-[90vw] h-[70vh]">
+        <video id="introVideo" class="w-full h-full object-contain rounded-xl shadow-xl hidden" playsinline>
+          <source src="../videos/session6.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+
+   <!-- Fullscreen Button (sichtbar unten rechts im Container) -->
+<button id="fullscreenButton" onclick="toggleFullscreen()" class="hidden fixed bottom-4 right-4 bg-gray-800 text-white px-3 py-1 rounded text-sm z-50">
+  🖥️ Fullscreen
+</button>
+
+    <!-- Success Overlay -->
+    <div id="successOverlay" class="hidden absolute inset-0 z-40 flex items-center justify-center bg-black/80">
+      <div class="text-center text-white">
+        <h2 class="text-4xl font-bold mb-4 animate-bounce">👏 Yes! 👏 </h2>
+        <p class="text-xl">Your ears are amazing – you nailed it!</p>
+      </div>
+    </div>
+
+    <!-- Background Music -->
+    <audio id="bgMusic" loop>
+      <source src="../audio/counting-benny-bg.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Continue Button -->
+    <a id="continueButton" href="session7.html" class="hidden absolute top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded z-50">➡️ Continue to Session 7</a>
+  </div>
+
+  <script>
+    const audio = document.getElementById('bgMusic');
+    const continueBtn = document.getElementById('continueButton');
+    const startScreen = document.getElementById('startScreen');
+    const videoFrame = document.getElementById('introVideo');
+    const successOverlay = document.getElementById('successOverlay');
+    const fullscreenBtn = document.getElementById('fullscreenButton');
+
+    function startSession() {
+      startScreen.classList.add('hidden');
+      videoFrame.classList.remove('hidden');
+      videoFrame.play();
+      audio.volume = 0.2;
+      audio.play();
+      fullscreenBtn.classList.remove('hidden');
+
+      setTimeout(() => {
+        successOverlay.classList.remove('hidden');
+        continueBtn.classList.remove('hidden');
+      }, 16000);
+    }
+
+    function checkOrientation() {
+      const overlay = document.getElementById('orientationOverlay');
+      if (window.innerWidth < window.innerHeight) {
+        overlay.classList.add('flex');
+        overlay.classList.remove('hidden');
+      } else {
+        overlay.classList.remove('flex');
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function toggleFullscreen() {
+      const video = document.getElementById("introVideo");
+      if (video.requestFullscreen) {
+        video.requestFullscreen();
+      } else if (video.webkitRequestFullscreen) { // Safari
+        video.webkitRequestFullscreen();
+      } else if (video.msRequestFullscreen) { // IE/Edge
+        video.msRequestFullscreen();
+      }
+    }
+
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('load', checkOrientation);
+  </script>
+</body>
+</html>
