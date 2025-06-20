@@ -165,6 +165,13 @@
       const button = document.querySelector('button[onclick="toggleMute()"]');
       button.textContent = audio.muted ? '🔇' : '🔈';
     }
+
+document.addEventListener("DOMContentLoaded", function () {
+  const audio = document.getElementById('backgroundAudio');
+  audio.volume = 0.1; // leise einstellen (Wert zwischen 0.0 und 1.0)
+});
+
+
   </script>
 
 </body>
