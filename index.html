@@ -34,6 +34,12 @@
       object-fit: contain;
     }
 
+    .audioHint {
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      color: #6b7280;
+    }
+
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
@@ -63,28 +69,31 @@
       <!-- Benny -->
       <div id="bennyBox">
         <div class="relative">
-          <img id="bennyImage" src="images/benny.png" alt="Benny" class="w-32 h-32 mx-auto rounded-full shadow mb-2">
-          <video id="bennyVideo" src="videos/benny.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls muted></video>
+          <img id="bennyImage" src="images/benny.png" alt="Benny" class="w-32 h-32 mx-auto rounded-full shadow mb-2 cursor-pointer" onclick="playAvatarVideo('benny')">
+          <video id="bennyVideo" src="videos/benny.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls onended="resetAvatar('benny')"></video>
         </div>
         <h2 class="text-xl font-semibold">Benny 🐶</h2>
+        <p class="audioHint">🔊 Tap to unmute video</p>
         <button onclick="playAvatarVideo('benny')" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded-full">Meet Benny</button>
       </div>
       <!-- Luna -->
       <div id="lunaBox">
         <div class="relative">
-          <img id="lunaImage" src="images/luna.png" alt="Luna" class="w-32 h-32 mx-auto rounded-full shadow mb-2">
-          <video id="lunaVideo" src="videos/luna.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls muted></video>
+          <img id="lunaImage" src="images/luna.png" alt="Luna" class="w-32 h-32 mx-auto rounded-full shadow mb-2 cursor-pointer" onclick="playAvatarVideo('luna')">
+          <video id="lunaVideo" src="videos/luna.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls onended="resetAvatar('luna')"></video>
         </div>
         <h2 class="text-xl font-semibold">Luna 🐱</h2>
+        <p class="audioHint">🔊 Tap to unmute video</p>
         <button onclick="playAvatarVideo('luna')" class="mt-2 bg-pink-500 text-white px-4 py-1 rounded-full">Meet Luna</button>
       </div>
       <!-- Momo -->
       <div id="momoBox">
         <div class="relative">
-          <img id="momoImage" src="images/momo.png" alt="Momo" class="w-32 h-32 mx-auto rounded-full shadow mb-2">
-          <video id="momoVideo" src="videos/momo.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls muted></video>
+          <img id="momoImage" src="images/momo.png" alt="Momo" class="w-32 h-32 mx-auto rounded-full shadow mb-2 cursor-pointer" onclick="playAvatarVideo('momo')">
+          <video id="momoVideo" src="videos/momo.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls onended="resetAvatar('momo')"></video>
         </div>
         <h2 class="text-xl font-semibold">Momo 🐵</h2>
+        <p class="audioHint">🔊 Tap to unmute video</p>
         <button onclick="playAvatarVideo('momo')" class="mt-2 bg-yellow-500 text-white px-4 py-1 rounded-full">Meet Momo</button>
       </div>
     </div>
@@ -100,6 +109,14 @@
       img.classList.add('hidden');
       video.classList.remove('hidden');
       video.play();
+    }
+
+    function resetAvatar(name) {
+      const img = document.getElementById(`${name}Image`);
+      const video = document.getElementById(`${name}Video`);
+      video.classList.add('hidden');
+      img.classList.remove('hidden');
+      video.currentTime = 0;
     }
   </script>
 
