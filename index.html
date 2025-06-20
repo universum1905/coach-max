@@ -12,9 +12,10 @@
       padding: 0;
       width: 100vw;
       height: 100vh;
-      overflow: hidden;
-      background-color: white;
+      background: url('images/background-pattern.png') no-repeat center center fixed;
+      background-size: cover;
       font-family: 'Fredoka', sans-serif;
+      overflow-y: auto;
     }
 
     @keyframes wiggle {
@@ -30,7 +31,7 @@
     }
 
     video {
-      object-fit: cover;
+      object-fit: contain;
     }
 
     @media screen and (orientation: portrait) {
@@ -43,7 +44,7 @@
     }
   </style>
 </head>
-<body class="bg-white text-black">
+<body class="text-black">
 
   <!-- Orientation Notice -->
   <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
