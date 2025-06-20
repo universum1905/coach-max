@@ -19,14 +19,14 @@
     }
   </style>
 </head>
-<body class="text-black flex flex-col items-center justify-start min-h-screen p-4">
+<body class="text-black flex flex-col items-center justify-start min-h-screen p-4 overflow-y-auto">
 
-  <div id="session-container" class="w-full max-w-2xl space-y-6">
+  <div id="session-container" class="w-full max-w-xl space-y-6">
     <!-- 1. Atemübung -->
     <div id="session1">
       <h2 class="text-2xl font-bold text-center mb-2">🧘 Let’s begin with a breathing game!</h2>
-      <video class="w-full rounded-lg shadow" controls playsinline>
-        <source src="videos/session3.mp4" type="video/mp4">
+      <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
+        <source src="videos/day1-breathing.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
       <button onclick="nextSession(2)" class="mt-4 block mx-auto bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
@@ -35,7 +35,7 @@
     <!-- 2. Matheübung -->
     <div id="session2" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">➕ Can you count with Benny?</h2>
-      <video class="w-full rounded-lg shadow" controls playsinline>
+      <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
         <source src="videos/day1-math.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
@@ -45,7 +45,7 @@
     <!-- 3. Reimspiel -->
     <div id="session3" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">🎵 Find the rhyme!</h2>
-      <video class="w-full rounded-lg shadow" controls playsinline>
+      <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
         <source src="videos/day1-rhyme.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
@@ -55,7 +55,7 @@
     <!-- 4. Tiergeräusche -->
     <div id="session4" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">🐾 What animal is this?</h2>
-      <video class="w-full rounded-lg shadow" controls playsinline>
+      <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
         <source src="videos/day1-animals.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
