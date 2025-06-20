@@ -14,8 +14,6 @@
       height: 100vh;
       overflow: hidden;
       background: linear-gradient(to bottom right, #b2f5ea, #f0fff4);
-      background-image: url('../images/background-pattern.png');
-      background-repeat: repeat;
       font-family: 'Fredoka', sans-serif;
     }
 
@@ -23,80 +21,73 @@
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
     }
-
     @media screen and (orientation: landscape) {
       #orientationOverlay { display: none; }
       #mainContent       { display: flex; }
     }
+
+    video {
+      object-fit: contain;
+    }
   </style>
 </head>
 <body class="text-black">
+
   <!-- Orientation Notice -->
   <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
     <img src="../images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
-    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
+    <div class="text-6xl mb-4 animate-bounce">🔄</div>
     <p class="text-2xl font-bold mb-2">Please rotate your device</p>
     <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
   </div>
 
   <!-- Main Content -->
-  <div id="mainContent" class="flex flex-col items-center justify-start min-h-screen p-4 text-center w-full">
-    <h1 class="text-3xl font-bold mb-4">Day 1 – Let's Get Started!</h1>
+  <div id="mainContent" class="flex flex-col items-center justify-center w-full h-full p-4">
+    <h1 class="text-3xl font-bold mb-4 text-center">🧘‍♂️ Day 1: Breathe with Benny</h1>
 
-    <!-- Session Container -->
-    <div id="sessionContainer" class="w-full max-w-2xl">
-
-      <!-- Step 1: Breathing Exercise -->
-      <div id="step1" class="step">
-        <h2 class="text-2xl font-semibold mb-2">🧘 Start with a Deep Breath</h2>
-        <video id="video1" class="w-full rounded-xl mb-4" controls>
-          <source src="../videos/day1_breathing.mp4" type="video/mp4">
-        </video>
-        <button onclick="showStep(2)" class="bg-blue-600 text-white px-6 py-2 rounded-full">Next ➡️</button>
-      </div>
-
-      <!-- Step 2: Math Session -->
-      <div id="step2" class="step hidden">
-        <h2 class="text-2xl font-semibold mb-2">🔢 What number comes next?</h2>
-        <video id="video2" class="w-full rounded-xl mb-4" controls>
-          <source src="../videos/day1_math.mp4" type="video/mp4">
-        </video>
-        <button onclick="showStep(3)" class="bg-blue-600 text-white px-6 py-2 rounded-full">Next ➡️</button>
-      </div>
-
-      <!-- Step 3: Rhyming Words -->
-      <div id="step3" class="step hidden">
-        <h2 class="text-2xl font-semibold mb-2">🎵 What rhymes with...?</h2>
-        <video id="video3" class="w-full rounded-xl mb-4" controls>
-          <source src="../videos/day1_rhymes.mp4" type="video/mp4">
-        </video>
-        <button onclick="showStep(4)" class="bg-blue-600 text-white px-6 py-2 rounded-full">Next ➡️</button>
-      </div>
-
-      <!-- Step 4: Animal Sounds Fun -->
-      <div id="step4" class="step hidden">
-        <h2 class="text-2xl font-semibold mb-2">🦁 What animal makes this sound?</h2>
-        <video id="video4" class="w-full rounded-xl mb-4" controls>
-          <source src="../videos/day1_animals.mp4" type="video/mp4">
-        </video>
-        <button onclick="showStep(5)" class="bg-green-600 text-white px-6 py-2 rounded-full">🎉 Finish Day 1</button>
-      </div>
-
-      <!-- Step 5: Success Message -->
-      <div id="step5" class="step hidden">
-        <h2 class="text-3xl font-bold text-green-700 mb-4">🎉 Great Job!</h2>
-        <p class="mb-4">You completed all activities for today. See you tomorrow!</p>
-        <a href="day2.html" class="bg-purple-600 text-white px-6 py-2 rounded-full">Start Day 2</a>
-      </div>
+    <!-- Video -->
+    <div class="w-full max-w-2xl mb-4 relative">
+      <video id="sessionVideo" class="w-full h-auto rounded-lg shadow-xl" controls>
+        <source src="../videos/session1.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
     </div>
+
+    <!-- Fullscreen Button -->
+    <button onclick="toggleFullscreen()" class="fixed bottom-4 right-4 bg-gray-800 text-white px-3 py-2 rounded z-50 text-sm shadow">
+      🖥️ Fullscreen
+    </button>
+
+    <!-- Continue Button -->
+    <a href="../index.html" class="mt-6 bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700">Back to Home</a>
   </div>
 
   <script>
-    function showStep(stepNumber) {
-      const steps = document.querySelectorAll('.step');
-      steps.forEach(step => step.classList.add('hidden'));
-      document.getElementById(`step${stepNumber}`).classList.remove('hidden');
+    function toggleFullscreen() {
+      const video = document.getElementById("sessionVideo");
+      if (video.requestFullscreen) {
+        video.requestFullscreen();
+      } else if (video.webkitRequestFullscreen) {
+        video.webkitRequestFullscreen();
+      } else if (video.msRequestFullscreen) {
+        video.msRequestFullscreen();
+      }
     }
+
+    function checkOrientation() {
+      const overlay = document.getElementById('orientationOverlay');
+      if (window.innerWidth < window.innerHeight) {
+        overlay.classList.add('flex');
+        overlay.classList.remove('hidden');
+      } else {
+        overlay.classList.remove('flex');
+        overlay.classList.add('hidden');
+      }
+    }
+
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('load', checkOrientation);
   </script>
 </body>
 </html>

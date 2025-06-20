@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Coach Max – Day 2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Fredoka', sans-serif;
+      background: linear-gradient(to bottom right, #b2f5ea, #f0fff4);
+    }
+
+    @media screen and (orientation: portrait) {
+      #orientationOverlay { display: flex; }
+      #mainContent       { display: none; }
+    }
+    @media screen and (orientation: landscape) {
+      #orientationOverlay { display: none; }
+      #mainContent       { display: flex; }
+    }
+  </style>
+</head>
+<body class="text-black">
+
+  <!-- Orientation Notice -->
+  <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
+    <img src="../images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
+    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+    <h1 class="text-3xl font-bold mb-6">Day 2 – Let's Go!</h1>
+    <p class="mb-8 max-w-lg">Time for a new challenge with your Coach! Ready to start?</p>
+
+    <div class="w-full max-w-xl">
+      <video controls class="w-full rounded-xl shadow-xl">
+        <source src="../videos/day2.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <!-- Success Button -->
+    <button onclick="markDayComplete()" class="mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full">✅ Mark as Done</button>
+  </div>
+
+  <script>
+    // Block access if user already completed today
+    const lastDay = localStorage.getItem("lastCompletedDay");
+    const today = new Date().toDateString();
+
+    if (lastDay === today) {
+      alert("🚫 You already completed a session today. Come back tomorrow! 😊");
+      window.location.href = "../index.html";
+    }
+
+    function markDayComplete() {
+      localStorage.setItem("lastCompletedDay", new Date().toDateString());
+      alert("🎉 Great job! See you tomorrow!");
+      window.location.href = "../index.html";
+    }
+  </script>
+</body>
+</html>
