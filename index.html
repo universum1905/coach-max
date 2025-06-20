@@ -12,10 +12,8 @@
       padding: 0;
       width: 100vw;
       height: 100vh;
-      overflow-y: auto;
-      background: linear-gradient(to bottom right, #b2f5ea, #f0fff4);
-      background-image: url('images/background-pattern.png');
-      background-repeat: repeat;
+      overflow: hidden;
+      background-color: white;
       font-family: 'Fredoka', sans-serif;
     }
 
@@ -32,21 +30,20 @@
     }
 
     video {
-      object-fit: contain;
+      object-fit: cover;
     }
 
     @media screen and (orientation: portrait) {
       #orientationOverlay { display: flex; }
       #mainContent       { display: none; }
     }
-
     @media screen and (orientation: landscape) {
       #orientationOverlay { display: none; }
-      #mainContent       { display: flex; }
+      #mainContent       { display: block; }
     }
   </style>
 </head>
-<body class="text-black">
+<body class="bg-white text-black">
 
   <!-- Orientation Notice -->
   <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
@@ -57,50 +54,50 @@
   </div>
 
   <!-- Main Content -->
-  <div id="mainContent" class="flex flex-col items-center justify-start min-h-[120vh] p-4 text-center w-full">
+  <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4 text-center">
     <h1 class="text-3xl font-bold mb-6">Welcome to Coach Max!</h1>
-    <p class="mb-8 w-full max-w-lg mx-auto text-center">Every day, you’ll learn something new with our fun animal coaches. Click on each friend to meet them!</p>
+    <p class="mb-8 max-w-lg mx-auto">Every day, you’ll learn something new with our fun animal coaches. Click on each friend to meet them!</p>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
       <!-- Benny -->
-      <div class="flex flex-col items-center">
-        <img src="images/benny.png" alt="Benny" class="w-32 h-32 rounded-full shadow mb-2">
-        <h2 class="text-xl font-semibold text-center">Benny 🐶</h2>
-        <button onclick="showIntro('benny')" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded-full">Meet Benny</button>
+      <div id="bennyBox">
+        <div class="relative">
+          <img id="bennyImage" src="images/benny.png" alt="Benny" class="w-32 h-32 mx-auto rounded-full shadow mb-2">
+          <video id="bennyVideo" src="videos/benny.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls muted></video>
+        </div>
+        <h2 class="text-xl font-semibold">Benny 🐶</h2>
+        <button onclick="playAvatarVideo('benny')" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded-full">Meet Benny</button>
       </div>
       <!-- Luna -->
-      <div class="flex flex-col items-center">
-        <img src="images/luna.png" alt="Luna" class="w-32 h-32 rounded-full shadow mb-2">
-        <h2 class="text-xl font-semibold text-center">Luna 🐱</h2>
-        <button onclick="showIntro('luna')" class="mt-2 bg-pink-500 text-white px-4 py-1 rounded-full">Meet Luna</button>
+      <div id="lunaBox">
+        <div class="relative">
+          <img id="lunaImage" src="images/luna.png" alt="Luna" class="w-32 h-32 mx-auto rounded-full shadow mb-2">
+          <video id="lunaVideo" src="videos/luna.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls muted></video>
+        </div>
+        <h2 class="text-xl font-semibold">Luna 🐱</h2>
+        <button onclick="playAvatarVideo('luna')" class="mt-2 bg-pink-500 text-white px-4 py-1 rounded-full">Meet Luna</button>
       </div>
       <!-- Momo -->
-      <div class="flex flex-col items-center">
-        <img src="images/momo.png" alt="Momo" class="w-32 h-32 rounded-full shadow mb-2">
-        <h2 class="text-xl font-semibold text-center">Momo 🐵</h2>
-        <button onclick="showIntro('momo')" class="mt-2 bg-yellow-500 text-white px-4 py-1 rounded-full">Meet Momo</button>
+      <div id="momoBox">
+        <div class="relative">
+          <img id="momoImage" src="images/momo.png" alt="Momo" class="w-32 h-32 mx-auto rounded-full shadow mb-2">
+          <video id="momoVideo" src="videos/momo.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls muted></video>
+        </div>
+        <h2 class="text-xl font-semibold">Momo 🐵</h2>
+        <button onclick="playAvatarVideo('momo')" class="mt-2 bg-yellow-500 text-white px-4 py-1 rounded-full">Meet Momo</button>
       </div>
     </div>
-
-    <!-- Video-Bereich -->
-      <div id="intro-container" class="hidden w-full mb-8 flex justify-center items-center">
-  <div class="w-full sm:max-w-[600px] max-w-[90vw] px-4">
-    <video id="intro-video" class="w-full h-auto rounded-lg shadow-md" controls playsinline style="max-height: 50vh;">
-      Your browser does not support the video tag.
-    </video>
-  </div>
-</div>
 
     <!-- Start Button -->
     <button onclick="window.location.href='day1.html'" class="bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700">Start Day 1</button>
   </div>
 
   <script>
-    function showIntro(name) {
-      const video = document.getElementById("intro-video");
-      const container = document.getElementById("intro-container");
-      video.src = `videos/${name}.mp4`;
-      container.classList.remove("hidden");
+    function playAvatarVideo(name) {
+      const img = document.getElementById(`${name}Image`);
+      const video = document.getElementById(`${name}Video`);
+      img.classList.add('hidden');
+      video.classList.remove('hidden');
       video.play();
     }
   </script>
