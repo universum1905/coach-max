@@ -17,16 +17,43 @@
     video {
       object-fit: contain;
     }
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(10deg); }
+      50% { transform: rotate(-10deg); }
+      75% { transform: rotate(5deg); }
+    }
+    .animate-wiggle {
+      animation: wiggle 1.5s infinite ease-in-out;
+      display: inline-block;
+    }
+    @media screen and (orientation: portrait) {
+      #orientationOverlay { display: flex; }
+      #mainContent       { display: none; }
+    }
+    @media screen and (orientation: landscape) {
+      #orientationOverlay { display: none; }
+      #mainContent       { display: block; }
+    }
   </style>
 </head>
 <body class="text-black flex flex-col items-center justify-start min-h-screen p-4 overflow-y-auto">
 
-  <div id="session-container" class="w-full max-w-xl space-y-6">
+  <!-- Orientation Notice -->
+  <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
+    <img src="images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
+    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="w-full max-w-xl space-y-6">
     <!-- 1. Atemübung -->
     <div id="session1">
       <h2 class="text-2xl font-bold text-center mb-2">🧘 Let’s begin with a breathing game!</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/session3.mp4" type="video/mp4">
+        <source src="videos/day1-breathing.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
       <div class="flex justify-center gap-4 mt-4">
