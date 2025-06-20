@@ -1,42 +1,86 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Coach Max – Day 1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: linear-gradient(to bottom right, #b2f5ea, #f0fff4);
       font-family: 'Fredoka', sans-serif;
-      background: linear-gradient(to bottom right, #f0fff4, #b2f5ea);
+    }
+    video {
+      object-fit: contain;
     }
   </style>
 </head>
-<body class="min-h-screen overflow-y-auto text-black">
-  <div class="flex flex-col items-center justify-start min-h-screen p-4 text-center">
+<body class="text-black flex flex-col items-center justify-start min-h-screen p-4">
 
-    <h1 class="text-3xl font-bold mb-4">Day 1 – Breathing Exercise</h1>
-    <p class="mb-6 max-w-xl">Let’s get started with a short breathing session. Sit comfortably and follow along with the video below.</p>
-
-    <!-- Video Bereich -->
-    <div class="w-full max-w-[800px] mb-6">
-      <video id="sessionVideo" class="w-full h-auto rounded-lg shadow-xl" controls playsinline>
+  <div id="session-container" class="w-full max-w-2xl space-y-6">
+    <!-- 1. Atemübung -->
+    <div id="session1">
+      <h2 class="text-2xl font-bold text-center mb-2">🧘 Let’s begin with a breathing game!</h2>
+      <video class="w-full rounded-lg shadow" controls playsinline>
         <source src="videos/session3.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
+      <button onclick="nextSession(2)" class="mt-4 block mx-auto bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
     </div>
 
-    <!-- Hinweis für morgen -->
-    <div class="bg-yellow-100 text-yellow-800 px-6 py-4 rounded-lg shadow mb-6 max-w-md">
-      ✅ Great job today! Come back tomorrow to unlock Day 2!
+    <!-- 2. Matheübung -->
+    <div id="session2" class="hidden">
+      <h2 class="text-2xl font-bold text-center mb-2">➕ Can you count with Benny?</h2>
+      <video class="w-full rounded-lg shadow" controls playsinline>
+        <source src="videos/day1-math.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <button onclick="nextSession(3)" class="mt-4 block mx-auto bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
     </div>
 
-    <!-- Zurück Button -->
-    <button onclick="window.location.href='index.html'" class="bg-blue-600 text-white px-6 py-3 rounded-full shadow hover:bg-blue-700">
-      Back to Home
-    </button>
+    <!-- 3. Reimspiel -->
+    <div id="session3" class="hidden">
+      <h2 class="text-2xl font-bold text-center mb-2">🎵 Find the rhyme!</h2>
+      <video class="w-full rounded-lg shadow" controls playsinline>
+        <source src="videos/day1-rhyme.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <button onclick="nextSession(4)" class="mt-4 block mx-auto bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
+    </div>
 
+    <!-- 4. Tiergeräusche -->
+    <div id="session4" class="hidden">
+      <h2 class="text-2xl font-bold text-center mb-2">🐾 What animal is this?</h2>
+      <video class="w-full rounded-lg shadow" controls playsinline>
+        <source src="videos/day1-animals.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <button onclick="showFinish()" class="mt-4 block mx-auto bg-green-600 text-white px-6 py-2 rounded-full">Finish Day 1</button>
+    </div>
+
+    <!-- Abschlussbildschirm -->
+    <div id="finish-screen" class="hidden text-center space-y-4">
+      <h2 class="text-3xl font-bold text-green-700">✅ Great job today!</h2>
+      <p class="text-xl">Come back tomorrow to unlock Day 2 😊</p>
+      <button onclick="window.location.href='index.html'" class="bg-gray-700 text-white px-6 py-2 rounded-full">🏠 Back to Home</button>
+    </div>
   </div>
+
+  <script>
+    function nextSession(number) {
+      document.getElementById(`session${number - 1}`).classList.add('hidden');
+      document.getElementById(`session${number}`).classList.remove('hidden');
+    }
+
+    function showFinish() {
+      document.getElementById('session4').classList.add('hidden');
+      document.getElementById('finish-screen').classList.remove('hidden');
+    }
+  </script>
+
 </body>
 </html>
