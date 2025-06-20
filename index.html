@@ -38,6 +38,11 @@
       font-size: 0.875rem;
       margin-top: 0.25rem;
       color: #6b7280;
+      transition: opacity 0.5s ease;
+    }
+
+    .audioHint.hidden {
+      opacity: 0;
     }
 
     @media screen and (orientation: portrait) {
@@ -73,7 +78,7 @@
           <video id="bennyVideo" src="videos/benny.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls onended="resetAvatar('benny')"></video>
         </div>
         <h2 class="text-xl font-semibold">Benny 🐶</h2>
-        <p class="audioHint">🔊 Tap to unmute video</p>
+        <p id="hint-benny" class="audioHint">🔊 Tap to unmute video</p>
         <button onclick="playAvatarVideo('benny')" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded-full">Meet Benny</button>
       </div>
       <!-- Luna -->
@@ -83,7 +88,7 @@
           <video id="lunaVideo" src="videos/luna.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls onended="resetAvatar('luna')"></video>
         </div>
         <h2 class="text-xl font-semibold">Luna 🐱</h2>
-        <p class="audioHint">🔊 Tap to unmute video</p>
+        <p id="hint-luna" class="audioHint">🔊 Tap to unmute video</p>
         <button onclick="playAvatarVideo('luna')" class="mt-2 bg-pink-500 text-white px-4 py-1 rounded-full">Meet Luna</button>
       </div>
       <!-- Momo -->
@@ -93,7 +98,7 @@
           <video id="momoVideo" src="videos/momo.mp4" class="hidden w-32 h-32 mx-auto rounded-full shadow" playsinline controls onended="resetAvatar('momo')"></video>
         </div>
         <h2 class="text-xl font-semibold">Momo 🐵</h2>
-        <p class="audioHint">🔊 Tap to unmute video</p>
+        <p id="hint-momo" class="audioHint">🔊 Tap to unmute video</p>
         <button onclick="playAvatarVideo('momo')" class="mt-2 bg-yellow-500 text-white px-4 py-1 rounded-full">Meet Momo</button>
       </div>
     </div>
@@ -106,17 +111,24 @@
     function playAvatarVideo(name) {
       const img = document.getElementById(`${name}Image`);
       const video = document.getElementById(`${name}Video`);
+      const hint = document.getElementById(`hint-${name}`);
       img.classList.add('hidden');
       video.classList.remove('hidden');
       video.play();
+      hint.classList.remove('hidden');
+      setTimeout(() => {
+        hint.classList.add('hidden');
+      }, 4000);
     }
 
     function resetAvatar(name) {
       const img = document.getElementById(`${name}Image`);
       const video = document.getElementById(`${name}Video`);
+      const hint = document.getElementById(`hint-${name}`);
       video.classList.add('hidden');
       img.classList.remove('hidden');
       video.currentTime = 0;
+      hint.classList.remove('hidden');
     }
   </script>
 
