@@ -47,33 +47,36 @@
 
     <!-- Video -->
     <div class="w-full max-w-2xl mb-4 relative">
-      <video id="sessionVideo" class="w-full h-auto rounded-lg shadow-xl" controls>
+      <video id="sessionVideo" class="w-full max-w-[90vw] max-h-[50vh] mx-auto rounded-lg shadow-xl" controls playsinline>
         <source src="../videos/session1.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
     </div>
 
-    <!-- Fullscreen Button -->
-    <button onclick="toggleFullscreen()" class="fixed bottom-4 right-4 bg-gray-800 text-white px-3 py-2 rounded z-50 text-sm shadow">
-      🖥️ Fullscreen
-    </button>
+<!-- Success Message After Video -->
+<div id="dayCompleteOverlay" class="hidden absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white text-center p-6">
+  <h2 class="text-4xl font-bold mb-4">🎉 Great job!</h2>
+  <p class="text-lg mb-6">Come back tomorrow for Day 2!</p>
+  <a href="index.html" class="bg-white text-black px-6 py-2 rounded-full shadow hover:bg-gray-100">⬅ Back to Home</a>
+</div>
 
-    <!-- Continue Button -->
+
+     <!-- Continue Button -->
     <a href="../index.html" class="mt-6 bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700">Back to Home</a>
   </div>
 
   <script>
-    function toggleFullscreen() {
-      const video = document.getElementById("sessionVideo");
-      if (video.requestFullscreen) {
-        video.requestFullscreen();
-      } else if (video.webkitRequestFullscreen) {
-        video.webkitRequestFullscreen();
-      } else if (video.msRequestFullscreen) {
-        video.msRequestFullscreen();
-      }
-    }
 
+const video = document.getElementById("sessionVideo");
+  const overlay = document.getElementById("dayCompleteOverlay");
+
+  video.addEventListener('ended', () => {
+    overlay.classList.remove('hidden');
+    // Optional: Merken, dass Day 1 abgeschlossen wurde
+    localStorage.setItem('coachMax_day1_done', new Date().toISOString());
+  });
+
+    
     function checkOrientation() {
       const overlay = document.getElementById('orientationOverlay');
       if (window.innerWidth < window.innerHeight) {
