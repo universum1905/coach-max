@@ -1,189 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coach Max – Start</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Coach Max – Welcome</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    .fredoka {
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow-y: auto;
+      background: linear-gradient(to bottom right, #b2f5ea, #f0fff4); /* Türkis zu Mint-Verlauf */
+      background-image: url('images/background-pattern.png');
+      background-repeat: repeat;
       font-family: 'Fredoka', sans-serif;
     }
-    @keyframes fade-in-up {
-      0% { opacity: 0; transform: translateY(10px); }
-      100% { opacity: 1; transform: translateY(0); }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(10deg); }
+      50% { transform: rotate(-10deg); }
+      75% { transform: rotate(5deg); }
     }
-    .animate-fade-in-up {
-      animation: fade-in-up 0.6s ease-out;
+
+    .animate-wiggle {
+      animation: wiggle 1.5s infinite ease-in-out;
+      display: inline-block;
+    }
+
+    video {
+      object-fit: contain;
+    }
+
+    @media screen and (orientation: portrait) {
+      #orientationOverlay { display: flex; }
+      #mainContent       { display: none; }
+    }
+
+    @media screen and (orientation: landscape) {
+      #orientationOverlay { display: none; }
+      #mainContent       { display: flex; }
     }
   </style>
 </head>
-<body id="mainBody" class="min-h-screen flex flex-col justify-between text-gray-800 bg-cyan-100 fredoka">
+<body class="text-black">
 
-  <!-- Begrüßung mit Name -->
-  <h2 id="childName" class="mt-10 text-center text-3xl sm:text-4xl font-bold text-indigo-700 animate-fade-in-up">
-    Welcome!
-  </h2>
+  <!-- Orientation Notice -->
+  <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
+    <img src="images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
+    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
+  </div>
 
-  <!-- Zitat -->
-  <p class="mt-4 text-lg italic text-gray-600 text-center max-w-md mx-auto">
-    “Every day is a fresh start. Let’s make it awesome!”
-  </p>
+  <!-- Main Content -->
+  <div id="mainContent" class="flex flex-col items-center justify-start min-h-[120vh] p-4 text-center w-full">
+    <h1 class="text-3xl font-bold mb-6">Welcome to Coach Max!</h1>
+    <p class="mb-8 w-full max-w-lg mx-auto text-center">Every day, you’ll learn something new with our fun animal coaches. Click on each friend to meet them!</p>
 
-  <!-- Avatar Bereich -->
-  <section class="text-center py-12 px-4">
-    <img id="avatarImage" src="images/benny-bark.png" alt="Coach Avatar" class="mx-auto w-32 h-32 rounded-full shadow-lg" />
-    <h1 id="avatarGreeting" class="text-3xl font-bold mt-4">Hi, I'm Benny</h1>
-    <button onclick="changeAvatarOnly()" class="mt-3 px-4 py-2 bg-indigo-500 text-white text-sm rounded-full hover:bg-indigo-600 shadow">
-      🔁 Change Coach
-    </button>
-    <p class="mt-2 text-lg">Your playful coaching companion. Ready to boost your day?</p>
-  </section>
-
-  <!-- Coaching Quote -->
-  <section class="text-center px-4 mb-10">
-    <div id="coaching-quote" class="text-lg italic text-gray-700">Loading quote...</div>
-  </section>
-
-  <!-- Fortschritt -->
-  <section class="text-center mb-10">
-    <p id="progress-display" class="text-lg font-semibold text-green-700">Loading progress...</p>
-    <button onclick="advanceDay()" class="mt-2 px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 shadow">
-      Mark Today as Done ✅
-    </button>
-    <div id="reward-box" class="hidden mt-4 p-4 bg-yellow-100 text-yellow-800 rounded-xl shadow max-w-md mx-auto font-semibold">
-      🎁 Reward text will appear here.
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+      <!-- Benny -->
+      <div class="flex flex-col items-center">
+        <img src="images/benny.png" alt="Benny" class="w-32 h-32 rounded-full shadow mb-2">
+        <h2 class="text-xl font-semibold text-center">Benny 🐶</h2>
+        <button onclick="showIntro('benny')" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded-full">Meet Benny</button>
+      </div>
+      <!-- Luna -->
+      <div class="flex flex-col items-center">
+        <img src="images/luna.png" alt="Luna" class="w-32 h-32 rounded-full shadow mb-2">
+        <h2 class="text-xl font-semibold text-center">Luna 🐱</h2>
+        <button onclick="showIntro('luna')" class="mt-2 bg-pink-500 text-white px-4 py-1 rounded-full">Meet Luna</button>
+      </div>
+      <!-- Momo -->
+      <div class="flex flex-col items-center">
+        <img src="images/momo.png" alt="Momo" class="w-32 h-32 rounded-full shadow mb-2">
+        <h2 class="text-xl font-semibold text-center">Momo 🐵</h2>
+        <button onclick="showIntro('momo')" class="mt-2 bg-yellow-500 text-white px-4 py-1 rounded-full">Meet Momo</button>
+      </div>
     </div>
-    <p id="motivation-level" class="mt-2 text-sm italic text-indigo-400"></p>
-    <button onclick="resetProgress()" class="mt-2 px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 shadow">
-      Reset Progress 🔄
-    </button>
-  </section>
 
-  <!-- Coaching Bereiche -->
-  <section class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 px-4 mb-12">
-    <div class="bg-white p-6 rounded-2xl shadow-md">
-      <h2 class="text-xl font-semibold mb-2">🎯 Focus Coaching</h2>
-      <p>Mini-sessions to sharpen your mind and cut distractions.</p>
+    <!-- Video-Bereich -->
+    <div id="intro-container" class="hidden max-w-xl w-full mb-8 flex justify-center items-center">
+      <video id="intro-video" src="" class="w-full max-w-md rounded-lg shadow" controls></video>
     </div>
-    <div class="bg-white p-6 rounded-2xl shadow-md">
-      <h2 class="text-xl font-semibold mb-2">📈 Progress Tracker</h2>
-      <p>Daily check-ins to celebrate small wins and move forward.</p>
-    </div>
-    <div class="bg-white p-6 rounded-2xl shadow-md">
-      <h2 class="text-xl font-semibold mb-2">🧠 Mind Boost</h2>
-      <p>Positive nudges and affirmations for a better mindset.</p>
-    </div>
-  </section>
 
-  <!-- CTA -->
-  <div class="text-center mb-12">
-    <a href="focus/session1.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-full shadow">
-      Start your journey
-    </a>
+    <!-- Start Button -->
+    <button onclick="window.location.href='day1.html'" class="bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700">Start Day 1</button>
   </div>
 
   <script>
-    const name = localStorage.getItem('coachUserName') || 'Coachie';
-    document.getElementById('childName').textContent = `Welcome, ${name}!`;
-
-    const avatarImagePath = localStorage.getItem("coachAvatarImage");
-    const avatarName = localStorage.getItem("coachAvatar");
-
-    if (avatarImagePath && document.getElementById("avatarImage")) {
-      document.getElementById("avatarImage").src = avatarImagePath;
-    }
-
-    if (avatarName && document.getElementById("avatarGreeting")) {
-      document.getElementById("avatarGreeting").textContent = `Hi, I'm ${avatarName}`;
-    }
-  </script>
-
-  <script>
-    fetch('quotes.json')
-      .then(response => response.json())
-      .then(quotes => {
-        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        document.getElementById("coaching-quote").textContent = `"${randomQuote}"`;
-      })
-      .catch(error => {
-        console.error("Quote loading failed", error);
-        document.getElementById("coaching-quote").textContent = "You are stronger than you think.";
-      });
-  </script>
-
-  <script>
-    const hasName = localStorage.getItem('coachUserName');
-    const hasAvatar = localStorage.getItem('coachAvatar');
-    if (!hasName || !hasAvatar) {
-      window.location.href = "onboarding.html";
-    }
-  </script>
-
-  <script>
-  if (!localStorage.getItem('coachingDay')) {
-    localStorage.setItem('coachingDay', 0);
-  }
-  let day = parseInt(localStorage.getItem('coachingDay')) || 0;
-
-    function updateProgress() {
-      const display = document.getElementById('progress-display');
-      const motivationText = document.getElementById('motivation-level');
-
-      if (day === 0) {
-        display.textContent = `👋 Ready to begin your journey? Tap below to start Day 1!`;
-        motivationText.textContent = "✨ A new beginning";
-      } else if (day <= 7) {
-        display.textContent = `✅ Day ${day} of 7 – You're doing great!`;
-
-        if (day === 5) {
-          showReward("🎉 You reached 5 days! You earned a Focus Badge 🧠✨");
-        } else if (day === 7) {
-          showReward("🏆 7 Days Complete – You’re a Champion! 🌟");
-        }
-
-        motivationText.textContent =
-          day <= 3 ? "🌱 Growing Mind" :
-          day <= 6 ? "🔥 Focus Mode Active" : "🌟 Mind Master";
-      } else {
-        display.textContent = `🎉 Challenge completed! Start again?`;
-      }
-    }
-
-    function advanceDay() {
-      if (day < 7) {
-        day++;
-        localStorage.setItem('coachingDay', day);
-        updateProgress();
-      }
-    }
-
-    function resetProgress() {
-      day = 0;
-      localStorage.setItem('coachingDay', day);
-      updateProgress();
-    }
-
-    function showReward(message) {
-      const rewardBox = document.getElementById('reward-box');
-      rewardBox.textContent = message;
-      rewardBox.classList.remove("hidden");
-      setTimeout(() => rewardBox.classList.add("hidden"), 10000);
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      updateProgress();
-    });
-  </script>
-
-  <script>
-    function changeAvatarOnly() {
-      if (confirm("Do you want to choose a different coach?")) {
-        localStorage.removeItem("coachAvatar");
-        localStorage.removeItem("coachAvatarImage");
-        window.location.href = "onboarding.html?changeOnly=true";
-      }
+    function showIntro(name) {
+      const video = document.getElementById("intro-video");
+      video.src = `videos/intro_${name}.mp4`;
+      document.getElementById("intro-container").classList.remove("hidden");
+      video.play();
     }
   </script>
 
