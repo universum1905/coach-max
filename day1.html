@@ -47,13 +47,34 @@
     <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
   </div>
 
+  <!-- Background Audio -->
+  <audio id="backgroundAudio" loop autoplay>
+    <source src="audio/counting-benny-bg.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Mute Button -->
+  <button onclick="toggleMute()" class="fixed top-4 right-4 z-40 bg-white text-black px-3 py-1 rounded-full shadow border border-gray-300">🔈</button>
+
   <!-- Main Content -->
   <div id="mainContent" class="w-full max-w-xl space-y-6">
+    <!-- Intro Video -->
+    <div id="intro">
+      <h2 class="text-2xl font-bold text-center mb-2">👋 Welcome to Day 1!</h2>
+      <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
+        <source src="videos/day1-intro.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <div class="flex justify-center gap-4 mt-4">
+        <button onclick="nextSession(1)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Start</button>
+      </div>
+    </div>
+
     <!-- 1. Atemübung -->
-    <div id="session1">
+    <div id="session1" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">🧘 Let’s begin with a breathing game!</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day1-breathing.mp4" type="video/mp4">
+        <source src="videos/session3.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
       <div class="flex justify-center gap-4 mt-4">
@@ -96,6 +117,19 @@
       </video>
       <div class="flex justify-center gap-4 mt-4">
         <button onclick="prevSession(3)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
+        <button onclick="nextSession(5)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Bonus Story</button>
+      </div>
+    </div>
+
+    <!-- 5. Bonus Story -->
+    <div id="session5" class="hidden">
+      <h2 class="text-2xl font-bold text-center mb-2">📖 Story Time with Luna</h2>
+      <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
+        <source src="videos/day1-story.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <div class="flex justify-center gap-4 mt-4">
+        <button onclick="prevSession(4)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
         <button onclick="showFinish()" class="bg-green-600 text-white px-6 py-2 rounded-full">Finish Day 1</button>
       </div>
     </div>
@@ -110,18 +144,26 @@
 
   <script>
     function nextSession(number) {
-      document.getElementById(`session${number - 1}`).classList.add('hidden');
+      document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
       document.getElementById(`session${number}`).classList.remove('hidden');
     }
 
     function prevSession(number) {
-      document.getElementById(`session${number + 1}`).classList.add('hidden');
+      document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
       document.getElementById(`session${number}`).classList.remove('hidden');
     }
 
     function showFinish() {
-      document.getElementById('session4').classList.add('hidden');
+      document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
       document.getElementById('finish-screen').classList.remove('hidden');
+      document.getElementById('backgroundAudio').pause();
+    }
+
+    function toggleMute() {
+      const audio = document.getElementById('backgroundAudio');
+      audio.muted = !audio.muted;
+      const button = document.querySelector('button[onclick="toggleMute()"]');
+      button.textContent = audio.muted ? '🔇' : '🔈';
     }
   </script>
 
