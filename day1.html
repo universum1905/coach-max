@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
@@ -7,91 +7,36 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      background: linear-gradient(to bottom right, #b2f5ea, #f0fff4);
+    body {
       font-family: 'Fredoka', sans-serif;
-    }
-
-    @media screen and (orientation: portrait) {
-      #orientationOverlay { display: flex; }
-      #mainContent       { display: none; }
-    }
-    @media screen and (orientation: landscape) {
-      #orientationOverlay { display: none; }
-      #mainContent       { display: flex; }
-    }
-
-    video {
-      object-fit: contain;
+      background: linear-gradient(to bottom right, #f0fff4, #b2f5ea);
     }
   </style>
 </head>
+<body class="min-h-screen overflow-y-auto text-black">
+  <div class="flex flex-col items-center justify-start min-h-screen p-4 text-center">
 
-<body class="text-black bg-white overflow-y-auto">
+    <h1 class="text-3xl font-bold mb-4">Day 1 – Breathing Exercise</h1>
+    <p class="mb-6 max-w-xl">Let’s get started with a short breathing session. Sit comfortably and follow along with the video below.</p>
 
-  <!-- Orientation Notice -->
-  <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
-    <img src="images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
-    <div class="text-6xl mb-4 animate-bounce">🔄</div>
-    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
-    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
-  </div>
-
-  <!-- Main Content -->
-  <div id="mainContent" class="flex flex-col items-center justify-center w-full h-full p-4">
-    <h1 class="text-3xl font-bold mb-4 text-center">🧘‍♂️ Day 1: Breathe with Benny</h1>
-
-    <!-- Video -->
-    <div class="w-full max-w-2xl mb-4 relative">
-      <video id="sessionVideo" class="w-full max-w-[90vw] max-h-[50vh] mx-auto rounded-lg shadow-xl" controls playsinline>
+    <!-- Video Bereich -->
+    <div class="w-full max-w-[800px] mb-6">
+      <video id="sessionVideo" class="w-full h-auto rounded-lg shadow-xl" controls playsinline>
         <source src="videos/session3.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
     </div>
 
-<!-- Success Message After Video -->
-<div id="dayCompleteOverlay" class="hidden absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white text-center p-6">
-  <h2 class="text-4xl font-bold mb-4">🎉 Great job!</h2>
-  <p class="text-lg mb-6">Come back tomorrow for Day 2!</p>
-  <a href="index.html" class="bg-white text-black px-6 py-2 rounded-full shadow hover:bg-gray-100">⬅ Back to Home</a>
-</div>
+    <!-- Hinweis für morgen -->
+    <div class="bg-yellow-100 text-yellow-800 px-6 py-4 rounded-lg shadow mb-6 max-w-md">
+      ✅ Great job today! Come back tomorrow to unlock Day 2!
+    </div>
 
+    <!-- Zurück Button -->
+    <button onclick="window.location.href='index.html'" class="bg-blue-600 text-white px-6 py-3 rounded-full shadow hover:bg-blue-700">
+      Back to Home
+    </button>
 
-     <!-- Continue Button -->
-    <a href="index.html" class="mt-6 bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700">Back to Home</a>
   </div>
-
-  <script>
-
-const video = document.getElementById("sessionVideo");
-  const overlay = document.getElementById("dayCompleteOverlay");
-
-  video.addEventListener('ended', () => {
-    overlay.classList.remove('hidden');
-    // Optional: Merken, dass Day 1 abgeschlossen wurde
-    localStorage.setItem('coachMax_day1_done', new Date().toISOString());
-  });
-
-    
-    function checkOrientation() {
-      const overlay = document.getElementById('orientationOverlay');
-      if (window.innerWidth < window.innerHeight) {
-        overlay.classList.add('flex');
-        overlay.classList.remove('hidden');
-      } else {
-        overlay.classList.remove('flex');
-        overlay.classList.add('hidden');
-      }
-    }
-
-    window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', checkOrientation);
-    window.addEventListener('load', checkOrientation);
-  </script>
 </body>
 </html>
