@@ -29,7 +29,9 @@
         <source src="videos/session3.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
-      <button onclick="nextSession(2)" class="mt-4 block mx-auto bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
+      <div class="flex justify-center gap-4 mt-4">
+        <button onclick="nextSession(2)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
+      </div>
     </div>
 
     <!-- 2. Matheübung -->
@@ -39,7 +41,10 @@
         <source src="videos/day1-math.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
-      <button onclick="nextSession(3)" class="mt-4 block mx-auto bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
+      <div class="flex justify-center gap-4 mt-4">
+        <button onclick="prevSession(1)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
+        <button onclick="nextSession(3)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
+      </div>
     </div>
 
     <!-- 3. Reimspiel -->
@@ -49,7 +54,10 @@
         <source src="videos/day1-rhyme.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
-      <button onclick="nextSession(4)" class="mt-4 block mx-auto bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
+      <div class="flex justify-center gap-4 mt-4">
+        <button onclick="prevSession(2)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
+        <button onclick="nextSession(4)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
+      </div>
     </div>
 
     <!-- 4. Tiergeräusche -->
@@ -59,7 +67,10 @@
         <source src="videos/day1-animals.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
-      <button onclick="showFinish()" class="mt-4 block mx-auto bg-green-600 text-white px-6 py-2 rounded-full">Finish Day 1</button>
+      <div class="flex justify-center gap-4 mt-4">
+        <button onclick="prevSession(3)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
+        <button onclick="showFinish()" class="bg-green-600 text-white px-6 py-2 rounded-full">Finish Day 1</button>
+      </div>
     </div>
 
     <!-- Abschlussbildschirm -->
@@ -73,6 +84,11 @@
   <script>
     function nextSession(number) {
       document.getElementById(`session${number - 1}`).classList.add('hidden');
+      document.getElementById(`session${number}`).classList.remove('hidden');
+    }
+
+    function prevSession(number) {
+      document.getElementById(`session${number + 1}`).classList.add('hidden');
       document.getElementById(`session${number}`).classList.remove('hidden');
     }
 
