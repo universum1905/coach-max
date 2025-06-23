@@ -21,6 +21,21 @@
       50% { transform: rotate(-10deg); }
       75% { transform: rotate(5deg); }
     }
+    .animate-wiggle {
+      animation: wiggle 1.5s infinite ease-in-out;
+      display: inline-block;
+    }
+
+ @media screen and (orientation: portrait) {
+      #orientationOverlay { display: flex; }
+      #mainContent       { display: none; }
+    }
+    @media screen and (orientation: landscape) {
+      #orientationOverlay { display: none; }
+      #mainContent       { display: block; }
+    }
+
+
   </style>
 </head>
 <body class="text-black flex flex-col items-center justify-start min-h-screen p-4 overflow-y-auto">
