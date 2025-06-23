@@ -130,6 +130,8 @@
     function showFinish() {
       document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
       document.getElementById('finish-screen').classList.remove('hidden');
+      sessionStorage.setItem('showSuccess', 'true');
+      window.location.href = 'choose.html';
 
       // Fortschritt speichern
       localStorage.setItem(`day${DAY_NUMBER}Completed`, 'true');

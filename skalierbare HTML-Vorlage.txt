@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coach Max – Day X</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background: linear-gradient(to bottom right, #b2f5ea, #f0fff4);
+    }
+    .hidden { display: none; }
+    .progress-bar {
+      height: 12px;
+      background: #e5e7eb;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: #34d399;
+      height: 100%;
+      transition: width 0.4s ease;
+    }
+  </style>
+  <script>
+    const DAY_NUMBER = 1; // Wird durch Python ersetzt
+
+    // Unlock-Zugriffsschutz
+    const unlockTime = localStorage.getItem(`day${DAY_NUMBER}UnlockTime`);
+    if (unlockTime && Date.now() < parseInt(unlockTime)) {
+      window.location.href = "locked.html";
+    }
+  </script>
+</head>
+<body class="text-black flex flex-col items-center min-h-screen p-4">
+
+  <div class="w-full max-w-xl">
+    <!-- Fortschrittsbalken -->
+    <div class="mb-4">
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill w-0"></div>
+      </div>
+    </div>
+
+    <!-- Intro Section -->
+    <div id="intro">
+      <h2 class="text-2xl font-bold text-center mb-2">👋 Welcome to Day <span id="dayLabel">X</span>!</h2>
+      <video class="w-full rounded-lg shadow" controls playsinline>
+        <source src="videos/dayX-intro.mp4" type="video/mp4">
+      </video>
+      <div class="text-center mt-4">
+        <button onclick="nextSession(1)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Start</button>
+      </div>
+    </div>
+
+    <!-- Sessions (Platzhalter für 5 Schritte) -->
+    <div id="session1" class="hidden"> <!-- Atemübung --> </div>
+    <div id="session2" class="hidden"> <!-- Matheübung --> </div>
+    <div id="session3" class="hidden"> <!-- Reimspiel --> </div>
+    <div id="session4" class="hidden"> <!-- Tierstimmen-Spiel --> </div>
+    <div id="session5" class="hidden"> <!-- Bonus-Story --> </div>
+
+    <!-- Abschluss-Bildschirm -->
+    <div id="finish-screen" class="hidden text-center">
+      <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_kkflmtur.json" background="transparent" speed="1" style="width: 180px; height: 180px; margin: 0 auto" autoplay></lottie-player>
+      <h2 class="text-2xl font-bold text-green-700">✅ Great job!</h2>
+      <p class="mb-2">Come back tomorrow for the next adventure 🌞</p>
+      <audio id="successSound" src="audio/success.mp3" preload="auto"></audio>
+      <a href="stickers.html" class="bg-yellow-500 text-black px-6 py-2 rounded-full">🎉 See Your Stickers</a>
+    </div>
+  </div>
+
+  <script>
+    const totalSteps = 5;
+
+    function updateProgress(step) {
+      const percent = (step / totalSteps) * 100;
+      document.getElementById('progressFill').style.width = percent + '%';
+    }
+
+    function nextSession(step) {
+      document.querySelectorAll('[id^="session"], #intro').forEach(e => e.classList.add('hidden'));
+      document.getElementById(`session${step}`).classList.remove('hidden');
+      updateProgress(step);
+    }
+
+    function showFinish() {
+      document.querySelectorAll('[id^="session"], #intro').forEach(e => e.classList.add('hidden'));
+      document.getElementById('finish-screen').classList.remove('hidden');
+
+      // Fortschritt speichern
+      localStorage.setItem(`day${DAY_NUMBER}Completed`, 'true');
+
+      // Unlock-Time für nächsten Tag (06:00 Uhr lokal)
+      const now = new Date();
+      const unlock = new Date(now);
+      unlock.setDate(now.getDate() + 1);
+      unlock.setHours(6, 0, 0, 0);
+      localStorage.setItem(`day${DAY_NUMBER + 1}UnlockTime`, unlock.getTime());
+
+      // Erfolgssound abspielen
+      const sound = document.getElementById("successSound");
+      if (sound) {
+        sound.volume = 0.5;
+        sound.play().catch(() => {});
+      }
+    }
+
+    document.getElementById("dayLabel").textContent = DAY_NUMBER;
+  </script>
+
+</body>
+</html>
