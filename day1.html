@@ -25,6 +25,14 @@
 </head>
 <body class="text-black flex flex-col items-center justify-start min-h-screen p-4 overflow-y-auto">
 
+<!-- Orientation Notice -->
+  <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
+    <img src="images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
+    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
+  </div>
+
   <!-- Audio: Erfolgssound -->
   <audio id="successSound" src="audio/success.mp3" preload="auto"></audio>
 
