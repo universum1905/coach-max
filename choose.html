@@ -22,22 +22,18 @@
     .card:hover {
       transform: scale(1.03);
     }
-    #successMessage {
-      background-color: #d1fae5;
-      color: #065f46;
-      border: 2px solid #10b981;
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: bold;
-      margin-bottom: 1rem;
-      display: none;
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-6">
 
   <h1 class="text-3xl font-bold text-center mb-4">📚 Choose Your Day</h1>
-  <div id="successMessage">🎉 Day Completed Successfully!</div>
+
+  <!-- Admin Toggle -->
+  <div class="mb-4">
+    <button id="toggleDevMode" class="text-sm px-3 py-1 rounded-full bg-purple-500 text-white shadow">Toggle Admin Mode</button>
+    <span id="devModeStatus" class="ml-2 text-sm text-gray-600"></span>
+  </div>
+
   <div id="progressInfo" class="text-lg font-medium text-gray-700 mb-4"></div>
   <div id="progressBar" class="w-full max-w-3xl h-4 bg-gray-300 rounded-full overflow-hidden mb-6">
     <div id="progressFill" class="h-full bg-green-500 transition-all duration-300"></div>
@@ -45,18 +41,30 @@
   <div id="daysContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-3xl"></div>
 
   <script>
+    // DEV_MODE zentral speichern und abrufen
+    const devModeStorage = localStorage.getItem('devMode');
+    let DEV_MODE = devModeStorage === 'true';
+
+    // Toggle Button Funktionalität
+    document.getElementById("toggleDevMode").addEventListener("click", () => {
+      DEV_MODE = !DEV_MODE;
+      localStorage.setItem("devMode", DEV_MODE.toString());
+      location.reload();
+    });
+
+    document.getElementById("devModeStatus").textContent = DEV_MODE ? "(DEV Mode active)" : "(Live Mode active)";
+
     const maxDays = 30;
     const container = document.getElementById('daysContainer');
     const progressFill = document.getElementById('progressFill');
     const progressInfo = document.getElementById('progressInfo');
-    const successMessage = document.getElementById('successMessage');
 
     let completedCount = 0;
 
     for (let day = 1; day <= maxDays; day++) {
       const completed = localStorage.getItem(`day${day}Completed`) === 'true';
       const unlockTime = localStorage.getItem(`day${day}UnlockTime`);
-      const isUnlocked = !unlockTime || Date.now() >= parseInt(unlockTime);
+      const isUnlocked = DEV_MODE || !unlockTime || Date.now() >= parseInt(unlockTime);
 
       if (completed || isUnlocked) {
         const card = document.createElement('div');
@@ -75,12 +83,6 @@
     const percent = (completedCount / maxDays) * 100;
     progressFill.style.width = `${percent}%`;
     progressInfo.textContent = `✅ ${completedCount} / ${maxDays} Days Completed`;
-
-    // Show success message if redirected after finishing a day
-    if (sessionStorage.getItem('showSuccess') === 'true') {
-      successMessage.style.display = 'block';
-      sessionStorage.removeItem('showSuccess');
-    }
   </script>
 
 </body>
