@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Coach Max – Day 1</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: linear-gradient(to bottom right, #b2f5ea, #f0fff4);
+    body {
       font-family: 'Fredoka', sans-serif;
+      background: linear-gradient(to bottom right, #b2f5ea, #f0fff4);
     }
-    video {
-      object-fit: contain;
+    .animate-wiggle {
+      animation: wiggle 1.5s infinite ease-in-out;
     }
     @keyframes wiggle {
       0%, 100% { transform: rotate(0deg); }
@@ -23,149 +21,133 @@
       50% { transform: rotate(-10deg); }
       75% { transform: rotate(5deg); }
     }
-    .animate-wiggle {
-      animation: wiggle 1.5s infinite ease-in-out;
-      display: inline-block;
-    }
-    @media screen and (orientation: portrait) {
-      #orientationOverlay { display: flex; }
-      #mainContent       { display: none; }
-    }
-    @media screen and (orientation: landscape) {
-      #orientationOverlay { display: none; }
-      #mainContent       { display: block; }
-    }
   </style>
 </head>
 <body class="text-black flex flex-col items-center justify-start min-h-screen p-4 overflow-y-auto">
 
-  <!-- Orientation Notice -->
-  <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
-    <img src="images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
-    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
-    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
-    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
-  </div>
+  <!-- Audio: Erfolgssound -->
+  <audio id="successSound" src="audio/success.mp3" preload="auto"></audio>
 
-  
-
-    <!-- Main Content -->
+  <!-- Main Content -->
   <div id="mainContent" class="w-full max-w-xl space-y-6">
-    <!-- Intro Video -->
+
+    <!-- Day Intro -->
     <div id="intro">
-      <h2 class="text-2xl font-bold text-center mb-2">👋 Welcome to Day 1!</h2>
+      <h2 class="text-3xl font-bold text-center mb-2">👋 Welcome to Day 1!</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day1-intro.mp4" type="video/mp4">
-        Your browser does not support the video tag.
+        <source src="videos/day1-intro.mp4" type="video/mp4" />
       </video>
-      <div class="flex justify-center gap-4 mt-4">
-        <button onclick="nextSession(1)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Start</button>
+      <div class="flex justify-center mt-4">
+        <button onclick="showSession(1)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Start</button>
       </div>
     </div>
 
-    <!-- 1. Atemübung -->
+    <!-- Session 1 -->
     <div id="session1" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">🧘 Let’s begin with a breathing game!</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day1-breath.mp4" type="video/mp4">
-        Your browser does not support the video tag.
+        <source src="videos/day1-breath.mp4" type="video/mp4" />
       </video>
-      <div class="flex justify-center gap-4 mt-4">
-        <button onclick="nextSession(2)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
+      <div class="flex justify-center mt-4">
+        <button onclick="showSession(2)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
       </div>
     </div>
 
-    <!-- 2. Matheübung -->
+    <!-- Session 2 -->
     <div id="session2" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">➕ Can you count with Benny?</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day1-counting1-10.mp4" type="video/mp4">
-        Your browser does not support the video tag.
+        <source src="videos/day1-counting1-10.mp4" type="video/mp4" />
       </video>
       <div class="flex justify-center gap-4 mt-4">
-        <button onclick="prevSession(1)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
-        <button onclick="nextSession(3)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
+        <button onclick="showSession(1)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
+        <button onclick="showSession(3)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
       </div>
     </div>
 
-    <!-- 3. Reimspiel -->
+    <!-- Session 3 -->
     <div id="session3" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">🎵 Find the rhyme!</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day1-rhyme.mp4" type="video/mp4">
-        Your browser does not support the video tag.
+        <source src="videos/day1-rhyme.mp4" type="video/mp4" />
       </video>
       <div class="flex justify-center gap-4 mt-4">
-        <button onclick="prevSession(2)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
-        <button onclick="nextSession(4)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
+        <button onclick="showSession(2)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
+        <button onclick="showSession(4)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Next</button>
       </div>
     </div>
 
-    <!-- 4. Tiergeräusche -->
+    <!-- Session 4 -->
     <div id="session4" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">🐾 What animal is this?</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day1-animals.mp4" type="video/mp4">
-        Your browser does not support the video tag.
+        <source src="videos/day1-animals.mp4" type="video/mp4" />
       </video>
       <div class="flex justify-center gap-4 mt-4">
-        <button onclick="prevSession(3)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
-        <button onclick="nextSession(5)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Bonus Story</button>
+        <button onclick="showSession(3)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
+        <button onclick="showSession(5)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Bonus Story</button>
       </div>
     </div>
 
-    <!-- 5. Bonus Story -->
+    <!-- Session 5 -->
     <div id="session5" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">📖 Story Time with Luna</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day1-story.mp4" type="video/mp4">
-        Your browser does not support the video tag.
+        <source src="videos/day1-story.mp4" type="video/mp4" />
       </video>
       <div class="flex justify-center gap-4 mt-4">
-        <button onclick="prevSession(4)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
+        <button onclick="showSession(4)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
         <button onclick="showFinish()" class="bg-green-600 text-white px-6 py-2 rounded-full">Finish Day 1</button>
       </div>
     </div>
 
-    <!-- Abschlussbildschirm -->
+    <!-- Abschluss -->
     <div id="finish-screen" class="hidden text-center space-y-4">
       <h2 class="text-3xl font-bold text-green-700">✅ Great job today!</h2>
-      <p class="text-xl">Come back tomorrow to unlock Day 2 😊</p>
-      <button onclick="window.location.href='index.html'" class="bg-gray-700 text-white px-6 py-2 rounded-full">🏠 Back to Home</button>
+      <lottie-player
+        src="https://assets5.lottiefiles.com/packages/lf20_u4yrau.json"
+        background="transparent"
+        speed="1"
+        style="width: 160px; height: 160px; margin: auto;"
+        autoplay
+      ></lottie-player>
+      <p class="text-xl">Come back tomorrow at 6:00 AM to unlock Day 2 🌞</p>
+      <div class="flex justify-center gap-4">
+        <a href="stickers.html" class="bg-yellow-500 text-black px-4 py-2 rounded-full">🏅 See Stickers</a>
+        <a href="index.html" class="bg-gray-700 text-white px-4 py-2 rounded-full">🏠 Back Home</a>
+      </div>
     </div>
   </div>
 
   <script>
-    function nextSession(number) {
-      document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
-      document.getElementById(`session${number}`).classList.remove('hidden');
-    }
+    const DAY_NUMBER = 1;
 
-    function prevSession(number) {
-      document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
-      document.getElementById(`session${number}`).classList.remove('hidden');
+    function showSession(num) {
+      document.querySelectorAll('[id^="session"], #intro, #finish-screen').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`session${num}`).classList.remove('hidden');
     }
 
     function showFinish() {
       document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
       document.getElementById('finish-screen').classList.remove('hidden');
-      document.getElementById('backgroundAudio').pause();
+
+      // Fortschritt speichern
+      localStorage.setItem(`day${DAY_NUMBER}Completed`, 'true');
+
+      // Unlock-Time für nächsten Tag (06:00 Uhr lokal)
+      const now = new Date();
+      const unlock = new Date(now);
+      unlock.setDate(unlock.getDate() + 1);
+      unlock.setHours(6, 0, 0, 0);
+      localStorage.setItem(`day${DAY_NUMBER + 1}UnlockTime`, unlock.getTime());
+
+      // Soundeffekt abspielen
+      const sound = document.getElementById("successSound");
+      if (sound) {
+        sound.volume = 0.5;
+        sound.play().catch(() => {});
+      }
     }
-
-    function toggleMute() {
-      const audio = document.getElementById('backgroundAudio');
-      audio.muted = !audio.muted;
-      const button = document.querySelector('button[onclick="toggleMute()"]');
-      button.textContent = audio.muted ? '🔇' : '🔈';
-    }
-
-document.addEventListener("DOMContentLoaded", function () {
-  const audio = document.getElementById('backgroundAudio');
-  audio.volume = 0.1; // leise einstellen (Wert zwischen 0.0 und 1.0)
-});
-
-
   </script>
-
 </body>
 </html>
