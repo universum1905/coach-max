@@ -100,6 +100,26 @@
   const percent = (completedCount / maxDays) * 100;
   progressFill.style.width = `${percent}%`;
   progressInfo.textContent = `✅ ${completedCount} / ${maxDays} Days Completed`;
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('dayUnlockedMessage') === 'true') {
+      showUnlockedPopup();
+      sessionStorage.removeItem('dayUnlockedMessage');
+    }
+  });
+
+  function showUnlockedPopup() {
+    const popup = document.createElement('div');
+    popup.textContent = '🎉 New Day Unlocked!';
+    popup.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-xl shadow-lg z-50';
+    document.body.appendChild(popup);
+
+    setTimeout(() => {
+      popup.remove();
+    }, 3000);
+  }
+
+
 </script>
 
 
