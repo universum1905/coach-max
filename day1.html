@@ -175,9 +175,10 @@
   const DAY_NUMBER = 1;
 
   function showSession(num) {
-    document.querySelectorAll('[id^="session"], #intro, #finish-screen').forEach(el => el.classList.add('hidden'));
-    document.getElementById(`session${num}`).classList.remove('hidden');
-  }
+  document.getElementById('mainContent').style.display = 'block';
+  document.querySelectorAll('[id^="session"], #intro, #finish-screen').forEach(el => el.classList.add('hidden'));
+  document.getElementById(`session${num}`).classList.remove('hidden');
+}
 
   function showFinish() {
   document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
