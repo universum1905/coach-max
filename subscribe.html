@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscribe to Coach Max</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-yellow-100 to-green-100 text-center p-6 font-sans">
+  <h1 class="text-3xl font-bold mb-4">🌟 Become a Premium Member!</h1>
+  <p class="text-lg text-gray-700 mb-6">Unlock 30 more magical days for just <strong>$9/month</strong></p>
+  
+  <!-- Testknopf -->
+  <button onclick="unlockPremium()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full text-lg shadow-lg">
+    ✅ Test Unlock (30 Tage freischalten)
+  </button>
+
+  <script>
+    function unlockPremium() {
+      const now = new Date();
+      const paidUntil = new Date(now.setDate(now.getDate() + 30)).getTime();
+      localStorage.setItem("paidUntil", paidUntil.toString());
+      alert("🎉 Premium access granted for 30 days!");
+      window.location.href = "choose.html";
+    }
+  </script>
+</body>
+</html>

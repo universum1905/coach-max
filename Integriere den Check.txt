@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  ...
+  <script src="scripts/checkPremium.js"></script>
+</head>
+<body>
+  ...
+
+
+ab Tag 8 einfügen
