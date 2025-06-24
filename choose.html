@@ -100,10 +100,27 @@
     `;
   } else {
     card.classList.add('opacity-50');
+
+    let lockMessage = '🔒 Locked';
+    if (unlockTime) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(6, 0, 0, 0);
+      const unlockDate = new Date(parseInt(unlockTime));
+      const isTomorrow =
+        unlockDate.getDate() === tomorrow.getDate() &&
+        unlockDate.getMonth() === tomorrow.getMonth() &&
+        unlockDate.getFullYear() === tomorrow.getFullYear();
+
+      if (isTomorrow) {
+        lockMessage = '🔒 Come back tomorrow!';
+      }
+    }
+
     card.innerHTML = `
       <div class="text-4xl mb-2">🔒</div>
       <h2 class="text-xl font-bold text-gray-500">Day ${day}</h2>
-      <p class="text-sm text-gray-500 mt-2">Come back tomorrow!</p>
+      <p class="text-sm text-gray-500 mt-2">${lockMessage}</p>
     `;
   }
 
