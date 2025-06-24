@@ -80,7 +80,13 @@
     isUnlocked = true;
     localStorage.removeItem(`day${day}UnlockTime`);
   } else {
-    isUnlocked = !unlockTime || Date.now() >= parseInt(unlockTime);
+    if (day === 1) {
+  isUnlocked = true;
+} else if (unlockTime) {
+  isUnlocked = Date.now() >= parseInt(unlockTime);
+} else {
+  isUnlocked = false;
+}
   }
 
   const card = document.createElement('div');
