@@ -172,37 +172,47 @@
   </div>
 
   <script>
-    const DAY_NUMBER = 1;
+  const DAY_NUMBER = 1;
 
-    function showSession(num) {
-      document.querySelectorAll('[id^="session"], #intro, #finish-screen').forEach(el => el.classList.add('hidden'));
-      document.getElementById(`session${num}`).classList.remove('hidden');
+  function showSession(num) {
+    document.querySelectorAll('[id^="session"], #intro, #finish-screen').forEach(el => el.classList.add('hidden'));
+    document.getElementById(`session${num}`).classList.remove('hidden');
+  }
+
+  function showFinish() {
+    // Alle Sessions und das Intro ausblenden
+    document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
+
+    // Finish-Screen anzeigen
+    document.getElementById('finish-screen').classList.remove('hidden');
+
+    // Fortschritt speichern
+    sessionStorage.setItem('showSuccess', 'true');
+    localStorage.setItem(`day${DAY_NUMBER}Completed`, 'true');
+
+    // Unlock-Time für nächsten Tag (06:00 Uhr lokal)
+    const now = new Date();
+    const unlock = new Date(now);
+    unlock.setDate(unlock.getDate() + 1);
+    unlock.setHours(6, 0, 0, 0);
+    localStorage.setItem(`day${DAY_NUMBER + 1}UnlockTime`, unlock.getTime());
+
+    // Soundeffekt abspielen
+    const sound = document.getElementById("successSound");
+    if (sound) {
+      sound.volume = 0.5;
+      sound.play().catch(() => {});
     }
 
-    function showFinish() {
-      document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
-      document.getElementById('finish-screen').classList.remove('hidden');
-      sessionStorage.setItem('showSuccess', 'true');
-      window.location.href = 'choose.html';
+    // 🚫 Keine automatische Weiterleitung!
+    // window.location.href = 'choose.html';
+  }
 
-      // Fortschritt speichern
-      localStorage.setItem(`day${DAY_NUMBER}Completed`, 'true');
+  function goToNextDay() {
+    window.location.href = 'choose.html';
+  }
+</script>
 
-      // Unlock-Time für nächsten Tag (06:00 Uhr lokal)
-      const now = new Date();
-      const unlock = new Date(now);
-      unlock.setDate(unlock.getDate() + 1);
-      unlock.setHours(6, 0, 0, 0);
-      localStorage.setItem(`day${DAY_NUMBER + 1}UnlockTime`, unlock.getTime());
-
-      // Soundeffekt abspielen
-      const sound = document.getElementById("successSound");
-      if (sound) {
-        sound.volume = 0.5;
-        sound.play().catch(() => {});
-      }
-    }
-  </script>
 <!-- Lottie-Script einfügen -->
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 </body>
