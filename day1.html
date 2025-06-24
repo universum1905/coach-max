@@ -180,33 +180,33 @@
   }
 
   function showFinish() {
-    // Alle Sessions und das Intro ausblenden
-    document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
 
-    // Finish-Screen anzeigen
-    document.getElementById('finish-screen').classList.remove('hidden');
+  // Finish-Screen anzeigen
+  document.getElementById('finish-screen').classList.remove('hidden');
 
-    // Fortschritt speichern
-    sessionStorage.setItem('showSuccess', 'true');
-    localStorage.setItem(`day${DAY_NUMBER}Completed`, 'true');
+  // Fortschritt speichern
+  sessionStorage.setItem('showSuccess', 'true');
+  localStorage.setItem(`day${DAY_NUMBER}Completed`, 'true');
 
-    // Unlock-Time für nächsten Tag (06:00 Uhr lokal)
-    const now = new Date();
-    const unlock = new Date(now);
-    unlock.setDate(unlock.getDate() + 1);
-    unlock.setHours(6, 0, 0, 0);
-    localStorage.setItem(`day${DAY_NUMBER + 1}UnlockTime`, unlock.getTime());
+  // Unlock-Time für nächsten Tag (06:00 Uhr lokal)
+  const now = new Date();
+  const unlock = new Date(now);
+  unlock.setDate(unlock.getDate() + 1);
+  unlock.setHours(6, 0, 0, 0);
+  localStorage.setItem(`day${DAY_NUMBER + 1}UnlockTime`, unlock.getTime());
 
-   // Popup aktivieren für choose.html
-    sessionStorage.setItem('dayUnlockedMessage', 'true');
-
+  // ✅ Popups für choose.html – RICHTIG!
+  sessionStorage.setItem('dayUnlockedMessage', 'true'); // 🎉
+  sessionStorage.setItem('stickerUnlocked', 'true');    // 🏅
 
   // Soundeffekt abspielen
-    const sound = document.getElementById("successSound");
-    if (sound) {
-      sound.volume = 0.5;
-      sound.play().catch(() => {});
-    }
+  const sound = document.getElementById("successSound");
+  if (sound) {
+    sound.volume = 0.5;
+    sound.play().catch(() => {});
+  }
+}
 
     // 🚫 Keine automatische Weiterleitung!
     // window.location.href = 'choose.html';
