@@ -197,7 +197,11 @@
     unlock.setHours(6, 0, 0, 0);
     localStorage.setItem(`day${DAY_NUMBER + 1}UnlockTime`, unlock.getTime());
 
-    // Soundeffekt abspielen
+   // Popup aktivieren für choose.html
+    sessionStorage.setItem('dayUnlockedMessage', 'true');
+
+
+  // Soundeffekt abspielen
     const sound = document.getElementById("successSound");
     if (sound) {
       sound.volume = 0.5;

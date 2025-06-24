@@ -100,7 +100,8 @@
   const percent = (completedCount / maxDays) * 100;
   progressFill.style.width = `${percent}%`;
   progressInfo.textContent = `✅ ${completedCount} / ${maxDays} Days Completed`;
-
+</script>
+<script>
 window.addEventListener('DOMContentLoaded', () => {
     if (sessionStorage.getItem('dayUnlockedMessage') === 'true') {
       showUnlockedPopup();
@@ -119,9 +120,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 3000);
   }
 
-
 </script>
-
-
 </body>
 </html>
