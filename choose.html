@@ -47,49 +47,57 @@
   <div id="daysContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-3xl"></div>
 
   <script>
-    // DEV_MODE zentral speichern und abrufen
-    const devModeStorage = localStorage.getItem('devMode');
-    let DEV_MODE = devModeStorage === 'true';
+  // DEV_MODE zentral speichern und abrufen
+  const devModeStorage = localStorage.getItem('devMode');
+  let DEV_MODE = devModeStorage === 'true';
 
-    // Toggle Button Funktionalität
-    document.getElementById("toggleDevMode").addEventListener("click", () => {
-      DEV_MODE = !DEV_MODE;
-      localStorage.setItem("devMode", DEV_MODE.toString());
-      location.reload();
-    });
+  // Toggle Button Funktionalität
+  document.getElementById("toggleDevMode").addEventListener("click", () => {
+    DEV_MODE = !DEV_MODE;
+    localStorage.setItem("devMode", DEV_MODE.toString());
+    location.reload();
+  });
 
-    document.getElementById("devModeStatus").textContent = DEV_MODE ? "(DEV Mode active)" : "(Live Mode active)";
+  document.getElementById("devModeStatus").textContent = DEV_MODE ? "(DEV Mode active)" : "(Live Mode active)";
 
-    const maxDays = 30;
-    const container = document.getElementById('daysContainer');
-    const progressFill = document.getElementById('progressFill');
-    const progressInfo = document.getElementById('progressInfo');
+  const maxDays = 30;
+  const container = document.getElementById('daysContainer');
+  const progressFill = document.getElementById('progressFill');
+  const progressInfo = document.getElementById('progressInfo');
 
-    let completedCount = 0;
+  let completedCount = 0;
 
-    for (let day = 1; day <= maxDays; day++) {
-      const completed = localStorage.getItem(`day${day}Completed`) === 'true';
-      const unlockTime = localStorage.getItem(`day${day}UnlockTime`);
-      const isUnlocked = DEV_MODE || !unlockTime || Date.now() >= parseInt(unlockTime);
+  for (let day = 1; day <= maxDays; day++) {
+    const completed = localStorage.getItem(`day${day}Completed`) === 'true';
+    const unlockTime = localStorage.getItem(`day${day}UnlockTime`);
+    let isUnlocked = false;
 
-      if (completed || isUnlocked) {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="text-4xl mb-2">🎯</div>
-          <h2 class="text-xl font-bold">Day ${day}</h2>
-          <button onclick="window.location.href='day${day}.html'" class="mt-2 bg-green-500 text-white px-4 py-2 rounded-full">Start</button>
-        `;
-        container.appendChild(card);
-      }
-
-      if (completed) completedCount++;
+    if (DEV_MODE) {
+      isUnlocked = true;
+      localStorage.removeItem(`day${day}UnlockTime`);
+    } else {
+      isUnlocked = !unlockTime || Date.now() >= parseInt(unlockTime);
     }
 
-    const percent = (completedCount / maxDays) * 100;
-    progressFill.style.width = `${percent}%`;
-    progressInfo.textContent = `✅ ${completedCount} / ${maxDays} Days Completed`;
-  </script>
+    if (completed || isUnlocked) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="text-4xl mb-2">🎯</div>
+        <h2 class="text-xl font-bold">Day ${day}</h2>
+        <button onclick="window.location.href='day${day}.html'" class="mt-2 bg-green-500 text-white px-4 py-2 rounded-full">Start</button>
+      `;
+      container.appendChild(card);
+    }
+
+    if (completed) completedCount++;
+  }
+
+  const percent = (completedCount / maxDays) * 100;
+  progressFill.style.width = `${percent}%`;
+  progressInfo.textContent = `✅ ${completedCount} / ${maxDays} Days Completed`;
+</script>
+
 
 </body>
 </html>
