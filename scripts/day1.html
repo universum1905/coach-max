@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Coach Max – Day 2</title>
+  <title>Coach Max – Day 1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.3.0/dist/dotlottie-wc.js"
   type="module"></script>
@@ -38,10 +38,6 @@
 
 
   </style>
-
-
-
-
 </head>
 <body class="text-black flex flex-col items-center justify-start min-h-screen p-4 overflow-y-auto">
 
@@ -57,14 +53,13 @@
   <audio id="successSound" src="audio/success.mp3" preload="auto"></audio>
 
   <!-- Main Content -->
-    
   <div id="mainContent" class="w-full max-w-xl space-y-6">
 
     <!-- Day Intro -->
     <div id="intro">
-      <h2 class="text-3xl font-bold text-center mb-2">👋 Welcome to Day 2!</h2>
+      <h2 class="text-3xl font-bold text-center mb-2">👋 Welcome to Day 1!</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day2-intro.mp4" type="video/mp4" />
+        <source src="videos/day1-intro.mp4" type="video/mp4" />
       </video>
 
 <p class="text-lg text-gray-700 mb-4">
@@ -80,7 +75,7 @@
     <div id="session1" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">🧘 Let’s begin with a breathing game!</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day2-breath.mp4" type="video/mp4" />
+        <source src="videos/day1-breath.mp4" type="video/mp4" />
       </video>
  <p class="text-center text-sm text-gray-600 mt-2 mb-4 italic animate-pulse">
     🎬 Tap the video above and watch it carefully – then click the button to continue!
@@ -95,7 +90,7 @@
     <div id="session2" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">➕ Can you count with Benny?</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day2-counting1-10.mp4" type="video/mp4" />
+        <source src="videos/day1-counting1-10.mp4" type="video/mp4" />
       </video>
 <p class="text-center text-sm text-gray-600 mt-2 mb-4 italic animate-pulse">
     🎬 Tap the video above and watch it carefully – then click the button to continue!
@@ -111,7 +106,7 @@
     <div id="session3" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">🎵 Find the rhyme!</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day2-rhyme.mp4" type="video/mp4" />
+        <source src="videos/day1-rhyme.mp4" type="video/mp4" />
       </video>
 <p class="text-center text-sm text-gray-600 mt-2 mb-4 italic animate-pulse">
     🎬 Tap the video above and watch it carefully – then click the button to continue!
@@ -127,7 +122,7 @@
     <div id="session4" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">🐾 What animal is this?</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day2-animals.mp4" type="video/mp4" />
+        <source src="videos/day1-animals.mp4" type="video/mp4" />
       </video>
 
 <p class="text-center text-sm text-gray-600 mt-2 mb-4 italic animate-pulse">
@@ -144,7 +139,7 @@
     <div id="session5" class="hidden">
       <h2 class="text-2xl font-bold text-center mb-2">📖 Story Time with Luna</h2>
       <video class="w-full max-h-[240px] rounded-lg shadow" controls playsinline>
-        <source src="videos/day2-story.mp4" type="video/mp4" />
+        <source src="videos/day1-story.mp4" type="video/mp4" />
       </video>
 
 <p class="text-center text-sm text-gray-600 mt-2 mb-4 italic animate-pulse">
@@ -153,7 +148,7 @@
 
       <div class="flex justify-center gap-4 mt-4">
         <button onclick="showSession(4)" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</button>
-        <button onclick="showFinish()" class="bg-green-600 text-white px-6 py-2 rounded-full">Finish Day 2</button>
+        <button onclick="showFinish()" class="bg-green-600 text-white px-6 py-2 rounded-full">Finish Day 1</button>
       </div>
     </div>
 
@@ -177,7 +172,7 @@
   </div>
 
   <script>
-  const DAY_NUMBER = 2;
+  const DAY_NUMBER = 1;
 
   function showSession(num) {
   document.getElementById('mainContent').style.display = 'block';
