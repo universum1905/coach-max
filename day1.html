@@ -49,6 +49,15 @@
       <h2 class="text-3xl font-bold mb-4">🔢 Let’s Count with Animals!</h2>
       <p class="text-lg mb-4">Say the numbers out loud and meet a new animal with each one!</p>
       <div id="counting-area" class="flex flex-wrap justify-center gap-4"></div>
+      <div class="flex justify-center mt-6">
+        <button onclick="showSession(2)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Next ➡️</button>
+      </div>
+    </div>
+    
+    <!-- Session 2 Placeholder -->
+    <div id="session2" class="hidden bg-white bg-opacity-80 rounded-xl p-4 shadow text-center">
+      <h2 class="text-3xl font-bold mb-4">📖 Next Session Title Here</h2>
+      <p class="text-lg">More content will follow here...</p>
     </div>
   </div>
 
@@ -58,24 +67,20 @@
     const animals = [
       { number: 1, name: "Dog", img: "images/animals/1-dog.png" },
       { number: 2, name: "Cat", img: "images/animals/2-cat.png" },
-      { number: 3, name: "Elephant", img: "images/animals/3-elephant.png" },
-      { number: 4, name: "Frog", img: "images/animals/4-frog.png" },
+      { number: 3, name: "Mouse", img: "images/animals/3-mouse.png" },
+      { number: 4, name: "Rabbit", img: "images/animals/4-rabbit.png" },
       { number: 5, name: "Lion", img: "images/animals/5-lion.png" },
-      { number: 6, name: "Monkey", img: "images/animals/6-monkey.png" },
-      { number: 7, name: "Rabbit", img: "images/animals/7-rabbit.png" },
-      { number: 8, name: "Penguin", img: "images/animals/8-penguin.png" },
-      { number: 9, name: "Tiger", img: "images/animals/9-tiger.png" },
-      { number: 10, name: "Bear", img: "images/animals/10-bear.png" },
+      { number: 6, name: "Cow", img: "images/animals/6-cow.png" },
+      { number: 7, name: "Frog", img: "images/animals/7-frog.png" },
+      { number: 8, name: "Monkey", img: "images/animals/8-monkey.png" },
+      { number: 9, name: "Penguin", img: "images/animals/9-penguin.png" },
+      { number: 10, name: "Elephant", img: "images/animals/10-elephant.png" }
     ];
 
     const container = document.getElementById("counting-area");
 
     function showAnimalsSequentially(index = 0) {
-      if (index >= animals.length) {
-        setTimeout(showFinish, 1000); // Zeige Finish automatisch am Ende
-        return;
-      }
-
+      if (index >= animals.length) return;
       const item = animals[index];
       const bubble = document.createElement("div");
       bubble.className = "bg-yellow-300 text-2xl font-bold text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg";
@@ -96,46 +101,10 @@
       setTimeout(() => showAnimalsSequentially(index + 1), 1000);
     }
 
-    window.onload = () => {
-      showAnimalsSequentially();
-    };
-
-    function showFinish() {
-      document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
-      const finishScreen = document.createElement("div");
-      finishScreen.className = "text-center space-y-4 mt-10";
-      finishScreen.innerHTML = `
-        <h2 class="text-3xl font-bold text-green-700">✅ Great job today!</h2>
-        <lottie-player
-          src="animation/hai-animation.json"
-          background="transparent"
-          speed="1"
-          style="width: 160px; height: 160px; margin: auto;"
-          autoplay loop></lottie-player>
-        <p class="text-xl">Come back tomorrow at 6:00 AM to unlock Day 2 🌞</p>
-        <div class="flex justify-center gap-4">
-          <a href="stickers.html" class="bg-yellow-500 text-black px-4 py-2 rounded-full">🏅 See Stickers</a>
-          <a href="index.html" class="bg-gray-700 text-white px-4 py-2 rounded-full">🏠 Back Home</a>
-          <button onclick="goToNextDay()" class="bg-blue-600 text-white px-6 py-2 rounded-full">➡️ Continue to Day 2</button>
-        </div>`;
-      document.getElementById("mainContent").appendChild(finishScreen);
-      sessionStorage.setItem('showSuccess', 'true');
-      localStorage.setItem(`day${DAY_NUMBER}Completed`, 'true');
-      const now = new Date();
-      const unlock = new Date(now);
-      unlock.setDate(unlock.getDate() + 1);
-      unlock.setHours(6, 0, 0, 0);
-      localStorage.setItem(`day${DAY_NUMBER + 1}UnlockTime`, unlock.getTime());
-      sessionStorage.setItem('dayUnlockedMessage', 'true');
-      sessionStorage.setItem('stickerUnlocked', 'true');
-      const sound = document.getElementById("successSound");
-      if (sound) { sound.volume = 0.5; sound.play().catch(() => {}); }
-      showStickerPopup();
-    }
-
-    function goToNextDay() {
-      sessionStorage.setItem('dayUnlockedMessage', 'true');
-      window.location.href = 'choose.html';
+    function showSession(num) {
+      document.querySelectorAll('[id^="session"]').forEach(el => el.classList.add('hidden'));
+      const session = document.getElementById(`session${num}`);
+      if (session) session.classList.remove('hidden');
     }
 
     function showStickerPopup() {
@@ -145,6 +114,11 @@
       document.body.appendChild(popup);
       setTimeout(() => popup.remove(), 3000);
     }
+
+    window.onload = () => {
+      showAnimalsSequentially();
+      showSession(1);
+    };
   </script>
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 </body>
