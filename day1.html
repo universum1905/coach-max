@@ -49,7 +49,6 @@
       <h2 class="text-3xl font-bold mb-4">🔢 Let’s Count with Animals!</h2>
       <p class="text-lg mb-4">Say the numbers out loud and meet a new animal with each one!</p>
       <div id="counting-area" class="flex flex-wrap justify-center gap-4"></div>
-      <button onclick="showFinish()" class="mt-6 bg-green-500 text-white px-6 py-2 rounded-full">🎉 Finish Day {{DAY}}</button>
     </div>
   </div>
 
@@ -71,25 +70,35 @@
 
     const container = document.getElementById("counting-area");
 
-    animals.forEach((item, i) => {
-      setTimeout(() => {
-        const bubble = document.createElement("div");
-        bubble.className = "bg-yellow-300 text-2xl font-bold text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg";
-        bubble.textContent = item.number;
+    function showAnimalsSequentially(index = 0) {
+      if (index >= animals.length) {
+        setTimeout(showFinish, 1000); // Zeige Finish automatisch am Ende
+        return;
+      }
 
-        const img = document.createElement("img");
-        img.src = item.img;
-        img.alt = item.name;
-        img.className = "w-24 h-24 object-contain";
+      const item = animals[index];
+      const bubble = document.createElement("div");
+      bubble.className = "bg-yellow-300 text-2xl font-bold text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg";
+      bubble.textContent = item.number;
 
-        const wrapper = document.createElement("div");
-        wrapper.className = "flex flex-col items-center gap-2";
-        wrapper.appendChild(bubble);
-        wrapper.appendChild(img);
+      const img = document.createElement("img");
+      img.src = item.img;
+      img.alt = item.name;
+      img.className = "w-24 h-24 object-contain";
 
-        container.appendChild(wrapper);
-      }, i * 800);
-    });
+      const wrapper = document.createElement("div");
+      wrapper.className = "flex flex-col items-center gap-2";
+      wrapper.appendChild(bubble);
+      wrapper.appendChild(img);
+
+      container.appendChild(wrapper);
+
+      setTimeout(() => showAnimalsSequentially(index + 1), 1000);
+    }
+
+    window.onload = () => {
+      showAnimalsSequentially();
+    };
 
     function showFinish() {
       document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
@@ -136,10 +145,6 @@
       document.body.appendChild(popup);
       setTimeout(() => popup.remove(), 3000);
     }
-
-    window.showSession = showSession;
-    window.showFinish = showFinish;
-    window.goToNextDay = goToNextDay;
   </script>
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 </body>
