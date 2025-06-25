@@ -1,0 +1,59 @@
+{
+  "day": 1,
+  "sessions": [
+    {
+      "id": "intro",
+      "type": "video",
+      "title": "👋 Welcome to Day 1!",
+      "text": "Hi there! I'm Luna. Are you ready for today’s adventure? Let’s go!",
+      "video": "videos/day1-intro.mp4"
+    },
+    {
+      "id": "breath",
+      "type": "video",
+      "title": "🧘 Let’s Breathe Together!",
+      "text": "Breathe in... and out... Let’s do it three times together.",
+      "video": "videos/day1-breath.mp4"
+    },
+    {
+      "id": "counting",
+      "type": "counting",
+      "title": "🔢 Let’s Count with Animals!",
+      "text": "Say the numbers out loud and meet a new animal with each one!",
+      "video": "videos/day1-counting.mp4",
+      "animals": [
+        { "number": 1, "name": "Dog", "img": "images/animals/1-dog.png" },
+        { "number": 2, "name": "Cat", "img": "images/animals/2-cat.png" },
+        { "number": 3, "name": "Mouse", "img": "images/animals/3-mouse.png" },
+        { "number": 4, "name": "Rabbit", "img": "images/animals/4-rabbit.png" },
+        { "number": 5, "name": "Lion", "img": "images/animals/5-lion.png" },
+        { "number": 6, "name": "Cow", "img": "images/animals/6-cow.png" },
+        { "number": 7, "name": "Frog", "img": "images/animals/7-frog.png" },
+        { "number": 8, "name": "Monkey", "img": "images/animals/8-monkey.png" },
+        { "number": 9, "name": "Penguin", "img": "images/animals/9-penguin.png" },
+        { "number": 10, "name": "Elephant", "img": "images/animals/10-elephant.png" }
+      ]
+    },
+    {
+      "id": "rhyme",
+      "type": "video",
+      "title": "🎵 Rhyme Time!",
+      "text": "Brush your teeth and make them shine...",
+      "video": "videos/day1-rhyme.mp4"
+    },
+    {
+      "id": "animals",
+      "type": "video",
+      "title": "🐾 Guess the Animal!",
+      "text": "What animal do you see today? Let’s find out together!",
+      "video": "videos/day1-animals.mp4"
+    },
+    {
+      "id": "story",
+      "type": "video",
+      "title": "📖 Story Time with Luna",
+      "text": "Let’s hear a short story to end our day!",
+      "video": "videos/day1-story.mp4"
+    }
+  ]
+}

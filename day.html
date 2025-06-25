@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coach Max – Dynamic Day</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background: url('images/backgrounds/2.png') repeat;
+      background-size: cover;
+    }
+  </style>
+</head>
+<body class="text-black min-h-screen flex flex-col items-center justify-start p-4">
+  <main id="content" class="w-full max-w-xl space-y-6"></main>
+  <audio id="successSound" src="audio/success.mp3" preload="auto"></audio>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const day = urlParams.get('day') || '1';
+
+    fetch(`days/day${day}.json`)
+      .then(res => res.json())
+      .then(data => renderDay(data));
+
+    function renderDay(data) {
+      const container = document.getElementById("content");
+      data.sessions.forEach((session, index) => {
+        const div = document.createElement("div");
+        div.className = "bg-white bg-opacity-80 rounded-xl p-4 shadow text-center";
+        div.innerHTML = `
+          <h2 class="text-2xl font-bold mb-2">${session.title}</h2>
+          <p class="text-lg mb-4">${session.text}</p>
+        `;
+
+        if (session.type === 'video') {
+          const vid = document.createElement("video");
+          vid.src = session.video;
+          vid.className = "w-full max-h-[240px] rounded-lg shadow";
+          vid.controls = true;
+          vid.playsInline = true;
+          div.appendChild(vid);
+        }
+
+        if (session.type === 'counting') {
+          const area = document.createElement("div");
+          area.className = "flex flex-wrap justify-center gap-4 mt-4";
+          session.animals.forEach((a, i) => {
+            setTimeout(() => {
+              const wrap = document.createElement("div");
+              wrap.className = "flex flex-col items-center gap-1";
+              wrap.innerHTML = `
+                <div class="bg-yellow-300 text-xl text-white rounded-full w-14 h-14 flex items-center justify-center shadow">${a.number}</div>
+                <img src="${a.img}" alt="${a.name}" class="w-20 h-20 object-contain" />
+              `;
+              area.appendChild(wrap);
+            }, i * 800);
+          });
+          div.appendChild(area);
+        }
+
+        if (index < data.sessions.length - 1) {
+          const btn = document.createElement("button");
+          btn.className = "mt-6 bg-blue-500 text-white px-6 py-2 rounded-full";
+          btn.textContent = "Next ➡️";
+          btn.onclick = () => {
+            div.classList.add("hidden");
+            div.nextElementSibling.classList.remove("hidden");
+          };
+          div.appendChild(btn);
+        } else {
+          const btn = document.createElement("button");
+          btn.className = "mt-6 bg-green-500 text-white px-6 py-2 rounded-full";
+          btn.textContent = "✅ Finish Day";
+          btn.onclick = showFinish;
+          div.appendChild(btn);
+        }
+
+        div.classList.toggle("hidden", index !== 0);
+        container.appendChild(div);
+      });
+    }
+
+    function showFinish() {
+      const content = document.getElementById("content");
+      content.innerHTML = `
+        <div class="text-center space-y-4 mt-10">
+          <h2 class="text-3xl font-bold text-green-700">✅ Great job today!</h2>
+          <lottie-player
+            src="animation/hai-animation.json"
+            background="transparent"
+            speed="1"
+            style="width: 160px; height: 160px; margin: auto;"
+            autoplay loop>
+          </lottie-player>
+          <p class="text-xl">Come back tomorrow at 6:00 AM to unlock Day ${parseInt(day) + 1} 🌞</p>
+          <div class="flex justify-center gap-4">
+            <a href="stickers.html" class="bg-yellow-500 text-black px-4 py-2 rounded-full">🏅 See Stickers</a>
+            <a href="index.html" class="bg-gray-700 text-white px-4 py-2 rounded-full">🏠 Back Home</a>
+            <a href="choose.html" class="bg-blue-600 text-white px-6 py-2 rounded-full">➡️ Choose another day</a>
+          </div>
+        </div>
+      `;
+      const now = new Date();
+      const unlock = new Date(now);
+      unlock.setDate(now.getDate() + 1);
+      unlock.setHours(6, 0, 0, 0);
+      localStorage.setItem(`day${parseInt(day) + 1}UnlockTime`, unlock.getTime());
+      localStorage.setItem(`day${day}Completed`, 'true');
+      sessionStorage.setItem('dayUnlockedMessage', 'true');
+      sessionStorage.setItem('stickerUnlocked', 'true');
+      const sound = document.getElementById("successSound");
+      if (sound) sound.play().catch(() => {});
+    }
+  </script>
+</body>
+</html>
