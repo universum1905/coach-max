@@ -13,6 +13,24 @@
       background: url('images/backgrounds/2.png') repeat;
       background-size: cover;
     }
+    .effect-popup {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      background: white;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 50;
+      animation: pop-fade 1.5s ease-out forwards;
+    }
+    @keyframes pop-fade {
+      0% { opacity: 0; transform: translate(-50%, -20%) scale(0.8); }
+      10% { opacity: 1; transform: translate(-50%, 0%) scale(1.1); }
+      100% { opacity: 0; transform: translate(-50%, 0%) scale(1); }
+    }
   </style>
 </head>
 <body class="text-black min-h-screen flex flex-col items-center justify-start p-4">
@@ -37,13 +55,24 @@
           <p class="text-lg mb-4">${session.text}</p>
         `;
 
-        if (session.type === 'video') {
+        if (session.type === 'video' || session.type === 'rhyme') {
           const vid = document.createElement("video");
           vid.src = session.video;
-          vid.className = "w-full max-h-[240px] rounded-lg shadow";
+          vid.className = "w-full max-h-[240px] rounded-lg shadow mx-auto mb-4";
           vid.controls = true;
           vid.playsInline = true;
           div.appendChild(vid);
+
+          if (session.effects) {
+            vid.addEventListener('timeupdate', () => {
+              session.effects.forEach(effect => {
+                if (!effect.triggered && vid.currentTime >= effect.time) {
+                  showEffect(effect);
+                  effect.triggered = true;
+                }
+              });
+            });
+          }
         }
 
         if (session.type === 'counting') {
@@ -83,6 +112,14 @@
         div.classList.toggle("hidden", index !== 0);
         container.appendChild(div);
       });
+    }
+
+    function showEffect(effect) {
+      const popup = document.createElement('div');
+      popup.className = 'effect-popup';
+      popup.textContent = `${effect.emoji || ''} ${effect.text || ''}`;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 1600);
     }
 
     function showFinish() {

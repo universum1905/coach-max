@@ -35,12 +35,19 @@
       ]
     },
     {
-      "id": "rhyme",
-      "type": "video",
-      "title": "🎵 Rhyme Time!",
-      "text": "Brush your teeth and make them shine...",
-      "video": "videos/day1-rhyme.mp4"
-    },
+  "id": "rhyme",
+  "type": "rhyme",
+  "title": "🎵 Rhyme Time!",
+  "video": "videos/day1-rhyme.mp4",
+  "text": "Brush your teeth and make them shine...",
+  "effects": [
+    { "time": 1.0, "emoji": "🪥", "text": "Brush!" },
+    { "time": 2.8, "emoji": "🕺", "text": "Wiggle!" },
+    { "time": 4.5, "emoji": "🐸", "text": "Jump!" },
+    { "time": 6.2, "emoji": "🌈", "text": "Touch the sky!" },
+    { "time": 8.0, "emoji": "👋", "text": "Bye bye!" }
+  ]
+},
     {
       "id": "animals",
       "type": "video",
