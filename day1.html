@@ -30,7 +30,7 @@
       background: rgba(255, 255, 255, 0.85);
       color: #333;
       padding: 1rem 1.5rem;
-      margin: 1rem 0;
+      margin: 1.5rem 0;
       border-radius: 25px;
       box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
       max-width: 90%;
@@ -84,7 +84,7 @@
 <body>
 
   <div class="page-container" id="main">
-    <!-- Textlinien – zuerst versteckt -->
+    <!-- Texte -->
     <div class="text-line" id="line1">Hi there!</div>
     <div class="text-line" id="line2">Are you ready for today’s adventure?</div>
     <div class="text-line" id="line3">We’re going to breathe,</div>
@@ -92,10 +92,10 @@
     <div class="text-line" id="line5">Meet an animal</div>
     <div class="text-line" id="line6">and hear a little story! Let’s get started!</div>
 
-    <!-- Scroll-Trigger für Video -->
+    <!-- Scroll-Trigger -->
     <div class="video-wrapper" id="video-trigger"></div>
 
-    <!-- Video unten rechts → dann später im Fluss -->
+    <!-- Video -->
     <div class="video-box video-fixed" id="videoBox">
       <video id="introVideo" src="videos/day1-intro.mp4" controls playsinline></video>
     </div>
@@ -106,15 +106,9 @@
     const trigger = document.getElementById("video-trigger");
     const video = document.getElementById("introVideo");
 
-    // Autoscroll bei Seitenstart
-    window.addEventListener("load", function () {
-      document.getElementById("main").scrollIntoView({ behavior: "smooth" });
-    });
-
-    // Video-Position wechselt von fixed zu static
+    // Dynamischer Position-Wechsel des Videos
     window.addEventListener("scroll", () => {
       const triggerPosition = trigger.getBoundingClientRect().top;
-
       if (triggerPosition < 100) {
         videoBox.classList.remove("video-fixed");
         videoBox.classList.add("video-static");
@@ -124,7 +118,7 @@
       }
     });
 
-    // Texte erscheinen nacheinander, wenn Video startet
+    // Texte + Autoscroll starten mit Video
     video.addEventListener("play", () => {
       const lines = [
         document.getElementById("line1"),
@@ -138,7 +132,8 @@
       lines.forEach((line, index) => {
         setTimeout(() => {
           line.classList.add("show");
-        }, 1000 * index); // alle 1 Sekunde
+          line.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 1800 * index); // alle 1.8 Sek. nächste Zeile + Scroll
       });
     });
   </script>
