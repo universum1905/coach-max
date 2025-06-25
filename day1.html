@@ -9,13 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&display=swap" rel="stylesheet">
 
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       font-family: 'Baloo 2', cursive;
       background: url('images/backgrounds/2.png') no-repeat center center fixed;
       background-size: cover;
       scroll-behavior: smooth;
+      overflow-x: hidden;
     }
 
     .page-container {
@@ -23,6 +24,7 @@
       margin: 0 auto;
       padding: 2rem;
       padding-right: 350px;
+      box-sizing: border-box;
     }
 
     .text-line {
@@ -41,10 +43,17 @@
     }
 
     .text-line.show {
-      animation: slideInBounce 0.8s ease forwards;
+      animation: slideIn 0.8s ease forwards;
     }
 
-    /* Glitzer-Schein-Effekt */
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Glitzereffekt */
     .text-line.show::after {
       content: '';
       position: absolute;
@@ -52,30 +61,21 @@
       left: -100%;
       width: 200%;
       height: 100%;
-      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
       animation: shine 2s ease-out forwards;
     }
 
-    /* Spezielle Puls-Animation für letzte Zeile */
-    #line6.show {
-      animation: slideInBounce 0.8s ease forwards, pulse 2s infinite ease-in-out;
-      background-color: #fff0d6;
-    }
-
-    /* Slide-in-Bounce Keyframes */
-    @keyframes slideInBounce {
-      0% { opacity: 0; transform: translateY(-50px) scale(0.9); }
-      60% { opacity: 1; transform: translateY(10px) scale(1.05); }
-      100% { transform: translateY(0) scale(1); }
-    }
-
-    /* Glitzerbewegung */
     @keyframes shine {
       0% { background-position: -200%; }
       100% { background-position: 200%; }
     }
 
-    /* Pulsieren */
+    /* Puls für letzte Zeile */
+    #line6.show {
+      animation: slideIn 0.8s ease forwards, pulse 2s infinite ease-in-out;
+      background-color: #fff0d6;
+    }
+
     @keyframes pulse {
       0% { transform: scale(1); box-shadow: 0 0 0px rgba(255, 200, 100, 0.4); }
       50% { transform: scale(1.03); box-shadow: 0 0 15px rgba(255, 180, 0, 0.6); }
@@ -117,17 +117,14 @@
 <body>
 
   <div class="page-container" id="main">
-    <!-- 🎬 Texte -->
     <div class="text-line" id="line1">Hi there!</div>
     <div class="text-line" id="line2">Are you ready for today’s adventure?</div>
     <div class="text-line" id="line3">We’re going to breathe, count, rhyme...</div>
     <div class="text-line" id="line5">Meet an animal and hear a little story!</div>
     <div class="text-line" id="line6">✨ Let’s get started! ✨</div>
 
-    <!-- 🪝 Trigger-Element -->
     <div class="video-wrapper" id="video-trigger"></div>
 
-    <!-- 📹 Video-Box -->
     <div class="video-box video-fixed" id="videoBox">
       <video id="introVideo" src="videos/day1-intro.mp4" controls playsinline></video>
     </div>
@@ -138,7 +135,6 @@
     const trigger = document.getElementById("video-trigger");
     const video = document.getElementById("introVideo");
 
-    // Scroll-Verhalten Video: fixiert → normal
     window.addEventListener("scroll", () => {
       const triggerPosition = trigger.getBoundingClientRect().top;
       if (triggerPosition < 100) {
@@ -150,7 +146,6 @@
       }
     });
 
-    // Texteinblendung + Scroll synchron zum Video
     const lines = [
       document.getElementById("line1"),
       document.getElementById("line2"),
@@ -159,7 +154,7 @@
       document.getElementById("line6"),
     ];
 
-    const timings = [1120, 2220, 6000, 10020, 18200]; // in ms
+    const timings = [1120, 2220, 6000, 10020, 18200]; // ms
 
     video.addEventListener("play", () => {
       lines.forEach((line, index) => {
