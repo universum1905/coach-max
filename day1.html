@@ -1,42 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Coach Max – Day 1 Intro</title>
+
+  <!-- Google Font: Baloo 2 -->
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&display=swap" rel="stylesheet">
+
   <style>
-    html, body {
+    body {
       margin: 0;
       padding: 0;
-      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-family: 'Baloo 2', cursive;
       background: url('images/backgrounds/2.png') no-repeat center center fixed;
       background-size: cover;
-      overflow-x: hidden;
     }
 
-    .container {
+    .page-container {
+      display: flex;
+      flex-direction: column;
       padding: 2rem;
-      max-width: 800px;
+      padding-right: 340px; /* Platz lassen für Video */
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .text-line {
-      font-size: 2rem;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 1rem;
+      font-size: 2.5rem;
+      background: rgba(255, 255, 255, 0.85);
+      color: #333;
+      padding: 1rem 1.5rem;
       margin: 1rem 0;
-      border-radius: 1rem;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+      border-radius: 25px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+      max-width: 80%;
       opacity: 0;
       transform: translateX(-50px);
       animation: slideIn 0.6s ease forwards;
     }
 
-    .text-line:nth-child(1) { animation-delay: 0.5s; }
-    .text-line:nth-child(2) { animation-delay: 1.5s; }
-    .text-line:nth-child(3) { animation-delay: 2.5s; }
-    .text-line:nth-child(4) { animation-delay: 3.5s; }
+    .text-line:nth-child(1) { animation-delay: 1.12s; }
+    .text-line:nth-child(2) { animation-delay: 2.22s; }
+    .text-line:nth-child(3) { animation-delay: 6.0s; }
+    .text-line:nth-child(4) { animation-delay: 10.02s; }
     .text-line:nth-child(5) { animation-delay: 4.5s; }
-    .text-line:nth-child(6) { animation-delay: 5.5s; }
+    .text-line:nth-child(6) { animation-delay: 18.20s; }
 
     @keyframes slideIn {
       to {
@@ -45,35 +54,38 @@
       }
     }
 
-    .video-box {
-      position: relative;
-      margin-top: 2rem;
-      display: flex;
-      justify-content: flex-end;
-      padding-right: 2rem;
+    .video-fixed {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10;
+      width: 300px;
+      max-width: 90vw;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
     }
 
     video {
-      width: 320px;
+      width: 100%;
       height: auto;
-      border-radius: 1rem;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      display: block;
+      border-radius: 20px;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <div class="page-container">
     <div class="text-line">Hi there!</div>
     <div class="text-line">Are you ready for today’s adventure?</div>
     <div class="text-line">We’re going to breathe,</div>
     <div class="text-line">count, rhyme...</div>
     <div class="text-line">Meet an animal</div>
     <div class="text-line">and hear a little story! Let’s get started!</div>
+  </div>
 
-    <div class="video-box">
-      <video src="videos/day1-intro.mp4" autoplay muted playsinline></video>
-    </div>
+  <div class="video-fixed">
+    <video src="videos/day1-intro.mp4" autoplay muted playsinline></video>
   </div>
 
 </body>
