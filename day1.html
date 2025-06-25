@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Coach Max – Day 1 Intro</title>
 
   <!-- Google Font: Baloo 2 -->
@@ -19,11 +19,10 @@
     }
 
     .page-container {
-      display: flex;
-      flex-direction: column;
-      padding: 2rem;
-      max-width: 900px;
+      max-width: 1000px;
       margin: 0 auto;
+      padding: 2rem;
+      padding-right: 350px;
     }
 
     .text-line {
@@ -37,15 +36,11 @@
       max-width: 90%;
       opacity: 0;
       transform: translateX(-50px);
-      animation: slideIn 0.6s ease forwards;
     }
 
-    .text-line:nth-child(1) { animation-delay: 1.12s; }
-    .text-line:nth-child(2) { animation-delay: 2.22s; }
-    .text-line:nth-child(3) { animation-delay: 6.0s; }
-    .text-line:nth-child(4) { animation-delay: 10.02s; }
-    .text-line:nth-child(5) { animation-delay: 4.5s; }
-    .text-line:nth-child(6) { animation-delay: 18.20s; }
+    .text-line.show {
+      animation: slideIn 0.6s ease forwards;
+    }
 
     @keyframes slideIn {
       to {
@@ -54,12 +49,28 @@
       }
     }
 
-    .video-container {
-      width: 320px;
-      max-width: 100%;
-      margin: 3rem auto 4rem auto;
+    .video-wrapper {
+      height: 0;
+    }
+
+    .video-box {
+      width: 300px;
+      max-width: 90vw;
       border-radius: 20px;
       box-shadow: 0 0 15px rgba(0,0,0,0.4);
+      transition: all 0.3s ease;
+    }
+
+    .video-fixed {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+    }
+
+    .video-static {
+      position: relative;
+      margin: 3rem auto 4rem auto;
     }
 
     video {
@@ -72,25 +83,63 @@
 </head>
 <body>
 
-  <div class="page-container">
-    <div class="text-line">Hi there!</div>
-    <div class="text-line">Are you ready for today’s adventure?</div>
-    <div class="text-line">We’re going to breathe,</div>
-    <div class="text-line">count, rhyme...</div>
-    <div class="text-line">Meet an animal</div>
-    <div class="text-line">and hear a little story! Let’s get started!</div>
+  <div class="page-container" id="main">
+    <!-- Textlinien – zuerst versteckt -->
+    <div class="text-line" id="line1">Hi there!</div>
+    <div class="text-line" id="line2">Are you ready for today’s adventure?</div>
+    <div class="text-line" id="line3">We’re going to breathe,</div>
+    <div class="text-line" id="line4">count, rhyme...</div>
+    <div class="text-line" id="line5">Meet an animal</div>
+    <div class="text-line" id="line6">and hear a little story! Let’s get started!</div>
 
-    <div class="video-container" id="intro-video">
-      <video src="videos/day1-intro.mp4" controls playsinline></video>
+    <!-- Scroll-Trigger für Video -->
+    <div class="video-wrapper" id="video-trigger"></div>
+
+    <!-- Video unten rechts → dann später im Fluss -->
+    <div class="video-box video-fixed" id="videoBox">
+      <video id="introVideo" src="videos/day1-intro.mp4" controls playsinline></video>
     </div>
   </div>
 
   <script>
+    const videoBox = document.getElementById("videoBox");
+    const trigger = document.getElementById("video-trigger");
+    const video = document.getElementById("introVideo");
+
+    // Autoscroll bei Seitenstart
     window.addEventListener("load", function () {
-      const video = document.getElementById("intro-video");
-      if (video) {
-        video.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("main").scrollIntoView({ behavior: "smooth" });
+    });
+
+    // Video-Position wechselt von fixed zu static
+    window.addEventListener("scroll", () => {
+      const triggerPosition = trigger.getBoundingClientRect().top;
+
+      if (triggerPosition < 100) {
+        videoBox.classList.remove("video-fixed");
+        videoBox.classList.add("video-static");
+      } else {
+        videoBox.classList.remove("video-static");
+        videoBox.classList.add("video-fixed");
       }
+    });
+
+    // Texte erscheinen nacheinander, wenn Video startet
+    video.addEventListener("play", () => {
+      const lines = [
+        document.getElementById("line1"),
+        document.getElementById("line2"),
+        document.getElementById("line3"),
+        document.getElementById("line4"),
+        document.getElementById("line5"),
+        document.getElementById("line6"),
+      ];
+
+      lines.forEach((line, index) => {
+        setTimeout(() => {
+          line.classList.add("show");
+        }, 1000 * index); // alle 1 Sekunde
+      });
     });
   </script>
 
