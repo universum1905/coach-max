@@ -26,6 +26,16 @@
       z-index: 50;
       animation: pop-fade 1.5s ease-out forwards;
     }
+    .fixed-video {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      width: 160px;
+      height: 100px;
+      z-index: 40;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
     @keyframes pop-fade {
       0% { opacity: 0; transform: translate(-50%, -20%) scale(0.8); }
       10% { opacity: 1; transform: translate(-50%, 0%) scale(1.1); }
@@ -36,10 +46,14 @@
 <body class="text-black min-h-screen flex flex-col items-center justify-start p-4">
   <main id="content" class="w-full max-w-xl space-y-6"></main>
   <audio id="successSound" src="audio/success.mp3" preload="auto"></audio>
+  <video id="sessionVideo" class="fixed-video hidden" muted playsinline></video>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const day = urlParams.get('day') || '1';
+
+    let activeVideo = document.getElementById('sessionVideo');
+    let currentSessionEffects = [];
 
     fetch(`days/day${day}.json`)
       .then(res => res.json())
@@ -55,24 +69,9 @@
           <p class="text-lg mb-4">${session.text}</p>
         `;
 
-        if (session.type === 'video' || session.type === 'rhyme') {
-          const vid = document.createElement("video");
-          vid.src = session.video;
-          vid.className = "w-full max-h-[240px] rounded-lg shadow mx-auto mb-4";
-          vid.controls = true;
-          vid.playsInline = true;
-          div.appendChild(vid);
-
-          if (session.effects) {
-            vid.addEventListener('timeupdate', () => {
-              session.effects.forEach(effect => {
-                if (!effect.triggered && vid.currentTime >= effect.time) {
-                  showEffect(effect);
-                  effect.triggered = true;
-                }
-              });
-            });
-          }
+        if (session.video) {
+          div.dataset.video = session.video;
+          div.dataset.effects = JSON.stringify(session.effects || []);
         }
 
         if (session.type === 'counting') {
@@ -96,22 +95,72 @@
           const btn = document.createElement("button");
           btn.className = "mt-6 bg-blue-500 text-white px-6 py-2 rounded-full";
           btn.textContent = "Next ➡️";
+          btn.disabled = true;
           btn.onclick = () => {
+            stopVideo();
             div.classList.add("hidden");
             div.nextElementSibling.classList.remove("hidden");
+            startSession(div.nextElementSibling);
           };
           div.appendChild(btn);
         } else {
           const btn = document.createElement("button");
           btn.className = "mt-6 bg-green-500 text-white px-6 py-2 rounded-full";
           btn.textContent = "✅ Finish Day";
-          btn.onclick = showFinish;
+          btn.disabled = true;
+          btn.onclick = () => {
+            stopVideo();
+            showFinish();
+          };
           div.appendChild(btn);
         }
 
         div.classList.toggle("hidden", index !== 0);
         container.appendChild(div);
       });
+
+      // Start first session
+      const first = container.children[0];
+      startSession(first);
+    }
+
+    function startSession(sessionDiv) {
+      const videoSrc = sessionDiv.dataset.video;
+      const effects = JSON.parse(sessionDiv.dataset.effects || '[]');
+
+      if (videoSrc) {
+        activeVideo.src = videoSrc;
+        activeVideo.classList.remove("hidden");
+        activeVideo.currentTime = 0;
+        activeVideo.play();
+        currentSessionEffects = effects;
+
+        currentSessionEffects.forEach(e => e.triggered = false);
+
+        activeVideo.ontimeupdate = () => {
+          currentSessionEffects.forEach(effect => {
+            if (!effect.triggered && activeVideo.currentTime >= effect.time) {
+              showEffect(effect);
+              effect.triggered = true;
+            }
+          });
+        };
+
+        activeVideo.onended = () => {
+          const btn = sessionDiv.querySelector("button");
+          if (btn) btn.disabled = false;
+        };
+      } else {
+        const btn = sessionDiv.querySelector("button");
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function stopVideo() {
+      activeVideo.pause();
+      activeVideo.src = "";
+      activeVideo.classList.add("hidden");
+      activeVideo.ontimeupdate = null;
     }
 
     function showEffect(effect) {

@@ -9,12 +9,17 @@
       "video": "videos/day1-intro.mp4"
     },
     {
-      "id": "breath",
-      "type": "video",
-      "title": "🧘 Let’s Breathe Together!",
-      "text": "Breathe in... and out... Let’s do it three times together.",
-      "video": "videos/day1-breath.mp4"
-    },
+  "id": "breath",
+  "type": "video",
+  "title": "🧘 Let’s Breathe Together!",
+  "text": "Breathe in... and out...",
+  "video": "videos/day1-breath.mp4",
+  "effects": [
+    { "time": 0.5, "emoji": "🌬️", "text": "Breathe in" },
+    { "time": 3.0, "emoji": "💨", "text": "Breathe out" },
+    { "time": 6.0, "emoji": "🧘", "text": "And relax..." }
+  ]
+},
     {
       "id": "counting",
       "type": "counting",
