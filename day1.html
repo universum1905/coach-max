@@ -36,18 +36,50 @@
       max-width: 90%;
       opacity: 0;
       transform: translateX(-50px);
+      position: relative;
+      overflow: hidden;
     }
 
-    /* Sichtbar machen mit Animation */
     .text-line.show {
-      animation: slideIn 0.6s ease forwards;
+      animation: slideInBounce 0.8s ease forwards;
     }
 
-    @keyframes slideIn {
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
+    /* Glitzer-Schein-Effekt */
+    .text-line.show::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+      animation: shine 2s ease-out forwards;
+    }
+
+    /* Spezielle Puls-Animation für letzte Zeile */
+    #line6.show {
+      animation: slideInBounce 0.8s ease forwards, pulse 2s infinite ease-in-out;
+      background-color: #fff0d6;
+    }
+
+    /* Slide-in-Bounce Keyframes */
+    @keyframes slideInBounce {
+      0% { opacity: 0; transform: translateY(-50px) scale(0.9); }
+      60% { opacity: 1; transform: translateY(10px) scale(1.05); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    /* Glitzerbewegung */
+    @keyframes shine {
+      0% { background-position: -200%; }
+      100% { background-position: 200%; }
+    }
+
+    /* Pulsieren */
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0px rgba(255, 200, 100, 0.4); }
+      50% { transform: scale(1.03); box-shadow: 0 0 15px rgba(255, 180, 0, 0.6); }
+      100% { transform: scale(1); box-shadow: 0 0 0px rgba(255, 200, 100, 0.4); }
     }
 
     .video-wrapper {
@@ -85,17 +117,17 @@
 <body>
 
   <div class="page-container" id="main">
-    <!-- Deine 5 Textzeilen -->
+    <!-- 🎬 Texte -->
     <div class="text-line" id="line1">Hi there!</div>
     <div class="text-line" id="line2">Are you ready for today’s adventure?</div>
     <div class="text-line" id="line3">We’re going to breathe, count, rhyme...</div>
     <div class="text-line" id="line5">Meet an animal and hear a little story!</div>
-    <div class="text-line" id="line6">Let’s get started!</div>
+    <div class="text-line" id="line6">✨ Let’s get started! ✨</div>
 
-    <!-- Scroll-Trigger -->
+    <!-- 🪝 Trigger-Element -->
     <div class="video-wrapper" id="video-trigger"></div>
 
-    <!-- Video -->
+    <!-- 📹 Video-Box -->
     <div class="video-box video-fixed" id="videoBox">
       <video id="introVideo" src="videos/day1-intro.mp4" controls playsinline></video>
     </div>
@@ -106,7 +138,7 @@
     const trigger = document.getElementById("video-trigger");
     const video = document.getElementById("introVideo");
 
-    // Position-Übergang fixiert → normal scrollend
+    // Scroll-Verhalten Video: fixiert → normal
     window.addEventListener("scroll", () => {
       const triggerPosition = trigger.getBoundingClientRect().top;
       if (triggerPosition < 100) {
@@ -118,7 +150,7 @@
       }
     });
 
-    // Texte + Scroll erscheinen synchron zum Video
+    // Texteinblendung + Scroll synchron zum Video
     const lines = [
       document.getElementById("line1"),
       document.getElementById("line2"),
@@ -127,7 +159,7 @@
       document.getElementById("line6"),
     ];
 
-    const timings = [1120, 2220, 6000, 10020, 18200]; // ms
+    const timings = [1120, 2220, 6000, 10020, 18200]; // in ms
 
     video.addEventListener("play", () => {
       lines.forEach((line, index) => {
