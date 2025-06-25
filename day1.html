@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Coach Max – Day {{DAY}}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.3.0/dist/dotlottie-wc.js" type="module"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background: url('images/backgrounds/2.png') repeat;
+      background-size: cover;
+    }
+    .animate-wiggle {
+      animation: wiggle 1.5s infinite ease-in-out;
+      display: inline-block;
+    }
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(10deg); }
+      50% { transform: rotate(-10deg); }
+      75% { transform: rotate(5deg); }
+    }
+    @media screen and (orientation: portrait) {
+      #orientationOverlay { display: flex; }
+      #mainContent { display: none; }
+    }
+    @media screen and (orientation: landscape) {
+      #orientationOverlay { display: none; }
+      #mainContent { display: block; }
+    }
+  </style>
+<!-- {{ABO_CHECK}} -->
+</head>
+<body class="text-black flex flex-col items-center justify-start min-h-screen p-4 overflow-y-auto">
+  <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
+    <img src="images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
+    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
+  </div>
+  <audio id="successSound" src="audio/success.mp3" preload="auto"></audio>
+  <div id="mainContent" class="w-full max-w-xl space-y-6">
+    <!-- Inhalte kommen hier automatisch durch showSession(x) -->
+  </div>
+  <script>
+    const DAY_NUMBER = {{DAY}};
+    function showSession(num) {
+      document.getElementById('mainContent').style.display = 'block';
+      document.querySelectorAll('[id^="session"], #intro, #finish-screen').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`session${num}`).classList.remove('hidden');
+    }
+    function showFinish() {
+      document.querySelectorAll('[id^="session"], #intro').forEach(el => el.classList.add('hidden'));
+      document.getElementById('finish-screen').classList.remove('hidden');
+      sessionStorage.setItem('showSuccess', 'true');
+      localStorage.setItem(`day${DAY_NUMBER}Completed`, 'true');
+      const now = new Date();
+      const unlock = new Date(now);
+      unlock.setDate(unlock.getDate() + 1);
+      unlock.setHours(6, 0, 0, 0);
+      localStorage.setItem(`day${DAY_NUMBER + 1}UnlockTime`, unlock.getTime());
+      sessionStorage.setItem('dayUnlockedMessage', 'true');
+      sessionStorage.setItem('stickerUnlocked', 'true');
+      const sound = document.getElementById("successSound");
+      if (sound) { sound.volume = 0.5; sound.play().catch(() => {}); }
+      showStickerPopup();
+    }
+    function goToNextDay() {
+      sessionStorage.setItem('dayUnlockedMessage', 'true');
+      window.location.href = 'choose.html';
+    }
+    function showStickerPopup() {
+      const popup = document.createElement('div');
+      popup.textContent = '🏅 Sticker Unlocked!';
+      popup.className = 'fixed top-16 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black px-4 py-2 rounded-xl shadow-lg z-50';
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+    window.showSession = showSession;
+    window.showFinish = showFinish;
+    window.goToNextDay = goToNextDay;
+  </script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+</body>
+</html>
