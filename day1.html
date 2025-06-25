@@ -2,124 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Coach Max – Day {{DAY}}</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.3.0/dist/dotlottie-wc.js" type="module"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coach Max – Day 1 Intro</title>
   <style>
-    body {
-      font-family: 'Fredoka', sans-serif;
-      background: url('images/backgrounds/2.png') repeat;
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: url('images/backgrounds/2.png') no-repeat center center fixed;
       background-size: cover;
+      overflow-x: hidden;
     }
-    .animate-wiggle {
-      animation: wiggle 1.5s infinite ease-in-out;
-      display: inline-block;
+
+    .container {
+      padding: 2rem;
+      max-width: 800px;
     }
-    @keyframes wiggle {
-      0%, 100% { transform: rotate(0deg); }
-      25% { transform: rotate(10deg); }
-      50% { transform: rotate(-10deg); }
-      75% { transform: rotate(5deg); }
+
+    .text-line {
+      font-size: 2rem;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 1rem;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateX(-50px);
+      animation: slideIn 0.6s ease forwards;
     }
-    @media screen and (orientation: portrait) {
-      #orientationOverlay { display: flex; }
-      #mainContent { display: none; }
+
+    .text-line:nth-child(1) { animation-delay: 0.5s; }
+    .text-line:nth-child(2) { animation-delay: 1.5s; }
+    .text-line:nth-child(3) { animation-delay: 2.5s; }
+    .text-line:nth-child(4) { animation-delay: 3.5s; }
+    .text-line:nth-child(5) { animation-delay: 4.5s; }
+    .text-line:nth-child(6) { animation-delay: 5.5s; }
+
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
-    @media screen and (orientation: landscape) {
-      #orientationOverlay { display: none; }
-      #mainContent { display: block; }
+
+    .video-box {
+      position: relative;
+      margin-top: 2rem;
+      display: flex;
+      justify-content: flex-end;
+      padding-right: 2rem;
+    }
+
+    video {
+      width: 320px;
+      height: auto;
+      border-radius: 1rem;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
     }
   </style>
 </head>
-<body class="text-black flex flex-col items-center justify-start min-h-screen p-4 overflow-y-auto">
-  <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
-    <img src="images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
-    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
-    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
-    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
-  </div>
+<body>
 
-  <audio id="successSound" src="audio/success.mp3" preload="auto"></audio>
+  <div class="container">
+    <div class="text-line">Hi there!</div>
+    <div class="text-line">Are you ready for today’s adventure?</div>
+    <div class="text-line">We’re going to breathe,</div>
+    <div class="text-line">count, rhyme...</div>
+    <div class="text-line">Meet an animal</div>
+    <div class="text-line">and hear a little story! Let’s get started!</div>
 
-  <div id="mainContent" class="w-full max-w-xl space-y-6">
-    <!-- Session 1: Counting with Animals -->
-    <div id="session1" class="bg-white bg-opacity-80 rounded-xl p-4 shadow text-center">
-      <h2 class="text-3xl font-bold mb-4">🔢 Let’s Count with Animals!</h2>
-      <p class="text-lg mb-4">Say the numbers out loud and meet a new animal with each one!</p>
-      <div id="counting-area" class="flex flex-wrap justify-center gap-4"></div>
-      <div class="flex justify-center mt-6">
-        <button onclick="showSession(2)" class="bg-blue-500 text-white px-6 py-2 rounded-full">Next ➡️</button>
-      </div>
-    </div>
-    
-    <!-- Session 2 Placeholder -->
-    <div id="session2" class="hidden bg-white bg-opacity-80 rounded-xl p-4 shadow text-center">
-      <h2 class="text-3xl font-bold mb-4">📖 Next Session Title Here</h2>
-      <p class="text-lg">More content will follow here...</p>
+    <div class="video-box">
+      <video src="videos/day1-intro.mp4" autoplay muted playsinline></video>
     </div>
   </div>
 
-  <script>
-    const DAY_NUMBER = {{DAY}};
-
-    const animals = [
-      { number: 1, name: "Dog", img: "images/animals/1-dog.png" },
-      { number: 2, name: "Cat", img: "images/animals/2-cat.png" },
-      { number: 3, name: "Mouse", img: "images/animals/3-mouse.png" },
-      { number: 4, name: "Rabbit", img: "images/animals/4-rabbit.png" },
-      { number: 5, name: "Lion", img: "images/animals/5-lion.png" },
-      { number: 6, name: "Cow", img: "images/animals/6-cow.png" },
-      { number: 7, name: "Frog", img: "images/animals/7-frog.png" },
-      { number: 8, name: "Monkey", img: "images/animals/8-monkey.png" },
-      { number: 9, name: "Penguin", img: "images/animals/9-penguin.png" },
-      { number: 10, name: "Elephant", img: "images/animals/10-elephant.png" }
-    ];
-
-    const container = document.getElementById("counting-area");
-
-    function showAnimalsSequentially(index = 0) {
-      if (index >= animals.length) return;
-      const item = animals[index];
-      const bubble = document.createElement("div");
-      bubble.className = "bg-yellow-300 text-2xl font-bold text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg";
-      bubble.textContent = item.number;
-
-      const img = document.createElement("img");
-      img.src = item.img;
-      img.alt = item.name;
-      img.className = "w-24 h-24 object-contain";
-
-      const wrapper = document.createElement("div");
-      wrapper.className = "flex flex-col items-center gap-2";
-      wrapper.appendChild(bubble);
-      wrapper.appendChild(img);
-
-      container.appendChild(wrapper);
-
-      setTimeout(() => showAnimalsSequentially(index + 1), 1000);
-    }
-
-    function showSession(num) {
-      document.querySelectorAll('[id^="session"]').forEach(el => el.classList.add('hidden'));
-      const session = document.getElementById(`session${num}`);
-      if (session) session.classList.remove('hidden');
-    }
-
-    function showStickerPopup() {
-      const popup = document.createElement('div');
-      popup.textContent = '🏅 Sticker Unlocked!';
-      popup.className = 'fixed top-16 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black px-4 py-2 rounded-xl shadow-lg z-50';
-      document.body.appendChild(popup);
-      setTimeout(() => popup.remove(), 3000);
-    }
-
-    window.onload = () => {
-      showAnimalsSequentially();
-      showSession(1);
-    };
-  </script>
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 </body>
 </html>
