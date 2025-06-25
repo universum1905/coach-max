@@ -38,6 +38,7 @@
       transform: translateX(-50px);
     }
 
+    /* Sichtbar machen mit Animation */
     .text-line.show {
       animation: slideIn 0.6s ease forwards;
     }
@@ -84,13 +85,12 @@
 <body>
 
   <div class="page-container" id="main">
-    <!-- Texte -->
+    <!-- Deine 5 Textzeilen -->
     <div class="text-line" id="line1">Hi there!</div>
     <div class="text-line" id="line2">Are you ready for today’s adventure?</div>
-    <div class="text-line" id="line3">We’re going to breathe,</div>
-    <div class="text-line" id="line4">count, rhyme...</div>
-    <div class="text-line" id="line5">Meet an animal</div>
-    <div class="text-line" id="line6">and hear a little story! Let’s get started!</div>
+    <div class="text-line" id="line3">We’re going to breathe, count, rhyme...</div>
+    <div class="text-line" id="line5">Meet an animal and hear a little story!</div>
+    <div class="text-line" id="line6">Let’s get started!</div>
 
     <!-- Scroll-Trigger -->
     <div class="video-wrapper" id="video-trigger"></div>
@@ -106,7 +106,7 @@
     const trigger = document.getElementById("video-trigger");
     const video = document.getElementById("introVideo");
 
-    // Dynamischer Position-Wechsel des Videos
+    // Position-Übergang fixiert → normal scrollend
     window.addEventListener("scroll", () => {
       const triggerPosition = trigger.getBoundingClientRect().top;
       if (triggerPosition < 100) {
@@ -118,22 +118,23 @@
       }
     });
 
-    // Texte + Autoscroll starten mit Video
-    video.addEventListener("play", () => {
-      const lines = [
-        document.getElementById("line1"),
-        document.getElementById("line2"),
-        document.getElementById("line3"),
-        document.getElementById("line4"),
-        document.getElementById("line5"),
-        document.getElementById("line6"),
-      ];
+    // Texte + Scroll erscheinen synchron zum Video
+    const lines = [
+      document.getElementById("line1"),
+      document.getElementById("line2"),
+      document.getElementById("line3"),
+      document.getElementById("line5"),
+      document.getElementById("line6"),
+    ];
 
+    const timings = [1120, 2220, 6000, 10020, 18200]; // ms
+
+    video.addEventListener("play", () => {
       lines.forEach((line, index) => {
         setTimeout(() => {
           line.classList.add("show");
           line.scrollIntoView({ behavior: "smooth", block: "center" });
-        }, 1800 * index); // alle 1.8 Sek. nächste Zeile + Scroll
+        }, timings[index]);
       });
     });
   </script>
