@@ -12,7 +12,6 @@
       background: url('images/backgrounds/2.png') no-repeat center center fixed;
       background-size: cover;
       overflow-x: hidden;
-      overflow-y: auto;
     }
 
     .page-container {
@@ -166,6 +165,7 @@
       container.innerHTML = "";
       imageEl.src = "";
       imageEl.classList.remove("visible");
+      btn.style.display = "none";
 
       video.pause();
       video.removeAttribute("src");
@@ -176,7 +176,6 @@
 
       video.src = session.video;
       video.load();
-      video.play().catch(() => {});
 
       if (session.type === "intro" || session.type === "story") {
         const lines = session.texts;
@@ -220,16 +219,15 @@
           setTimeout(cycle, 4000);
         };
         cycle();
-      }
 
-      setTimeout(() => {
-        btn.style.display = "block";
-      }, session.duration * 1000);
+        setTimeout(() => {
+          btn.style.display = "block";
+        }, session.duration * 1000);
+      }
     }
 
     function nextSession() {
       const video = document.getElementById("videoBox");
-      video.muted = false;
       video.play();
       sessionIndex++;
       startSession(sessionIndex);
