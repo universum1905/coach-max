@@ -5,11 +5,18 @@ let sessions = [];
 let currentSession = 0;
 
 window.onload = async () => {
-  const res = await fetch(jsonURL);
-  const data = await res.json();
-  sessions = data.sessions;
-  renderSession(currentSession);
-  updateProgress();
+  try {
+    const res = await fetch(jsonURL);
+    if (!res.ok) throw new Error("JSON not found: " + jsonURL);
+    const data = await res.json();
+    if (!data.sessions) throw new Error("No 'sessions' array in JSON!");
+    sessions = data.sessions;
+    renderSession(currentSession);
+    updateProgress();
+  } catch (e) {
+    document.body.innerHTML = `<h2 style="color:red">Fehler beim Laden: ${e}</h2>`;
+    console.error(e);
+  }
 };
 
 function renderSession(idx) {
