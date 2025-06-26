@@ -70,20 +70,26 @@
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 14px 28px;
-      font-size: 20px;
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-      color: white;
+      padding: 18px 36px;
+      font-size: 24px;
+      background: linear-gradient(135deg, #ffcb05, #ff6f61);
+      color: #222;
       border: none;
-      border-radius: 25px;
+      border-radius: 50px;
       cursor: pointer;
       display: none;
       z-index: 4;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-      transition: background 0.3s ease;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+      animation: bounce 2s infinite;
     }
+
+    @keyframes bounce {
+      0%, 100% { transform: translate(-50%, 0); }
+      50% { transform: translate(-50%, -8px); }
+    }
+
     #nextBtn:hover {
-      background: linear-gradient(135deg, #0072ff, #00c6ff);
+      background: linear-gradient(135deg, #ff6f61, #ffcb05);
     }
   </style>
 </head>
@@ -92,7 +98,7 @@
     <img id="mediaImage" class="media-image" src="">
     <div id="textDisplay" class="fade-text"></div>
     <video id="video" controls muted playsinline></video>
-    <button id="nextBtn" onclick="nextSession()">▶ Start next Session</button>
+    <button id="nextBtn" onclick="nextSession()">👶 Start next Session</button>
   </div>
 
   <script>
