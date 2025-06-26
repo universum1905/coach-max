@@ -15,6 +15,7 @@ h1#day-title {
   margin-top: 1rem;
   color: #333;
   text-shadow: 1px 1px #fff;
+  animation: sparkle 2s ease-in-out infinite, wiggle 2s infinite;
 }
 
 #session-container {
@@ -41,6 +42,12 @@ h1#day-title {
 @keyframes glitter {
   0%, 100% { text-shadow: 0 0 5px #ffc107, 0 0 10px #ff5722; }
   50% { text-shadow: 0 0 8px #ff9800, 0 0 16px #ffeb3b; }
+}
+
+@keyframes sparkle {
+  0% { text-shadow: 0 0 5px #fff176, 0 0 10px #fbc02d; }
+  50% { text-shadow: 0 0 10px #ffe082, 0 0 15px #ffca28; }
+  100% { text-shadow: 0 0 5px #fff176, 0 0 10px #fbc02d; }
 }
 
 /* Avatar-Video unten rechts */
