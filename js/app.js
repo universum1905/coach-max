@@ -1,61 +1,59 @@
-// Coach Max – JSON-basierte app.js (korrigiert)
-// Funktion: Lädt Sessions aus day1.json, zeigt Text oben, Video unten rechts
-
-let sessionIndex = 0;
+const container = document.getElementById('session-container');
+const nextBtn = document.getElementById('next-btn');
+const fill = document.getElementById('fill');
+let day = localStorage.getItem('currentDay') || 1;
 let sessions = [];
-const sessionContainer = document.getElementById('session-container');
-const rewardPopup = document.getElementById('reward-popup');
-const progressSteps = document.querySelectorAll('.progress-step');
-const yaySound = document.getElementById('yay-sound');
+let idx = 0;
 
-function showSession(index) {
-  const s = sessions[index];
+fetch(`days/day${day}.json`).then(r=>r.json()).then(data=>{
+  sessions = data.sessions;
+  showSession(0);
+});
 
-  // Session-Container vorbereiten
-  sessionContainer.innerHTML = '';
-
-  // Textfeld oben
-  const sessionTextDiv = document.createElement('div');
-  sessionTextDiv.className = 'session-text';
-  sessionTextDiv.textContent = s.text;
-  sessionContainer.appendChild(sessionTextDiv);
-
-  // Video-Container unten rechts
-  const videoEl = document.createElement('video');
-  videoEl.src = s.video;
-  videoEl.controls = true;
-  videoEl.className = 'avatar-video';
-  sessionContainer.appendChild(videoEl);
-
-  // Fortschritt aktualisieren
-  progressSteps.forEach((step, i) => {
-    step.classList.toggle('active', i === index);
-  });
-}
-
-function nextSession() {
-  sessionIndex++;
-  if (sessionIndex < sessions.length) {
-    showSession(sessionIndex);
-  } else {
-    showReward();
+function showSession(i) {
+  if (i >= sessions.length) return;  
+  idx = i;
+  container.innerHTML = '';
+  const s = sessions[i];
+  // Text / Frage
+  const div = document.createElement('div');
+  div.className = 'text fadeIn';
+  div.textContent = s.text || s.question;
+  container.appendChild(div);
+  // Video
+  if (s.video) {
+    const vid = document.createElement('video');
+    vid.src = s.video;
+    vid.controls = true;
+    vid.autoplay = false;
+    vid.className = 'video slideUp';
+    vid.addEventListener('play', ()=> vid.volume=1);
+    container.appendChild(vid);
   }
+  // Auswahl bei Rhyme
+  if (s.options) {
+    s.options.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.onclick = ()=> handleAnswer(opt, s.correct);
+      container.appendChild(btn);
+    });
+  }
+  // Next-Button
+  nextBtn.classList.remove('hidden');
+  nextBtn.onclick = ()=> {
+    updateProgress();
+    showSession(i+1);
+  };
 }
 
-function showReward() {
-  yaySound.play();
-  rewardPopup.style.display = 'block';
-  document.getElementById('sticker-img').src = 'images/sticker1.png';
+function handleAnswer(sel, correct) {
+  if (sel === correct) {
+    alert('Correct!'); // Sticker freischalten
+  } else alert('Try again!');
 }
 
-// Daten aus JSON laden
-const day = 1; // später z. B. über URL oder Auswahl dynamisch
-fetch(`days/day${day}.json`)
-  .then(response => response.json())
-  .then(data => {
-    sessions = data.sessions;
-    showSession(sessionIndex);
-  })
-  .catch(error => {
-    console.error('Fehler beim Laden von day1.json:', error);
-  });
+function updateProgress() {
+  const perc = ((idx+1)/sessions.length)*100;
+  fill.style.width = perc+'%';
+}
