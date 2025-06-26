@@ -1,0 +1,101 @@
+// app.js
+
+const sessionContainer = document.getElementById("session-container");
+const rewardPopup = document.getElementById("reward-popup");
+const stickerImg = document.getElementById("sticker-img");
+const yaySound = document.getElementById("yay-sound");
+const failSound = document.getElementById("fail-sound");
+
+fetch("days/day1.json")
+  .then((res) => res.json())
+  .then((data) => {
+    document.getElementById("day-title").textContent = data.title;
+    startSessions(data.sessions);
+  });
+
+let sessionIndex = 0;
+
+function startSessions(sessions) {
+  if (sessionIndex >= sessions.length) return;
+  const session = sessions[sessionIndex];
+  sessionContainer.innerHTML = "";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "session-block";
+
+  const avatar = document.createElement("img");
+  avatar.src = `images/${session.avatar}`;
+  avatar.alt = "Avatar";
+  avatar.className = "avatar-float";
+  wrapper.appendChild(avatar);
+
+  if (session.type === "intro" || session.type === "story") {
+    const text = document.createElement("p");
+    text.textContent = session.text;
+    wrapper.appendChild(text);
+    
+    const nextBtn = document.createElement("button");
+    nextBtn.textContent = "Next ▶️";
+    nextBtn.onclick = () => {
+      sessionIndex++;
+      startSessions(sessions);
+    };
+    wrapper.appendChild(nextBtn);
+  }
+
+  if (session.type === "breath") {
+    const instruction = document.createElement("p");
+    instruction.textContent = session.instruction;
+    wrapper.appendChild(instruction);
+
+    const breatheBtn = document.createElement("button");
+    breatheBtn.textContent = "Done Breathing ✅";
+    breatheBtn.onclick = () => {
+      unlockSticker(session.sticker);
+      sessionIndex++;
+      startSessions(sessions);
+    };
+    wrapper.appendChild(breatheBtn);
+  }
+
+  if (["counting", "rhyme", "animal"].includes(session.type)) {
+    const question = document.createElement("p");
+    question.textContent = session.question;
+    wrapper.appendChild(question);
+
+    session.options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.textContent = opt;
+      btn.onclick = () => {
+        if (opt === session.answer) {
+          unlockSticker(session.sticker);
+          sessionIndex++;
+          startSessions(sessions);
+        } else {
+          failSound.play();
+          alert("Try again! ❌");
+        }
+      };
+      wrapper.appendChild(btn);
+    });
+  }
+
+  sessionContainer.appendChild(wrapper);
+}
+
+function unlockSticker(stickerName) {
+  yaySound.play();
+  rewardPopup.style.display = "block";
+  stickerImg.src = `images/stickers/${stickerName}`;
+
+  // Optional: speichern im localStorage
+  let unlocked = JSON.parse(localStorage.getItem("stickers")) || [];
+  if (!unlocked.includes(stickerName)) {
+    unlocked.push(stickerName);
+    localStorage.setItem("stickers", JSON.stringify(unlocked));
+  }
+
+  setTimeout(() => {
+    rewardPopup.style.display = "none";
+  }, 2000);
+}
