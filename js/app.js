@@ -49,7 +49,8 @@ function showReward() {
 }
 
 // Daten aus JSON laden
-fetch('day1.json')
+const day = 1; // später z. B. über URL oder Auswahl dynamisch
+fetch(`days/day${day}.json`)
   .then(response => response.json())
   .then(data => {
     sessions = data.sessions;
