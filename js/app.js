@@ -1,111 +1,86 @@
-const sessionContainer = document.getElementById("session-container");
-const rewardPopup = document.getElementById("reward-popup");
-const stickerImg = document.getElementById("sticker-img");
-const yaySound = document.getElementById("yay-sound");
-const failSound = document.getElementById("fail-sound");
-
-let currentDay = 1;
 let sessionIndex = 0;
 
-fetch(`days/day${currentDay}.json`)
-  .then((res) => res.json())
-  .then((data) => {
-    document.getElementById("day-title").textContent = data.title;
-    renderProgressFrog(0, data.sessions.length);
-    startSessions(data.sessions);
-  });
-
-function renderProgressFrog(step, total) {
-  for (let i = 0; i < total; i++) {
-    const el = document.getElementById(`step-${i}`);
-    if (el) {
-      if (i === step) {
-        el.textContent = "🐸";
-        el.classList.add("active");
-      } else {
-        el.textContent = "";
-        el.classList.remove("active");
-      }
-    }
+const sessions = [
+  {
+    text: "Welcome to Day 1! Let's get started 🎉",
+    video: "day1-intro.mp4",
+    avatar: "luna"
+  },
+  {
+    text: "Take a deep breath with Momo 🧘‍♂️",
+    video: "day1-breath.mp4",
+    avatar: "momo"
+  },
+  {
+    text: "Let's count from 1 to 10 together!",
+    video: "day1-counting.mp4",
+    avatar: "benny"
+  },
+  {
+    text: "Can you guess the animal sounds?",
+    video: "day1-animals.mp4",
+    avatar: "momo"
+  },
+  {
+    text: "Time for a fun rhyme challenge!",
+    video: "day1-rhyme.mp4",
+    avatar: "benny"
+  },
+  {
+    text: "Luna will tell you a magical story 🌙",
+    video: "day1-story.mp4",
+    avatar: "luna"
   }
-}
+];
 
-function startSessions(sessions) {
-  if (sessionIndex >= sessions.length) return;
-  const session = sessions[sessionIndex];
-  sessionContainer.innerHTML = "";
-  renderProgressFrog(sessionIndex, sessions.length);
+function playSession(index) {
+  const session = sessions[index];
+  const container = document.getElementById("session-container");
+  const avatar = document.getElementById("avatar-video");
 
-  const oldVid = document.querySelector(".avatar-video");
-  if (oldVid) oldVid.remove();
+  // Update session content
+  container.innerHTML = `
+    <div class="session-block">
+      <div class="session-text">${session.text}</div>
+      <video id="session-video" src="videos/${session.video}" controls preload="metadata" playsinline></video>
+    </div>
+  `;
 
-  const video = document.createElement("video");
-  video.src = `video/day${currentDay}-${session.type}.mp4`;
-  video.controls = true;
+  // Show avatar
+  avatar.src = `images/${session.avatar}.png`;
+  avatar.style.display = "block";
+
+  // Setup video manually
+  const video = document.getElementById("session-video");
   video.autoplay = false;
   video.muted = false;
-  video.playsInline = true;
-  video.className = "avatar-video";
-  document.body.appendChild(video);
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "session-block";
-
-  const content = document.createElement("div");
-  content.className = "session-content";
-
-  if (session.text || session.question || session.instruction) {
-    const message = document.createElement("p");
-    message.textContent = session.text || session.question || session.instruction;
-    message.className = "session-text";
-    content.appendChild(message);
-  }
-
-  if (["intro", "story", "breath"].includes(session.type)) {
-    const nextBtn = document.createElement("button");
-    nextBtn.textContent = "Next ▶️";
-    nextBtn.onclick = () => {
-      if (session.sticker) unlockSticker(session.sticker);
-      sessionIndex++;
-      startSessions(sessions);
-    };
-    content.appendChild(nextBtn);
-  }
-
-  if (["counting", "rhyme", "animal"].includes(session.type)) {
-    session.options.forEach((opt) => {
-      const btn = document.createElement("button");
-      btn.textContent = opt;
-      btn.onclick = () => {
-        if (opt === session.answer) {
-          unlockSticker(session.sticker);
-          sessionIndex++;
-          startSessions(sessions);
-        } else {
-          failSound.play();
-          alert("Try again! ❌");
-        }
-      };
-      content.appendChild(btn);
-    });
-  }
-
-  wrapper.appendChild(content);
-  sessionContainer.appendChild(wrapper);
+  video.controls = true;
 }
 
-function unlockSticker(stickerName) {
-  yaySound.play();
-  rewardPopup.style.display = "block";
-  stickerImg.src = `images/stickers/${stickerName}`;
-
-  let unlocked = JSON.parse(localStorage.getItem("stickers")) || [];
-  if (!unlocked.includes(stickerName)) {
-    unlocked.push(stickerName);
-    localStorage.setItem("stickers", JSON.stringify(unlocked));
+function nextSession() {
+  sessionIndex++;
+  if (sessionIndex < sessions.length) {
+    updateProgressBar();
+    playSession(sessionIndex);
+  } else {
+    showReward();
   }
-
-  setTimeout(() => {
-    rewardPopup.style.display = "none";
-  }, 2000);
 }
+
+function updateProgressBar() {
+  const steps = document.querySelectorAll(".progress-step");
+  steps.forEach((step, index) => {
+    step.classList.toggle("active", index === sessionIndex);
+  });
+}
+
+function showReward() {
+  const popup = document.getElementById("reward-popup");
+  popup.style.display = "block";
+}
+
+// Initial setup
+document.addEventListener("DOMContentLoaded", () => {
+  updateProgressBar();
+  playSession(sessionIndex);
+});
