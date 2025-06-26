@@ -106,10 +106,14 @@
     let sessionData = [];
 
     async function loadDayJson() {
-      const res = await fetch("days/day1.json");
-      const json = await res.json();
-      sessionData = json.sessions;
-      startSession(sessionIndex);
+      try {
+        const res = await fetch("days/day1.json");
+        const json = await res.json();
+        sessionData = json.sessions;
+        startSession(sessionIndex);
+      } catch (err) {
+        console.error("Fehler beim Laden von day1.json:", err);
+      }
     }
 
     function startSession(index) {
@@ -122,10 +126,14 @@
       const imageEl = document.getElementById('mediaImage');
       const btn = document.getElementById('nextBtn');
 
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+
       video.src = session.video;
-      video.load(); // ← das ist entscheidend für JSON-geladene Quellen
-	  video.muted = true;
-      video.play();
+      video.load(); // sicherstellen dass Quelle neu geladen wird
+      video.muted = true;
+      video.play().catch(err => console.warn("Autoplay blockiert:", err));
 
       switch (session.type) {
         case "intro":
@@ -211,7 +219,7 @@
     function nextSession() {
       const video = document.getElementById('video');
       video.muted = false;
-      video.play();
+      video.play().catch(err => console.warn("Tonfreigabe blockiert:", err));
       sessionIndex++;
       startSession(sessionIndex);
     }
