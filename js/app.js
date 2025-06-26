@@ -1,5 +1,3 @@
-// app.js
-
 const sessionContainer = document.getElementById("session-container");
 const rewardPopup = document.getElementById("reward-popup");
 const stickerImg = document.getElementById("sticker-img");
@@ -7,6 +5,7 @@ const yaySound = document.getElementById("yay-sound");
 const failSound = document.getElementById("fail-sound");
 
 let currentDay = 1;
+let sessionIndex = 0;
 
 fetch(`days/day${currentDay}.json`)
   .then((res) => res.json())
@@ -15,8 +14,6 @@ fetch(`days/day${currentDay}.json`)
     renderProgressFrog(0, data.sessions.length);
     startSessions(data.sessions);
   });
-
-let sessionIndex = 0;
 
 function renderProgressFrog(step, total) {
   for (let i = 0; i < total; i++) {
@@ -39,18 +36,22 @@ function startSessions(sessions) {
   sessionContainer.innerHTML = "";
   renderProgressFrog(sessionIndex, sessions.length);
 
-  const wrapper = document.createElement("div");
-  wrapper.className = "session-block";
-
-  const content = document.createElement("div");
-  content.className = "session-content";
+  const oldVid = document.querySelector(".avatar-video");
+  if (oldVid) oldVid.remove();
 
   const video = document.createElement("video");
   video.src = `video/day${currentDay}-${session.type}.mp4`;
   video.autoplay = true;
   video.muted = true;
+  video.playsInline = true;
   video.className = "avatar-video";
-  content.appendChild(video);
+  document.body.appendChild(video);
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "session-block";
+
+  const content = document.createElement("div");
+  content.className = "session-content";
 
   if (session.text || session.question || session.instruction) {
     const message = document.createElement("p");
@@ -59,7 +60,7 @@ function startSessions(sessions) {
     content.appendChild(message);
   }
 
-  if (session.type === "intro" || session.type === "story" || session.type === "breath") {
+  if (["intro", "story", "breath"].includes(session.type)) {
     const nextBtn = document.createElement("button");
     nextBtn.textContent = "Next ▶️";
     nextBtn.onclick = () => {
