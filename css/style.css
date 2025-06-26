@@ -1,7 +1,11 @@
 /* Base layout and reset */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: sans-serif; }
-#container { display: flex; flex-direction: column; width: 100vw; height: 100vh; background: url('../images/bg-child.png') center/cover no-repeat; }
+#container {
+  display: flex; flex-direction: column;
+  width: 100vw; height: 100vh;
+  background: linear-gradient(135deg, #40E0D0 0%, #FFF9C4 100%);
+}
 
 /* Show rotate hint only in landscape */
 #rotate-hint {
@@ -41,8 +45,9 @@ main { flex: 1; display: flex; flex-direction: column; align-items: center; just
   position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
   padding: 12px 24px; font-size: 1rem; border: none; border-radius: 8px;
   background: #29b6f6; color: #fff;
+  z-index: 10;
 }
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 /* Animations */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

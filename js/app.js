@@ -6,52 +6,48 @@ let sessions = [], idx = 0;
 
 // Load the day's sessions from JSON
 fetch(`days/day${day}.json`)
-  .then(response => response.json())
+  .then(res => res.json())
   .then(data => { sessions = data.sessions; showSession(0); });
 
-// Display session at index i
 function showSession(i) {
   if (i >= sessions.length) return;
   idx = i;
   container.innerHTML = '';
   nextBtn.classList.add('hidden');
 
-  const session = sessions[i];
-
+  const s = sessions[i];
   // Display text or question
-  const textEl = document.createElement('div');
-  textEl.className = 'text';
-  textEl.textContent = session.text || session.question;
-  container.appendChild(textEl);
+  const txt = document.createElement('div');
+  txt.className = 'text';
+  txt.textContent = s.text || s.question;
+  container.appendChild(txt);
 
   // Insert video if available
-  if (session.video) {
-    const videoEl = document.createElement('video');
-    videoEl.src = session.video;
-    videoEl.controls = true;
-    videoEl.autoplay = false;
-    videoEl.className = 'video';
-    container.appendChild(videoEl);
+  if (s.video) {
+    const vid = document.createElement('video');
+    vid.src = s.video;
+    vid.controls = true;
+    vid.autoplay = false;
+    vid.className = 'video';
+    container.appendChild(vid);
   }
 
-  // Add option buttons for quiz or rhyme
-  if (session.options) {
-    session.options.forEach(option => {
+  // Options for quiz/rhyme
+  if (s.options) {
+    s.options.forEach(opt => {
       const btn = document.createElement('button');
       btn.className = 'option-btn';
-      btn.textContent = option;
-      btn.addEventListener('click', () => handleAnswer(option, session.correct));
+      btn.textContent = opt;
+      btn.onclick = () => handleAnswer(opt, s.correct);
       container.appendChild(btn);
     });
-    return;
   }
 
-  // Show Next button after duration
-  setTimeout(() => nextBtn.classList.remove('hidden'), (session.duration || 5) * 1000);
+  // Always show Next button after 1 second delay
+  setTimeout(() => nextBtn.classList.remove('hidden'), 1000);
   nextBtn.onclick = () => { updateProgress(); showSession(i + 1); };
 }
 
-// Handle answer selection
 function handleAnswer(selected, correct) {
   if (selected === correct) {
     alert('Great job! 🎉');
@@ -62,8 +58,7 @@ function handleAnswer(selected, correct) {
   }
 }
 
-// Update progress bar
 function updateProgress() {
-  const percent = ((idx + 1) / sessions.length) * 100;
-  fill.style.width = percent + '%';
+  const perc = ((idx + 1) / sessions.length) * 100;
+  fill.style.width = perc + '%';
 }
