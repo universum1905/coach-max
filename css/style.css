@@ -2,7 +2,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-family: 'Lexend', sans-serif;
   background: linear-gradient(to bottom right, #fefcea, #a1c4fd);
   overflow-x: hidden;
 }
@@ -40,7 +40,9 @@ body {
 /* Session-Text oben */
 .session-text {
   text-align: center;
-  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  line-height: 1.6;
+  font-weight: 400;
   margin: 1rem auto;
   padding: 0.5rem 1rem;
   color: #444;
