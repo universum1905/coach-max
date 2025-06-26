@@ -1,5 +1,5 @@
 // Coach Max – JSON-basierte app.js
-// Funktion: Lädt Sessions aus day1.json, steuert Video & Avatar
+// Funktion: Lädt Sessions aus day1.json, steuert Video & Avatar unten rechts, Text oben
 
 let sessionIndex = 0;
 let sessions = [];
@@ -12,14 +12,18 @@ const yaySound = document.getElementById('yay-sound');
 function showSession(index) {
   const s = sessions[index];
 
-  sessionContainer.innerHTML = `
-    <div class="session-block">
-      <div class="session-text">${s.text}</div>
-      <video controls src="${s.video}" preload="metadata"></video>
-    </div>
-  `;
+  // Session-Text oben anzeigen
+  const sessionTextDiv = document.createElement('div');
+  sessionTextDiv.className = 'session-text';
+  sessionTextDiv.textContent = s.text;
 
-  avatarVideo.src = s.avatar;
+  // Video unten rechts anzeigen
+  avatarVideo.src = s.video;
+  avatarVideo.classList.add('avatar-video');
+
+  // Session-Container leeren und Text einfügen
+  sessionContainer.innerHTML = '';
+  sessionContainer.appendChild(sessionTextDiv);
 
   // Fortschritt aktualisieren
   progressSteps.forEach((step, i) => {
