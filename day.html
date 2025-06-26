@@ -123,7 +123,8 @@
       const btn = document.getElementById('nextBtn');
 
       video.src = session.video;
-      video.muted = true;
+      video.load(); // ← das ist entscheidend für JSON-geladene Quellen
+	  video.muted = true;
       video.play();
 
       switch (session.type) {
