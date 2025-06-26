@@ -1,92 +1,47 @@
 {
+  "day": 1,
+  "title": "🎯 Day 1 – Let's Begin!",
   "sessions": [
     {
       "type": "intro",
-      "video": "videos/day1-intro.mp4",
-      "duration": 60,
-      "texts": [
-        { "text": "Hi there!", "start": 1.1, "end": 5 },
-        { "text": "Are you ready for today’s adventure?", "start": 2.2, "end": 7 },
-        { "text": "We’re going to breathe, count, rhyme...", "start": 6.0, "end": 12 },
-        { "text": "Meet an animal and hear a little story!", "start": 10.0, "end": 16 },
-        { "text": "✨ Let’s get started! ✨", "start": 18.2, "end": 25 }
-      ],
-      "images": []
+      "avatar": "luna.png",
+      "text": "Hi there! I'm Luna. Today we will play, learn and have fun together! Ready to start?"
     },
     {
-      "type": "breathing",
-      "video": "videos/day1-breath.mp4",
-      "duration": 60,
-      "texts": [
-        "Breathe in...",
-        "And out...",
-        "You're calm.",
-        "You're safe.",
-        "You're ready."
-      ],
-      "images": [
-        "images/sun-small.png",
-        "images/sun-big.png"
-      ]
+      "type": "breath",
+      "avatar": "momo.png",
+      "instruction": "Take a deep breath in... and out... 🌬️ Repeat 3 times.",
+      "sticker": "leaf.png"
     },
     {
       "type": "counting",
-      "video": "videos/day1-counting.mp4",
-      "duration": 60,
-      "steps": [
-        { "text": "One", "image": "images/count-1-dog.png", "start": 0 },
-        { "text": "Two", "image": "images/count-2-cat.png", "start": 6 },
-        { "text": "Three", "image": "images/count-3-mouse.png", "start": 12 },
-        { "text": "Four", "image": "images/count-4-rabbit.png", "start": 18 },
-        { "text": "Five", "image": "images/count-5-frog.png", "start": 24 },
-        { "text": "Six", "image": "images/count-6-bear.png", "start": 30 },
-        { "text": "Seven", "image": "images/count-7-tiger.png", "start": 36 },
-        { "text": "Eight", "image": "images/count-8-pig.png", "start": 42 },
-        { "text": "Nine", "image": "images/count-9-monkey.png", "start": 48 },
-        { "text": "Ten", "image": "images/count-10-elephant.png", "start": 54 }
-      ]
+      "avatar": "benny.png",
+      "question": "How many dogs do you see? 🐶🐶🐶",
+      "options": ["2", "3", "4"],
+      "answer": "3",
+      "sticker": "star.png"
     },
     {
       "type": "rhyme",
-      "video": "videos/day1-rhyme.mp4",
-      "duration": 60,
-      "steps": [
-        { "text": "Cat – Hat – Bat", "image": "images/rhyme-cat.png", "start": 0 },
-        { "text": "Sun – Fun – Run", "image": "images/rhyme-sun.png", "start": 10 },
-        { "text": "Tree – Bee – See", "image": "images/rhyme-tree.png", "start": 20 },
-        { "text": "Car – Star – Jar", "image": "images/rhyme-car.png", "start": 30 }
-      ]
+      "avatar": "benny.png",
+      "question": "What rhymes with 'cat'?",
+      "options": ["hat", "car", "dog"],
+      "answer": "hat",
+      "sticker": "hat.png"
     },
     {
-      "type": "animals",
-      "video": "videos/day1-animals.mp4",
-      "duration": 60,
-      "steps": [
-        { "text": "Guess that animal!", "image": "images/animal-quiz.png", "start": 0 },
-        { "text": "It has stripes...", "image": "images/animal-hint1.png", "start": 5 },
-        { "text": "It roars...", "image": "images/animal-hint2.png", "start": 10 },
-        { "text": "It's a tiger!", "image": "images/animal-tiger.png", "start": 15 }
-      ]
+      "type": "animal",
+      "avatar": "momo.png",
+      "question": "Which one is the lion?",
+      "options": ["🐶", "🦁", "🐱"],
+      "answer": "🦁",
+      "sticker": "lion.png"
     },
     {
       "type": "story",
-      "video": "videos/day1-story.mp4",
-      "duration": 60,
-      "texts": [
-        { "text": "Once upon a time...", "start": 0, "end": 5 },
-        { "text": "A tiny bunny wanted to fly.", "start": 6, "end": 11 },
-        { "text": "She made wings from paper!", "start": 12, "end": 17 },
-        { "text": "And jumped into the wind.", "start": 18, "end": 24 },
-        { "text": "The wind caught her!", "start": 26, "end": 31 },
-        { "text": "She smiled and flapped her wings.", "start": 32, "end": 37 },
-        { "text": "She couldn’t fly, but she felt brave.", "start": 38, "end": 44 },
-        { "text": "The end!", "start": 50, "end": 55 }
-      ],
-      "images": [
-        { "src": "images/bunny1.png", "start": 0 },
-        { "src": "images/bunny2.png", "start": 12 },
-        { "src": "images/bunny3.png", "start": 32 }
-      ]
+      "avatar": "luna.png",
+      "text": "Once upon a time, a curious fox wanted to learn how to count. She met many animal friends who showed her how fun learning can be!",
+      "sticker": "fox.png"
     }
   ]
 }
