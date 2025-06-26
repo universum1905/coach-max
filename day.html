@@ -2,152 +2,174 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Coach Max – Daily Session</title>
+  <title>Coach Max – Day</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Comic Sans MS', 'Arial', sans-serif;
-      background: url("images/backgrounds/2.png") no-repeat center center fixed;
+      font-family: 'Baloo 2', cursive;
+      background: url('images/backgrounds/2.png') no-repeat center center fixed;
       background-size: cover;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
-    #scene {
-      position: relative;
-      width: 100%;
-      height: 100vh;
+    .page-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      box-sizing: border-box;
     }
 
-    .fade-text, .static-text {
-      position: absolute;
-      top: 60%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 2rem;
-      font-weight: bold;
+    .text-line {
+      font-size: 2.5rem;
+      background: rgba(255, 255, 255, 0.85);
       color: #333;
-      text-align: center;
-      width: 90%;
-      padding: 0.5rem;
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 25px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+      max-width: calc(100% - 180px);
       opacity: 0;
-      transition: opacity 1s ease-in-out;
-      z-index: 2;
+      transform: translateX(-50px);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
     }
 
-    .visible {
-      opacity: 1 !important;
+    .text-line.show {
+      animation: slideIn 0.8s ease forwards;
     }
 
-    .media-image {
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .text-line.show::after {
+      content: '';
       position: absolute;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%);
-      max-width: 60%;
-      max-height: 40%;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
-      z-index: 1;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.9), transparent);
+      background-size: 200% 100%;
+      animation: shine 2.2s linear;
+      z-index: 0;
+    }
+
+    @keyframes shine {
+      from { background-position: -200% 0; }
+      to   { background-position: 200% 0; }
+    }
+
+    .text-line.pulse {
+      animation: slideIn 0.8s ease forwards, pulse 1.5s infinite ease-in-out;
+      background-color: #fff0d6;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 rgba(255, 200, 100, 0.4); }
+      50% { transform: scale(1.07); box-shadow: 0 0 25px rgba(255, 180, 0, 0.6); }
+      100% { transform: scale(1); box-shadow: 0 0 0 rgba(255, 200, 100, 0.4); }
+    }
+
+    .video-box {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 160px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+      z-index: 999;
     }
 
     video {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      width: 200px;
+      width: 100%;
       height: auto;
       border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 3;
+      display: block;
     }
 
     #nextBtn {
-      position: absolute;
+      position: fixed;
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 18px 36px;
-      font-size: 24px;
+      padding: 16px 30px;
+      font-size: 22px;
       background: linear-gradient(135deg, #ffcb05, #ff6f61);
       color: #222;
       border: none;
-      border-radius: 50px;
+      border-radius: 40px;
       cursor: pointer;
       display: none;
-      z-index: 4;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
       animation: bounce 2s infinite;
     }
 
     @keyframes bounce {
       0%, 100% { transform: translate(-50%, 0); }
-      50% { transform: translate(-50%, -8px); }
-    }
-
-    #nextBtn:hover {
-      background: linear-gradient(135deg, #ff6f61, #ffcb05);
+      50% { transform: translate(-50%, -10px); }
     }
   </style>
 </head>
 <body>
-  <div id="scene">
-    <img id="mediaImage" class="media-image" src="">
-    <div id="textDisplay" class="fade-text"></div>
-    <video id="video" controls muted playsinline></video>
-    <button id="nextBtn" onclick="nextSession()">👶 Start next Session</button>
+  <div class="page-container" id="main"></div>
+
+  <div class="video-box">
+    <video id="videoBox" controls muted playsinline></video>
   </div>
+
+  <button id="nextBtn" onclick="nextSession()">👶 Start next Session</button>
 
   <script>
     let sessionIndex = 0;
     let sessionData = [];
 
     async function loadDayJson() {
-      try {
-        const res = await fetch("days/day1.json");
-        const json = await res.json();
-        sessionData = json.sessions;
-        startSession(sessionIndex);
-      } catch (err) {
-        console.error("Fehler beim Laden von day1.json:", err);
-      }
+      const res = await fetch("days/day1.json");
+      const json = await res.json();
+      sessionData = json.sessions;
+      startSession(sessionIndex);
     }
 
     function startSession(index) {
-      clearScene();
+      const container = document.getElementById("main");
+      const video = document.getElementById("videoBox");
+      const btn = document.getElementById("nextBtn");
+
+      container.innerHTML = "";
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+
       const session = sessionData[index];
       if (!session) return;
 
-      const video = document.getElementById('video');
-      const textEl = document.getElementById('textDisplay');
-      const imageEl = document.getElementById('mediaImage');
-      const btn = document.getElementById('nextBtn');
-
-      video.pause();
-      video.removeAttribute('src');
-      video.load();
-
       video.src = session.video;
-      video.load(); // sicherstellen dass Quelle neu geladen wird
-      video.muted = true;
-      video.play().catch(err => console.warn("Autoplay blockiert:", err));
+      video.load();
+      video.play().catch(() => {});
 
-      switch (session.type) {
-        case "intro":
-        case "story":
-          handleTimedTexts(session.texts, textEl);
-          break;
-        case "breathing":
-          handleBreathing(session, textEl, imageEl);
-          break;
-        case "counting":
-        case "rhyme":
-        case "animals":
-          handleSteps(session.steps, textEl, imageEl);
-          break;
+      if (session.type === "intro" || session.type === "story") {
+        const lines = session.texts;
+        const interval = 60000 / lines.length;
+        lines.forEach((lineObj, i) => {
+          const line = document.createElement("div");
+          line.className = "text-line";
+          line.innerText = lineObj.text;
+          setTimeout(() => {
+            container.appendChild(line);
+            line.classList.add("show");
+            if (i === lines.length - 1) line.classList.add("pulse");
+            line.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, interval * i);
+        });
       }
 
       setTimeout(() => {
@@ -155,71 +177,10 @@
       }, session.duration * 1000);
     }
 
-    function clearScene() {
-      const textEl = document.getElementById('textDisplay');
-      const imageEl = document.getElementById('mediaImage');
-      const btn = document.getElementById('nextBtn');
-      textEl.innerText = '';
-      imageEl.src = '';
-      textEl.classList.remove('visible');
-      imageEl.classList.remove('visible');
-      btn.style.display = 'none';
-    }
-
-    function handleTimedTexts(texts, textEl) {
-      texts.forEach(entry => {
-        setTimeout(() => {
-          textEl.innerText = entry.text;
-          textEl.classList.add('visible');
-        }, entry.start * 1000);
-        setTimeout(() => {
-          textEl.classList.remove('visible');
-        }, entry.end * 1000);
-      });
-    }
-
-    function handleBreathing(session, textEl, imageEl) {
-      let i = 0;
-      const cycle = () => {
-        if (i >= session.texts.length) return;
-        const text = session.texts[i];
-        const img = session.images[i % session.images.length];
-
-        textEl.innerText = text;
-        textEl.classList.add('visible');
-        imageEl.src = img;
-        imageEl.classList.add('visible');
-
-        setTimeout(() => {
-          textEl.classList.remove('visible');
-          imageEl.classList.remove('visible');
-        }, 3000);
-
-        i++;
-        setTimeout(cycle, 4000);
-      };
-      cycle();
-    }
-
-    function handleSteps(steps, textEl, imageEl) {
-      steps.forEach(step => {
-        setTimeout(() => {
-          textEl.innerText = step.text;
-          textEl.classList.add('visible');
-          imageEl.src = step.image;
-          imageEl.classList.add('visible');
-        }, step.start * 1000);
-        setTimeout(() => {
-          textEl.classList.remove('visible');
-          imageEl.classList.remove('visible');
-        }, (step.start + 3) * 1000);
-      });
-    }
-
     function nextSession() {
-      const video = document.getElementById('video');
+      const video = document.getElementById("videoBox");
       video.muted = false;
-      video.play().catch(err => console.warn("Tonfreigabe blockiert:", err));
+      video.play();
       sessionIndex++;
       startSession(sessionIndex);
     }
