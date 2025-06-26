@@ -1,47 +1,34 @@
 {
-  "day": 1,
-  "title": "🎯 Day 1 – Let's Begin!",
   "sessions": [
     {
-      "type": "intro",
-      "avatar": "luna.png",
-      "text": "Hi there! I'm Luna. Today we will play, learn and have fun together! Ready to start?"
+      "text": "Hi! I'm Luna 🐱 – welcome to your first adventure!",
+      "avatar": "images/luna.png",
+      "video": "videos/day1-intro.mp4"
     },
     {
-      "type": "breath",
-      "avatar": "momo.png",
-      "instruction": "Take a deep breath in... and out... 🌬️ Repeat 3 times.",
-      "sticker": "leaf.png"
+      "text": "Take a deep breath with Momo 😵‍💫 – in and out...",
+      "avatar": "images/momo.png",
+      "video": "videos/day1-breath.mp4"
     },
     {
-      "type": "counting",
-      "avatar": "benny.png",
-      "question": "How many dogs do you see? 🐶🐶🐶",
-      "options": ["2", "3", "4"],
-      "answer": "3",
-      "sticker": "star.png"
+      "text": "Let's count to 10 with Benny 🐶!",
+      "avatar": "images/benny.png",
+      "video": "videos/day1-counting.mp4"
     },
     {
-      "type": "rhyme",
-      "avatar": "benny.png",
-      "question": "What rhymes with 'cat'?",
-      "options": ["hat", "car", "dog"],
-      "answer": "hat",
-      "sticker": "hat.png"
+      "text": "Can you rhyme with Benny?",
+      "avatar": "images/benny.png",
+      "video": "videos/day1-rhyme.mp4"
     },
     {
-      "type": "animal",
-      "avatar": "momo.png",
-      "question": "Which one is the lion?",
-      "options": ["🐶", "🦁", "🐱"],
-      "answer": "🦁",
-      "sticker": "lion.png"
+      "text": "What animal sound is that? Momo knows it!",
+      "avatar": "images/momo.png",
+      "video": "videos/day1-animals.mp4"
     },
     {
-      "type": "story",
-      "avatar": "luna.png",
-      "text": "Once upon a time, a curious fox wanted to learn how to count. She met many animal friends who showed her how fun learning can be!",
-      "sticker": "fox.png"
+      "text": "Time for a bedtime story 💤 with Luna.",
+      "avatar": "images/luna.png",
+      "video": "videos/day1-story.mp4"
     }
   ]
 }
