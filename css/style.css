@@ -63,15 +63,16 @@ button:hover {
   background-color: #ff7675;
 }
 
+/* Avatar-Video unten rechts */
 .avatar-video {
-  width: 160px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 180px;
   height: auto;
   border-radius: 50%;
-  position: fixed;
-  bottom: 15px;
-  right: 15px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  z-index: 10;
+  z-index: 1000;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
 
 .session-block {
