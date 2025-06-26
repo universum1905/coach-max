@@ -7,8 +7,9 @@
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(#ffdf78, #fff6c2);
-      font-family: 'Arial', sans-serif;
+      font-family: 'Comic Sans MS', 'Arial', sans-serif;
+      background: url("images/bg-clouds-stars-paws.png") no-repeat center center fixed;
+      background-size: cover;
       overflow: hidden;
     }
 
@@ -25,12 +26,16 @@
       transform: translateX(-50%);
       font-size: 2rem;
       font-weight: bold;
-      color: #444;
+      color: #333;
+      text-align: center;
+      width: 90%;
+      padding: 0.5rem;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
       opacity: 0;
       transition: opacity 1s ease-in-out;
       z-index: 2;
-      text-align: center;
-      width: 90%;
     }
 
     .visible {
@@ -39,7 +44,7 @@
 
     .media-image {
       position: absolute;
-      top: 25%;
+      top: 20%;
       left: 50%;
       transform: translateX(-50%);
       max-width: 60%;
@@ -56,8 +61,8 @@
       width: 200px;
       height: auto;
       border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       z-index: 3;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     #nextBtn {
@@ -65,139 +70,146 @@
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 12px 24px;
-      font-size: 18px;
-      background: #00aaff;
+      padding: 14px 28px;
+      font-size: 20px;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 25px;
       cursor: pointer;
       display: none;
       z-index: 4;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      transition: background 0.3s ease;
+    }
+    #nextBtn:hover {
+      background: linear-gradient(135deg, #0072ff, #00c6ff);
     }
   </style>
 </head>
 <body>
+  <div id="scene">
+    <img id="mediaImage" class="media-image" src="">
+    <div id="textDisplay" class="fade-text"></div>
+    <video id="video" controls muted playsinline></video>
+    <button id="nextBtn" onclick="nextSession()">▶ Start next Session</button>
+  </div>
 
-<div id="scene">
-  <img id="mediaImage" class="media-image" src="">
-  <div id="textDisplay" class="fade-text"></div>
-  <video id="video" autoplay muted></video>
-  <button id="nextBtn" onclick="nextSession()">Start next Session</button>
-</div>
+  <script>
+    let sessionIndex = 0;
+    let sessionData = [];
 
-<script>
-let sessionIndex = 0;
-let sessionData = [];
+    async function loadDayJson() {
+      const res = await fetch("days/day1.json");
+      const json = await res.json();
+      sessionData = json.sessions;
+      startSession(sessionIndex);
+    }
 
-async function loadDayJson() {
-  const res = await fetch("days/day1.json"); // später dynamisch: `day${X}.json`
-  const json = await res.json();
-  sessionData = json.sessions;
-  startSession(sessionIndex);
-}
+    function startSession(index) {
+      clearScene();
+      const session = sessionData[index];
+      if (!session) return;
 
-function startSession(index) {
-  clearScene();
+      const video = document.getElementById('video');
+      const textEl = document.getElementById('textDisplay');
+      const imageEl = document.getElementById('mediaImage');
+      const btn = document.getElementById('nextBtn');
 
-  const session = sessionData[index];
-  if (!session) return;
+      video.src = session.video;
+      video.muted = true;
+      video.play();
 
-  const video = document.getElementById('video');
-  const textEl = document.getElementById('textDisplay');
-  const imageEl = document.getElementById('mediaImage');
-  const btn = document.getElementById('nextBtn');
+      switch (session.type) {
+        case "intro":
+        case "story":
+          handleTimedTexts(session.texts, textEl);
+          break;
+        case "breathing":
+          handleBreathing(session, textEl, imageEl);
+          break;
+        case "counting":
+        case "rhyme":
+        case "animals":
+          handleSteps(session.steps, textEl, imageEl);
+          break;
+      }
 
-  video.src = session.video;
+      setTimeout(() => {
+        btn.style.display = "block";
+      }, session.duration * 1000);
+    }
 
-  switch (session.type) {
-    case "intro":
-    case "story":
-      handleTimedTexts(session.texts, textEl);
-      break;
-
-    case "breathing":
-      handleBreathing(session, textEl, imageEl);
-      break;
-
-    case "counting":
-    case "rhyme":
-    case "animals":
-      handleSteps(session.steps, textEl, imageEl);
-      break;
-  }
-
-  // Sessiondauer
-  setTimeout(() => {
-    btn.style.display = "block";
-  }, session.duration * 1000);
-}
-
-function clearScene() {
-  document.getElementById('textDisplay').innerText = '';
-  document.getElementById('mediaImage').src = '';
-  document.getElementById('mediaImage').classList.remove('visible');
-  document.getElementById('textDisplay').classList.remove('visible');
-  document.getElementById('nextBtn').style.display = 'none';
-}
-
-function handleTimedTexts(texts, textEl) {
-  texts.forEach(entry => {
-    setTimeout(() => {
-      textEl.innerText = entry.text;
-      textEl.classList.add('visible');
-    }, entry.start * 1000);
-    setTimeout(() => {
-      textEl.classList.remove('visible');
-    }, entry.end * 1000);
-  });
-}
-
-function handleBreathing(session, textEl, imageEl) {
-  let i = 0;
-  const cycle = () => {
-    if (i >= session.texts.length) return;
-    const text = session.texts[i];
-    const img = session.images[i % session.images.length];
-
-    textEl.innerText = text;
-    textEl.classList.add('visible');
-    imageEl.src = img;
-    imageEl.classList.add('visible');
-
-    setTimeout(() => {
+    function clearScene() {
+      const textEl = document.getElementById('textDisplay');
+      const imageEl = document.getElementById('mediaImage');
+      const btn = document.getElementById('nextBtn');
+      textEl.innerText = '';
+      imageEl.src = '';
       textEl.classList.remove('visible');
       imageEl.classList.remove('visible');
-    }, 3000);
+      btn.style.display = 'none';
+    }
 
-    i++;
-    setTimeout(cycle, 4000);
-  };
-  cycle();
-}
+    function handleTimedTexts(texts, textEl) {
+      texts.forEach(entry => {
+        setTimeout(() => {
+          textEl.innerText = entry.text;
+          textEl.classList.add('visible');
+        }, entry.start * 1000);
+        setTimeout(() => {
+          textEl.classList.remove('visible');
+        }, entry.end * 1000);
+      });
+    }
 
-function handleSteps(steps, textEl, imageEl) {
-  steps.forEach(step => {
-    setTimeout(() => {
-      textEl.innerText = step.text;
-      textEl.classList.add('visible');
-      imageEl.src = step.image;
-      imageEl.classList.add('visible');
-    }, step.start * 1000);
-    setTimeout(() => {
-      textEl.classList.remove('visible');
-      imageEl.classList.remove('visible');
-    }, (step.start + 3) * 1000);
-  });
-}
+    function handleBreathing(session, textEl, imageEl) {
+      let i = 0;
+      const cycle = () => {
+        if (i >= session.texts.length) return;
+        const text = session.texts[i];
+        const img = session.images[i % session.images.length];
 
-function nextSession() {
-  sessionIndex++;
-  startSession(sessionIndex);
-}
+        textEl.innerText = text;
+        textEl.classList.add('visible');
+        imageEl.src = img;
+        imageEl.classList.add('visible');
 
-loadDayJson();
-</script>
+        setTimeout(() => {
+          textEl.classList.remove('visible');
+          imageEl.classList.remove('visible');
+        }, 3000);
 
+        i++;
+        setTimeout(cycle, 4000);
+      };
+      cycle();
+    }
+
+    function handleSteps(steps, textEl, imageEl) {
+      steps.forEach(step => {
+        setTimeout(() => {
+          textEl.innerText = step.text;
+          textEl.classList.add('visible');
+          imageEl.src = step.image;
+          imageEl.classList.add('visible');
+        }, step.start * 1000);
+        setTimeout(() => {
+          textEl.classList.remove('visible');
+          imageEl.classList.remove('visible');
+        }, (step.start + 3) * 1000);
+      });
+    }
+
+    function nextSession() {
+      const video = document.getElementById('video');
+      video.muted = false;
+      video.play();
+      sessionIndex++;
+      startSession(sessionIndex);
+    }
+
+    loadDayJson();
+  </script>
 </body>
 </html>
