@@ -1,10 +1,12 @@
 /* ✅ Dieser Code ist für: style.css */
 /* Funktion: Hochformat-Optimierung & Drehwarnung für Mobilgeräte */
 
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap');
+
 body {
   margin: 0;
   padding: 0;
-  font-family: "Comic Sans MS", cursive;
+  font-family: 'Comic Neue', 'Comic Sans MS', cursive;
   background: linear-gradient(to top right, #ffeaa7, #81ecec);
   color: #2d3436;
   text-align: center;

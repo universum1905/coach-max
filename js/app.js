@@ -41,8 +41,9 @@ function startSessions(sessions) {
 
   const video = document.createElement("video");
   video.src = `video/day${currentDay}-${session.type}.mp4`;
-  video.autoplay = true;
-  video.muted = true;
+  video.controls = true;
+  video.autoplay = false;
+  video.muted = false;
   video.playsInline = true;
   video.className = "avatar-video";
   document.body.appendChild(video);
