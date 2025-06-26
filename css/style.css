@@ -3,10 +3,17 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap');
 
+
+html, body {
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-width: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+  font-family: 'Comic Sans MS', 'Comic Neue', cursive;
   background: linear-gradient(to top right, #ffeaa7, #81ecec);
   color: #2d3436;
   text-align: center;
