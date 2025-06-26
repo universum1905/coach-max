@@ -3,45 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coach Max – Daily Adventure</title>
+  <title>Coach Max – Day 1</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-<!-- Orientation Notice -->
-<div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
-  <img src="images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
-  <div class="rotate-icon">🔄</div>
-  <p class="text-2xl font-bold mb-2">Please rotate your device</p>
-  <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
-</div>
-
-  <h1 id="day-title">🎯 Day 1 – Let's Begin!</h1>
-  <div id="session-container">
-    <!-- Dynamische Sessions hier -->
+  <!-- Drehhinweis für Hochformat-Nutzung -->
+  <div id="orientationOverlay">
+    <img src="images/landscape-mode-child-cartoon.png" alt="Rotate Device" />
+    <div class="rotate-icon">🔄</div>
+    <p class="rotate-text">Please rotate your device</p>
+    <p class="rotate-sub">So you can enjoy the activity in full screen 😊</p>
   </div>
 
-<img id="avatar-video" class="avatar-video" src="" alt="Avatar" />
+  <h1 id="day-title">🎯 Day 1 – Let's Begin!</h1>
 
-<div id="progress-bar">
-  <div class="progress-step">1</div>
-  <div class="progress-step">2</div>
-  <div class="progress-step">3</div>
-  <div class="progress-step">4</div>
-  <div class="progress-step">5</div>
-  <div class="progress-step">6</div>
-</div>
+  <div id="session-container">
+    <!-- Hier erscheint Text & Video automatisch -->
+  </div>
 
-<button onclick="nextSession()">Next ➡️</button>
+  <!-- Avatar-Video in der Ecke -->
+  <img id="avatar-video" class="avatar-video" src="" alt="Avatar" />
 
+  <!-- Fortschrittsanzeige mit springendem Tier -->
+  <div id="progress-bar">
+    <div class="progress-step">🐸</div>
+    <div class="progress-step">🐸</div>
+    <div class="progress-step">🐸</div>
+    <div class="progress-step">🐸</div>
+    <div class="progress-step">🐸</div>
+    <div class="progress-step">🐸</div>
+  </div>
+
+  <!-- Weiter-Button -->
+  <button onclick="nextSession()">Next ➡️</button>
+
+  <!-- Belohnung -->
   <div id="reward-popup" style="display:none">
     <h2>🎉 Sticker Unlocked!</h2>
     <img id="sticker-img" src="" alt="Sticker" />
   </div>
 
+  <!-- Soundeffekte -->
   <audio id="yay-sound" src="audio/yay.mp3"></audio>
   <audio id="fail-sound" src="audio/fail.mp3"></audio>
 
+  <!-- Haupt-JavaScript -->
   <script src="js/app.js"></script>
-  
 </body>
 </html>

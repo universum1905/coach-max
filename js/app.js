@@ -1,86 +1,79 @@
-let sessionIndex = 0;
+// Coach Max – app.js
+// Funktion: Steuert die Sessions, Videos, Texte, Avatar & Fortschritt
 
+let sessionIndex = 0;
+const sessionContainer = document.getElementById('session-container');
+const avatarVideo = document.getElementById('avatar-video');
+const rewardPopup = document.getElementById('reward-popup');
+const progressSteps = document.querySelectorAll('.progress-step');
+const yaySound = document.getElementById('yay-sound');
+
+// Beispiel-Inhalte pro Session (du kannst sie in JSON auslagern)
 const sessions = [
   {
-    text: "Welcome to Day 1! Let's get started 🎉",
-    video: "day1-intro.mp4",
-    avatar: "luna"
+    text: "Hi! I'm Luna 🐱 – welcome to your first adventure!",
+    avatar: "images/luna.png",
+    video: "videos/day1-intro.mp4"
   },
   {
-    text: "Take a deep breath with Momo 🧘‍♂️",
-    video: "day1-breath.mp4",
-    avatar: "momo"
+    text: "Take a deep breath with Momo 🐵 – in and out...",
+    avatar: "images/momo.png",
+    video: "videos/day1-breath.mp4"
   },
   {
-    text: "Let's count from 1 to 10 together!",
-    video: "day1-counting.mp4",
-    avatar: "benny"
+    text: "Let's count to 10 with Benny 🐶!",
+    avatar: "images/benny.png",
+    video: "videos/day1-counting.mp4"
   },
   {
-    text: "Can you guess the animal sounds?",
-    video: "day1-animals.mp4",
-    avatar: "momo"
+    text: "Can you rhyme with Luna?",
+    avatar: "images/luna.png",
+    video: "videos/day1-rhyme.mp4"
   },
   {
-    text: "Time for a fun rhyme challenge!",
-    video: "day1-rhyme.mp4",
-    avatar: "benny"
+    text: "What animal sound is that? Momo knows it!",
+    avatar: "images/momo.png",
+    video: "videos/day1-animals.mp4"
   },
   {
-    text: "Luna will tell you a magical story 🌙",
-    video: "day1-story.mp4",
-    avatar: "luna"
+    text: "Time for a bedtime story 💤 with Luna.",
+    avatar: "images/luna.png",
+    video: "videos/day1-story.mp4"
   }
 ];
 
-function playSession(index) {
-  const session = sessions[index];
-  const container = document.getElementById("session-container");
-  const avatar = document.getElementById("avatar-video");
+function showSession(index) {
+  const s = sessions[index];
 
-  // Update session content
-  container.innerHTML = `
+  sessionContainer.innerHTML = `
     <div class="session-block">
-      <div class="session-text">${session.text}</div>
-      <video id="session-video" src="videos/${session.video}" controls preload="metadata" playsinline></video>
+      <div class="session-text">${s.text}</div>
+      <video controls src="${s.video}" preload="metadata"></video>
     </div>
   `;
 
-  // Show avatar
-  avatar.src = `images/${session.avatar}.png`;
-  avatar.style.display = "block";
+  avatarVideo.src = s.avatar;
 
-  // Setup video manually
-  const video = document.getElementById("session-video");
-  video.autoplay = false;
-  video.muted = false;
-  video.controls = true;
+  // Fortschrittsbalken aktualisieren
+  progressSteps.forEach((step, i) => {
+    step.classList.toggle('active', i === index);
+  });
 }
 
 function nextSession() {
   sessionIndex++;
   if (sessionIndex < sessions.length) {
-    updateProgressBar();
-    playSession(sessionIndex);
+    showSession(sessionIndex);
   } else {
     showReward();
   }
 }
 
-function updateProgressBar() {
-  const steps = document.querySelectorAll(".progress-step");
-  steps.forEach((step, index) => {
-    step.classList.toggle("active", index === sessionIndex);
-  });
-}
-
 function showReward() {
-  const popup = document.getElementById("reward-popup");
-  popup.style.display = "block";
+  yaySound.play();
+  rewardPopup.style.display = 'block';
+  document.getElementById('sticker-img').src = 'images/sticker1.png';
 }
 
-// Initial setup
-document.addEventListener("DOMContentLoaded", () => {
-  updateProgressBar();
-  playSession(sessionIndex);
-});
+// Direkt erste Session laden
+showSession(sessionIndex);
