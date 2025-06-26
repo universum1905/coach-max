@@ -1,4 +1,6 @@
 {
+  "sessions": [
+    {
       "type": "intro",
       "video": "videos/day1-intro.mp4",
       "duration": 60,
