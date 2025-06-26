@@ -29,12 +29,18 @@ h1#day-title {
   font-size: clamp(1.4rem, 3vw, 2rem);
   line-height: 1.6;
   margin-bottom: 1rem;
-  animation: wiggle 1.5s infinite;
+  animation: wiggle 1.5s infinite, glitter 2s ease-in-out infinite;
+  position: relative;
 }
 
 @keyframes wiggle {
   0%, 100% { transform: rotate(-1.5deg); }
   50% { transform: rotate(1.5deg); }
+}
+
+@keyframes glitter {
+  0%, 100% { text-shadow: 0 0 5px #ffc107, 0 0 10px #ff5722; }
+  50% { text-shadow: 0 0 8px #ff9800, 0 0 16px #ffeb3b; }
 }
 
 /* Avatar-Video unten rechts */
