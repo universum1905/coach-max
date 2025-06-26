@@ -28,45 +28,43 @@
     }
 
     .text-line {
-      font-size: 2.5rem;
-      background: rgba(255, 255, 255, 0.85);
-      color: #333;
-      padding: 1rem 1.5rem;
-      margin: 1.5rem 0;
-      border-radius: 25px;
-      box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-      opacity: 0;
-      transform: translateX(-50px);
-      position: relative;
-      overflow: hidden;
-    }
+  font-size: 2.5rem;
+  background: rgba(255, 255, 255, 0.85);
+  color: #333;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 25px;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+  max-width: calc(100% - 180px); /* verhindert Text hinter dem Video */
+  opacity: 0;
+  transform: translateX(-50px);
+  position: relative;
+  overflow: hidden;
+}
 
-    .text-line.show {
-      animation: slideIn 0.8s ease forwards;
-    }
+.text-line.show {
+  animation: slideIn 0.8s ease forwards;
+}
 
-    @keyframes slideIn {
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
+/* Glitzern */
+.text-line.show::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
+  background-size: 200% 100%;
+  background-position: 0 0;
+  animation: shine 2s ease-out forwards;
+}
 
-    .text-line.show::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 200%;
-      height: 100%;
-      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
-      animation: shine 2s ease-out forwards;
-    }
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
 
-    @keyframes shine {
-      0% { background-position: -200%; }
-      100% { background-position: 200%; }
-    }
 
     #line6.show {
       animation: slideIn 0.8s ease forwards, pulse 2s infinite ease-in-out;
@@ -123,7 +121,7 @@
       document.getElementById("line6"),
     ];
 
-    const timings = [1120, 2220, 6000, 10020, 14000];
+    const timings = [1120, 2220, 6000, 10020, 18200];
 
     video.addEventListener("play", () => {
       lines.forEach((line, index) => {
