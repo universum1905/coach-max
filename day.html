@@ -12,12 +12,13 @@
       background: url('images/backgrounds/2.png') no-repeat center center fixed;
       background-size: cover;
       overflow-x: hidden;
+      overflow-y: auto;
     }
 
     .page-container {
       max-width: 1000px;
       margin: 0 auto;
-      padding: 2rem 1rem;
+      padding: 2rem 1rem 100px 1rem;
       box-sizing: border-box;
     }
 
@@ -78,20 +79,36 @@
       100% { transform: scale(1); box-shadow: 0 0 0 rgba(255, 200, 100, 0.4); }
     }
 
+    .media-image {
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: auto;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      z-index: 2;
+    }
+
+    .visible {
+      opacity: 1 !important;
+    }
+
     .video-box {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 160px;
-      border-radius: 20px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+      width: 160px !important;
+      max-width: 160px;
       z-index: 999;
     }
 
-    video {
-      width: 100%;
-      height: auto;
+    .video-box video {
+      width: 100% !important;
+      height: auto !important;
       border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
       display: block;
     }
 
@@ -121,6 +138,7 @@
 </head>
 <body>
   <div class="page-container" id="main"></div>
+  <img id="mediaImage" class="media-image" src="">
 
   <div class="video-box">
     <video id="videoBox" controls muted playsinline></video>
@@ -142,9 +160,13 @@
     function startSession(index) {
       const container = document.getElementById("main");
       const video = document.getElementById("videoBox");
+      const imageEl = document.getElementById("mediaImage");
       const btn = document.getElementById("nextBtn");
 
       container.innerHTML = "";
+      imageEl.src = "";
+      imageEl.classList.remove("visible");
+
       video.pause();
       video.removeAttribute("src");
       video.load();
@@ -170,6 +192,34 @@
             line.scrollIntoView({ behavior: "smooth", block: "center" });
           }, interval * i);
         });
+      } else if (session.type === "breathing") {
+        let i = 0;
+        const total = session.texts.length;
+        const cycle = () => {
+          if (i >= total) return;
+          const text = session.texts[i];
+          const img = session.images[i % session.images.length];
+
+          const line = document.createElement("div");
+          line.className = "text-line";
+          line.innerText = text;
+
+          container.innerHTML = "";
+          container.appendChild(line);
+          line.classList.add("show");
+
+          imageEl.src = img;
+          imageEl.classList.add("visible");
+
+          setTimeout(() => {
+            line.classList.remove("show");
+            imageEl.classList.remove("visible");
+          }, 3000);
+
+          i++;
+          setTimeout(cycle, 4000);
+        };
+        cycle();
       }
 
       setTimeout(() => {
