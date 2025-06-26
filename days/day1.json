@@ -1,21 +1,18 @@
 {
-  "sessions": [
-    {
       "type": "intro",
       "video": "videos/day1-intro.mp4",
       "duration": 60,
       "texts": [
-        { "text": "Hi there!", "start": 0, "end": 5 },
-        { "text": "I'm Luna!", "start": 6, "end": 11 },
-        { "text": "Welcome to Coach Max!", "start": 12, "end": 18 },
-        { "text": "Are you ready for a fun day?", "start": 20, "end": 26 },
-        { "text": "We'll breathe, count, rhyme,", "start": 30, "end": 36 },
-        { "text": "guess animals...", "start": 37, "end": 42 },
-        { "text": "and hear a short story!", "start": 43, "end": 48 },
-        { "text": "Let's get started!", "start": 50, "end": 55 }
+        { "text": "Hi there!", "start": 1.1, "end": 5 },
+        { "text": "Are you ready for today’s adventure?", "start": 2.2, "end": 7 },
+        { "text": "We’re going to breathe, count, rhyme...", "start": 6.0, "end": 12 },
+        { "text": "Meet an animal and hear a little story!", "start": 10.0, "end": 16 },
+        { "text": "✨ Let’s get started! ✨", "start": 18.2, "end": 25 }
       ],
       "images": []
-    },
+    }
+  ]
+},
     {
       "type": "breathing",
       "video": "videos/day1-breath.mp4",
