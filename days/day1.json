@@ -1,11 +1,72 @@
 {
   "day": 1,
   "sessions": [
-    { "type": "intro",   "text": "Welcome to Day 1! Get ready for fun!", "duration": 5 },
-    { "type": "breath",  "text": "Breathe in... breathe out...",       "duration": 5 },
-    { "type": "count",   "text": "Count with me from 1 to 5!",       "video": "../images/count.mp4", "duration": 10 },
-    { "type": "rhyme",   "question": "What rhymes with 'cat'?",      "options": ["hat","dog","car"], "correct": "hat" },
-    { "type": "quiz",    "question": "Which animal barks?",          "options": ["cow","dog","bird"], "correct": "dog" },
-    { "type": "story",   "text": "Once there was a happy frog...",   "video": "../images/story.mp4", "duration": 10 }
+    {
+      "type": "intro",
+      "avatar": "luna.png",
+      "video": "day1-intro.mp4",
+      "text": [
+        "Welcome to Day 1! Hi, I’m Luna 🐱.",
+        "Are you ready for a magical adventure with Coach Max?",
+        "Tap Next to begin!"
+      ],
+      "bgColor": "#fffbe6"
+    },
+    {
+      "type": "breathing",
+      "avatar": "momo.png",
+      "video": "day1-breath.mp4",
+      "text": [
+        "Let’s do a fun breathing exercise together.",
+        "Breathe in... and breathe out... Like a calm monkey 🐵.",
+        "Great job! Ready for counting?"
+      ],
+      "bgColor": "#e6f9ff"
+    },
+    {
+      "type": "counting",
+      "avatar": "benny.png",
+      "video": "day1-counting.mp4",
+      "text": [
+        "Let’s count from 1 to 10 with Benny 🐶!",
+        "One... Two... Three... Four... Five... Six... Seven... Eight... Nine... Ten!",
+        "Can you show it with your fingers?"
+      ],
+      "bgColor": "#ffe6ec"
+    },
+    {
+      "type": "rhyme",
+      "avatar": "benny.png",
+      "video": "day1-rhyme.mp4",
+      "text": [
+        "Let’s try a funny rhyme together!",
+        "Benny the dog likes to jog, he chases a cat and jumps over a log!",
+        "Say it fast: jog, log, dog, cat!"
+      ],
+      "bgColor": "#e6ffe6"
+    },
+    {
+      "type": "animals",
+      "avatar": "momo.png",
+      "video": "day1-animals.mp4",
+      "text": [
+        "Guess That Animal!",
+        "I make a ‘meow’ sound and love to climb. Who am I?",
+        "That’s right – a cat! 🐱"
+      ],
+      "bgColor": "#e6ecff"
+    },
+    {
+      "type": "story",
+      "avatar": "luna.png",
+      "video": "day1-story.mp4",
+      "text": [
+        "Let’s listen to a story!",
+        "Once upon a time, Luna the cat and Benny the dog went on a treasure hunt.",
+        "They found a sparkling sticker at the end – just for you!",
+        "See you tomorrow for a new adventure!"
+      ],
+      "bgColor": "#fff0e6"
+    }
   ]
 }

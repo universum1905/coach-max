@@ -1,54 +1,103 @@
-/* Base layout and reset */
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: sans-serif; }
-#container {
-  display: flex; flex-direction: column;
-  width: 100vw; height: 100vh;
-  background: linear-gradient(135deg, #40E0D0 0%, #FFF9C4 100%);
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #fffbe6, #e6f9ff 80%);
+  font-family: 'Fredoka One', 'Baloo 2', cursive, sans-serif;
 }
 
-/* Show rotate hint only in landscape */
-#rotate-hint {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  display: none; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.6); color: #fff; font-size: 1.5rem;
-  text-align: center; padding: 20px; z-index: 999;
-}
-@media (orientation: landscape) {
-  #rotate-hint { display: flex; }
+.session-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 80vh;
+  justify-content: center;
 }
 
-/* Header & progress bar */
-header { height: 8%; display: flex; align-items: center; padding: 0 10px; }
-#bar { flex: 1; height: 8px; background: rgba(255,255,255,0.5); border-radius: 4px; margin-left: 8px; }
-#fill { width: 0; height: 100%; background: limegreen; border-radius: 4px; transition: width 0.5s ease; }
-
-/* Session container */
-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 10px; }
-
-/* Text box */
-.text { font-size: 1.2rem; background: rgba(255,255,255,0.9); padding: 12px; border-radius: 8px; margin-bottom: 16px; animation: fadeIn 0.8s ease; }
-
-/* Video element */
-.video { position: absolute; bottom: 16px; right: 16px; width: 40%; max-width: 160px; border-radius: 8px; animation: slideUp 0.8s ease; }
-
-/* Option buttons for quiz/rhyme */
-.option-btn {
-  width: 80%; max-width: 300px; margin: 8px 0; padding: 12px;
-  font-size: 1rem; border-radius: 8px; border: none; background: #ffd54f;
-  animation: fadeIn 0.8s ease;
+.session-block {
+  border-radius: 36px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.12);
+  padding: 2rem;
+  margin: 2rem 0;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+  background: #fff;
+  animation: fadeIn 0.6s;
 }
-.option-btn:active { background: #ffca28; }
 
-/* Next button */
-#next-btn {
-  position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
-  padding: 12px 24px; font-size: 1rem; border: none; border-radius: 8px;
-  background: #29b6f6; color: #fff;
-  z-index: 10;
+.avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  box-shadow: 0 4px 16px #c8e6c9;
+  margin-bottom: 16px;
+  background: #fff;
 }
-.hidden { display: none !important; }
 
-/* Animations */
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { transform: translateY(50px); } to { transform: translateY(0); } }
+.session-video {
+  width: 90%;
+  max-width: 320px;
+  border-radius: 18px;
+  margin: 16px 0;
+  background: #eee;
+  box-shadow: 0 4px 24px #e1bee7;
+}
+
+.session-text p {
+  font-size: 1.25rem;
+  margin: 12px 0;
+  padding: 0.5rem 1rem;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.85);
+  display: inline-block;
+  animation: glitter 2.2s infinite;
+}
+
+.next-btn {
+  background: linear-gradient(90deg, #ffd54f, #81d4fa);
+  border: none;
+  color: #222;
+  font-size: 1.2rem;
+  border-radius: 22px;
+  padding: 0.8rem 2.2rem;
+  margin-top: 18px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 12px #b3e5fc;
+  transition: background 0.3s, transform 0.15s;
+}
+.next-btn:hover {
+  background: linear-gradient(90deg, #ffb300, #039be5);
+  transform: scale(1.07);
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(32px);}
+  100% { opacity: 1; transform: translateY(0);}
+}
+@keyframes glitter {
+  0%,100% { box-shadow: 0 0 4px #fffde7; }
+  50% { box-shadow: 0 0 20px #ffeb3b, 0 0 28px #80d8ff;}
+}
+
+#progressBar {
+  margin: 24px 0 0 0;
+  text-align: center;
+  min-height: 60px;
+}
+
+.jump-animation {
+  animation: jump 0.7s infinite;
+  vertical-align: middle;
+}
+@keyframes jump {
+  0%   { transform: translateY(0);}
+  30%  { transform: translateY(-18px);}
+  50%  { transform: translateY(0);}
+  80%  { transform: translateY(5px);}
+  100% { transform: translateY(0);}
+}
+
+.progress-track {
+  box-shadow: 0 2px 8px #e3f2fd;
+}
