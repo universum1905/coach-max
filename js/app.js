@@ -6,63 +6,71 @@ const stickerImg = document.getElementById("sticker-img");
 const yaySound = document.getElementById("yay-sound");
 const failSound = document.getElementById("fail-sound");
 
-fetch("days/day1.json")
+let currentDay = 1;
+
+fetch(`days/day${currentDay}.json`)
   .then((res) => res.json())
   .then((data) => {
     document.getElementById("day-title").textContent = data.title;
+    renderProgressFrog(0, data.sessions.length);
     startSessions(data.sessions);
   });
 
 let sessionIndex = 0;
 
+function renderProgressFrog(step, total) {
+  for (let i = 0; i < total; i++) {
+    const el = document.getElementById(`step-${i}`);
+    if (el) {
+      if (i === step) {
+        el.textContent = "🐸";
+        el.classList.add("active");
+      } else {
+        el.textContent = "";
+        el.classList.remove("active");
+      }
+    }
+  }
+}
+
 function startSessions(sessions) {
   if (sessionIndex >= sessions.length) return;
   const session = sessions[sessionIndex];
   sessionContainer.innerHTML = "";
+  renderProgressFrog(sessionIndex, sessions.length);
 
   const wrapper = document.createElement("div");
   wrapper.className = "session-block";
 
-  const avatar = document.createElement("img");
-  avatar.src = `images/${session.avatar}`;
-  avatar.alt = "Avatar";
-  avatar.className = "avatar-float";
-  wrapper.appendChild(avatar);
+  const content = document.createElement("div");
+  content.className = "session-content";
 
-  if (session.type === "intro" || session.type === "story") {
-    const text = document.createElement("p");
-    text.textContent = session.text;
-    wrapper.appendChild(text);
-    
+  const video = document.createElement("video");
+  video.src = `video/day${currentDay}-${session.type}.mp4`;
+  video.autoplay = true;
+  video.muted = true;
+  video.className = "avatar-video";
+  content.appendChild(video);
+
+  if (session.text || session.question || session.instruction) {
+    const message = document.createElement("p");
+    message.textContent = session.text || session.question || session.instruction;
+    message.className = "session-text";
+    content.appendChild(message);
+  }
+
+  if (session.type === "intro" || session.type === "story" || session.type === "breath") {
     const nextBtn = document.createElement("button");
     nextBtn.textContent = "Next ▶️";
     nextBtn.onclick = () => {
+      if (session.sticker) unlockSticker(session.sticker);
       sessionIndex++;
       startSessions(sessions);
     };
-    wrapper.appendChild(nextBtn);
-  }
-
-  if (session.type === "breath") {
-    const instruction = document.createElement("p");
-    instruction.textContent = session.instruction;
-    wrapper.appendChild(instruction);
-
-    const breatheBtn = document.createElement("button");
-    breatheBtn.textContent = "Done Breathing ✅";
-    breatheBtn.onclick = () => {
-      unlockSticker(session.sticker);
-      sessionIndex++;
-      startSessions(sessions);
-    };
-    wrapper.appendChild(breatheBtn);
+    content.appendChild(nextBtn);
   }
 
   if (["counting", "rhyme", "animal"].includes(session.type)) {
-    const question = document.createElement("p");
-    question.textContent = session.question;
-    wrapper.appendChild(question);
-
     session.options.forEach((opt) => {
       const btn = document.createElement("button");
       btn.textContent = opt;
@@ -76,10 +84,11 @@ function startSessions(sessions) {
           alert("Try again! ❌");
         }
       };
-      wrapper.appendChild(btn);
+      content.appendChild(btn);
     });
   }
 
+  wrapper.appendChild(content);
   sessionContainer.appendChild(wrapper);
 }
 
@@ -88,7 +97,6 @@ function unlockSticker(stickerName) {
   rewardPopup.style.display = "block";
   stickerImg.src = `images/stickers/${stickerName}`;
 
-  // Optional: speichern im localStorage
   let unlocked = JSON.parse(localStorage.getItem("stickers")) || [];
   if (!unlocked.includes(stickerName)) {
     unlocked.push(stickerName);
