@@ -2,206 +2,202 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coach Max – Dynamic Day</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <title>Coach Max – Daily Session</title>
   <style>
     body {
-      font-family: 'Fredoka', sans-serif;
-      background: url('images/backgrounds/2.png') repeat;
-      background-size: cover;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(#ffdf78, #fff6c2);
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
     }
-    .effect-popup {
-      position: fixed;
-      top: 20%;
+
+    #scene {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+    }
+
+    .fade-text, .static-text {
+      position: absolute;
+      top: 60%;
       left: 50%;
       transform: translateX(-50%);
       font-size: 2rem;
-      background: white;
-      padding: 1rem 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      z-index: 50;
-      animation: pop-fade 1.5s ease-out forwards;
+      font-weight: bold;
+      color: #444;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      z-index: 2;
+      text-align: center;
+      width: 90%;
     }
-    .fixed-video {
-      position: fixed;
-      bottom: 1rem;
-      right: 1rem;
-      width: 160px;
-      height: 100px;
-      z-index: 40;
-      border-radius: 0.5rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+
+    .visible {
+      opacity: 1 !important;
     }
-    @keyframes pop-fade {
-      0% { opacity: 0; transform: translate(-50%, -20%) scale(0.8); }
-      10% { opacity: 1; transform: translate(-50%, 0%) scale(1.1); }
-      100% { opacity: 0; transform: translate(-50%, 0%) scale(1); }
+
+    .media-image {
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 60%;
+      max-height: 40%;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      z-index: 1;
+    }
+
+    video {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 200px;
+      height: auto;
+      border-radius: 20px;
+      z-index: 3;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    #nextBtn {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      font-size: 18px;
+      background: #00aaff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: none;
+      z-index: 4;
     }
   </style>
 </head>
-<body class="text-black min-h-screen flex flex-col items-center justify-start p-4">
-  <main id="content" class="w-full max-w-xl space-y-6"></main>
-  <audio id="successSound" src="audio/success.mp3" preload="auto"></audio>
-  <video id="sessionVideo" class="fixed-video hidden" muted playsinline></video>
+<body>
 
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const day = urlParams.get('day') || '1';
+<div id="scene">
+  <img id="mediaImage" class="media-image" src="">
+  <div id="textDisplay" class="fade-text"></div>
+  <video id="video" autoplay muted></video>
+  <button id="nextBtn" onclick="nextSession()">Start next Session</button>
+</div>
 
-    let activeVideo = document.getElementById('sessionVideo');
-    let currentSessionEffects = [];
+<script>
+let sessionIndex = 0;
+let sessionData = [];
 
-    fetch(`days/day${day}.json`)
-      .then(res => res.json())
-      .then(data => renderDay(data));
+async function loadDayJson() {
+  const res = await fetch("day1.json"); // später dynamisch: `day${X}.json`
+  const json = await res.json();
+  sessionData = json.sessions;
+  startSession(sessionIndex);
+}
 
-    function renderDay(data) {
-      const container = document.getElementById("content");
-      data.sessions.forEach((session, index) => {
-        const div = document.createElement("div");
-        div.className = "bg-white bg-opacity-80 rounded-xl p-4 shadow text-center";
-        div.innerHTML = `
-          <h2 class="text-2xl font-bold mb-2">${session.title}</h2>
-          <p class="text-lg mb-4">${session.text}</p>
-        `;
+function startSession(index) {
+  clearScene();
 
-        if (session.video) {
-          div.dataset.video = session.video;
-          div.dataset.effects = JSON.stringify(session.effects || []);
-        }
+  const session = sessionData[index];
+  if (!session) return;
 
-        if (session.type === 'counting') {
-          const area = document.createElement("div");
-          area.className = "flex flex-wrap justify-center gap-4 mt-4";
-          session.animals.forEach((a, i) => {
-            setTimeout(() => {
-              const wrap = document.createElement("div");
-              wrap.className = "flex flex-col items-center gap-1";
-              wrap.innerHTML = `
-                <div class="bg-yellow-300 text-xl text-white rounded-full w-14 h-14 flex items-center justify-center shadow">${a.number}</div>
-                <img src="${a.img}" alt="${a.name}" class="w-20 h-20 object-contain" />
-              `;
-              area.appendChild(wrap);
-            }, i * 800);
-          });
-          div.appendChild(area);
-        }
+  const video = document.getElementById('video');
+  const textEl = document.getElementById('textDisplay');
+  const imageEl = document.getElementById('mediaImage');
+  const btn = document.getElementById('nextBtn');
 
-        if (index < data.sessions.length - 1) {
-          const btn = document.createElement("button");
-          btn.className = "mt-6 bg-blue-500 text-white px-6 py-2 rounded-full";
-          btn.textContent = "Next ➡️";
-          btn.disabled = true;
-          btn.onclick = () => {
-            stopVideo();
-            div.classList.add("hidden");
-            div.nextElementSibling.classList.remove("hidden");
-            startSession(div.nextElementSibling);
-          };
-          div.appendChild(btn);
-        } else {
-          const btn = document.createElement("button");
-          btn.className = "mt-6 bg-green-500 text-white px-6 py-2 rounded-full";
-          btn.textContent = "✅ Finish Day";
-          btn.disabled = true;
-          btn.onclick = () => {
-            stopVideo();
-            showFinish();
-          };
-          div.appendChild(btn);
-        }
+  video.src = session.video;
 
-        div.classList.toggle("hidden", index !== 0);
-        container.appendChild(div);
-      });
+  switch (session.type) {
+    case "intro":
+    case "story":
+      handleTimedTexts(session.texts, textEl);
+      break;
 
-      // Start first session
-      const first = container.children[0];
-      startSession(first);
-    }
+    case "breathing":
+      handleBreathing(session, textEl, imageEl);
+      break;
 
-    function startSession(sessionDiv) {
-      const videoSrc = sessionDiv.dataset.video;
-      const effects = JSON.parse(sessionDiv.dataset.effects || '[]');
+    case "counting":
+    case "rhyme":
+    case "animals":
+      handleSteps(session.steps, textEl, imageEl);
+      break;
+  }
 
-      if (videoSrc) {
-        activeVideo.src = videoSrc;
-        activeVideo.classList.remove("hidden");
-        activeVideo.currentTime = 0;
-        activeVideo.play();
-        currentSessionEffects = effects;
+  // Sessiondauer
+  setTimeout(() => {
+    btn.style.display = "block";
+  }, session.duration * 1000);
+}
 
-        currentSessionEffects.forEach(e => e.triggered = false);
+function clearScene() {
+  document.getElementById('textDisplay').innerText = '';
+  document.getElementById('mediaImage').src = '';
+  document.getElementById('mediaImage').classList.remove('visible');
+  document.getElementById('textDisplay').classList.remove('visible');
+  document.getElementById('nextBtn').style.display = 'none';
+}
 
-        activeVideo.ontimeupdate = () => {
-          currentSessionEffects.forEach(effect => {
-            if (!effect.triggered && activeVideo.currentTime >= effect.time) {
-              showEffect(effect);
-              effect.triggered = true;
-            }
-          });
-        };
+function handleTimedTexts(texts, textEl) {
+  texts.forEach(entry => {
+    setTimeout(() => {
+      textEl.innerText = entry.text;
+      textEl.classList.add('visible');
+    }, entry.start * 1000);
+    setTimeout(() => {
+      textEl.classList.remove('visible');
+    }, entry.end * 1000);
+  });
+}
 
-        activeVideo.onended = () => {
-          const btn = sessionDiv.querySelector("button");
-          if (btn) btn.disabled = false;
-        };
-      } else {
-        const btn = sessionDiv.querySelector("button");
-        if (btn) btn.disabled = false;
-      }
-    }
+function handleBreathing(session, textEl, imageEl) {
+  let i = 0;
+  const cycle = () => {
+    if (i >= session.texts.length) return;
+    const text = session.texts[i];
+    const img = session.images[i % session.images.length];
 
-    function stopVideo() {
-      activeVideo.pause();
-      activeVideo.src = "";
-      activeVideo.classList.add("hidden");
-      activeVideo.ontimeupdate = null;
-    }
+    textEl.innerText = text;
+    textEl.classList.add('visible');
+    imageEl.src = img;
+    imageEl.classList.add('visible');
 
-    function showEffect(effect) {
-      const popup = document.createElement('div');
-      popup.className = 'effect-popup';
-      popup.textContent = `${effect.emoji || ''} ${effect.text || ''}`;
-      document.body.appendChild(popup);
-      setTimeout(() => popup.remove(), 1600);
-    }
+    setTimeout(() => {
+      textEl.classList.remove('visible');
+      imageEl.classList.remove('visible');
+    }, 3000);
 
-    function showFinish() {
-      const content = document.getElementById("content");
-      content.innerHTML = `
-        <div class="text-center space-y-4 mt-10">
-          <h2 class="text-3xl font-bold text-green-700">✅ Great job today!</h2>
-          <lottie-player
-            src="animation/hai-animation.json"
-            background="transparent"
-            speed="1"
-            style="width: 160px; height: 160px; margin: auto;"
-            autoplay loop>
-          </lottie-player>
-          <p class="text-xl">Come back tomorrow at 6:00 AM to unlock Day ${parseInt(day) + 1} 🌞</p>
-          <div class="flex justify-center gap-4">
-            <a href="stickers.html" class="bg-yellow-500 text-black px-4 py-2 rounded-full">🏅 See Stickers</a>
-            <a href="index.html" class="bg-gray-700 text-white px-4 py-2 rounded-full">🏠 Back Home</a>
-            <a href="choose.html" class="bg-blue-600 text-white px-6 py-2 rounded-full">➡️ Choose another day</a>
-          </div>
-        </div>
-      `;
-      const now = new Date();
-      const unlock = new Date(now);
-      unlock.setDate(now.getDate() + 1);
-      unlock.setHours(6, 0, 0, 0);
-      localStorage.setItem(`day${parseInt(day) + 1}UnlockTime`, unlock.getTime());
-      localStorage.setItem(`day${day}Completed`, 'true');
-      sessionStorage.setItem('dayUnlockedMessage', 'true');
-      sessionStorage.setItem('stickerUnlocked', 'true');
-      const sound = document.getElementById("successSound");
-      if (sound) sound.play().catch(() => {});
-    }
-  </script>
+    i++;
+    setTimeout(cycle, 4000);
+  };
+  cycle();
+}
+
+function handleSteps(steps, textEl, imageEl) {
+  steps.forEach(step => {
+    setTimeout(() => {
+      textEl.innerText = step.text;
+      textEl.classList.add('visible');
+      imageEl.src = step.image;
+      imageEl.classList.add('visible');
+    }, step.start * 1000);
+    setTimeout(() => {
+      textEl.classList.remove('visible');
+      imageEl.classList.remove('visible');
+    }, (step.start + 3) * 1000);
+  });
+}
+
+function nextSession() {
+  sessionIndex++;
+  startSession(sessionIndex);
+}
+
+loadDayJson();
+</script>
+
 </body>
 </html>
