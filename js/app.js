@@ -1,10 +1,9 @@
-// Coach Max – JSON-basierte app.js
-// Funktion: Lädt Sessions aus day1.json, steuert Video & Avatar unten rechts, Text oben
+// Coach Max – JSON-basierte app.js (korrigiert)
+// Funktion: Lädt Sessions aus day1.json, zeigt Text oben, Video unten rechts
 
 let sessionIndex = 0;
 let sessions = [];
 const sessionContainer = document.getElementById('session-container');
-const avatarVideo = document.getElementById('avatar-video');
 const rewardPopup = document.getElementById('reward-popup');
 const progressSteps = document.querySelectorAll('.progress-step');
 const yaySound = document.getElementById('yay-sound');
@@ -12,18 +11,21 @@ const yaySound = document.getElementById('yay-sound');
 function showSession(index) {
   const s = sessions[index];
 
-  // Session-Text oben anzeigen
+  // Session-Container vorbereiten
+  sessionContainer.innerHTML = '';
+
+  // Textfeld oben
   const sessionTextDiv = document.createElement('div');
   sessionTextDiv.className = 'session-text';
   sessionTextDiv.textContent = s.text;
-
-  // Video unten rechts anzeigen
-  avatarVideo.src = s.video;
-  avatarVideo.classList.add('avatar-video');
-
-  // Session-Container leeren und Text einfügen
-  sessionContainer.innerHTML = '';
   sessionContainer.appendChild(sessionTextDiv);
+
+  // Video-Container unten rechts
+  const videoEl = document.createElement('video');
+  videoEl.src = s.video;
+  videoEl.controls = true;
+  videoEl.className = 'avatar-video';
+  sessionContainer.appendChild(videoEl);
 
   // Fortschritt aktualisieren
   progressSteps.forEach((step, i) => {
