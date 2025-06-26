@@ -2,58 +2,68 @@ const container = document.getElementById('session-container');
 const nextBtn = document.getElementById('next-btn');
 const fill = document.getElementById('fill');
 let day = localStorage.getItem('currentDay') || 1;
-let sessions = [];
-let idx = 0;
+let sessions = [], idx = 0;
 
-fetch(`days/day${day}.json`).then(r=>r.json()).then(data=>{
-  sessions = data.sessions;
-  showSession(0);
-});
+// Load the day's sessions from JSON
+fetch(`days/day${day}.json`)
+  .then(response => response.json())
+  .then(data => { sessions = data.sessions; showSession(0); });
 
+// Display session at index i
 function showSession(i) {
-  if (i >= sessions.length) return;  
+  if (i >= sessions.length) return;
   idx = i;
   container.innerHTML = '';
-  const s = sessions[i];
-  // Text / Frage
-  const div = document.createElement('div');
-  div.className = 'text fadeIn';
-  div.textContent = s.text || s.question;
-  container.appendChild(div);
-  // Video
-  if (s.video) {
-    const vid = document.createElement('video');
-    vid.src = s.video;
-    vid.controls = true;
-    vid.autoplay = false;
-    vid.className = 'video slideUp';
-    vid.addEventListener('play', ()=> vid.volume=1);
-    container.appendChild(vid);
+  nextBtn.classList.add('hidden');
+
+  const session = sessions[i];
+
+  // Display text or question
+  const textEl = document.createElement('div');
+  textEl.className = 'text';
+  textEl.textContent = session.text || session.question;
+  container.appendChild(textEl);
+
+  // Insert video if available
+  if (session.video) {
+    const videoEl = document.createElement('video');
+    videoEl.src = session.video;
+    videoEl.controls = true;
+    videoEl.autoplay = false;
+    videoEl.className = 'video';
+    container.appendChild(videoEl);
   }
-  // Auswahl bei Rhyme
-  if (s.options) {
-    s.options.forEach(opt=>{
+
+  // Add option buttons for quiz or rhyme
+  if (session.options) {
+    session.options.forEach(option => {
       const btn = document.createElement('button');
-      btn.textContent = opt;
-      btn.onclick = ()=> handleAnswer(opt, s.correct);
+      btn.className = 'option-btn';
+      btn.textContent = option;
+      btn.addEventListener('click', () => handleAnswer(option, session.correct));
       container.appendChild(btn);
     });
+    return;
   }
-  // Next-Button
-  nextBtn.classList.remove('hidden');
-  nextBtn.onclick = ()=> {
+
+  // Show Next button after duration
+  setTimeout(() => nextBtn.classList.remove('hidden'), (session.duration || 5) * 1000);
+  nextBtn.onclick = () => { updateProgress(); showSession(i + 1); };
+}
+
+// Handle answer selection
+function handleAnswer(selected, correct) {
+  if (selected === correct) {
+    alert('Great job! 🎉');
     updateProgress();
-    showSession(i+1);
-  };
+    showSession(idx + 1);
+  } else {
+    alert('Try again!');
+  }
 }
 
-function handleAnswer(sel, correct) {
-  if (sel === correct) {
-    alert('Correct!'); // Sticker freischalten
-  } else alert('Try again!');
-}
-
+// Update progress bar
 function updateProgress() {
-  const perc = ((idx+1)/sessions.length)*100;
-  fill.style.width = perc+'%';
+  const percent = ((idx + 1) / sessions.length) * 100;
+  fill.style.width = percent + '%';
 }

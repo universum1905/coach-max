@@ -2,21 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Coach Max - Day Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coach Max - Daily Adventure</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div id="container" class="portrait">
+  <!-- Rotate Hint for Landscape Mode -->
+  <div id="rotate-hint">➡️ Please rotate your device to portrait orientation 😊</div>
+
+  <div id="container">
     <header>
       <div id="progress">
-        <img id="frog" src="images/frog.png" alt="Frog">
+        <img id="frog" src="images/frog.png" alt="Progress Frog">
         <div id="bar"><div id="fill"></div></div>
       </div>
     </header>
     <main id="session-container"></main>
-    <button id="next-btn" class="hidden">Next</button>
+    <button id="next-btn" class="hidden">Next ➡️</button>
   </div>
+
   <script src="js/app.js"></script>
 </body>
 </html>

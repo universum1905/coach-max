@@ -1,11 +1,11 @@
 {
-  "day":1,
-  "sessions":[
-    {"type":"intro","text":"Welcome to Day 1! Get ready!","duration":60},
-    {"type":"breath","text":"Breathe in... breathe out...","duration":60},
-    {"type":"count","text":"Count from 1 to 5!","duration":60,"video":"../images/count.mp4"},
-    {"type":"rhyme","text":"What rhymes with 'cat'?","options":["hat","dog","car"],"correct":"hat"},
-    {"type":"quiz","text":"Which animal barks?","options":["cow","dog","bird"],"correct":"dog"},
-    {"type":"story","text":"Once there was a happy frog...","duration":60,"video":"../images/story.mp4"}
+  "day": 1,
+  "sessions": [
+    { "type": "intro",   "text": "Welcome to Day 1! Get ready for fun!", "duration": 5 },
+    { "type": "breath",  "text": "Breathe in... breathe out...",       "duration": 5 },
+    { "type": "count",   "text": "Count with me from 1 to 5!",       "video": "../images/count.mp4", "duration": 10 },
+    { "type": "rhyme",   "question": "What rhymes with 'cat'?",      "options": ["hat","dog","car"], "correct": "hat" },
+    { "type": "quiz",    "question": "Which animal barks?",          "options": ["cow","dog","bird"], "correct": "dog" },
+    { "type": "story",   "text": "Once there was a happy frog...",   "video": "../images/story.mp4", "duration": 10 }
   ]
 }
