@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coach Max – Fun Game!</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Comic Sans MS', cursive;
+      background: linear-gradient(to top right, #ffeaa7, #81ecec);
+      overflow-x: hidden;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #fd79a8;
+      margin-top: 20px;
+    }
+    #avatar {
+      width: 150px;
+      animation: float 2s infinite ease-in-out;
+    }
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0); }
+    }
+    #game-btns button {
+      padding: 15px 25px;
+      font-size: 1.2rem;
+      margin: 10px;
+      border: none;
+      border-radius: 20px;
+      background-color: #fab1a0;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    #game-btns button:hover {
+      transform: scale(1.1);
+    }
+    #feedback {
+      font-size: 2rem;
+      margin-top: 20px;
+      color: #00b894;
+      display: none;
+    }
+    #sticker {
+      width: 100px;
+      display: none;
+      margin-top: 20px;
+      animation: pop 0.5s ease-out forwards;
+    }
+    @keyframes pop {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 Help Momo Find the Right Animal! 🎉</h1>
+  <img id="avatar" src="https://cdn.pixabay.com/photo/2023/05/17/14/08/cartoon-dog-7998835_1280.png" alt="Momo Avatar">
+
+  <div id="game-btns">
+    <button onclick="checkAnswer('dog')">🐶 Dog</button>
+    <button onclick="checkAnswer('cat')">🐱 Cat</button>
+    <button onclick="checkAnswer('lion')">🦁 Lion</button>
+  </div>
+
+  <div id="feedback">🎉 Correct! You got a sticker! 🎉</div>
+  <img id="sticker" src="https://cdn.pixabay.com/photo/2017/01/31/19/17/star-2026610_1280.png" alt="Sticker">
+
+  <audio id="yay-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4663c6f9a3.mp3?filename=kids-cheer-1-18985.mp3"></audio>
+
+  <script>
+    const correctAnswer = 'lion';
+
+    function checkAnswer(choice) {
+      if (choice === correctAnswer) {
+        document.getElementById('feedback').style.display = 'block';
+        document.getElementById('sticker').style.display = 'block';
+        document.getElementById('yay-sound').play();
+        localStorage.setItem('momoSticker', 'unlocked');
+      } else {
+        alert("Oops! Try again 🐾");
+      }
+    }
+
+    // Zeige Sticker erneut bei neuem Laden, wenn vorher freigeschaltet
+    window.onload = () => {
+      if (localStorage.getItem('momoSticker') === 'unlocked') {
+        document.getElementById('feedback').style.display = 'block';
+        document.getElementById('sticker').style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>
