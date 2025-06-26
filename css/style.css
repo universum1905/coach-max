@@ -1,4 +1,5 @@
 /* ✅ Dieser Code ist für: style.css */
+/* Funktion: Hochformat-Optimierung & Drehwarnung für Mobilgeräte */
 
 body {
   margin: 0;
@@ -8,6 +9,9 @@ body {
   color: #2d3436;
   text-align: center;
   overflow-x: hidden;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 h1 {
@@ -69,7 +73,7 @@ button:hover {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 180px;
+  width: 140px;
   height: auto;
   border-radius: 50%;
   z-index: 10;
@@ -82,8 +86,7 @@ button:hover {
   border-radius: 20px;
   padding: 2rem;
   margin: 2rem auto;
-  width: 90%;
-  max-width: 600px;
+  width: 95%;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 2;
@@ -129,21 +132,31 @@ button:hover {
   100% { transform: translateX(-50%) scale(1); }
 }
 
-/* Responsive Anpassung für mobile Geräte */
-@media (max-width: 600px) {
-  .session-text {
-    font-size: 1.2rem;
-    padding: 15px;
+/* 📱 Drehwarnung bei Querformat */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  body::before {
+    content: "🔄 Please rotate your device for the best experience!";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffeaa7;
+    color: #d63031;
+    padding: 2rem;
+    font-size: 1.5rem;
+    border: 5px dashed #fdcb6e;
+    border-radius: 20px;
+    z-index: 9999;
+    width: 90%;
+    text-align: center;
   }
 
+  #session-container,
+  video,
+  button,
+  h1,
+  .session-block,
   .avatar-video {
-    width: 140px;
-    bottom: 10px;
-    right: 10px;
-  }
-
-  button {
-    font-size: 1rem;
-    padding: 12px 20px;
+    display: none !important;
   }
 }
