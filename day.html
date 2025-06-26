@@ -91,7 +91,7 @@ let sessionIndex = 0;
 let sessionData = [];
 
 async function loadDayJson() {
-  const res = await fetch("day1.json"); // später dynamisch: `day${X}.json`
+  const res = await fetch("days/day1.json"); // später dynamisch: `day${X}.json`
   const json = await res.json();
   sessionData = json.sessions;
   startSession(sessionIndex);
