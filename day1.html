@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Coach Max – Day 1 Intro</title>
 
-  <!-- Google Font: Baloo 2 -->
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&display=swap" rel="stylesheet">
 
   <style>
@@ -20,51 +19,53 @@
     }
 
     .page-container {
-      width: 100%;
-      max-width: 600px; /* Begrenzung für Textbereich */
+      max-width: 1000px;
       margin: 0 auto;
       padding: 2rem 1rem;
       box-sizing: border-box;
     }
 
     .text-line {
-  font-size: 2.5rem;
-  background: rgba(255, 255, 255, 0.85);
-  color: #333;
-  padding: 1rem 1.5rem;
-  margin: 1.5rem 0;
-  border-radius: 25px;
-  box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-  max-width: calc(100% - 180px); /* verhindert Text hinter dem Video */
-  opacity: 0;
-  transform: translateX(-50px);
-  position: relative;
-  overflow: hidden;
-}
+      font-size: 2.5rem;
+      background: rgba(255, 255, 255, 0.85);
+      color: #333;
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 25px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+      max-width: calc(100% - 180px); /* genug Abstand zum Video */
+      opacity: 0;
+      transform: translateX(-50px);
+      position: relative;
+      overflow: hidden;
+    }
 
-.text-line.show {
-  animation: slideIn 0.8s ease forwards;
-}
+    .text-line.show {
+      animation: slideIn 0.8s ease forwards;
+    }
 
-/* Glitzern */
-.text-line.show::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 200%;
-  height: 100%;
-  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
-  background-size: 200% 100%;
-  background-position: 0 0;
-  animation: shine 2s ease-out forwards;
-}
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
 
-@keyframes shine {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
+    .text-line.show::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
+      animation: shine 1.5s ease-out forwards;
+    }
 
+    @keyframes shine {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
 
     #line6.show {
       animation: slideIn 0.8s ease forwards, pulse 2s infinite ease-in-out;
@@ -78,13 +79,13 @@
     }
 
     .video-box {
-      width: 150px;
       position: fixed;
       bottom: 20px;
       right: 20px;
-      z-index: 999;
+      width: 150px;
       border-radius: 20px;
       box-shadow: 0 0 15px rgba(0,0,0,0.4);
+      z-index: 999;
     }
 
     video {
@@ -105,8 +106,7 @@
     <div class="text-line" id="line6">✨ Let’s get started! ✨</div>
   </div>
 
-  <!-- Fixiertes Video unten rechts -->
-  <div class="video-box" id="videoBox">
+  <div class="video-box">
     <video id="introVideo" src="videos/day1-intro.mp4" controls playsinline></video>
   </div>
 
@@ -121,7 +121,7 @@
       document.getElementById("line6"),
     ];
 
-    const timings = [1120, 2220, 6000, 10020, 18200];
+    const timings = [1120, 2220, 6000, 10020, 14000]; // ms
 
     video.addEventListener("play", () => {
       lines.forEach((line, index) => {
