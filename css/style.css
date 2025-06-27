@@ -97,29 +97,6 @@ body {
   fill: #383838;
 }
 
-/* Frosch fixiert links unten */
-.floating-frog {
-  position: fixed;
-  left: 14px;
-  bottom: 28px;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  z-index: 41;
-  background: #d8f5b3;
-  box-shadow: 0 4px 18px #81d4fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.floating-frog img {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  object-fit: contain;
-  background: transparent;
-}
-
 /* Mobil kleiner! */
 @media (max-width: 600px) {
   .session-text-area {
