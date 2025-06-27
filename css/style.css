@@ -25,6 +25,7 @@ body {
   text-align: center;
 }
 
+/* Animierte Textzeile */
 .animated-text {
   font-size: 1.5rem;
   margin: 18px 0;
@@ -40,65 +41,11 @@ body {
   to { opacity: 1; transform: translateY(0);}
 }
 
-/* Frosch und Video – Mobil-optimiert, fixiert */
+/* Video fixiert, groß */
 .floating-video {
   position: fixed;
   right: 14px;
   bottom: 18px;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  overflow: hidden;
-  z-index: 40;
-  box-shadow: 0 6px 32px #b2ebf2, 0 2px 24px #fbc02d;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.floating-video video {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 50%;
-  background: #eee;
-}
-
-/* Frosch fixiert links unten */
-.floating-frog {
-  position: fixed;
-  left: 14px;
-  bottom: 28px;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  z-index: 41;
-  box-shadow: 0 4px 18px #81d4fa;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.floating-frog img {
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: #e6f9ff;
-}
-
-@media (max-width: 600px) {
-  .session-text-area {
-    font-size: 1.1rem;
-    padding-top: 18px;
-    padding-bottom: 10px;
-  }
-  .floating-video {
-  position: fixed;
-  right: 14px;
-  bottom: 18px;
   width: 160px;
   height: 160px;
   border-radius: 50%;
@@ -110,30 +57,16 @@ body {
   align-items: center;
   justify-content: center;
 }
-
-/* Responsive Größe mobil */
-@media (max-width: 600px) {
-  .floating-video {
-    width: 120px;
-    height: 120px;
-    right: 8px;
-    bottom: 8px;
-  }
-  .floating-video video,
-  .floating-video .custom-play-btn {
-    width: 120px;
-    height: 120px;
-  }
-}
-
-/* Video im Kreis */
-.floating-video video {
+.floating-video video,
+.floating-video .custom-play-btn {
   width: 160px;
   height: 160px;
-  object-fit: cover;
   border-radius: 50%;
+  object-fit: cover;
+}
+.floating-video video {
   background: #eee;
-  pointer-events: none; /* Deaktiviert Interaktion – nur über Button abspielbar */
+  pointer-events: none;
 }
 
 /* Play-Button als Overlay */
@@ -164,6 +97,7 @@ body {
   fill: #383838;
 }
 
+/* Frosch fixiert links unten */
 .floating-frog {
   position: fixed;
   left: 14px;
@@ -172,7 +106,7 @@ body {
   height: 80px;
   border-radius: 50%;
   z-index: 41;
-  background: #d8f5b3;  /* Hellgrün statt weiß */
+  background: #d8f5b3;
   box-shadow: 0 4px 18px #81d4fa;
   display: flex;
   align-items: center;
@@ -186,7 +120,24 @@ body {
   background: transparent;
 }
 
+/* Mobil kleiner! */
 @media (max-width: 600px) {
+  .session-text-area {
+    font-size: 1.1rem;
+    padding-top: 18px;
+    padding-bottom: 10px;
+  }
+  .floating-video {
+    width: 120px;
+    height: 120px;
+    right: 8px;
+    bottom: 8px;
+  }
+  .floating-video video,
+  .floating-video .custom-play-btn {
+    width: 120px;
+    height: 120px;
+  }
   .floating-frog {
     width: 54px;
     height: 54px;
@@ -199,43 +150,7 @@ body {
   }
 }
 
-
-/* Rotationshinweis */
-.rotation-notice {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: rgba(230,249,255, 0.93);
-  text-align: center;
-}
-.rotate-icon {
-  width: 56px;
-  height: 56px;
-  margin-bottom: 16px;
-}
-
-.next-btn {
-  background: linear-gradient(90deg, #ffd54f, #81d4fa);
-  border: none;
-  color: #222;
-  font-size: 1.2rem;
-  border-radius: 22px;
-  padding: 0.8rem 2.2rem;
-  margin-top: 22px;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 4px 12px #b3e5fc;
-  transition: background 0.3s, transform 0.15s;
-}
-.next-btn:hover {
-  background: linear-gradient(90deg, #ffb300, #039be5);
-  transform: scale(1.07);
-}
-/* WelcomeArea: mittig, freundlich, überall sichtbar */
+/* WelcomeArea mittig, freundlich */
 #welcomeArea {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -257,7 +172,6 @@ body {
   max-width: 520px;
   margin: 0 auto;
 }
-
 .welcome-anim-line {
   font-size: 2.2rem;
   color: #383838;
@@ -273,21 +187,18 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
-
 @keyframes welcomeFadeIn {
   from { opacity: 0; transform: translateY(-36px);}
   to   { opacity: 1; transform: translateY(0);}
 }
-
-/* Mobil kleiner, aber trotzdem groß */
+/* Mobil: Welcome kleiner, trotzdem groß */
 @media (max-width: 600px) {
   .welcome-anim-line {
     font-size: 1.22rem;
     margin: 0.36em 0;
   }
 }
-
-/* Rotation-Hinweis mittig, aber kleiner */
+/* Rotation-Hinweis */
 .rotation-notice {
   display: flex;
   flex-direction: column;
@@ -312,4 +223,3 @@ body {
     margin-bottom: 8px;
   }
 }
-
