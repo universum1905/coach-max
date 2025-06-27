@@ -1,10 +1,10 @@
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(135deg, #fffbe6, #e6f9ff 80%);
-  font-family: 'Fredoka One', 'Baloo 2', Arial, sans-serif;
   min-height: 100vh;
   box-sizing: border-box;
+  background: linear-gradient(135deg, #fffbe6 0%, #e6f9ff 80%);
+  font-family: 'Fredoka One', 'Baloo 2', Arial, sans-serif;
 }
 
 #mainContent {
@@ -156,7 +156,7 @@ body {
   top: 0; left: 0; right: 0; bottom: 0;
   width: 100vw; height: 100vh;
   z-index: 9999;
-  background: linear-gradient(135deg, #fceabb 65%, #f8b500 100%);
+  background: linear-gradient(135deg, #fffbe6 0%, #e6f9ff 80%);
   display: flex;
   flex-direction: column;
   align-items: center;
