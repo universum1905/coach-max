@@ -227,31 +227,45 @@ function finishDay() {
 }
 function renderFrogProgress(sessionIdx) {
   const total = sessions.length;
-  const containerId = "progressFrogBar";
-  let bar = document.getElementById(containerId);
-  if (!bar) {
-    bar = document.createElement("div");
-    bar.id = containerId;
-    document.body.appendChild(bar);
-  }
+  const bar = document.getElementById("progressFrogBar");
   bar.innerHTML = ""; // leeren
 
-  // Fortschritts-Leiste bauen
+  // Track für Spots
   const barTrack = document.createElement("div");
   barTrack.className = "frog-bar-track";
+  bar.appendChild(barTrack);
 
+  // Spots bauen
+  const spots = [];
   for (let i = 0; i < total; i++) {
     const spot = document.createElement("div");
-    spot.className = "frog-bar-spot" + (i === sessionIdx ? " frog-bar-active" : "") + (i < sessionIdx ? " frog-bar-done" : "");
-    // Auf aktuellem Feld: Frosch-Icon
-    if (i === sessionIdx) {
-      const frog = document.createElement("img");
-      frog.src = "images/frog.png";
-      frog.alt = "Frog";
-      frog.className = "frog-icon-progress";
-      spot.appendChild(frog);
-    }
+    spot.className = "frog-bar-spot" + (i < sessionIdx ? " frog-bar-done" : "") + (i === sessionIdx ? " active" : "");
     barTrack.appendChild(spot);
+    spots.push(spot);
   }
-  bar.appendChild(barTrack);
+
+  // Frosch absolut positionieren
+  const frog = document.createElement("img");
+  frog.src = "images/frog.png";
+  frog.alt = "Frog";
+  frog.id = "jumpingFrog";
+  barTrack.appendChild(frog);
+
+  // Position berechnen (Spot-Offsets)
+  setTimeout(() => {
+    const spot = spots[sessionIdx];
+    if (spot) {
+      const rect = spot.getBoundingClientRect();
+      const trackRect = barTrack.getBoundingClientRect();
+      // Zentriere Frosch über aktuellem Spot
+      const left = spot.offsetLeft + (spot.offsetWidth - frog.offsetWidth) / 2;
+      frog.style.left = left + "px";
+      frog.style.animation = "frogHop 0.45s"; // Restart Animation
+      // Animation zurücksetzen, damit sie bei jedem Schritt neu startet
+      frog.addEventListener("animationend", () => {
+        frog.style.animation = "";
+      }, { once: true });
+    }
+  }, 30);
 }
+
