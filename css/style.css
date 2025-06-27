@@ -251,64 +251,23 @@ body {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;      /* Statt 100px → 0px */
+  bottom: 0;
   display: flex;
   justify-content: center;
-  z-index: 60;    /* Höher als das Video! */
+  align-items: flex-end;
+  z-index: 60;
   pointer-events: none;
   height: 60px;
 }
 
 .frog-bar-track {
   display: flex;
-  gap: 22px;
-}
-
-.frog-bar-spot {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: #e0f7fa;
-  border: 2.5px solid #90caf9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  transition: background 0.2s, border 0.2s;
-}
-
-.frog-bar-active {
-  background: #ffe082;
-  border: 3.2px solid #ffd54f;
-  box-shadow: 0 0 18px #ffd54f;
-}
-.frog-bar-done {
-  background: #b2dfdb;
-  border: 2.5px solid #388e3c;
-}
-
-.frog-icon-progress {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 6px #80cbc4);
-}
-#progressFrogBar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 100px;
-  display: flex;
-  justify-content: center;
-  z-index: 51;
-  pointer-events: none;
-  height: 60px; /* genug Platz fürs Springen */
-}
-
-.frog-bar-track {
-  display: flex;
   gap: 30px;
   position: relative;
+  min-width: 240px;
+  max-width: 340px;
+  margin: 0 auto;
+  justify-content: center;
 }
 
 .frog-bar-spot {
@@ -344,7 +303,6 @@ body {
   object-fit: contain;
   z-index: 2;
   transition: left 0.5s cubic-bezier(.39,1.35,.51,1.01);
-  /* Simuliert "Springen" durch kleine Bewegung nach oben */
   animation: frogHop 0.45s;
 }
 
@@ -353,4 +311,42 @@ body {
   30% { transform: translateY(-22px);}
   60% { transform: translateY(-5px);}
   100% { transform: translateY(0);}
+}
+
+.next-btn {
+  display: block;
+  margin: 32px auto 0 auto;
+  background: linear-gradient(90deg, #ffe082 40%, #81d4fa 100%);
+  border: none;
+  color: #333;
+  font-size: 1.4rem;
+  border-radius: 36px;
+  padding: 1rem 3.4rem;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 22px #b3e5fc88, 0 0 6px #ffd54f66;
+  letter-spacing: 0.02em;
+  transition: background 0.22s, transform 0.12s;
+  outline: none;
+  z-index: 100;
+}
+.next-btn:hover, .next-btn:focus {
+  background: linear-gradient(90deg, #ffb300 40%, #039be5 100%);
+  transform: scale(1.06);
+  color: #181818;
+}
+
+
+
+@media (max-width: 600px) {
+  .next-btn {
+    font-size: 1.08rem;
+    padding: 0.8rem 1.8rem;
+    border-radius: 26px;
+  }
+  .frog-bar-track {
+    gap: 16px;
+    min-width: 120px;
+    max-width: 200px;
+  }
 }
