@@ -223,3 +223,4 @@ function finishDay() {
   document.getElementById('sessionTextArea').innerHTML =
     `<div class="animated-text" style="font-size:1.8rem;">Congratulations! You finished today’s adventure! 🥳</div>`;
 }
+}
