@@ -127,18 +127,6 @@ function renderSession(idx) {
   videoElement.poster = "images/video-placeholder.png";
   videoElement.style.display = "block";
   videoElement.oncontextmenu = function(e) { e.preventDefault(); return false; };
-  videoElement.addEventListener('play', () => {
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  });
-  videoElement.addEventListener('pause', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
-  videoElement.addEventListener('ended', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
 
   // Eigener Play-Button als Overlay (kann später noch durch Avatar ersetzt werden)
   const playBtn = document.createElement('button');
@@ -156,6 +144,19 @@ function renderSession(idx) {
     playBtn.style.display = "none";
     videoElement.style.pointerEvents = "auto";
   };
+
+  videoElement.addEventListener('play', () => {
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  });
+  videoElement.addEventListener('pause', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoElement.addEventListener('ended', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
 
   // Container fürs Video und den Play-Button
   const videoBox = document.createElement('div');
