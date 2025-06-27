@@ -5,22 +5,62 @@
       "type": "intro",
       "video": "day1-intro.mp4",
       "text": [
-        "Welcome to Day 1! I’m Luna, your learning friend.",
-        "Are you ready for a new adventure with Coach Max?",
-        "Tap play and let's get started!"
+        "Hi! I’m Luna, your Coach Max guide.",
+        "Are you ready for a fun learning adventure?",
+        "Let’s get started! Tap play to begin."
       ],
-      "timings": [0, 3.5, 7.2]
+      "timings": [0, 3, 6]
     },
     {
       "type": "breathing",
       "video": "day1-breath.mp4",
       "text": [
-        "Let’s take a deep breath together.",
-        "Breathe in... and breathe out...",
-        "Great job! Ready for the next challenge?"
+        "Let’s take a deep breath together with Momo.",
+        "Breathe in... hold it... and breathe out.",
+        "Feel how calm you are now? Great job!"
       ],
-      "timings": [0, 2.5, 5.2]
+      "timings": [0, 3, 7]
+    },
+    {
+      "type": "counting",
+      "video": "day1-counting.mp4",
+      "text": [
+        "Let's count with Benny!",
+        "One, two, three, four, five...",
+        "Six, seven, eight, nine, ten! You did it!"
+      ],
+      "timings": [0, 2, 5]
+    },
+    {
+      "type": "animals",
+      "video": "day1-animals.mp4",
+      "text": [
+        "Let’s play ‘Guess That Animal’ with Momo!",
+        "I’m small, I hop, and I love to eat carrots. Who am I?",
+        "That’s right, I’m a rabbit! Great guessing!"
+      ],
+      "timings": [0, 3, 7]
+    },
+    {
+      "type": "rhyme",
+      "video": "day1-rhyme.mp4",
+      "text": [
+        "Now a rhyme with Benny!",
+        "Benny the dog runs in the fog.",
+        "He jumps over a log, and greets a friendly frog!"
+      ],
+      "timings": [0, 2.5, 5.5]
+    },
+    {
+      "type": "story",
+      "video": "day1-story.mp4",
+      "text": [
+        "Time for a story with Luna!",
+        "Luna and her friends went on a treasure hunt.",
+        "At the end, they found a sparkling sticker just for you!",
+        "See you tomorrow for more fun adventures!"
+      ],
+      "timings": [0, 3, 6, 9]
     }
-    // ...weitere Sessions
   ]
 }
