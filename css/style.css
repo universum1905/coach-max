@@ -169,20 +169,27 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 650px;
+  justify-content: center;
+  max-width: 700px;
+  min-width: 220px;
+  width: 90vw;
   margin: 0 auto;
   text-align: center;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 24px;
+  padding-right: 24px;
 }
+
 .welcome-anim-line {
-  font-size: 2.8rem; /* Oder noch größer! */
+  font-size: 3rem;
   color: #383838;
   font-family: 'Fredoka One', Arial, sans-serif;
-  margin: 0.5em 0;
+  margin: 0.7em 0;
   opacity: 0;
   transform: translateY(-36px);
-  text-shadow: 0 2px 24px #fff6d6, 0 0 10px #fff59d;
+  text-shadow: 0 4px 32px #fff6d6, 0 0 18px #fff59d;
+  background: rgba(255,255,255,0.74);
+  border-radius: 28px;
+  padding: 0.7em 1em;
   letter-spacing: 0.04em;
   animation: welcomeFadeIn 0.9s forwards;
 }
@@ -194,13 +201,30 @@ body {
   from { opacity: 0; transform: translateY(-36px);}
   to   { opacity: 1; transform: translateY(0);}
 }
-/* Mobil: Welcome kleiner, trotzdem groß */
+
+/* Highlight für Wort "sticker" */
+.highlight-word {
+  color: #ffb300;
+  background: #fffde7;
+  padding: 0 6px;
+  border-radius: 7px;
+  box-shadow: 0 0 12px #ffe082;
+}
+
+/* Mobil kleiner, trotzdem groß */
 @media (max-width: 600px) {
   .welcome-anim-line {
-    font-size: 1.22rem;
+    font-size: 1.35rem;
     margin: 0.36em 0;
+    padding: 0.55em 0.2em;
+  }
+  .welcome-lines {
+    padding-left: 6px;
+    padding-right: 6px;
+    max-width: 97vw;
   }
 }
+
 /* Rotation-Hinweis */
 .rotation-notice {
   display: flex;

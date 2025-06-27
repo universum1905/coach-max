@@ -39,11 +39,11 @@ window.addEventListener("resize", handleOrientation);
 // Welcome-Bereich animiert, zentral, groß, 6,5s sichtbar
 function showWelcome(onFinish) {
   const lines = [
-    "🎉 Welcome to Coach Max!",
-    "Ready for a day full of fun and learning?",
-    "Every tap brings you closer to today’s secret sticker!",
-    "Let’s jump right in!"
-  ];
+  "🎉 Welcome to Coach Max!",
+  "Ready for a day full of fun and learning?",
+  `Every tap brings you closer to today’s secret <span class="highlight-word">sticker</span>!`,
+  "Let’s jump right in!"
+];
   const welcomeArea = document.getElementById('welcomeArea');
   welcomeArea.innerHTML = "";
 
@@ -57,7 +57,7 @@ function showWelcome(onFinish) {
     if (idx < lines.length) {
       const line = document.createElement('div');
       line.className = "welcome-anim-line";
-      line.innerText = lines[idx];
+      line.innerHTML = lines[idx];
       linesDiv.appendChild(line);
       setTimeout(() => line.classList.add("animated"), 80);
       idx++;
