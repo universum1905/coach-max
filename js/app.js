@@ -7,17 +7,33 @@ let textTimeouts = [];
 let videoElement = null;
 
 // Rotationshinweis
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 function handleOrientation() {
   const notice = document.getElementById("rotationNotice");
-  // window.orientation: 0 oder 180 = portrait; 90 oder -90 = landscape
+  const mainContent = document.getElementById("mainContent");
   const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-  if (isPortrait) {
+  const mobile = isMobileDevice();
+
+  if (!mobile) {
+    // Immer Desktop: Hinweis NIE anzeigen!
     notice.style.display = "none";
-    document.getElementById('mainContent').style.display = '';
+    mainContent.style.display = '';
+    if (videoElement) videoElement.controls = true;
+    return;
+  }
+
+  if (isPortrait) {
+    // Mobil & Hochformat: Inhalt anzeigen
+    notice.style.display = "none";
+    mainContent.style.display = '';
     if (videoElement) videoElement.controls = true;
   } else {
+    // Mobil & Querformat: Hinweis anzeigen
     notice.style.display = "flex";
-    document.getElementById('mainContent').style.display = 'none';
+    mainContent.style.display = 'none';
     if (videoElement) videoElement.controls = false;
   }
 }
