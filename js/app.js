@@ -4,6 +4,10 @@ let currentSession = 0;
 let textTimeouts = [];
 let videoElement = null;
 
+// Soundeffekt für Frosch
+const frogSound = new Audio("audio/frog-hop.mp3");
+frogSound.volume = 0.42; // Optional: Lautstärke anpassen (0.0–1.0)
+
 // Erkennung Mobilgerät
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -253,19 +257,21 @@ function renderFrogProgress(sessionIdx) {
 
   // Position berechnen (Spot-Offsets)
   setTimeout(() => {
-    const spot = spots[sessionIdx];
-    if (spot) {
-      const rect = spot.getBoundingClientRect();
-      const trackRect = barTrack.getBoundingClientRect();
-      // Zentriere Frosch über aktuellem Spot
-      const left = spot.offsetLeft + (spot.offsetWidth - frog.offsetWidth) / 2;
-      frog.style.left = left + "px";
-      frog.style.animation = "frogHop 0.45s"; // Restart Animation
-      // Animation zurücksetzen, damit sie bei jedem Schritt neu startet
-      frog.addEventListener("animationend", () => {
-        frog.style.animation = "";
-      }, { once: true });
-    }
-  }, 30);
+  const spot = spots[sessionIdx];
+  if (spot) {
+    const rect = spot.getBoundingClientRect();
+    const trackRect = barTrack.getBoundingClientRect();
+    const left = spot.offsetLeft + (spot.offsetWidth - frog.offsetWidth) / 2;
+    frog.style.left = left + "px";
+    frog.style.animation = "frogHop 0.45s";
+    frog.addEventListener("animationend", () => {
+      frog.style.animation = "";
+    }, { once: true });
+
+    // Sound abspielen
+    frogSound.currentTime = 0;
+    frogSound.play();
+  }
+}, 30);
 }
 
