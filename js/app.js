@@ -10,6 +10,43 @@ let videoElement = null;
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
+function showWelcome(onFinish) {
+  const lines = [
+    "🎉 Welcome to Coach Max!",
+    "Ready for a day full of fun and learning?",
+    "Every tap brings you closer to today’s secret sticker!",
+    "Let’s jump right in!"
+  ];
+  const welcomeArea = document.getElementById('welcomeArea');
+  welcomeArea.innerHTML = "";
+  let idx = 0;
+
+  function showNextLine() {
+    if (idx < lines.length) {
+      const line = document.createElement('div');
+      line.className = "welcome-anim-line";
+      line.innerText = lines[idx];
+      welcomeArea.appendChild(line);
+      // Animation triggern
+      setTimeout(() => line.classList.add("animated"), 50);
+      idx++;
+      setTimeout(showNextLine, 700);
+    }
+  }
+  showNextLine();
+
+  // Nach 3 Sekunden Welcome ausblenden, dann Start!
+  setTimeout(() => {
+    welcomeArea.style.transition = "opacity 0.6s";
+    welcomeArea.style.opacity = 0;
+    setTimeout(() => {
+      welcomeArea.style.display = "none";
+      if (typeof onFinish === "function") onFinish();
+    }, 700);
+  }, 3000);
+}
+
+
 
 function handleOrientation() {
   const notice = document.getElementById("rotationNotice");
@@ -47,13 +84,19 @@ window.onload = async () => {
     const data = await res.json();
     if (!data.sessions) throw new Error("No 'sessions' array in JSON!");
     sessions = data.sessions;
-    renderSession(currentSession);
-    handleOrientation();
+
+    // Welcome zuerst anzeigen, danach Session starten
+    showWelcome(() => {
+      renderSession(currentSession);
+      handleOrientation();
+    });
+
   } catch (e) {
     document.body.innerHTML = `<h2 style="color:red">Error loading day: ${e}</h2>`;
     console.error(e);
   }
 };
+
 
 function clearTimeouts() {
   textTimeouts.forEach(t => clearTimeout(t));
