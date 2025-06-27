@@ -334,16 +334,25 @@ body {
   }
 }
 .welcome-tap-hint {
-  margin-top: 2.4em;
-  font-size: 1.25rem;
-  color: #3b4556;
-  font-family: 'Baloo 2', 'Comic Neue', 'Fredoka One', 'Comic Sans MS', cursive, Arial, sans-serif;
-  opacity: 0.88;
-  letter-spacing: 0.02em;
-  background: rgba(255,255,255,0.67);
-  padding: 0.6em 1.5em;
-  border-radius: 19px;
-  box-shadow: 0 0 14px #ffe08233;
-  transition: background 0.2s;
-  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', cursive, Arial, sans-serif;
+  font-size: 2.3rem;
+  color: #ffb300;
+  background: #fffbe6;
+  border-radius: 26px;
+  box-shadow: 0 4px 38px #ffe082bb, 0 2px 18px #b3e5fc;
+  padding: 1.1em 2.8em;
+  margin: 0 auto;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 0.36s;
 }
+@media (max-width: 600px) {
+  .welcome-tap-hint {
+    font-size: 1.38rem;
+    padding: 0.8em 1.2em;
+  }
+}
+

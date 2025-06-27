@@ -47,52 +47,69 @@ window.addEventListener("resize", handleOrientation);
 
 // Welcome-Bereich animiert, zentral, groß, 6,5s sichtbar
 function showWelcome(onFinish) {
-  const welcomeArea = document.getElementById('welcomeArea'); // Erst holen!
-  welcomeArea.onclick = function() {
-    try { welcomeMusic.play(); } catch(e) {}
-  };
-  const lines = [
-    "🎉 Welcome to Coach Max!",
-    "Ready for a day full of fun and learning?",
-    `Every tap brings you closer to today’s secret <span class="highlight-word">sticker</span>!`,
-    "Let’s jump right in!"
-  ];
-  welcomeArea.innerHTML = "";
+  const welcomeArea = document.getElementById('welcomeArea');
+  welcomeArea.innerHTML = '';
 
-  // Container für animierte Zeilen
-  const linesDiv = document.createElement('div');
-  linesDiv.className = "welcome-lines";
-  welcomeArea.appendChild(linesDiv);
+  // 1. Hinweis-Element bauen
   const tapHint = document.createElement('div');
-tapHint.className = "welcome-tap-hint";
-tapHint.innerText = "Tap anywhere to start!";
-welcomeArea.appendChild(tapHint);
+  tapHint.className = "welcome-tap-hint";
+  tapHint.innerText = "Tap anywhere to start!";
+  welcomeArea.appendChild(tapHint);
 
-  let idx = 0;
-  function showNextLine() {
-    if (idx < lines.length) {
-      const line = document.createElement('div');
-      line.className = "welcome-anim-line";
-      line.innerHTML = lines[idx];
-      linesDiv.appendChild(line);
-      setTimeout(() => line.classList.add("animated"), 80);
-      idx++;
-      setTimeout(showNextLine, 850);
-    }
-  }
-  showNextLine();
-
-  // Welcome nach 6,5s ausblenden, dann App starten
-  setTimeout(() => {
-    welcomeArea.style.opacity = 0;
+  // 2. Tap-Handler
+  welcomeArea.onclick = function() {
+    // Musik starten (falls möglich)
+    try { welcomeMusic.currentTime = 0; welcomeMusic.play(); } catch(e) {}
+    // Hinweis ausblenden
+    tapHint.style.opacity = 0;
     setTimeout(() => {
-      welcomeArea.style.display = "none";
-      try { welcomeMusic.pause(); welcomeMusic.currentTime = 0; } catch(e) {}
-	  document.getElementById("mainContent").style.display = "";
-      if (typeof onFinish === "function") onFinish();
-    }, 900);
-  }, 6500);
+      welcomeArea.removeChild(tapHint);
+      startWelcomeAnimation();
+    }, 350);
+    // Nur 1x ausführen!
+    welcomeArea.onclick = null;
+  };
+
+  // 3. Funktion für Animation und Text (wie gehabt)
+  function startWelcomeAnimation() {
+    const lines = [
+      "🎉 Welcome to Coach Max!",
+      "Ready for a day full of fun and learning?",
+      `Every tap brings you closer to today’s secret <span class="highlight-word">sticker</span>!`,
+      "Let’s jump right in!"
+    ];
+
+    const linesDiv = document.createElement('div');
+    linesDiv.className = "welcome-lines";
+    welcomeArea.appendChild(linesDiv);
+
+    let idx = 0;
+    function showNextLine() {
+      if (idx < lines.length) {
+        const line = document.createElement('div');
+        line.className = "welcome-anim-line";
+        line.innerHTML = lines[idx];
+        linesDiv.appendChild(line);
+        setTimeout(() => line.classList.add("animated"), 80);
+        idx++;
+        setTimeout(showNextLine, 850);
+      }
+    }
+    showNextLine();
+
+    // Welcome nach 6,5s ausblenden, dann App starten
+    setTimeout(() => {
+      welcomeArea.style.opacity = 0;
+      setTimeout(() => {
+        welcomeArea.style.display = "none";
+        try { welcomeMusic.pause(); welcomeMusic.currentTime = 0; } catch(e) {}
+        document.getElementById("mainContent").style.display = "";
+        if (typeof onFinish === "function") onFinish();
+      }, 900);
+    }, 6500);
+  }
 }
+
 
 window.onload = async () => {
   try {
