@@ -19,8 +19,8 @@ body {
 .session-text-area {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: flex-start;     /* Links ausrichten */
+  justify-content: flex-start; /* Oben ausrichten */
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
@@ -33,6 +33,7 @@ body {
 
 /* Animierte Textzeile */
 .animated-text {
+  font-family: 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
   font-size: 1.5rem;
   margin: 18px 0;
   padding: 0.7rem 1.2rem;
@@ -163,7 +164,7 @@ body {
 }
 
 .welcome-anim-line {
-  font-family: 'Comic Sans MS', 'Comic Sans', 'Comic Neue', cursive, Arial, sans-serif;
+  font-family: 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
   font-size: 3rem;
   color: #383838;
   margin: 0.7em 0;
@@ -337,7 +338,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', cursive, Arial, sans-serif;
+  font-family: 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
   font-size: 2.3rem;
   color: #ffb300;
   background: #fffbe6;
