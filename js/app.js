@@ -10,6 +10,33 @@ let videoElement = null;
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
+
+function handleOrientation() {
+  const notice = document.getElementById("rotationNotice");
+  const mainContent = document.getElementById("mainContent");
+  const welcomeArea = document.getElementById('welcomeArea');
+  const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+  const mobile = isMobileDevice();
+
+  if (!mobile) {
+    notice.style.display = "none";
+    if (welcomeArea.style.display !== "none") mainContent.style.display = "none";
+    else mainContent.style.display = '';
+    return;
+  }
+
+  if (isPortrait) {
+    notice.style.display = "none";
+    if (welcomeArea.style.display !== "none") mainContent.style.display = "none";
+    else mainContent.style.display = '';
+  } else {
+    notice.style.display = "flex";
+    mainContent.style.display = "none";
+  }
+}
+window.addEventListener("orientationchange", handleOrientation);
+window.addEventListener("resize", handleOrientation);
+
 function showWelcome(onFinish) {
   const lines = [
     "🎉 Welcome to Coach Max!",
@@ -18,8 +45,38 @@ function showWelcome(onFinish) {
     "Let’s jump right in!"
   ];
   const welcomeArea = document.getElementById('welcomeArea');
-  welcomeArea.innerHTML = "";
+  welcomeArea.innerHTML = ""; // clear
+
+  // Container für die Zeilen
+  const linesDiv = document.createElement('div');
+  linesDiv.className = "welcome-lines";
+  welcomeArea.appendChild(linesDiv);
+
   let idx = 0;
+  function showNextLine() {
+    if (idx < lines.length) {
+      const line = document.createElement('div');
+      line.className = "welcome-anim-line";
+      line.innerText = lines[idx];
+      linesDiv.appendChild(line);
+      setTimeout(() => line.classList.add("animated"), 80);
+      idx++;
+      setTimeout(showNextLine, 850);
+    }
+  }
+  showNextLine();
+
+  // Welcome mindestens 6,5 Sekunden zeigen, dann ausblenden & App starten
+  setTimeout(() => {
+    welcomeArea.style.opacity = 0;
+    setTimeout(() => {
+      welcomeArea.style.display = "none";
+      document.getElementById("mainContent").style.display = "";
+      if (typeof onFinish === "function") onFinish();
+    }, 900);
+  }, 6500);
+}
+
 
   function showNextLine() {
     if (idx < lines.length) {
@@ -85,7 +142,7 @@ window.onload = async () => {
     if (!data.sessions) throw new Error("No 'sessions' array in JSON!");
     sessions = data.sessions;
 
-    // Welcome zuerst anzeigen, danach Session starten
+    // Welcome anzeigen, danach Session starten
     showWelcome(() => {
       renderSession(currentSession);
       handleOrientation();
