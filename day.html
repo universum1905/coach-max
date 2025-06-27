@@ -7,8 +7,16 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div id="progressBar"></div>
-  <div class="session-container" id="sessionContainer"></div>
+  <div id="mainContent">
+    <div class="session-text-area" id="sessionTextArea"></div>
+    <!-- Das Video und der Frosch werden über JS dynamisch platziert -->
+  </div>
+  <div id="rotationNotice" class="rotation-notice" style="display:none;">
+    <div>
+      <img src="images/rotate-phone.gif" class="rotate-icon" alt="Rotate"/>
+      <p>Please rotate your device to portrait mode to continue. 😊</p>
+    </div>
+  </div>
   <script src="js/app.js"></script>
 </body>
 </html>
