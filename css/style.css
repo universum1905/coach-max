@@ -96,18 +96,100 @@ body {
     padding-bottom: 10px;
   }
   .floating-video {
-    width: 88px;
-    height: 88px;
+  position: fixed;
+  right: 14px;
+  bottom: 18px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  overflow: hidden;
+  z-index: 40;
+  box-shadow: 0 6px 32px #b2ebf2, 0 2px 24px #fbc02d;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive Größe mobil */
+@media (max-width: 600px) {
+  .floating-video {
+    width: 120px;
+    height: 120px;
     right: 8px;
     bottom: 8px;
   }
-  .floating-video video {
-    width: 88px;
-    height: 88px;
+  .floating-video video,
+  .floating-video .custom-play-btn {
+    width: 120px;
+    height: 120px;
   }
+}
+
+/* Video im Kreis */
+.floating-video video {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 50%;
+  background: #eee;
+  pointer-events: none; /* Deaktiviert Interaktion – nur über Button abspielbar */
+}
+
+/* Play-Button als Overlay */
+.custom-play-btn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd54f 60%, #81d4fa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 2px 8px #b3e5fc;
+  z-index: 45;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.custom-play-btn:active {
+  transform: translate(-50%, -50%) scale(0.97);
+}
+.custom-play-btn svg {
+  width: 32px;
+  height: 32px;
+  fill: #383838;
+}
+
+.floating-frog {
+  position: fixed;
+  left: 14px;
+  bottom: 28px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  z-index: 41;
+  background: #d8f5b3;  /* Hellgrün statt weiß */
+  box-shadow: 0 4px 18px #81d4fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.floating-frog img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: contain;
+  background: transparent;
+}
+
+@media (max-width: 600px) {
   .floating-frog {
-    width: 48px;
-    height: 48px;
+    width: 54px;
+    height: 54px;
     left: 6px;
     bottom: 13px;
   }
@@ -116,6 +198,7 @@ body {
     height: 44px;
   }
 }
+
 
 /* Rotationshinweis */
 .rotation-notice {

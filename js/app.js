@@ -76,21 +76,52 @@ function renderSession(idx) {
   // Platz für die animierten Texte
 
   // --- Video-Element: fix unten rechts, rund ---
-  videoElement = document.createElement('video');
-  videoElement.src = `videos/${s.video}`;
-  videoElement.controls = true;
-  videoElement.autoplay = false;
-  videoElement.muted = false;
-  videoElement.playsInline = true;
-  videoElement.setAttribute('tabindex', '0');
-  videoElement.className = "";
-  videoElement.poster = "images/video-placeholder.png";
+// (Wir bauen das Video-Element und einen eigenen Play-Button)
+videoElement = document.createElement('video');
+videoElement.src = `videos/${s.video}`;
+videoElement.setAttribute("controls", "true");
+videoElement.setAttribute("controlsList", "nodownload");
+videoElement.autoplay = false;
+videoElement.muted = false;
+videoElement.playsInline = true;
+videoElement.poster = "images/video-placeholder.png";
+videoElement.style.display = "block";
+videoElement.oncontextmenu = function(e) { e.preventDefault(); return false; }; // Rechtsklick sperren
+videoElement.addEventListener('play', () => {
+  playBtn.style.display = "none";
+  videoElement.style.pointerEvents = "auto";
+});
+videoElement.addEventListener('pause', () => {
+  playBtn.style.display = "";
+  videoElement.style.pointerEvents = "none";
+});
+videoElement.addEventListener('ended', () => {
+  playBtn.style.display = "";
+  videoElement.style.pointerEvents = "none";
+});
 
-  // Container fürs runde, fixierte Video
-  const videoBox = document.createElement('div');
-  videoBox.className = "floating-video";
-  videoBox.appendChild(videoElement);
-  document.body.appendChild(videoBox);
+// Eigener Play-Button als Overlay
+const playBtn = document.createElement('button');
+playBtn.className = "custom-play-btn";
+playBtn.title = "Play";
+playBtn.innerHTML = `
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="28" fill="none"/>
+    <polygon points="22,16 46,30 22,44" fill="#383838"/>
+  </svg>
+`;
+playBtn.onclick = function() {
+  videoElement.play();
+  playBtn.style.display = "none";
+  videoElement.style.pointerEvents = "auto";
+};
+
+// Container fürs Video und den Play-Button
+const videoBox = document.createElement('div');
+videoBox.className = "floating-video";
+videoBox.appendChild(videoElement);
+videoBox.appendChild(playBtn);
+document.body.appendChild(videoBox);
 
   // Frosch (fix unten links)
   const frogBox = document.createElement('div');
