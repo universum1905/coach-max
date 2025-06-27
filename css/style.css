@@ -45,9 +45,9 @@ body {
 .floating-video {
   position: fixed;
   right: 14px;
-  bottom: 18px;
-  width: 160px;
-  height: 160px;
+  bottom: 90px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   overflow: hidden;
   z-index: 40;
@@ -105,15 +105,15 @@ body {
     padding-bottom: 10px;
   }
   .floating-video {
-    width: 120px;
-    height: 120px;
+    width: 130px;
+    height: 130px;
     right: 8px;
-    bottom: 8px;
+    bottom: 68px;
   }
   .floating-video video,
   .floating-video .custom-play-btn {
-    width: 120px;
-    height: 120px;
+    width: 130px;
+    height: 130px;
   }
   .floating-frog {
     width: 54px;
