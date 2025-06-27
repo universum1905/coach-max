@@ -251,11 +251,12 @@ body {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 100px; /* über dem Video */
+  bottom: 0;      /* Statt 100px → 0px */
   display: flex;
   justify-content: center;
-  z-index: 50;
+  z-index: 60;    /* Höher als das Video! */
   pointer-events: none;
+  height: 60px;
 }
 
 .frog-bar-track {
