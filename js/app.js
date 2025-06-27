@@ -4,6 +4,11 @@ let currentSession = 0;
 let textTimeouts = [];
 let videoElement = null;
 
+const welcomeMusic = new Audio("audio/welcome-music.mp3");
+welcomeMusic.loop = true;
+welcomeMusic.volume = 0.23; // Leise, aber spürbar
+
+
 // Soundeffekt für Frosch
 const frogSound = new Audio("audio/frog-hop.mp3");
 frogSound.volume = 0.42; // Optional: Lautstärke anpassen (0.0–1.0)
@@ -42,12 +47,16 @@ window.addEventListener("resize", handleOrientation);
 
 // Welcome-Bereich animiert, zentral, groß, 6,5s sichtbar
 function showWelcome(onFinish) {
+  const welcomeArea = document.getElementById('welcomeArea'); // Erst holen!
+  welcomeArea.onclick = function() {
+    try { welcomeMusic.play(); } catch(e) {}
+  };
   const lines = [
-  "🎉 Welcome to Coach Max!",
-  "Ready for a day full of fun and learning?",
-  `Every tap brings you closer to today’s secret <span class="highlight-word">sticker</span>!`,
-  "Let’s jump right in!"
-];
+    "🎉 Welcome to Coach Max!",
+    "Ready for a day full of fun and learning?",
+    `Every tap brings you closer to today’s secret <span class="highlight-word">sticker</span>!`,
+    "Let’s jump right in!"
+  ];
   const welcomeArea = document.getElementById('welcomeArea');
   welcomeArea.innerHTML = "";
 
@@ -55,6 +64,10 @@ function showWelcome(onFinish) {
   const linesDiv = document.createElement('div');
   linesDiv.className = "welcome-lines";
   welcomeArea.appendChild(linesDiv);
+  const tapHint = document.createElement('div');
+tapHint.className = "welcome-tap-hint";
+tapHint.innerText = "Tap anywhere to start!";
+welcomeArea.appendChild(tapHint);
 
   let idx = 0;
   function showNextLine() {
@@ -75,7 +88,8 @@ function showWelcome(onFinish) {
     welcomeArea.style.opacity = 0;
     setTimeout(() => {
       welcomeArea.style.display = "none";
-      document.getElementById("mainContent").style.display = "";
+      try { welcomeMusic.pause(); welcomeMusic.currentTime = 0; } catch(e) {}
+	  document.getElementById("mainContent").style.display = "";
       if (typeof onFinish === "function") onFinish();
     }, 900);
   }, 6500);
@@ -170,16 +184,7 @@ function renderSession(idx) {
   videoBox.appendChild(playBtn);
   document.body.appendChild(videoBox);
 
-  // Frosch (fix unten links)
-  const frogBox = document.createElement('div');
-  frogBox.className = "floating-frog";
-  const frogImg = document.createElement('img');
-  frogImg.src = "images/frog.png";
-  frogImg.alt = "Frog";
-  frogBox.appendChild(frogImg);
-  document.body.appendChild(frogBox);
-
-  // --- Next-Button ---
+    // --- Next-Button ---
   const btn = document.createElement('button');
   btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
   btn.className = "next-btn";

@@ -327,3 +327,17 @@ body {
     max-width: 200px;
   }
 }
+.welcome-tap-hint {
+  margin-top: 2.4em;
+  font-size: 1.25rem;
+  color: #3b4556;
+  font-family: 'Baloo 2', 'Comic Neue', 'Fredoka One', 'Comic Sans MS', cursive, Arial, sans-serif;
+  opacity: 0.88;
+  letter-spacing: 0.02em;
+  background: rgba(255,255,255,0.67);
+  padding: 0.6em 1.5em;
+  border-radius: 19px;
+  box-shadow: 0 0 14px #ffe08233;
+  transition: background 0.2s;
+  pointer-events: none;
+}
