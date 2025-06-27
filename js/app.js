@@ -57,7 +57,6 @@ function showWelcome(onFinish) {
     `Every tap brings you closer to today’s secret <span class="highlight-word">sticker</span>!`,
     "Let’s jump right in!"
   ];
-  const welcomeArea = document.getElementById('welcomeArea');
   welcomeArea.innerHTML = "";
 
   // Container für animierte Zeilen
