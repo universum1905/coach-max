@@ -187,9 +187,6 @@ body {
   opacity: 0;
   transform: translateY(-36px);
   text-shadow: 0 4px 32px #fff6d6, 0 0 18px #fff59d;
-  background: rgba(255,255,255,0.74);
-  border-radius: 28px;
-  padding: 0.7em 1em;
   letter-spacing: 0.04em;
   animation: welcomeFadeIn 0.9s forwards;
 }
