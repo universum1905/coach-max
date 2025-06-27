@@ -105,6 +105,7 @@ function clearTimeouts() {
 // Sessionanzeige inkl. Video, Play-Overlay, Frosch, Textanimation etc.
 function renderSession(idx) {
   clearTimeouts();
+  renderFrogProgress(idx);
 
   // Entferne ggf. alte Video/Frosch-Container
   document.querySelectorAll(".floating-video, .floating-frog").forEach(el => el.remove());
@@ -223,4 +224,34 @@ function finishDay() {
   document.querySelectorAll(".floating-video, .floating-frog").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML =
     `<div class="animated-text" style="font-size:1.8rem;">Congratulations! You finished today’s adventure! 🥳</div>`;
+}
+function renderFrogProgress(sessionIdx) {
+  const total = sessions.length;
+  const containerId = "progressFrogBar";
+  let bar = document.getElementById(containerId);
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.id = containerId;
+    document.body.appendChild(bar);
+  }
+  bar.innerHTML = ""; // leeren
+
+  // Fortschritts-Leiste bauen
+  const barTrack = document.createElement("div");
+  barTrack.className = "frog-bar-track";
+
+  for (let i = 0; i < total; i++) {
+    const spot = document.createElement("div");
+    spot.className = "frog-bar-spot" + (i === sessionIdx ? " frog-bar-active" : "") + (i < sessionIdx ? " frog-bar-done" : "");
+    // Auf aktuellem Feld: Frosch-Icon
+    if (i === sessionIdx) {
+      const frog = document.createElement("img");
+      frog.src = "images/frog.png";
+      frog.alt = "Frog";
+      frog.className = "frog-icon-progress";
+      spot.appendChild(frog);
+    }
+    barTrack.appendChild(spot);
+  }
+  bar.appendChild(barTrack);
 }

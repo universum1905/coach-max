@@ -247,3 +247,48 @@ body {
     margin-bottom: 8px;
   }
 }
+#progressFrogBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 100px; /* über dem Video */
+  display: flex;
+  justify-content: center;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.frog-bar-track {
+  display: flex;
+  gap: 22px;
+}
+
+.frog-bar-spot {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e0f7fa;
+  border: 2.5px solid #90caf9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background 0.2s, border 0.2s;
+}
+
+.frog-bar-active {
+  background: #ffe082;
+  border: 3.2px solid #ffd54f;
+  box-shadow: 0 0 18px #ffd54f;
+}
+.frog-bar-done {
+  background: #b2dfdb;
+  border: 2.5px solid #388e3c;
+}
+
+.frog-icon-progress {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px #80cbc4);
+}
