@@ -2,15 +2,45 @@
   "day": 1,
   "sessions": [
     {
-      "type": "intro",
-      "video": "day1-intro.mp4",
-      "text": [
-        "Hi! I’m Luna, your Coach Max guide.",
-        "Are you ready for a fun learning adventure?",
-        "Let’s get started! Tap play to begin."
-      ],
-      "timings": [0, 3, 6]
+  "id": 1,
+  "type": "intro",
+  "avatar": "luna",
+  "title": "Welcome to Day 1!",
+  "text": [
+    {
+      "line": "Hi there, I’m Luna! Welcome to Day 1 of our learning adventure.",
+      "duration": 5
     },
+    {
+      "line": "I’m so glad you’re here!",
+      "duration": 3
+    },
+    {
+      "line": "Today we’ll count together, rhyme, and meet some friendly animals.",
+      "duration": 5
+    },
+    {
+      "line": "Don’t worry, I’ll guide you every step of the way.",
+      "duration": 4
+    },
+    {
+      "line": "Just relax, take a deep breath, and get ready for some fun!",
+      "duration": 5
+    },
+    {
+      "line": "When you’re ready, tap Next to begin.",
+      "duration": 4
+    },
+    {
+      "line": "Let’s make today awesome—you’re a superstar!",
+      "duration": 4
+    }
+  ],
+  "video": "day1-intro.mp4",
+  "duration": 30,
+  "animation": "welcome_rainbow"
+}
+,
     {
       "type": "breathing",
       "video": "day1-breath.mp4",
