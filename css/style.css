@@ -4,7 +4,7 @@ body {
   min-height: 100vh;
   box-sizing: border-box;
   background: linear-gradient(135deg, #fffbe6 0%, #e6f9ff 80%);
-  font-family: 'Fredoka One', 'Baloo 2', Arial, sans-serif;
+  font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', 'Fredoka One', Arial, sans-serif;
 }
 
 #mainContent {
@@ -33,7 +33,7 @@ body {
 
 /* Animierte Textzeile */
 .animated-text {
-  font-family: 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
+  font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
   font-size: 1.5rem;
   margin: 18px 0;
   padding: 0.7rem 1.2rem;
@@ -164,7 +164,7 @@ body {
 }
 
 .welcome-anim-line {
-  font-family: 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
+  font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
   font-size: 3rem;
   color: #383838;
   margin: 0.7em 0;
@@ -338,7 +338,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
+  font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
   font-size: 2.3rem;
   color: #ffb300;
   background: #fffbe6;
