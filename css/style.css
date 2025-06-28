@@ -19,29 +19,32 @@ body {
 .session-text-area {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;     /* Links ausrichten */
-  justify-content: flex-start; /* Oben ausrichten */
+  align-items: flex-start;    /* Links ausrichten */
+  justify-content: flex-start;
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-  padding-top: 40px;
-  padding-bottom: 90px;
-  text-align: center;
-   max-height: 50vh;
-  overflow-y: auto;
+  padding: 0;                /* Kein Padding */
+  text-align: left;
+  max-height: none;
+  overflow-y: visible;
+  background: none;
+  box-shadow: none;
 }
+
 
 /* Animierte Textzeile */
 .animated-text {
   font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
   font-size: 1.5rem;
-  margin: 18px 0;
-  padding: 0.7rem 1.2rem;
-  border-radius: 18px;
-  background: rgba(255,255,255,0.92);
-  display: inline-block;
-  box-shadow: 0 0 12px #ffe082, 0 2px 18px #b3e5fc;
+  margin: 14px 0 0 0;
+  padding: 0;                 /* Kein Padding mehr */
+  border-radius: 0;           /* Keine runden Ecken */
+  background: none;           /* Kein Hintergrund */
+  box-shadow: none;           /* Kein Schatten */
+  display: block;
   animation: fadeInText 1.1s;
+  text-align: left;
 }
 @keyframes fadeInText {
   from { opacity: 0; transform: translateY(30px);}
@@ -377,5 +380,32 @@ body {
     font-size: 1.38rem;
     padding: 0.8em 1.2em;
   }
+}
+.animated-text.glitter {
+  position: relative;
+  overflow: visible;
+}
+
+.animated-text.glitter::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.7),
+    #ffe082bb 65%,
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: glitterShine 2.5s linear infinite;
+  z-index: 2;
+  border-radius: 12px;
+}
+
+@keyframes glitterShine {
+  from { background-position: -180% 0; }
+  to   { background-position: 180% 0; }
 }
 

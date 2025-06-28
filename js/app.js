@@ -13,22 +13,26 @@ function showAnimatedTexts(session, textArea, btn) {
   let totalDelay = 0;
 
   if (isObjMode) {
-    // Intro-Session mit [{line, duration}, ...]
-    session.text.forEach((t, i) => {
-      let delay = totalDelay * 1000;
-      textTimeouts.push(setTimeout(() => {
-        const p = document.createElement('div');
-        p.className = "animated-text";
-        p.innerText = t.line;
-        textArea.appendChild(p);
-        p.scrollIntoView({behavior: "smooth", block: "end"});
-        if (i === session.text.length - 1) {
-          textArea.appendChild(btn);
-        }
-      }, delay));
-      totalDelay += t.duration;
-    });
-  } else {
+  session.text.forEach((t, i) => {
+    let delay = totalDelay * 1000;
+    textTimeouts.push(setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = "animated-text";
+      p.innerText = t.line;
+      if (i === session.text.length - 1) {
+        p.classList.add('glitter'); // Glitzereffekt für die letzte Zeile!
+      }
+      textArea.appendChild(p);
+      p.scrollIntoView({behavior: "smooth", block: "end"});
+      if (i === session.text.length - 1) {
+        // Next-Button-Anzeige bleibt wie gehabt
+      }
+    }, delay));
+    totalDelay += t.duration;
+  });
+}
+ 
+  else {
     // Andere Sessions: ["...", "..."], timings: [0, ...]
     const timings = session.timings || [];
     session.text.forEach((line, i) => {
