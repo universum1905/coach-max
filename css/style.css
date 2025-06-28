@@ -1,25 +1,21 @@
 body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  box-sizing: border-box;
+  margin: 0; padding: 0; min-height: 100vh;
   background: linear-gradient(135deg, #fffbe6 0%, #e6f9ff 80%);
-  font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', 'Fredoka One', Arial, sans-serif;
+  font-family: 'Comic Neue', 'Baloo 2', Arial, sans-serif;
 }
 
 #mainContent {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: stretch;
-  padding-bottom: 180px; /* Platz für Video und Frosch */
 }
 
 .session-text-area {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;    /* GANZ OBEN beginnen! */
+  align-items: flex-start;
   justify-content: flex-start;
   width: 100%;
   max-width: 500px;
@@ -27,370 +23,29 @@ body {
   padding: 0;
   background: none;
   box-shadow: none;
-  min-height: 0;    /* Kein Mindestabstand */
 }
 
-
-
-
-/* Animierte Textzeile */
 .animated-text {
-  font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
-  font-size: 1.5rem;
-  margin: 14px 0 0 0;
-  padding: 0;                 /* Kein Padding mehr */
-  border-radius: 0;           /* Keine runden Ecken */
-  background: none;           /* Kein Hintergrund */
-  box-shadow: none;           /* Kein Schatten */
-  display: block;
-  animation: fadeInText 1.1s;
+  font-size: 1.3rem;
+  margin: 12px 0 0 0;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  animation: fadeInText 1s;
   text-align: left;
+  color: #383838;
+  font-weight: 500;
 }
 @keyframes fadeInText {
-  from { opacity: 0; transform: translateY(30px);}
-  to { opacity: 1; transform: translateY(0);}
-}
-
-/* Video fixiert, groß */
-.floating-video {
-  position: fixed;
-  right: 14px;
-  bottom: 90px;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  overflow: hidden;
-  z-index: 40;
-  box-shadow: 0 6px 32px #b2ebf2, 0 2px 24px #fbc02d;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.floating-video video,
-.floating-video .custom-play-btn {
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-.floating-video video {
-  background: #eee;
-  pointer-events: none;
-}
-
-/* Play-Button als Overlay */
-.custom-play-btn {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 54px;
-  height: 54px;
-  border-radius: 60%;
-  background: linear-gradient(135deg, #ffd54f 60%, #81d4fa 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  box-shadow: 0 2px 8px #b3e5fc;
-  z-index: 45;
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-.custom-play-btn:active {
-  transform: translate(-50%, -50%) scale(0.97);
-}
-.custom-play-btn svg {
-  width: 32px;
-  height: 32px;
-  fill: #383838;
-}
-.custom-play-btn .play-tap-hint {
-  font-family: 'Comic Neue', 'Baloo 2', 'Fredoka One', 'Comic Sans MS', cursive, Arial, sans-serif;
-  font-size: 1.1rem;
-  color: #ffb300;
-  background: #fffbe6;
-  border-radius: 15px;
-  box-shadow: 0 2px 14px #ffe082bb;
-  padding: 0.36em 1.2em;
-  margin-top: 6px;
-  text-align: center;
-  line-height: 1.1;
-  animation: popIn 0.65s;
-  user-select: none;
-  pointer-events: none; /* damit immer nur der Button klickbar bleibt */
-}
-@keyframes popIn {
-  0% { opacity: 0; transform: scale(0.7);}
-  70% { opacity: 1; transform: scale(1.13);}
-  100% { opacity: 1; transform: scale(1);}
-}
-
-
-
-/* Mobil kleiner! */
-@media (max-width: 600px) {
-  .session-text-area {
-    font-size: 1.1rem;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    min-height: 0;
-  }
-}
-  .floating-video {
-    width: 130px;
-    height: 130px;
-    right: 8px;
-    bottom: 68px;
-  }
-  .floating-video video,
-  .floating-video .custom-play-btn {
-    width: 130px;
-    height: 130px;
-  }
-  .floating-frog {
-    width: 54px;
-    height: 54px;
-    left: 6px;
-    bottom: 13px;
-  }
-  .floating-frog img {
-    width: 44px;
-    height: 44px;
-  }
-}
-
-/* WelcomeArea mittig, freundlich */
-#welcomeArea {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  width: 100vw; height: 100vh;
-  z-index: 9999;
-  background: linear-gradient(135deg, #fffbe6 0%, #e6f9ff 80%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;   /* <- WICHTIG: Zentriert vertikal! */
-  transition: opacity 0.8s;
-  pointer-events: auto;
-}
-
-
-.welcome-lines {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  max-width: 700px;
-  min-width: 220px;
-  width: 90vw;
-  margin: 0 auto;
-  text-align: center;
-  padding-left: 24px;
-  padding-right: 24px;
-}
-
-.welcome-anim-line {
-  font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
-  font-size: 3rem;
-  color: #383838;
-  margin: 0.7em 0;
-  opacity: 0;
-  transform: translateY(-36px);
-  text-shadow: 0 4px 32px #fff6d6, 0 0 18px #fff59d;
-  letter-spacing: 0.04em;
-  animation: welcomeFadeIn 0.9s forwards;
-}
-.welcome-anim-line.animated {
-  opacity: 1;
-  transform: translateY(0);
-}
-@keyframes welcomeFadeIn {
-  from { opacity: 0; transform: translateY(-36px);}
+  from { opacity: 0; transform: translateY(20px);}
   to   { opacity: 1; transform: translateY(0);}
 }
 
-/* Highlight für Wort "sticker" */
-.highlight-word {
-  color: #ffb300;
-  background: #fffde7;
-  padding: 0 6px;
-  border-radius: 7px;
-  box-shadow: 0 0 12px #ffe082;
-}
-
-/* Mobil kleiner, trotzdem groß */
-@media (max-width: 600px) {
-  .welcome-anim-line {
-    font-size: 1.35rem;
-    margin: 0.36em 0;
-    padding: 0.55em 0.2em;
-  }
-  .welcome-lines {
-    padding-left: 6px;
-    padding-right: 6px;
-    max-width: 97vw;
-  }
-}
-
-/* Rotation-Hinweis */
-.rotation-notice {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  inset: 0;
-  z-index: 10001;
-  background: rgba(230,249,255, 0.93);
-  text-align: center;
-  pointer-events: auto;
-}
-.rotate-icon {
-  width: 70px;
-  height: 70px;
-  margin-bottom: 18px;
-}
-@media (max-width: 600px) {
-  .rotate-icon {
-    width: 45px;
-    height: 45px;
-    margin-bottom: 8px;
-  }
-}
-#progressFrogBar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 60;
-  pointer-events: none;
-  height: 60px;
-}
-
-.frog-bar-track {
-  display: flex;
-  gap: 30px;
-  position: relative;
-  min-width: 240px;
-  max-width: 340px;
-  margin: 0 auto;
-  justify-content: center;
-}
-
-.frog-bar-spot {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: #e0f7fa;
-  border: 2.5px solid #90caf9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
-}
-
-.frog-bar-done {
-  background: #b2dfdb;
-  border: 2.5px solid #388e3c;
-}
-
-.frog-bar-spot.active {
-  box-shadow: 0 0 18px #ffd54f;
-  border: 3.2px solid #ffd54f;
-}
-
-/* Springender Frosch absolut positioniert über Spots */
-#jumpingFrog {
-  position: absolute;
-  bottom: 22px;
-  left: 0;
-  width: 44px;
-  height: 44px;
-  object-fit: contain;
-  z-index: 2;
-  transition: left 0.5s cubic-bezier(.39,1.35,.51,1.01);
-  animation: frogHop 0.45s;
-}
-
-@keyframes frogHop {
-  0% { transform: translateY(0);}
-  30% { transform: translateY(-22px);}
-  60% { transform: translateY(-5px);}
-  100% { transform: translateY(0);}
-}
-
-.next-btn {
-  display: block;
-  margin: 32px auto 0 auto;
-  background: linear-gradient(90deg, #ffe082 40%, #81d4fa 100%);
-  border: none;
-  color: #333;
-  font-size: 1.4rem;
-  border-radius: 36px;
-  padding: 1rem 3.4rem;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 4px 22px #b3e5fc88, 0 0 6px #ffd54f66;
-  letter-spacing: 0.02em;
-  transition: background 0.22s, transform 0.12s;
-  outline: none;
-  z-index: 100;
-}
-.next-btn:hover, .next-btn:focus {
-  background: linear-gradient(90deg, #ffb300 40%, #039be5 100%);
-  transform: scale(1.06);
-  color: #181818;
-}
-
-
-
-@media (max-width: 600px) {
-  .next-btn {
-    font-size: 1.08rem;
-    padding: 0.8rem 1.8rem;
-    border-radius: 26px;
-  }
-  .frog-bar-track {
-    gap: 16px;
-    min-width: 120px;
-    max-width: 200px;
-  }
-}
-.welcome-tap-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', 'Fredoka One', cursive, Arial, sans-serif;
-  font-size: 2.3rem;
-  color: #ffb300;
-  background: #fffbe6;
-  border-radius: 26px;
-  box-shadow: 0 4px 38px #ffe082bb, 0 2px 18px #b3e5fc;
-  padding: 1.1em 2.8em;
-  margin: 0 auto;
-  text-align: center;
-  opacity: 1;
-  transition: opacity 0.36s;
-}
-@media (max-width: 600px) {
-  .welcome-tap-hint {
-    font-size: 1.38rem;
-    padding: 0.8em 1.2em;
-  }
-}
 .animated-text.glitter {
   position: relative;
   overflow: visible;
 }
-
 .animated-text.glitter::after {
   content: '';
   position: absolute;
@@ -408,9 +63,65 @@ body {
   z-index: 2;
   border-radius: 12px;
 }
-
 @keyframes glitterShine {
   from { background-position: -180% 0; }
   to   { background-position: 180% 0; }
 }
 
+.floating-video {
+  position: fixed;
+  right: 18px;
+  bottom: 90px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  overflow: hidden;
+  z-index: 40;
+  box-shadow: 0 6px 32px #b2ebf2, 0 2px 24px #fbc02d;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.floating-video video {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #eee;
+  pointer-events: auto;
+}
+.fixed-next-btn {
+  position: fixed;
+  left: 18px;
+  bottom: 110px;
+  z-index: 50;
+  background: linear-gradient(90deg, #ffe082 40%, #81d4fa 100%);
+  color: #333;
+  font-size: 1.2rem;
+  border-radius: 36px;
+  padding: 0.8rem 2.4rem;
+  border: none;
+  font-weight: bold;
+  box-shadow: 0 4px 22px #b3e5fc88, 0 0 6px #ffd54f66;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.22s, transform 0.12s;
+}
+@media (max-width: 600px) {
+  .session-text-area {
+    font-size: 1rem;
+  }
+  .floating-video {
+    width: 110px; height: 110px; right: 6px; bottom: 68px;
+  }
+  .floating-video video {
+    width: 90px; height: 90px;
+  }
+  .fixed-next-btn {
+    left: 6px;
+    bottom: 72px;
+    font-size: 1.08rem;
+    padding: 0.6rem 1.3rem;
+  }
+}
