@@ -19,18 +19,18 @@ body {
 .session-text-area {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;    /* Links ausrichten */
+  align-items: flex-start;
   justify-content: flex-start;
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-  padding: 0;                /* Kein Padding */
+  padding: 0;              /* KEIN padding-top! */
   text-align: left;
-  max-height: none;
-  overflow-y: visible;
   background: none;
   box-shadow: none;
+  min-height: 30vh;        /* Optional: damit bei wenig Text nicht alles "zusammenfällt" */
 }
+
 
 
 /* Animierte Textzeile */
