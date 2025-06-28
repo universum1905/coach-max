@@ -4,6 +4,36 @@ let currentSession = 0;
 let textTimeouts = [];
 let videoElement = null;
 
+function showAnimatedTexts(session, textArea, btn) {
+  textArea.innerHTML = "";
+
+  let totalDelay = 0;
+
+  session.text.forEach((t, i) => {
+    // t ist jetzt ein Objekt: { line: "...", duration: ... }
+    let delay = totalDelay * 1000;
+
+    textTimeouts.push(setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = "animated-text";
+      p.innerText = t.line;
+      textArea.appendChild(p);
+      // Automatisch nach unten scrollen wenn nötig
+      p.scrollIntoView({behavior: "smooth", block: "end"});
+      // Button nach dem letzten Text einblenden
+      if (i === session.text.length - 1) {
+        textArea.appendChild(btn);
+      }
+    }, delay));
+
+    // Nächste Zeile kommt nach der angegebenen duration!
+    totalDelay += t.duration;
+  });
+}
+
+
+
+
 const welcomeMusic = new Audio("audio/welcome-music.mp3");
 welcomeMusic.loop = true;
 welcomeMusic.volume = 0.23; // Leise, aber spürbar
@@ -44,6 +74,8 @@ function handleOrientation() {
 }
 window.addEventListener("orientationchange", handleOrientation);
 window.addEventListener("resize", handleOrientation);
+
+
 
 // Welcome-Bereich animiert, zentral, groß, 6,5s sichtbar
 function showWelcome(onFinish) {
