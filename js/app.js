@@ -168,12 +168,13 @@ function renderSession(idx) {
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
   playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-    <span style="display:block;font-size:1rem;color:#222;margin-top:2px;">Tap to play</span>
-  `;
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="28" fill="none"/>
+    <polygon points="22,16 46,30 22,44" fill="#383838"/>
+  </svg>
+  <div class="play-tap-hint">Tap to play!</div>
+`;
+
   playBtn.onclick = function() {
     videoElement.play();
     playBtn.style.display = "none";
