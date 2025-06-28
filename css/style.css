@@ -44,7 +44,57 @@ body {
     padding: 0.7em 1em;
   }
 }
-
+.welcome-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 700px;
+  min-width: 220px;
+  width: 90vw;
+  margin: 0 auto;
+  text-align: center;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+.welcome-anim-line {
+  font-family: 'Comic Neue', 'Baloo 2', cursive, Arial, sans-serif;
+  font-size: 2.3rem;
+  color: #383838;
+  margin: 0.7em 0;
+  opacity: 0;
+  transform: translateY(-36px);
+  text-shadow: 0 4px 32px #fff6d6, 0 0 18px #fff59d;
+  letter-spacing: 0.04em;
+  animation: welcomeFadeIn 0.9s forwards;
+}
+.welcome-anim-line.animated {
+  opacity: 1;
+  transform: translateY(0);
+}
+@keyframes welcomeFadeIn {
+  from { opacity: 0; transform: translateY(-36px);}
+  to   { opacity: 1; transform: translateY(0);}
+}
+.highlight-word {
+  color: #ffb300;
+  background: #fffde7;
+  padding: 0 6px;
+  border-radius: 7px;
+  box-shadow: 0 0 12px #ffe082;
+}
+@media (max-width: 600px) {
+  .welcome-anim-line {
+    font-size: 1.35rem;
+    margin: 0.36em 0;
+    padding: 0.55em 0.2em;
+  }
+  .welcome-lines {
+    padding-left: 6px;
+    padding-right: 6px;
+    max-width: 97vw;
+  }
+}
 #mainContent {
   min-height: 100vh;
   display: flex;
@@ -52,7 +102,6 @@ body {
   justify-content: flex-start;
   align-items: stretch;
 }
-
 .session-text-area {
   display: flex;
   flex-direction: column;
@@ -65,7 +114,6 @@ body {
   background: none;
   box-shadow: none;
 }
-
 .animated-text {
   font-size: 1.3rem;
   margin: 12px 0 0 0;
@@ -82,7 +130,6 @@ body {
   from { opacity: 0; transform: translateY(20px);}
   to   { opacity: 1; transform: translateY(0);}
 }
-
 .animated-text.glitter {
   position: relative;
   overflow: visible;
@@ -107,64 +154,6 @@ body {
 @keyframes glitterShine {
   from { background-position: -180% 0; }
   to   { background-position: 180% 0; }
-}
-
-.floating-video {
-  position: fixed;
-  right: 18px;
-  bottom: 90px;
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  overflow: hidden;
-  z-index: 40;
-  box-shadow: 0 6px 32px #b2ebf2, 0 2px 24px #fbc02d;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.floating-video video {
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: #eee;
-  pointer-events: auto;
-}
-.fixed-next-btn {
-  position: fixed;
-  left: 18px;
-  bottom: 110px;
-  z-index: 50;
-  background: linear-gradient(90deg, #ffe082 40%, #81d4fa 100%);
-  color: #333;
-  font-size: 1.2rem;
-  border-radius: 36px;
-  padding: 0.8rem 2.4rem;
-  border: none;
-  font-weight: bold;
-  box-shadow: 0 4px 22px #b3e5fc88, 0 0 6px #ffd54f66;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition: background 0.22s, transform 0.12s;
-}
-@media (max-width: 600px) {
-  .session-text-area {
-    font-size: 1rem;
-  }
-  .floating-video {
-    width: 110px; height: 110px; right: 6px; bottom: 68px;
-  }
-  .floating-video video {
-    width: 90px; height: 90px;
-  }
-  .fixed-next-btn {
-    left: 6px;
-    bottom: 72px;
-    font-size: 1.08rem;
-    padding: 0.6rem 1.3rem;
-  }
 }
 .floating-video {
   position: fixed;
@@ -284,4 +273,37 @@ body {
   60% { transform: translateY(-5px);}
   100% { transform: translateY(0);}
 }
-/* ... Rest von style.css bleibt wie gehabt! */
+.fixed-next-btn {
+  position: fixed;
+  left: 18px;
+  bottom: 110px;
+  z-index: 50;
+  background: linear-gradient(90deg, #ffe082 40%, #81d4fa 100%);
+  color: #333;
+  font-size: 1.2rem;
+  border-radius: 36px;
+  padding: 0.8rem 2.4rem;
+  border: none;
+  font-weight: bold;
+  box-shadow: 0 4px 22px #b3e5fc88, 0 0 6px #ffd54f66;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.22s, transform 0.12s;
+}
+@media (max-width: 600px) {
+  .session-text-area {
+    font-size: 1rem;
+  }
+  .floating-video {
+    width: 110px; height: 110px; right: 6px; bottom: 68px;
+  }
+  .floating-video video {
+    width: 90px; height: 90px;
+  }
+  .fixed-next-btn {
+    left: 6px;
+    bottom: 72px;
+    font-size: 1.08rem;
+    padding: 0.6rem 1.3rem;
+  }
+}

@@ -36,7 +36,7 @@ function renderFrogProgress(sessionIdx) {
   }, 30);
 }
 
-// ---- Welcome mit Zeilen-Animation ----
+// Welcome mit Zeilen-Animation
 function showWelcome(onFinish) {
   const welcomeArea = document.getElementById('welcomeArea');
   welcomeArea.innerHTML = '';
@@ -82,7 +82,7 @@ function showWelcome(onFinish) {
   };
 }
 
-// ---- Animierte Texte, Next erst am Schluss ----
+// Animierte Texte, Next erst am Schluss
 function showAnimatedTexts(session, textArea, onComplete) {
   textArea.innerHTML = "";
   let totalDelay = 0;
@@ -107,7 +107,7 @@ function clearTimeouts() {
   textTimeouts = [];
 }
 
-// ---- Rotation Hinweis ----
+// Rotation Hinweis
 function handleOrientation() {
   const notice = document.getElementById("rotationNotice");
   const mainContent = document.getElementById("mainContent");
@@ -131,7 +131,7 @@ function handleOrientation() {
 window.addEventListener("orientationchange", handleOrientation);
 window.addEventListener("resize", handleOrientation);
 
-// ---- Session, Video mit Play-Overlay, Next erst nach Text! ----
+// Session, Video mit Play-Overlay, Next erst nach Text!
 function renderSession(idx) {
   clearTimeouts();
   renderFrogProgress(idx);
@@ -192,7 +192,7 @@ function renderSession(idx) {
   });
   videoBox.appendChild(playBtn);
 
-  // --- Next-Button erst nach Textanimation sichtbar ---
+  // Next-Button erst nach Textanimation sichtbar
   function showNextBtn() {
     const btn = document.createElement('button');
     btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
