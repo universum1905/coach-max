@@ -166,3 +166,122 @@ body {
     padding: 0.6rem 1.3rem;
   }
 }
+.floating-video {
+  position: fixed;
+  right: 18px;
+  bottom: 90px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  overflow: hidden;
+  z-index: 40;
+  box-shadow: 0 6px 32px #b2ebf2, 0 2px 24px #fbc02d;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.floating-video video {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #eee;
+  pointer-events: none;
+}
+.custom-play-btn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px;
+  height: 54px;
+  border-radius: 60%;
+  background: linear-gradient(135deg, #ffd54f 60%, #81d4fa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 2px 8px #b3e5fc;
+  z-index: 45;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.custom-play-btn svg {
+  width: 32px;
+  height: 32px;
+  fill: #383838;
+}
+.custom-play-btn .play-tap-hint {
+  font-family: 'Comic Neue', 'Baloo 2', 'Fredoka One', 'Comic Sans MS', cursive, Arial, sans-serif;
+  font-size: 1.1rem;
+  color: #ffb300;
+  background: #fffbe6;
+  border-radius: 15px;
+  box-shadow: 0 2px 14px #ffe082bb;
+  padding: 0.36em 1.2em;
+  margin-top: 6px;
+  text-align: center;
+  line-height: 1.1;
+  user-select: none;
+  pointer-events: none;
+}
+.frog-bar-track {
+  display: flex;
+  gap: 30px;
+  position: relative;
+  min-width: 240px;
+  max-width: 340px;
+  margin: 0 auto;
+  justify-content: center;
+}
+#progressFrogBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 60;
+  pointer-events: none;
+  height: 60px;
+}
+.frog-bar-spot {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e0f7fa;
+  border: 2.5px solid #90caf9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+.frog-bar-done {
+  background: #b2dfdb;
+  border: 2.5px solid #388e3c;
+}
+.frog-bar-spot.active {
+  box-shadow: 0 0 18px #ffd54f;
+  border: 3.2px solid #ffd54f;
+}
+#jumpingFrog {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  z-index: 2;
+  transition: left 0.5s cubic-bezier(.39,1.35,.51,1.01);
+  animation: frogHop 0.45s;
+}
+@keyframes frogHop {
+  0% { transform: translateY(0);}
+  30% { transform: translateY(-22px);}
+  60% { transform: translateY(-5px);}
+  100% { transform: translateY(0);}
+}
+/* ... Rest von style.css bleibt wie gehabt! */
