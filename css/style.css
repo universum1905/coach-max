@@ -84,7 +84,7 @@ body {
   transform: translate(-50%, -50%);
   width: 54px;
   height: 54px;
-  border-radius: 50%;
+  border-radius: 60%;
   background: linear-gradient(135deg, #ffd54f 60%, #81d4fa 100%);
   display: flex;
   align-items: center;
