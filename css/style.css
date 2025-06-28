@@ -1,15 +1,10 @@
 body {
-  margin: 0; padding: 0; min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  box-sizing: border-box;
   background: linear-gradient(135deg, #fffbe6 0%, #e6f9ff 80%);
   font-family: 'Comic Neue', 'Baloo 2', Arial, sans-serif;
-}
-
-#mainContent {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
 }
 
 #welcomeArea {
@@ -29,7 +24,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Comic Sans MS', 'Comic Neue', 'Baloo 2', 'Fredoka One', Arial, sans-serif;
+  font-family: 'Comic Neue', 'Baloo 2', Arial, sans-serif;
   font-size: 2.1rem;
   color: #ffb300;
   background: #fffbe6;
@@ -50,6 +45,13 @@ body {
   }
 }
 
+#mainContent {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+}
 
 .session-text-area {
   display: flex;

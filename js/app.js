@@ -4,7 +4,7 @@ let currentSession = 0;
 let textTimeouts = [];
 let videoElement = null;
 
-// -------------------- ANIMIERTE TEXTE --------------------
+// ---- Animierte Texte ----
 function showAnimatedTexts(session, textArea) {
   textArea.innerHTML = "";
   let totalDelay = 0;
@@ -14,7 +14,6 @@ function showAnimatedTexts(session, textArea) {
       const p = document.createElement('div');
       p.className = "animated-text";
       p.innerText = t.line;
-      // Letzte Zeile bekommt Glitzereffekt:
       if (i === session.text.length - 1) p.classList.add('glitter');
       textArea.appendChild(p);
       p.scrollIntoView({behavior: "smooth", block: "end"});
@@ -23,7 +22,7 @@ function showAnimatedTexts(session, textArea) {
   });
 }
 
-// -------------------- WELCOME-BEREICH --------------------
+// ---- Welcome-Overlay ----
 function showWelcome(onFinish) {
   const welcomeArea = document.getElementById('welcomeArea');
   welcomeArea.innerHTML = '';
@@ -44,7 +43,7 @@ function showWelcome(onFinish) {
   };
 }
 
-// -------------------- SESSION WECHSEL --------------------
+// ---- Sessionwechsel ----
 function renderSession(idx) {
   clearTimeouts();
   document.querySelectorAll(".floating-video, .fixed-next-btn").forEach(el => el.remove());
@@ -54,7 +53,7 @@ function renderSession(idx) {
   const textArea = document.getElementById('sessionTextArea');
   showAnimatedTexts(s, textArea);
 
-  // --- Video, fixiert unten rechts ---
+  // --- Video, fixiert ---
   videoElement = document.createElement('video');
   videoElement.src = `videos/${s.video}`;
   videoElement.setAttribute("controls", "true");
@@ -65,7 +64,7 @@ function renderSession(idx) {
   videoElement.poster = "images/video-placeholder.png";
   videoElement.style.display = "block";
   videoElement.className = "session-video";
-  // Container für Video, fixiert
+  // Container für Video
   const videoBox = document.createElement('div');
   videoBox.className = "floating-video";
   videoBox.appendChild(videoElement);
