@@ -4,7 +4,15 @@ let currentSession = 0;
 let textTimeouts = [];
 let videoElement = null;
 
-// Fortschritt Frosch
+// MUSIK
+const welcomeMusic = document.getElementById("welcomeMusic");
+welcomeMusic.volume = 0.3;
+
+// Frosch Sound
+const frogSound = document.getElementById("frogSound");
+frogSound.volume = 0.42;
+
+// ---- Fortschritts-Froschbalken ----
 function renderFrogProgress(sessionIdx) {
   const total = sessions.length;
   const bar = document.getElementById("progressFrogBar");
@@ -19,7 +27,7 @@ function renderFrogProgress(sessionIdx) {
     barTrack.appendChild(spot);
     spots.push(spot);
   }
-  // Frosch
+  // Frosch-Bild
   const frog = document.createElement("img");
   frog.src = "images/frog.png";
   frog.alt = "Frog";
@@ -32,59 +40,89 @@ function renderFrogProgress(sessionIdx) {
       frog.style.left = left + "px";
       frog.style.animation = "frogHop 0.45s";
       frog.addEventListener("animationend", () => { frog.style.animation = ""; }, { once: true });
+      frogSound.currentTime = 0;
+      frogSound.play();
     }
   }, 30);
 }
 
-// Welcome mit Zeilen-Animation
+// ---- Welcome mit Tap, Bild & animierte Zeilen ----
 function showWelcome(onFinish) {
   const welcomeArea = document.getElementById('welcomeArea');
   welcomeArea.innerHTML = '';
 
-  const lines = [
-    "🎉 Welcome to Coach Max!",
-    "Ready for a day full of fun and learning?",
-    "Every tap brings you closer to today’s secret <span class='highlight-word'>sticker</span>!",
-    "Let’s jump right in!"
-  ];
-  const linesDiv = document.createElement('div');
-  linesDiv.className = "welcome-lines";
-  welcomeArea.appendChild(linesDiv);
-
-  let idx = 0;
-  function showNextLine() {
-    if (idx < lines.length) {
-      const line = document.createElement('div');
-      line.className = "welcome-anim-line";
-      line.innerHTML = lines[idx];
-      linesDiv.appendChild(line);
-      setTimeout(() => line.classList.add("animated"), 80);
-      idx++;
-      setTimeout(showNextLine, 950);
-    }
-  }
-  showNextLine();
-
-  // Tap anywhere Hinweis
+  // 1. Tap Hinweis
   const tapHint = document.createElement('div');
   tapHint.className = "welcome-tap-hint";
   tapHint.innerText = "Tap anywhere to start!";
   welcomeArea.appendChild(tapHint);
 
+  // 2. Tap Handler für Musik und Welcome-Animation
   welcomeArea.onclick = function() {
+    try { welcomeMusic.currentTime = 0; welcomeMusic.play(); } catch(e) {}
     tapHint.style.opacity = 0;
     setTimeout(() => {
-      welcomeArea.style.display = "none";
-      document.getElementById("mainContent").style.display = "";
-      if (typeof onFinish === "function") onFinish();
-    }, 400);
+      welcomeArea.removeChild(tapHint);
+      startWelcomeAnimation();
+    }, 350);
     welcomeArea.onclick = null;
   };
+
+  // 3. Welcome Animation mit Bild und Text
+  function startWelcomeAnimation() {
+    const welcomeContent = document.createElement("div");
+    welcomeContent.className = "welcome-content";
+    welcomeArea.appendChild(welcomeContent);
+
+    // Avatarbild (z.B. Luna)
+    const img = document.createElement("img");
+    img.src = "images/luna-avatar.png";
+    img.alt = "Luna";
+    img.className = "welcome-avatar-img";
+    welcomeContent.appendChild(img);
+
+    const lines = [
+      "🎉 Welcome to Coach Max!",
+      "Ready for a day full of fun and learning?",
+      "Every tap brings you closer to today’s secret <span class='highlight-word'>sticker</span>!",
+      "Let’s jump right in!"
+    ];
+    const linesDiv = document.createElement('div');
+    linesDiv.className = "welcome-lines";
+    welcomeContent.appendChild(linesDiv);
+
+    let idx = 0;
+    function showNextLine() {
+      if (idx < lines.length) {
+        const line = document.createElement('div');
+        line.className = "welcome-anim-line";
+        line.innerHTML = lines[idx];
+        linesDiv.appendChild(line);
+        setTimeout(() => line.classList.add("animated"), 80);
+        idx++;
+        setTimeout(showNextLine, 950);
+      }
+    }
+    showNextLine();
+
+    setTimeout(() => {
+      // Fade out Musik, Welcome ausblenden, dann Intro
+      welcomeMusic.pause();
+      welcomeMusic.currentTime = 0;
+      welcomeArea.style.opacity = 0;
+      setTimeout(() => {
+        welcomeArea.style.display = "none";
+        document.getElementById("mainContent").style.display = "";
+        onFinish();
+      }, 900);
+    }, 5200);
+  }
 }
 
-// Animierte Texte, Next erst am Schluss
-function showAnimatedTexts(session, textArea, onComplete) {
+// ---- Animierter Text (Intro), Next erst am Schluss ----
+function showAnimatedTexts(session, textArea, onComplete, isCentered=false) {
   textArea.innerHTML = "";
+  textArea.style.textAlign = isCentered ? "center" : "left";
   let totalDelay = 0;
   session.text.forEach((t, i) => {
     let delay = totalDelay * 1000;
@@ -107,7 +145,7 @@ function clearTimeouts() {
   textTimeouts = [];
 }
 
-// Rotation Hinweis
+// ---- Rotation Hinweis ----
 function handleOrientation() {
   const notice = document.getElementById("rotationNotice");
   const mainContent = document.getElementById("mainContent");
@@ -131,68 +169,93 @@ function handleOrientation() {
 window.addEventListener("orientationchange", handleOrientation);
 window.addEventListener("resize", handleOrientation);
 
-// Session, Video mit Play-Overlay, Next erst nach Text!
+// ---- Session: Intro mit Avatar, andere mit Video und Play-Overlay ----
 function renderSession(idx) {
   clearTimeouts();
   renderFrogProgress(idx);
   document.querySelectorAll(".floating-video, .fixed-next-btn").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML = "";
+  document.getElementById('sessionAvatar').innerHTML = "";
 
   const s = sessions[idx];
   const textArea = document.getElementById('sessionTextArea');
+  const avatarDiv = document.getElementById('sessionAvatar');
 
-  // --- Video + Play-Overlay ---
-  videoElement = document.createElement('video');
-  videoElement.src = `videos/${s.video}`;
-  videoElement.setAttribute("controls", "true");
-  videoElement.setAttribute("controlsList", "nodownload");
-  videoElement.autoplay = false;
-  videoElement.muted = false;
-  videoElement.playsInline = true;
-  videoElement.poster = "images/video-placeholder.png";
-  videoElement.style.display = "block";
-  videoElement.className = "session-video";
-  // Video fixiert
-  const videoBox = document.createElement('div');
-  videoBox.className = "floating-video";
-  videoBox.appendChild(videoElement);
-  document.body.appendChild(videoBox);
+  // Intro: Avatar oben, zentrierter Text, kein Video!
+  if (s.type === "intro") {
+    // Avatarbild
+    const img = document.createElement("img");
+    img.src = "images/luna-avatar.png";
+    img.alt = "Luna";
+    img.className = "session-avatar-img";
+    avatarDiv.appendChild(img);
 
-  // Play-Overlay auf Video
-  const playBtn = document.createElement('button');
-  playBtn.className = "custom-play-btn";
-  playBtn.title = "Play";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-    <div class="play-tap-hint">Tap here to play!</div>
-  `;
-  playBtn.onclick = function() {
-    videoElement.play();
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  };
-  videoElement.addEventListener('play', () => {
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-    if (!textArea.hasAnimated) {
-      showAnimatedTexts(s, textArea, showNextBtn);
-      textArea.hasAnimated = true;
-    }
-  });
-  videoElement.addEventListener('pause', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
-  videoElement.addEventListener('ended', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
-  videoBox.appendChild(playBtn);
+    // Introtext, zentriert
+    showAnimatedTexts(s, textArea, showNextBtn, true);
 
-  // Next-Button erst nach Textanimation sichtbar
+  } else {
+    // Session mit Video + Play-Overlay
+    videoElement = document.createElement('video');
+    videoElement.src = `videos/${s.video}`;
+    videoElement.setAttribute("controls", "true");
+    videoElement.setAttribute("controlsList", "nodownload");
+    videoElement.autoplay = false;
+    videoElement.muted = false;
+    videoElement.playsInline = true;
+    videoElement.poster = "images/video-placeholder.png";
+    videoElement.style.display = "block";
+    videoElement.className = "session-video";
+    // Video fixiert
+    const videoBox = document.createElement('div');
+    videoBox.className = "floating-video";
+    videoBox.appendChild(videoElement);
+    document.body.appendChild(videoBox);
+
+    // Avatarbild anzeigen wenn Video läuft!
+    videoElement.addEventListener('play', () => {
+      avatarDiv.innerHTML = "";
+      const img = document.createElement("img");
+      img.src = `images/${s.avatar}-avatar.png`;
+      img.alt = s.avatar;
+      img.className = "session-avatar-img";
+      avatarDiv.appendChild(img);
+      playBtn.style.display = "none";
+      videoElement.style.pointerEvents = "auto";
+      if (!textArea.hasAnimated) {
+        showAnimatedTexts(s, textArea, showNextBtn);
+        textArea.hasAnimated = true;
+      }
+    });
+
+    // Play-Overlay auf Video
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+      <div class="play-tap-hint">Tap here to play!</div>
+    `;
+    playBtn.onclick = function() {
+      videoElement.play();
+      playBtn.style.display = "none";
+      videoElement.style.pointerEvents = "auto";
+    };
+    videoElement.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      videoElement.style.pointerEvents = "none";
+    });
+    videoElement.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      videoElement.style.pointerEvents = "none";
+    });
+    videoBox.appendChild(playBtn);
+
+    textArea.hasAnimated = false;
+  }
+
   function showNextBtn() {
     const btn = document.createElement('button');
     btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
@@ -207,7 +270,6 @@ function renderSession(idx) {
     };
     document.body.appendChild(btn);
   }
-  textArea.hasAnimated = false;
 }
 
 function finishDay() {
@@ -215,6 +277,7 @@ function finishDay() {
   document.querySelectorAll(".floating-video, .fixed-next-btn").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML =
     `<div class="animated-text glitter" style="font-size:1.8rem;">Congratulations! You finished today’s adventure! 🥳</div>`;
+  document.getElementById('sessionAvatar').innerHTML = "";
 }
 
 window.onload = async () => {
