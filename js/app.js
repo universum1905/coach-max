@@ -7,29 +7,46 @@ let videoElement = null;
 function showAnimatedTexts(session, textArea, btn) {
   textArea.innerHTML = "";
 
+  // Prüfen, ob text[0] ein Objekt (Intro) oder String (andere Sessions)
+  const isObjMode = session.text.length > 0 && typeof session.text[0] === 'object' && session.text[0].line;
+
   let totalDelay = 0;
 
-  session.text.forEach((t, i) => {
-    // t ist jetzt ein Objekt: { line: "...", duration: ... }
-    let delay = totalDelay * 1000;
-
-    textTimeouts.push(setTimeout(() => {
-      const p = document.createElement('div');
-      p.className = "animated-text";
-      p.innerText = t.line;
-      textArea.appendChild(p);
-      // Automatisch nach unten scrollen wenn nötig
-      p.scrollIntoView({behavior: "smooth", block: "end"});
-      // Button nach dem letzten Text einblenden
-      if (i === session.text.length - 1) {
-        textArea.appendChild(btn);
-      }
-    }, delay));
-
-    // Nächste Zeile kommt nach der angegebenen duration!
-    totalDelay += t.duration;
-  });
+  if (isObjMode) {
+    // Intro-Session mit [{line, duration}, ...]
+    session.text.forEach((t, i) => {
+      let delay = totalDelay * 1000;
+      textTimeouts.push(setTimeout(() => {
+        const p = document.createElement('div');
+        p.className = "animated-text";
+        p.innerText = t.line;
+        textArea.appendChild(p);
+        p.scrollIntoView({behavior: "smooth", block: "end"});
+        if (i === session.text.length - 1) {
+          textArea.appendChild(btn);
+        }
+      }, delay));
+      totalDelay += t.duration;
+    });
+  } else {
+    // Andere Sessions: ["...", "..."], timings: [0, ...]
+    const timings = session.timings || [];
+    session.text.forEach((line, i) => {
+      let delay = (timings[i] !== undefined) ? timings[i] * 1000 : (i * 1800);
+      textTimeouts.push(setTimeout(() => {
+        const p = document.createElement('div');
+        p.className = "animated-text";
+        p.innerText = line;
+        textArea.appendChild(p);
+        p.scrollIntoView({behavior: "smooth", block: "end"});
+        if (i === session.text.length - 1) {
+          textArea.appendChild(btn);
+        }
+      }, delay));
+    });
+  }
 }
+
 
 
 
@@ -253,27 +270,6 @@ function renderSession(idx) {
     if (textShown) return;
     textShown = true;
     showAnimatedTexts(s, textArea, btn);
-  });
-}
-
-function showAnimatedTexts(session, textArea, btn) {
-  textArea.innerHTML = "";
-  // Zeitpunkte im JSON z.B. timings: [0, 2.5, 4.3]
-  const timings = session.timings || [];
-  session.text.forEach((t, i) => {
-    let delay = (timings[i] !== undefined) ? timings[i] * 1000 : (i * 1800);
-    textTimeouts.push(setTimeout(() => {
-      const p = document.createElement('div');
-      p.className = "animated-text";
-      p.innerText = t;
-      textArea.appendChild(p);
-      // Automatisch nach unten scrollen wenn nötig
-      p.scrollIntoView({behavior: "smooth", block: "end"});
-      // Button nach dem letzten Text einblenden
-      if (i === session.text.length - 1) {
-        textArea.appendChild(btn);
-      }
-    }, delay));
   });
 }
 
