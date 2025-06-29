@@ -1,5 +1,5 @@
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 2; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 const jsonURL = "days/day1.json";
 let sessions = [];
@@ -670,3 +670,69 @@ function startDay(dayNr) {
 // Beim Laden:
 renderDayList();
 
+const countingAnimals = [
+  "images/animals/dog.png",     // 1
+  "images/animals/cat.png",     // 2
+  "images/animals/lion.png",    // 3
+  "images/animals/elephant.png",// 4
+  "images/animals/bear.png",    // 5
+  "images/animals/monkey.png",  // 6
+  "images/animals/mouse.png",   // 7
+  "images/animals/frog.png",    // 8
+  "images/animals/rabbit.png",  // 9
+  "images/animals/fox.png"      // 10
+];
+
+const overlay = document.getElementById("countingOverlay");
+const countingTimings = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; // Sekunden für jede Zahl, anpassen ans Video
+
+const countingVideo = document.getElementById("countingVideo");
+
+let countingStep = 0;
+countingVideo.ontimeupdate = function() {
+  if (countingStep < 10 && countingVideo.currentTime >= countingTimings[countingStep]) {
+    showCountingOverlay(countingStep + 1);
+    countingStep++;
+    if (countingStep >= 10) {
+      // Nach letzter Zahl Overlay ausblenden
+      setTimeout(() => { overlay.innerHTML = ""; }, 1200);
+    }
+  }
+};
+
+function showCountingOverlay(num) {
+  overlay.innerHTML = `
+    <div class="count-overlay">
+      <img src="${countingAnimals[num-1]}" alt="Animal ${num}" style="width:85px;vertical-align:middle;">
+      <span style="font-size:2.3rem;font-weight:bold;padding-left:15px;">${num}</span>
+    </div>
+  `;
+  overlay.style.display = 'block';
+  setTimeout(() => { overlay.style.display = 'none'; }, 1000); // Zahl kurz einblenden
+}
+
+// CSS für Overlay:
+`
+#countingOverlay {
+  position: fixed;
+  left: 50%;
+  bottom: 230px;
+  transform: translateX(-50%);
+  z-index: 200;
+  pointer-events: none;
+}
+.count-overlay {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.92);
+  border-radius: 24px;
+  box-shadow: 0 4px 18px #b3e5fc88, 0 0 6px #ffd54f66;
+  padding: 12px 28px;
+  animation: popIn 0.7s cubic-bezier(.7,1.4,.5,1);
+}
+@keyframes popIn {
+  0% { transform: scale(0.2); opacity: 0; }
+  70% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+`
