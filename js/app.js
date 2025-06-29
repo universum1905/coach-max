@@ -184,7 +184,7 @@ function renderSession(idx) {
 
   // --- Überschrift ---
   const heading = document.createElement('h2');
-  heading.textContent = "Welcome to Day ${currentDay}!";
+  heading.textContent = `Welcome to Day ${currentDay}!`;
   heading.className = "intro-heading";
   textArea.appendChild(heading);
 
