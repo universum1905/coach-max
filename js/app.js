@@ -563,8 +563,11 @@ function finishDay() {
 }
 
 function createDebugButtons() {
-  // Doppelte Buttons verhindern:
-  if (document.getElementById("debug-prev")) return;
+  // Vorherige Buttons entfernen (falls noch vorhanden)
+  const oldPrev = document.getElementById("debug-prev");
+  const oldNext = document.getElementById("debug-next");
+  if (oldPrev) oldPrev.remove();
+  if (oldNext) oldNext.remove();
 
   const prevBtn = document.createElement('button');
   prevBtn.id = "debug-prev";
@@ -574,6 +577,7 @@ function createDebugButtons() {
     if (currentSession > 0) {
       currentSession--;
       renderSession(currentSession);
+      createDebugButtons(); // <-- NEU! Immer Buttons neu erzeugen!
     }
   };
 
@@ -585,12 +589,14 @@ function createDebugButtons() {
     if (currentSession < sessions.length - 1) {
       currentSession++;
       renderSession(currentSession);
+      createDebugButtons(); // <-- NEU! Immer Buttons neu erzeugen!
     }
   };
 
   document.body.appendChild(prevBtn);
   document.body.appendChild(nextBtn);
 }
+
 
 window.onload = async () => {
   const res = await fetch(jsonURL);
