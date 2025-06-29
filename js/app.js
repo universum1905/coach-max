@@ -142,8 +142,28 @@ function pickBreathAnimation(session) {
 // Zeige und animiere im Rhythmus
 function showBreathingAnimationRhythm(stepIdx, session, breathingSteps) {
   const animationDiv = document.getElementById("breath-animation");
-  const typ = session.animation || "";
-  let content = pickBreathAnimation(session);
+const typ = session.animation || "";
+
+// Balloon-Logik
+if (typ.includes("balloon")) {
+  // Ballon-Element einfügen (falls noch nicht vorhanden)
+  if (!document.getElementById("breathing-balloon")) {
+    animationDiv.innerHTML = `<div id="breathing-balloon" class="breath-balloon"></div>`;
+  }
+  const balloon = document.getElementById("breathing-balloon");
+  balloon.classList.remove("grow", "shrink");
+  // Atmen: Ein/Aus
+  if (breathingSteps[stepIdx].line.match(/in/i)) {
+    balloon.classList.add("grow");
+  } else if (breathingSteps[stepIdx].line.match(/out/i)) {
+    balloon.classList.add("shrink");
+  } else {
+    // zurück auf neutral
+    balloon.style.transform = "scale(1)";
+  }
+  return;
+}
+
 
   // Smiley-Logik für drei Gesichter im Rhythmus
   if (typ.includes("smiley")) {
@@ -547,3 +567,30 @@ window.onload = async () => {
     handleOrientation();
   });
 };
+function showBreathingBalloonAnimation(cycles = 3, inhale = 1500, exhale = 1500) {
+  const el = document.getElementById('breathing-balloon');
+  if (!el) return;
+  el.style.display = 'block'; // Ballon anzeigen
+  let count = 0;
+
+  function cycle() {
+    if (count >= cycles) {
+      el.style.transform = 'scale(1)';
+      el.style.display = 'none'; // Ballon wieder verstecken
+      return;
+    }
+    // Einatmen
+    el.style.transition = `transform ${inhale}ms cubic-bezier(.4,2,.5,.9)`;
+    el.style.transform = 'scale(1.3)';
+    setTimeout(() => {
+      // Ausatmen
+      el.style.transition = `transform ${exhale}ms cubic-bezier(.4,2,.5,.9)`;
+      el.style.transform = 'scale(0.8)';
+      setTimeout(() => {
+        count++;
+        cycle();
+      }, exhale);
+    }, inhale);
+  }
+  cycle();
+}
