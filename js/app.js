@@ -692,13 +692,6 @@ if (board) {
 
 
 // Alle Sticker anzeigen (bunt wenn freigeschaltet, grau wenn nicht)
-const board = document.getElementById('stickerBoard');
-stickerImages.forEach((src, idx) => {
-  const card = document.createElement('div');
-  card.className = "sticker-card" + (unlocked.includes(idx) ? "" : " locked");
-  card.innerHTML = `<img src="${src}" alt="Sticker">`;
-  board.appendChild(card); // <--- HIER Fehler, wenn board == null
-});
 function unlockSticker(idx) {
   let unlocked = JSON.parse(localStorage.getItem('unlockedStickers') || "[]");
   if (!unlocked.includes(idx)) {
@@ -758,46 +751,7 @@ function startDay(dayNr) {
 // Beim Laden:
 renderDayList();
 
-const countingAnimals = [
-  "images/animals/dog.png",     // 1
-  "images/animals/cat.png",     // 2
-  "images/animals/lion.png",    // 3
-  "images/animals/elephant.png",// 4
-  "images/animals/bear.png",    // 5
-  "images/animals/monkey.png",  // 6
-  "images/animals/mouse.png",   // 7
-  "images/animals/frog.png",    // 8
-  "images/animals/rabbit.png",  // 9
-  "images/animals/fox.png"      // 10
-];
 
-const overlay = document.getElementById("countingOverlay");
-const countingTimings = [12, 16, 20, 24, 28, 32, 36, 40, 44, 48]; // Sekunden für jede Zahl, anpassen ans Video
-
-const countingVideo = document.getElementById("countingVideo");
-
-let countingStep = 0;
-countingVideo.ontimeupdate = function() {
-  if (countingStep < 10 && countingVideo.currentTime >= countingTimings[countingStep]) {
-    showCountingOverlay(countingStep + 1);
-    countingStep++;
-    if (countingStep >= 10) {
-      // Nach letzter Zahl Overlay ausblenden
-      setTimeout(() => { overlay.innerHTML = ""; }, 1200);
-    }
-  }
-};
-
-function showCountingOverlay(num) {
-  overlay.innerHTML = `
-    <div class="count-overlay">
-      <img src="${countingAnimals[num-1]}" alt="Animal ${num}" style="width:85px;vertical-align:middle;">
-      <span style="font-size:2.3rem;font-weight:bold;padding-left:15px;">${num}</span>
-    </div>
-  `;
-  overlay.style.display = 'block';
-  setTimeout(() => { overlay.style.display = 'none'; }, 1000); // Zahl kurz einblenden
-}
 
 // CSS für Overlay:
 `
