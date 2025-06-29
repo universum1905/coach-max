@@ -142,27 +142,45 @@ function pickBreathAnimation(session) {
 // Zeige und animiere im Rhythmus
 function showBreathingAnimationRhythm(stepIdx, session, breathingSteps) {
   const animationDiv = document.getElementById("breath-animation");
-const typ = session.animation || "";
+  const typ = session.animation || "";
 
-// Balloon-Logik
-if (typ.includes("balloon")) {
-  // Ballon-Element einfügen (falls noch nicht vorhanden)
-  if (!document.getElementById("breathing-balloon")) {
-    animationDiv.innerHTML = `<div id="breathing-balloon" class="breath-balloon"></div>`;
+  // Balloon: animierter Kreis
+  if (typ.includes("balloon")) {
+    if (!document.getElementById("breathing-balloon")) {
+      animationDiv.innerHTML = `<div id="breathing-balloon" class="breath-balloon"></div>`;
+    }
+    const balloon = document.getElementById("breathing-balloon");
+    balloon.classList.remove("grow", "shrink");
+
+    // PRÜFUNG NUR PER breath
+    const step = breathingSteps[stepIdx];
+    if (step && step.breath === "in") {
+      balloon.classList.add("grow");
+    } else if (step && step.breath === "out") {
+      balloon.classList.add("shrink");
+    } else {
+      balloon.style.transform = "scale(1)";
+    }
+    return;
   }
-  const balloon = document.getElementById("breathing-balloon");
-  balloon.classList.remove("grow", "shrink");
-  // Atmen: Ein/Aus
-  if (breathingSteps[stepIdx].line.match(/in/i)) {
-    balloon.classList.add("grow");
-  } else if (breathingSteps[stepIdx].line.match(/out/i)) {
-    balloon.classList.add("shrink");
-  } else {
-    // zurück auf neutral
-    balloon.style.transform = "scale(1)";
+
+  // Smiley-Logik für drei Gesichter im Rhythmus
+  let content = pickBreathAnimation(session);
+  if (typ.includes("smiley")) {
+    const faces = ["😊", "😮", "😌"];
+    content = faces[stepIdx % faces.length];
   }
-  return;
+  animationDiv.innerHTML = content;
+
+  // Animations-Effekt für circle/cloud etc.
+  animationDiv.className = "breath-animation"; // Reset
+  if (["circle", "cloud"].some(t => typ.includes(t))) {
+    if (breathingSteps[stepIdx].line.match(/in/i)) animationDiv.classList.add("animate-grow");
+    if (breathingSteps[stepIdx].line.match(/out/i)) animationDiv.classList.add("animate-shrink");
+  }
+  if (typ.includes("star")) animationDiv.classList.add("animate-flash");
 }
+
 
 
   // Smiley-Logik für drei Gesichter im Rhythmus
