@@ -583,5 +583,23 @@ window.onload = async () => {
     handleOrientation();
   });
 };
+// Animiert die Atemübung per Emoji oder Icon
+function showBreathingAnimationRhythm(idx, s, textArr) {
+  const anim = document.getElementById('breath-animation');
+  if (!anim) return;
+  // Du kannst beliebig Emojis/SVGs etc. nutzen (später auch per Zufall, jetzt erstmal einfach)
+  const steps = [
+  "🐵",    // Start: Momo begrüßt
+  "🌬️",   // Einatmen (Wind)
+  "🤐",    // Halten (Mund zu)
+  "🎈",    // Ausatmen (Ballon)
+  "💧",    // Noch einmal atmen (Seifenblasen)
+  "😌",    // Entspannt/ruhig
+  "🏅"     // Super gemacht!
+];
+  // Wenn zu wenig: fallback Emoji
+  const emoji = steps[idx] || "🫁";
+  anim.innerHTML = `<span style="font-size:3.1em;display:inline-block;animation:pop 0.9s;">${emoji}</span>`;
+}
 
 
