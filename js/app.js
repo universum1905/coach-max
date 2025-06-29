@@ -153,6 +153,7 @@ function showBreathingAnimationRhythm(stepIdx, session, breathingSteps) {
     }
     // Immer zuerst alle Animationsklassen entfernen
     balloon.classList.remove("grow", "shrink");
+	balloon.style.transform = ""; // Auf Standard zurücksetzen
 
     // NEU: nach "in"/"out" im Text prüfen!
     const step = breathingSteps[stepIdx];
@@ -160,10 +161,8 @@ function showBreathingAnimationRhythm(stepIdx, session, breathingSteps) {
       balloon.classList.add("grow");
     } else if (step && step.line.match(/out/i)) {
       balloon.classList.add("shrink");
-    } else {
-      // neutral
-      balloon.style.transform = "scale(1)";
     }
+	// NEU: bei allen anderen Schritten (wie "Hold") bleibt scale(1)
     return;
   }
 
@@ -371,7 +370,7 @@ function renderSession(idx) {
     textArea.appendChild(heading);
 
     const momoImg = document.createElement('img');
-    momoImg.src = "images/momo.png";
+    momoImg.src = "images/meditationmomo.png";
     momoImg.alt = "Momo";
     momoImg.className = "intro-avatar-small";
     textArea.appendChild(momoImg);
