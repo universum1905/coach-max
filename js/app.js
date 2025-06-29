@@ -231,6 +231,10 @@ function renderSession(idx) {
   document.getElementById('sessionTextArea').innerHTML = "";
   
   const s = sessions[idx];
+  console.log("=== renderSession aufgerufen ===");
+console.log("sessions:", sessions);
+console.log("idx:", idx);
+console.log("s (aktuelle Session):", s);
   const textArea = document.getElementById('sessionTextArea');
   const currentDay = s.day || window.currentDay || 1;
 
@@ -537,7 +541,7 @@ function renderSession(idx) {
     };
     document.body.appendChild(btn);
   }
-  
+  console.log("--- renderSession zuende ---");
 }
 
 
