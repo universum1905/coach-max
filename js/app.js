@@ -170,7 +170,7 @@ function renderSession(idx) {
   const s = sessions[idx];
   const textArea = document.getElementById('sessionTextArea');
 
-  // --- INTRO-SESSION: Musik + Bild + Video + Smileys + zentriert ---
+    // --- INTRO-SESSION: Musik + Bild + Video + Smileys + zentriert ---
   if (s.type === "intro") {
     try { introMusic.currentTime = 0; introMusic.play(); } catch(e) {}
 
@@ -181,7 +181,13 @@ function renderSession(idx) {
     topImg.className = "intro-mascot";
     textArea.appendChild(topImg);
 
-    // Video (wieder wie bei anderen Sessions!)
+    // Emojis direkt nach Maskottchen (sind die ganze Zeit sichtbar!)
+    const bottomBox = document.createElement('div');
+    bottomBox.className = "intro-emojis";
+    bottomBox.innerHTML = "🤩&nbsp;🎉&nbsp;⭐&nbsp;👏";
+    textArea.appendChild(bottomBox);
+
+    // Video (wie bei anderen Sessions!)
     videoElement = document.createElement('video');
     videoElement.src = `videos/${s.video}`;
     videoElement.setAttribute("controls", "true");
@@ -240,12 +246,6 @@ function renderSession(idx) {
     textArea.style.padding = "26px 14px 18px 14px";
     textArea.style.alignItems = "center";
 
-    // Emojis unten
-    const bottomBox = document.createElement('div');
-    bottomBox.className = "intro-emojis";
-    bottomBox.innerHTML = "🤩&nbsp;🎉&nbsp;⭐&nbsp;👏";
-    textArea.appendChild(bottomBox);
-
     // Stoppe Musik beim Next
     function showNextBtn() {
       const btn = document.createElement('button');
@@ -264,6 +264,7 @@ function renderSession(idx) {
     }
     return;
   }
+
  
     // --- Restliche Sessions (VIDEO, PLAY, NEXT) ---
   videoElement = document.createElement('video');
