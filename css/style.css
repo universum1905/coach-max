@@ -525,4 +525,11 @@ function showBreathingInstructions(callback) {
   border-radius: 1.5px;
   transform: translateX(-50%);
 }
+.breath-balloon.grow {
+  transform: scale(1.3);
+}
+
+.breath-balloon.shrink {
+  transform: scale(0.8);
+}
 

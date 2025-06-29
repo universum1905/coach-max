@@ -27,14 +27,14 @@
   "text": [
   { "line": "Let’s take a fun breathing break with Momo!", "duration": 3 },
   { "line": "Ready? Sit up straight and put your hand on your tummy.", "duration": 3 },
-  { "line": "Breathe in slowly…", "duration": 2, "breath": "in" },
-  { "line": "Hold…", "duration": 1.5, "breath": "hold" },
-  { "line": "Breathe out slowly…", "duration": 2, "breath": "out" },
-  { "line": "Hold…", "duration": 1.5, "breath": "hold" },
-  { "line": "Breathe in…", "duration": 2, "breath": "in" },
-  { "line": "Hold…", "duration": 1.5, "breath": "hold" },
-  { "line": "Breathe out…", "duration": 2, "breath": "out" },
-  { "line": "Great job!", "duration": 2 }
+  { "line": "Breathe in slowly…", "duration": 5, "breath": "in" },
+  { "line": "Hold…", "duration": 3, "breath": "hold" },
+  { "line": "Breathe out slowly…", "duration": 5, "breath": "out" },
+  { "line": "Hold…", "duration": 3, "breath": "hold" },
+  { "line": "Breathe in…", "duration": 5, "breath": "in" },
+  { "line": "Hold…", "duration": 3, "breath": "hold" },
+  { "line": "Breathe out…", "duration": 5, "breath": "out" },
+  { "line": "Great job!", "duration": 5 }
   ],
   "duration": 24,
   "animation": "balloon"
