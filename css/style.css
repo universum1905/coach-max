@@ -21,7 +21,7 @@ html, body {
 .animated-lines {
   box-sizing: border-box;
   padding-left: 16px;
-  padding-right: 16px;
+  padding-right: 18px;
   min-height: 7em;   /* Platz für ca. 4 Zeilen */
   max-height: 8.5em; /* ca. 4 Zeilen, je nach Fontgröße */
   display: flex;
@@ -200,7 +200,7 @@ body {
   width: 100%;
   box-sizing: border-box;
   padding-left: 16px;
-  padding-right: 16px;
+  padding-right: 18px;
   font-size: 1.3rem;
   margin: 12px 0 0 0;
   padding: 0;
