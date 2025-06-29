@@ -578,5 +578,30 @@ window.onload = async () => {
     });
   }
 };
+const stickerImages = [
+  "images/stickers/sticker-star.png",
+  "images/stickers/sticker-party.png",
+  "images/stickers/sticker-butterfly.png",
+  "images/stickers/sticker-trophy.png",
+  "images/stickers/sticker-medal.png"
+];
+// Lies die freigeschalteten Sticker aus dem LocalStorage
+const unlocked = JSON.parse(localStorage.getItem('unlockedStickers') || "[]");
 
+// Sticker-Board-Element holen
+const board = document.getElementById('stickerBoard');
+
+// Alle Sticker anzeigen (bunt wenn freigeschaltet, grau wenn nicht)
+stickerImages.forEach((src, idx) => {
+  const card = document.createElement('div');
+  card.className = "sticker-card" + (unlocked.includes(idx) ? "" : " locked");
+  card.innerHTML = `<img src="${src}" alt="Sticker">`;
+  board.appendChild(card);
+});
+function unlockSticker(idx) {
+  let unlocked = JSON.parse(localStorage.getItem('unlockedStickers') || "[]");
+  if (!unlocked.includes(idx)) {
+    unlocked.push(idx);
+    localStorage.setItem('unlockedStickers', JSON.stringify(unlocked));
+  }
 
