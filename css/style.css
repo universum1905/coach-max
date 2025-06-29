@@ -19,6 +19,9 @@ html, body {
 }
 
 .animated-lines {
+  box-sizing: border-box;
+  padding-left: 14px;
+  padding-right: 14px;
   min-height: 7em;   /* Platz für ca. 4 Zeilen */
   max-height: 8.5em; /* ca. 4 Zeilen, je nach Fontgröße */
   display: flex;
@@ -194,6 +197,10 @@ body {
   .centered-next-btn { font-size: 1rem; padding: 0.8rem 1.7rem; bottom: 90px;}
 }
 .animated-text {
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: 12px;
+  padding-right: 12px;
   font-size: 1.3rem;
   margin: 12px 0 0 0;
   padding: 0;
