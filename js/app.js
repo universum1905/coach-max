@@ -113,21 +113,20 @@ function showWelcome(onFinish) {
 
 // Animierter Text, Next erst am Schluss
 function showAnimatedTexts(session, linesBox, onComplete) {
-  // Kein innerHTML löschen, damit Maskottchen und Emojis bleiben!
-  // linesBox.innerHTML = ""; // falls du alte Zeilen löschen willst, sonst weglassen
-
+  // linesBox.innerHTML = ""; // falls vorher etwas drin ist
   let totalDelay = 0;
   session.text.forEach((t, i) => {
     let delay = totalDelay * 1000;
     textTimeouts.push(setTimeout(() => {
+      // Wenn mehr als 3 Zeilen da, entferne die erste
+      while (linesBox.childNodes.length >= 4) {
+        linesBox.removeChild(linesBox.firstChild);
+      }
       const p = document.createElement('div');
       p.className = "animated-text";
       p.innerText = t.line;
       if (i === session.text.length - 1) p.classList.add('glitter');
       linesBox.appendChild(p);
-
-      // NEU: Automatisch ganz nach unten scrollen:
-      linesBox.scrollTop = linesBox.scrollHeight;
 
       if (i === session.text.length - 1 && typeof onComplete === "function") {
         onComplete();
@@ -136,6 +135,7 @@ function showAnimatedTexts(session, linesBox, onComplete) {
     totalDelay += t.duration;
   });
 }
+
 
 function clearTimeouts() {
   textTimeouts.forEach(t => clearTimeout(t));
