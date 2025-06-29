@@ -19,25 +19,30 @@ html, body {
 }
 
 .animated-lines {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 100vw;
   max-width: 480px;
   margin: 0 auto;
   box-sizing: border-box;
   padding: 0;
+  /* Optionale Begrenzung für viele Zeilen: */
+  max-height: 55vh;  /* Oder 50vh, damit es nicht nach unten durchläuft */
+  overflow-y: auto;  /* Scrollbar falls sehr viel Text */
 }
 
+
 @media (max-width: 600px) {
-  .session-text-area,
+  .session-text-area {
+    max-width: 98vw;
+    width: 100vw;
+    padding-bottom: 130px; /* Video auf Mobil meist kleiner */
+  }
   .animated-lines {
     max-width: 98vw;
     width: 100vw;
-    padding-left: 0;
-    padding-right: 0;
+    max-height: 44vh;
   }
 }
+
 
 
 body {
@@ -137,15 +142,18 @@ body {
 .session-text-area {
   display: flex;
   flex-direction: column;
-  align-items: center;  /* Zentriert alles auch mobil! */
+  align-items: center;
   justify-content: flex-start;
-  width: 100%;
-  max-width: 500px;
+  width: 100vw;
+  max-width: 480px;
   margin: 0 auto;
-  padding: 0;
+  padding: 0 0 210px 0;  /* Unteres Padding = Video-Höhe + Abstand! (z.B. 160px + ca. 50px) */
   background: none;
   box-shadow: none;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
+
 .intro-mascot {
   width: 110px;
   height: 110px;
