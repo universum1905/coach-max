@@ -545,6 +545,8 @@ function renderSession(idx) {
 
 }
 
+if (DEV_MODE) createDebugButtons();
+
 // Hilfsfunktion am Ende deiner Datei (oder im Kopf)
 function capitalize(word) {
   if (!word) return "";
