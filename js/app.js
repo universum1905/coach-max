@@ -222,6 +222,7 @@ function handleOrientation() {
 window.addEventListener("orientationchange", handleOrientation);
 window.addEventListener("resize", handleOrientation);
 
+
 // Session mit Video, Play-Overlay, animiertem Text und fixiertem Next-Button
 function renderSession(idx) {
   clearTimeouts();
@@ -229,7 +230,7 @@ function renderSession(idx) {
   document.querySelectorAll(".floating-video, .fixed-next-btn, .centered-next-btn").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML = "";
   
-  const s = sessions[idx];    // s ist jetzt gültig!
+  const s = sessions[idx];
   const textArea = document.getElementById('sessionTextArea');
   const currentDay = s.day || window.currentDay || 1;
 
@@ -335,24 +336,23 @@ function renderSession(idx) {
     textArea.style.alignItems = "center";
 
     function showNextBtn() {
-  const btn = document.createElement('button');
-  btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-  btn.className = "centered-next-btn";
-  btn.onclick = () => {
-    currentSession++;
-    renderSession(currentSession);
-    if (DEV_MODE) createDebugButtons(); // <== HIER!
-    // Es ist egal, ob du am Ende bist, dann wird ja finishDay() angezeigt
-  };
-  document.body.appendChild(btn);
-}
-
+      const btn = document.createElement('button');
+      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      btn.className = "centered-next-btn";
+      btn.onclick = () => {
+        try { introMusic.pause(); introMusic.currentTime = 0; } catch(e) {}
+        currentSession++;
+        renderSession(currentSession);
+        if (DEV_MODE) createDebugButtons();
+      };
+      document.body.appendChild(btn);
+    }
+    if (DEV_MODE) createDebugButtons();
     return;
   }
 
   // ===== 2. BREATHING =====
   if (s.type === "breathing") {
-    // ... Breathing-Block wie gehabt ...
     const heading = document.createElement('h2');
     heading.className = "session-heading";
     heading.textContent = `Day ${currentDay} Breathing`;
@@ -427,7 +427,6 @@ function renderSession(idx) {
       function nextBreathStep() {
         if (idxStep < s.text.length) {
           showBreathingAnimationRhythm(idxStep, s, s.text);
-
           while (linesBox.childNodes.length >= 4) {
             linesBox.removeChild(linesBox.firstChild);
           }
@@ -448,24 +447,21 @@ function renderSession(idx) {
     }
 
     function showNextBtn() {
-  const btn = document.createElement('button');
-  btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-  btn.className = "centered-next-btn";
-  btn.onclick = () => {
-    currentSession++;
-    renderSession(currentSession);
-    if (DEV_MODE) createDebugButtons(); // <== HIER!
-    // Es ist egal, ob du am Ende bist, dann wird ja finishDay() angezeigt
-  };
-  document.body.appendChild(btn);
-}
-
+      const btn = document.createElement('button');
+      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      btn.className = "centered-next-btn";
+      btn.onclick = () => {
+        currentSession++;
+        renderSession(currentSession);
+        if (DEV_MODE) createDebugButtons();
+      };
+      document.body.appendChild(btn);
+    }
+    if (DEV_MODE) createDebugButtons();
     return;
   }
 
-
   // ===== 3. ALLE ANDEREN SESSIONS (COUNTING, RHYME, ANIMALS, STORY) =====
-  // --- AB HIER KOMMT DEIN BLOCK FÜR RESTLICHE SESSIONS ---
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = `Day ${currentDay} ${capitalize(s.type)}`;
@@ -531,21 +527,21 @@ function renderSession(idx) {
   linesBox.hasAnimated = false;
 
   function showNextBtn() {
-  const btn = document.createElement('button');
-  btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-  btn.className = "centered-next-btn";
-  btn.onclick = () => {
-    currentSession++;
-    renderSession(currentSession);
-    if (DEV_MODE) createDebugButtons(); // <== HIER!
-    // Es ist egal, ob du am Ende bist, dann wird ja finishDay() angezeigt
-  };
-  document.body.appendChild(btn);
+    const btn = document.createElement('button');
+    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+    btn.className = "centered-next-btn";
+    btn.onclick = () => {
+      currentSession++;
+      renderSession(currentSession);
+      if (DEV_MODE) createDebugButtons();
+    };
+    document.body.appendChild(btn);
+  }
+  if (DEV_MODE) createDebugButtons();
 }
 
-}
 
-if (DEV_MODE) createDebugButtons();
+
 
 // Hilfsfunktion am Ende deiner Datei (oder im Kopf)
 function capitalize(word) {
