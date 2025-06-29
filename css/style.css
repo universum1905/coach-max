@@ -19,14 +19,13 @@ html, body {
 }
 
 .animated-lines {
-  width: 100vw;
-  max-width: 480px;
-  margin: 0 auto;
-  box-sizing: border-box;
-  padding: 0;
-  /* Optionale Begrenzung für viele Zeilen: */
-  max-height: 55vh;  /* Oder 50vh, damit es nicht nach unten durchläuft */
-  overflow-y: auto;  /* Scrollbar falls sehr viel Text */
+  min-height: 7em;   /* Platz für ca. 4 Zeilen */
+  max-height: 8.5em; /* ca. 4 Zeilen, je nach Fontgröße */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  overflow: hidden;  /* WICHTIG: Rest wird unsichtbar! */
 }
 
 
@@ -39,7 +38,7 @@ html, body {
   .animated-lines {
     max-width: 98vw;
     width: 100vw;
-    max-height: 44vh;
+    max-height: calc(100vh - 190px); /* Bei kleinerem Video */
   }
 }
 
