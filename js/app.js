@@ -181,7 +181,6 @@ function renderSession(idx) {
   document.querySelectorAll(".floating-video, .fixed-next-btn, .centered-next-btn").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML = "";
 
-  const s = sessions[idx];
   const textArea = document.getElementById('sessionTextArea');
   const currentDay = s.day || window.currentDay || 1;
 
