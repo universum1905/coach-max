@@ -172,98 +172,102 @@ function renderSession(idx) {
 
     // --- INTRO-SESSION: Musik + Bild + Video + Smileys + zentriert ---
   if (s.type === "intro") {
-    try { introMusic.currentTime = 0; introMusic.play(); } catch(e) {}
+  try { introMusic.currentTime = 0; introMusic.play(); } catch(e) {}
 
-    // Maskottchen oben
-    const topImg = document.createElement('img');
-    topImg.src = "images/benny.png";
-    topImg.alt = "Benny";
-    topImg.className = "intro-mascot";
-    textArea.appendChild(topImg);
+  // Maskottchen oben
+  const topImg = document.createElement('img');
+  topImg.src = "images/benny.png";
+  topImg.alt = "Benny";
+  topImg.className = "intro-mascot";
+  textArea.appendChild(topImg);
 
-    // Emojis direkt nach Maskottchen (sind die ganze Zeit sichtbar!)
-    const bottomBox = document.createElement('div');
-    bottomBox.className = "intro-emojis";
-    bottomBox.innerHTML = "🤩&nbsp;🎉&nbsp;⭐&nbsp;👏";
-    textArea.appendChild(bottomBox);
+  // Smileys direkt unter dem Maskottchen
+  const bottomBox = document.createElement('div');
+  bottomBox.className = "intro-emojis";
+  bottomBox.innerHTML = "🤩&nbsp;🎉&nbsp;⭐&nbsp;👏";
+  textArea.appendChild(bottomBox);
 
-    // Video (wie bei anderen Sessions!)
-    videoElement = document.createElement('video');
-    videoElement.src = `videos/${s.video}`;
-    videoElement.setAttribute("controls", "true");
-    videoElement.setAttribute("controlsList", "nodownload");
-    videoElement.autoplay = false;
-    videoElement.muted = false;
-    videoElement.playsInline = true;
-    videoElement.poster = "images/video-placeholder.png";
-    videoElement.style.display = "block";
-    videoElement.className = "session-video";
+  // Animierten Text-Container unter den Smileys!
+  const linesBox = document.createElement('div');
+  linesBox.className = "animated-lines";
+  textArea.appendChild(linesBox);
 
-    // Video fixiert
-    const videoBox = document.createElement('div');
-    videoBox.className = "floating-video";
-    videoBox.appendChild(videoElement);
-    document.body.appendChild(videoBox);
+  // Video wie gehabt (fixiert unten rechts)
+  videoElement = document.createElement('video');
+  videoElement.src = `videos/${s.video}`;
+  videoElement.setAttribute("controls", "true");
+  videoElement.setAttribute("controlsList", "nodownload");
+  videoElement.autoplay = false;
+  videoElement.muted = false;
+  videoElement.playsInline = true;
+  videoElement.poster = "images/video-placeholder.png";
+  videoElement.style.display = "block";
+  videoElement.className = "session-video";
 
-    // Play-Overlay
-    const playBtn = document.createElement('button');
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-      <div class="play-tap-hint">Tap here to play!</div>
-    `;
-    playBtn.onclick = function() {
-      videoElement.play();
-      playBtn.style.display = "none";
-      videoElement.style.pointerEvents = "auto";
-    };
-    videoElement.addEventListener('play', () => {
-      playBtn.style.display = "none";
-      videoElement.style.pointerEvents = "auto";
-      if (!textArea.hasAnimated) {
-        showAnimatedTexts(s, textArea, showNextBtn);
-        textArea.hasAnimated = true;
-      }
-    });
-    videoElement.addEventListener('pause', () => {
-      playBtn.style.display = "";
-      videoElement.style.pointerEvents = "none";
-    });
-    videoElement.addEventListener('ended', () => {
-      playBtn.style.display = "";
-      videoElement.style.pointerEvents = "none";
-    });
-    videoBox.appendChild(playBtn);
+  const videoBox = document.createElement('div');
+  videoBox.className = "floating-video";
+  videoBox.appendChild(videoElement);
+  document.body.appendChild(videoBox);
 
-    textArea.hasAnimated = false;
-
-    // Animierter Text, zentriert & gepolstert
-    textArea.style.textAlign = "center";
-    textArea.style.padding = "26px 14px 18px 14px";
-    textArea.style.alignItems = "center";
-
-    // Stoppe Musik beim Next
-    function showNextBtn() {
-      const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        try { introMusic.pause(); introMusic.currentTime = 0; } catch(e) {}
-        currentSession++;
-        if (currentSession < sessions.length) {
-          renderSession(currentSession);
-        } else {
-          finishDay();
-        }
-      };
-      document.body.appendChild(btn);
+  // Play-Overlay
+  const playBtn = document.createElement('button');
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+    <div class="play-tap-hint">Tap here to play!</div>
+  `;
+  playBtn.onclick = function() {
+    videoElement.play();
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  };
+  videoElement.addEventListener('play', () => {
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+    if (!linesBox.hasAnimated) {
+      showAnimatedTexts(s, linesBox, showNextBtn);
+      linesBox.hasAnimated = true;
     }
-    return;
+  });
+  videoElement.addEventListener('pause', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoElement.addEventListener('ended', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoBox.appendChild(playBtn);
+
+  linesBox.hasAnimated = false;
+
+  // Text-Ausrichtung & Padding
+  textArea.style.textAlign = "center";
+  textArea.style.padding = "26px 14px 18px 14px";
+  textArea.style.alignItems = "center";
+
+  function showNextBtn() {
+    const btn = document.createElement('button');
+    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+    btn.className = "centered-next-btn";
+    btn.onclick = () => {
+      try { introMusic.pause(); introMusic.currentTime = 0; } catch(e) {}
+      currentSession++;
+      if (currentSession < sessions.length) {
+        renderSession(currentSession);
+      } else {
+        finishDay();
+      }
+    };
+    document.body.appendChild(btn);
   }
+  return;
+}
+
 
  
     // --- Restliche Sessions (VIDEO, PLAY, NEXT) ---
