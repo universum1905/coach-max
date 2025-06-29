@@ -609,7 +609,8 @@ window.onload = async () => {
     currentSession = DEV_START_SESSION;
     renderSession(currentSession);
     handleOrientation();
-    createDebugButtons(); // <<< Nur hier!
+    document.getElementById("mainContent").style.display = ""; // <-- HIER!
+    createDebugButtons();
   } else {
     currentSession = 0;
     showWelcome(() => {
@@ -618,6 +619,7 @@ window.onload = async () => {
     });
   }
 };
+
 
 
 // Animiert die Atemübung per Emoji oder Icon
