@@ -684,7 +684,7 @@ const countingAnimals = [
 ];
 
 const overlay = document.getElementById("countingOverlay");
-const countingTimings = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; // Sekunden für jede Zahl, anpassen ans Video
+const countingTimings = [12, 16, 20, 24, 28, 32, 36, 40, 44, 48]; // Sekunden für jede Zahl, anpassen ans Video
 
 const countingVideo = document.getElementById("countingVideo");
 
