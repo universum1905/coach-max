@@ -576,4 +576,29 @@ function showBreathingInstructions(callback) {
   70% { transform: scale(1.12); opacity: 1; }
   100% { transform: scale(1); }
 }
+// CSS für Overlay:
+`
+#countingOverlay {
+  position: fixed;
+  left: 50%;
+  bottom: 230px;
+  transform: translateX(-50%);
+  z-index: 200;
+  pointer-events: none;
+}
+.count-overlay {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.92);
+  border-radius: 24px;
+  box-shadow: 0 4px 18px #b3e5fc88, 0 0 6px #ffd54f66;
+  padding: 12px 28px;
+  animation: popIn 0.7s cubic-bezier(.7,1.4,.5,1);
+}
+@keyframes popIn {
+  0% { transform: scale(0.2); opacity: 0; }
+  70% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+`
 
