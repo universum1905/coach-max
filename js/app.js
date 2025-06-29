@@ -679,8 +679,18 @@ const stickerImages = [
 const unlocked = JSON.parse(localStorage.getItem('unlockedStickers') || "[]");
 
 // Sticker-Board-Element holen
+
 const board = document.getElementById('stickerBoard');
-if (!board) return; // oder: Fehlerhinweis/Skip
+if (board) {
+  stickerImages.forEach((src, idx) => {
+    const card = document.createElement('div');
+    card.className = "sticker-card" + (unlocked.includes(idx) ? "" : " locked");
+    card.innerHTML = `<img src="${src}" alt="Sticker">`;
+    board.appendChild(card);
+  });
+}
+
+
 // Alle Sticker anzeigen (bunt wenn freigeschaltet, grau wenn nicht)
 const board = document.getElementById('stickerBoard');
 stickerImages.forEach((src, idx) => {
