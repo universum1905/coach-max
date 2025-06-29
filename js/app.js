@@ -1,7 +1,6 @@
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
 let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
-
 const jsonURL = "days/day1.json";
 let sessions = [];
 let currentSession = 0;
@@ -24,7 +23,6 @@ frogSound.volume = 0.42;
 const introMusic = new Audio("audio/counting-benny-bg.mp3");
 introMusic.loop = true;
 introMusic.volume = 0.18;
-
 
 // Fortschrittsbalken (Frosch)
 function renderFrogProgress(sessionIdx) {
@@ -85,7 +83,7 @@ function showWelcome(onFinish) {
   // Welcome Animation (Dynamisch!)
   function startWelcomeAnimation() {
     const lines = [
-      `🎉 Welcome to Coach Max – Day ${currentDay}!`,     // <- Tag wird dynamisch gesetzt
+      `🎉 Welcome to Coach Max – Day ${currentDay}!`,
       "Ready for a day full of fun and learning?",
       "Every tap brings you closer to today’s secret <span class='highlight-word'>sticker</span>!",
       "Let’s jump right in!"
@@ -135,11 +133,9 @@ const breathingAnimations = [
 // Zufallsauswahl pro Session
 function pickBreathAnimation(session) {
   if (session.animation) {
-    // Versuche, einen Typ mit dem Namen zu finden
     const found = breathingAnimations.find(a => session.animation.toLowerCase().includes(a.name));
     if (found) return found.html;
   }
-  // Falls kein expliziter Typ: Zufall
   return breathingAnimations[Math.floor(Math.random() * breathingAnimations.length)].html;
 }
 
@@ -161,20 +157,16 @@ function showBreathingAnimationRhythm(stepIdx, session, breathingSteps) {
   if (["balloon", "circle", "cloud"].some(t => typ.includes(t))) {
     if (breathingSteps[stepIdx].line.match(/in/i)) animationDiv.classList.add("animate-grow");
     if (breathingSteps[stepIdx].line.match(/out/i)) animationDiv.classList.add("animate-shrink");
-    // sonst neutral
   }
   if (typ.includes("star")) animationDiv.classList.add("animate-flash");
 }
 
-
 // Animierter Text, Next erst am Schluss
 function showAnimatedTexts(session, linesBox, onComplete) {
-  // linesBox.innerHTML = ""; // falls vorher etwas drin ist
   let totalDelay = 0;
   session.text.forEach((t, i) => {
     let delay = totalDelay * 1000;
     textTimeouts.push(setTimeout(() => {
-      // Wenn mehr als 3 Zeilen da, entferne die erste
       while (linesBox.childNodes.length >= 4) {
         linesBox.removeChild(linesBox.firstChild);
       }
@@ -191,7 +183,6 @@ function showAnimatedTexts(session, linesBox, onComplete) {
     totalDelay += t.duration;
   });
 }
-
 
 function clearTimeouts() {
   textTimeouts.forEach(t => clearTimeout(t));
@@ -222,21 +213,16 @@ function handleOrientation() {
 window.addEventListener("orientationchange", handleOrientation);
 window.addEventListener("resize", handleOrientation);
 
-
 // Session mit Video, Play-Overlay, animiertem Text und fixiertem Next-Button
 function renderSession(idx) {
   clearTimeouts();
   renderFrogProgress(idx);
   document.querySelectorAll(".floating-video, .fixed-next-btn, .centered-next-btn").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML = "";
-  
+
   const s = sessions[idx];
-  console.log("=== renderSession aufgerufen ===");
-console.log("sessions:", sessions);
-console.log("idx:", idx);
-console.log("s (aktuelle Session):", s);
+  const localDay = s.day || window.currentDay || 1;
   const textArea = document.getElementById('sessionTextArea');
-  const currentDay = s.day || window.currentDay || 1;
 
   // ===== 1. INTRO =====
   if (s.type === "intro") {
@@ -244,7 +230,7 @@ console.log("s (aktuelle Session):", s);
 
     // Überschrift
     const heading = document.createElement('h2');
-    heading.textContent = s.title || `Welcome to Day ${currentDay}!`;
+    heading.textContent = s.title || `Welcome to Day ${localDay}!`;
     heading.className = "intro-heading session-heading";
     textArea.appendChild(heading);
 
@@ -347,11 +333,10 @@ console.log("s (aktuelle Session):", s);
         try { introMusic.pause(); introMusic.currentTime = 0; } catch(e) {}
         currentSession++;
         renderSession(currentSession);
-        
       };
       document.body.appendChild(btn);
     }
-    
+
     return;
   }
 
@@ -359,7 +344,7 @@ console.log("s (aktuelle Session):", s);
   if (s.type === "breathing") {
     const heading = document.createElement('h2');
     heading.className = "session-heading";
-    heading.textContent = `Day ${currentDay} Breathing`;
+    heading.textContent = `Day ${localDay} Breathing`;
     textArea.appendChild(heading);
 
     const momoImg = document.createElement('img');
@@ -457,18 +442,16 @@ console.log("s (aktuelle Session):", s);
       btn.onclick = () => {
         currentSession++;
         renderSession(currentSession);
-        
       };
       document.body.appendChild(btn);
     }
-    
     return;
   }
 
   // ===== 3. ALLE ANDEREN SESSIONS (COUNTING, RHYME, ANIMALS, STORY) =====
   const heading = document.createElement('h2');
   heading.className = "session-heading";
-  heading.textContent = `Day ${currentDay} ${capitalize(s.type)}`;
+  heading.textContent = `Day ${localDay} ${capitalize(s.type)}`;
   textArea.appendChild(heading);
 
   const linesBox = document.createElement('div');
@@ -537,22 +520,12 @@ console.log("s (aktuelle Session):", s);
     btn.onclick = () => {
       currentSession++;
       renderSession(currentSession);
-      
     };
     document.body.appendChild(btn);
   }
-  console.log("--- renderSession zuende ---");
 }
-
-
-
 
 // Hilfsfunktion am Ende deiner Datei (oder im Kopf)
-function capitalize(word) {
-  if (!word) return "";
-  return word.charAt(0).toUpperCase() + word.slice(1);
-}
-
 function finishDay() {
   clearTimeouts();
   document.querySelectorAll(".floating-video, .fixed-next-btn").forEach(el => el.remove());
@@ -560,86 +533,6 @@ function finishDay() {
     `<div class="animated-text glitter" style="font-size:1.8rem;">Congratulations! You finished today’s adventure! 🥳</div>`;
 }
 
-function createDebugButtons() {
-  // Vorherige Debug-Buttons entfernen
-  const oldPrev = document.getElementById("debug-prev");
-  const oldNext = document.getElementById("debug-next");
-  if (oldPrev) oldPrev.remove();
-  if (oldNext) oldNext.remove();
-
-  // Prev-Button
-  const prevBtn = document.createElement('button');
-  prevBtn.id = "debug-prev";
-  prevBtn.innerText = "◀️ Prev";
-  prevBtn.style.cssText = "position:fixed;bottom:100px;left:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#ffe082;border:none;border-radius:18px;box-shadow:0 2px 8px #b3e5fc;";
-  prevBtn.onclick = () => {
-    if (currentSession > 0) {
-      currentSession--;
-      renderSession(currentSession);
-      
-    }
-  };
-
-  // Next-Button
-  const nextBtn = document.createElement('button');
-  nextBtn.id = "debug-next";
-  nextBtn.innerText = "Next ▶️";
-  nextBtn.style.cssText = "position:fixed;bottom:100px;right:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#81d4fa;border:none;border-radius:18px;box-shadow:0 2px 8px #ffe082;";
-  nextBtn.onclick = () => {
-    if (currentSession < sessions.length - 1) {
-      currentSession++;
-      renderSession(currentSession);
-      
-    }
-  };
-
-  document.body.appendChild(prevBtn);
-  document.body.appendChild(nextBtn);
-}
-
-
-
-window.onload = async () => {
-  const res = await fetch(jsonURL);
-  const data = await res.json();
-  sessions = data.sessions;
-  currentDay = data.day || 1;
-
-  if (DEV_MODE) {
-    currentSession = DEV_START_SESSION;
-    renderSession(currentSession);
-    handleOrientation();
-    document.getElementById("mainContent").style.display = ""; // <-- HIER!
-    createDebugButtons();
-  } else {
-    currentSession = 0;
-    showWelcome(() => {
-      renderSession(currentSession);
-      handleOrientation();
-    });
-  }
-};
-
-
-
-// Animiert die Atemübung per Emoji oder Icon
-function showBreathingAnimationRhythm(idx, s, textArr) {
-  const anim = document.getElementById('breath-animation');
-  if (!anim) return;
-  // Du kannst beliebig Emojis/SVGs etc. nutzen (später auch per Zufall, jetzt erstmal einfach)
-  const steps = [
-  "🐵",    // Start: Momo begrüßt
-  "🌬️",   // Einatmen (Wind)
-  "🤐",    // Halten (Mund zu)
-  "🎈",    // Ausatmen (Ballon)
-  "💧",    // Noch einmal atmen (Seifenblasen)
-  "😌",    // Entspannt/ruhig
-  "🏅"     // Super gemacht!
-];
-  // Wenn zu wenig: fallback Emoji
-  const emoji = steps[idx] || "🫁";
-  anim.innerHTML = `<span style="font-size:3.1em;display:inline-block;animation:pop 0.9s;">${emoji}</span>`;
-}
 function createDebugButtons() {
   // Alte Buttons entfernen, damit niemals doppelt!
   document.getElementById("debug-prev")?.remove();
@@ -673,4 +566,23 @@ function createDebugButtons() {
   document.body.appendChild(nextBtn);
 }
 
+window.onload = async () => {
+  const res = await fetch(jsonURL);
+  const data = await res.json();
+  sessions = data.sessions;
+  currentDay = data.day || 1;
 
+  if (DEV_MODE) {
+    currentSession = DEV_START_SESSION;
+    renderSession(currentSession);
+    handleOrientation();
+    document.getElementById("mainContent").style.display = "";
+    createDebugButtons();
+  } else {
+    currentSession = 0;
+    showWelcome(() => {
+      renderSession(currentSession);
+      handleOrientation();
+    });
+  }
+};
