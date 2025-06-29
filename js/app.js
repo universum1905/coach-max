@@ -112,8 +112,10 @@ function showWelcome(onFinish) {
 }
 
 // Animierter Text, Next erst am Schluss
-function showAnimatedTexts(session, textArea, onComplete) {
-  
+function showAnimatedTexts(session, linesBox, onComplete) {
+  // Kein innerHTML löschen, damit Maskottchen und Emojis bleiben!
+  // linesBox.innerHTML = ""; // falls du alte Zeilen löschen willst, sonst weglassen
+
   let totalDelay = 0;
   session.text.forEach((t, i) => {
     let delay = totalDelay * 1000;
@@ -122,8 +124,11 @@ function showAnimatedTexts(session, textArea, onComplete) {
       p.className = "animated-text";
       p.innerText = t.line;
       if (i === session.text.length - 1) p.classList.add('glitter');
-      textArea.appendChild(p);
-      p.scrollIntoView({behavior: "smooth", block: "end"});
+      linesBox.appendChild(p);
+
+      // NEU: Automatisch ganz nach unten scrollen:
+      linesBox.scrollTop = linesBox.scrollHeight;
+
       if (i === session.text.length - 1 && typeof onComplete === "function") {
         onComplete();
       }
@@ -131,6 +136,7 @@ function showAnimatedTexts(session, textArea, onComplete) {
     totalDelay += t.duration;
   });
 }
+
 function clearTimeouts() {
   textTimeouts.forEach(t => clearTimeout(t));
   textTimeouts = [];
