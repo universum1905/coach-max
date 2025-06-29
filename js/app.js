@@ -370,7 +370,7 @@ function renderSession(idx) {
     textArea.appendChild(heading);
 
     const momoImg = document.createElement('img');
-    momoImg.src = "images/meditationmomo.png";
+    momoImg.src = "images/meditationmomo.jpg";
     momoImg.alt = "Momo";
     momoImg.className = "intro-avatar-small";
     textArea.appendChild(momoImg);
