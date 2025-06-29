@@ -175,12 +175,12 @@ window.addEventListener("resize", handleOrientation);
 
 // Session mit Video, Play-Overlay, animiertem Text und fixiertem Next-Button
 function renderSession(idx) {
-  const s = sessions[idx];    // s ist jetzt gültig!
   clearTimeouts();
   renderFrogProgress(idx);
   document.querySelectorAll(".floating-video, .fixed-next-btn, .centered-next-btn").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML = "";
-
+  
+  const s = sessions[idx];    // s ist jetzt gültig!
   const textArea = document.getElementById('sessionTextArea');
   const currentDay = s.day || window.currentDay || 1;
 
