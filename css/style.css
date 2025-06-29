@@ -481,3 +481,28 @@ function showBreathingInstructions(callback) {
     }, step.time);
   });
 }
+.breath-animation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 14px auto;
+  min-height: 70px;
+  font-size: 3.5rem;
+  transition: all 0.7s cubic-bezier(.6,1.6,.4,1);
+}
+.breath-animation .animate-grow {
+  transform: scale(1.4);
+  transition: transform 1s cubic-bezier(.7,1.5,.4,1);
+}
+.breath-animation .animate-shrink {
+  transform: scale(0.7);
+  transition: transform 0.8s cubic-bezier(.7,1.5,.4,1);
+}
+.breath-animation .animate-flash {
+  animation: flashStar 1.5s;
+}
+@keyframes flashStar {
+  0% { color: #ffd700; text-shadow: 0 0 16px #fff;}
+  50% { color: #fff59d; text-shadow: 0 0 30px #ffd700;}
+  100% { color: #ffd700; text-shadow: 0 0 16px #fff;}
+}

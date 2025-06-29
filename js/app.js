@@ -117,6 +117,51 @@ function showWelcome(onFinish) {
   }
 }
 
+// Alle Animationstypen mit Emojis/SVG:
+const breathingAnimations = [
+  { name: "balloon",    html: "🎈" },
+  { name: "circle",     html: `<div style="width:60px;height:60px;background:#80d8ff;border-radius:50%;"></div>` },
+  { name: "monkey",     html: "🐵💨" },
+  { name: "flower",     html: "🌸" },
+  { name: "star",       html: "⭐" },
+  { name: "cloud",      html: "☁️" },
+  { name: "smiley",     html: "😊" }
+];
+
+// Zufallsauswahl pro Session
+function pickBreathAnimation(session) {
+  if (session.animation) {
+    // Versuche, einen Typ mit dem Namen zu finden
+    const found = breathingAnimations.find(a => session.animation.toLowerCase().includes(a.name));
+    if (found) return found.html;
+  }
+  // Falls kein expliziter Typ: Zufall
+  return breathingAnimations[Math.floor(Math.random() * breathingAnimations.length)].html;
+}
+
+// Zeige und animiere im Rhythmus
+function showBreathingAnimationRhythm(stepIdx, session, breathingSteps) {
+  const animationDiv = document.getElementById("breath-animation");
+  const typ = session.animation || "";
+  let content = pickBreathAnimation(session);
+
+  // Smiley-Logik für drei Gesichter im Rhythmus
+  if (typ.includes("smiley")) {
+    const faces = ["😊", "😮", "😌"];
+    content = faces[stepIdx % faces.length];
+  }
+  animationDiv.innerHTML = content;
+
+  // Animations-Effekt (Kreis/Ballon/Wolke bläst auf…)
+  animationDiv.className = "breath-animation"; // Reset
+  if (["balloon", "circle", "cloud"].some(t => typ.includes(t))) {
+    if (breathingSteps[stepIdx].line.match(/in/i)) animationDiv.classList.add("animate-grow");
+    if (breathingSteps[stepIdx].line.match(/out/i)) animationDiv.classList.add("animate-shrink");
+    // sonst neutral
+  }
+  if (typ.includes("star")) animationDiv.classList.add("animate-flash");
+}
+
 
 // Animierter Text, Next erst am Schluss
 function showAnimatedTexts(session, linesBox, onComplete) {
@@ -318,21 +363,16 @@ if (s.type === "breathing") {
   momoImg.className = "intro-avatar-small";
   textArea.appendChild(momoImg);
 
+  // Animations-Container für Atemübung
+  const breathAnim = document.createElement('div');
+  breathAnim.id = "breath-animation";
+  breathAnim.className = "breath-animation";
+  textArea.appendChild(breathAnim);
+
   // Animierte Zeilen-Container
   const linesBox = document.createElement('div');
   linesBox.className = "animated-lines";
   textArea.appendChild(linesBox);
-
-  // --- Breathing Animation, versteckt ---
-  const breathingAnim = document.createElement('div');
-  breathingAnim.className = "breathing-animation";
-  breathingAnim.id = "breathingAnim";
-  breathingAnim.style.display = "none";
-  breathingAnim.innerHTML = `
-    <div class="breathing-circle"></div>
-    <div class="breathing-instruction" id="breathingInstruction"></div>
-  `;
-  textArea.appendChild(breathingAnim);
 
   // Video (unten rechts, fixiert, mit Play-Overlay)
   videoElement = document.createElement('video');
@@ -378,18 +418,43 @@ if (s.type === "breathing") {
   videoElement.addEventListener('ended', () => {
     playBtn.style.display = "";
     videoElement.style.pointerEvents = "none";
-    // Nach dem Video: Animation & Text starten
-    if (!videoElement.hasAnimated) {
-      breathingAnim.style.display = "flex";
-      showBreathingInstructions(() => {
-        showAnimatedTexts(s, linesBox, showNextBtn);
-      });
-      videoElement.hasAnimated = true;
-    }
+    // Nach dem Video: Textanimation & Atemanimation starten
+    startBreathingSteps();
   });
   videoBox.appendChild(playBtn);
 
-  // Animierter Text, Next erst nach Animation & Text
+  // Textanimation + Atemanimation NACH Video-Ende starten
+  let breathingStarted = false;
+  function startBreathingSteps() {
+    if (breathingStarted) return;
+    breathingStarted = true;
+    let idxStep = 0;
+    function nextBreathStep() {
+      if (idxStep < s.text.length) {
+        // Animation passend zur Zeile anzeigen
+        showBreathingAnimationRhythm(idxStep, s, s.text);
+
+        // Nur max. 4 Zeilen sichtbar lassen
+        while (linesBox.childNodes.length >= 4) {
+          linesBox.removeChild(linesBox.firstChild);
+        }
+        const p = document.createElement('div');
+        p.className = "animated-text";
+        p.innerText = s.text[idxStep].line;
+        linesBox.appendChild(p);
+
+        setTimeout(() => {
+          idxStep++;
+          nextBreathStep();
+        }, s.text[idxStep].duration * 1000);
+      } else {
+        showNextBtn();
+      }
+    }
+    nextBreathStep();
+  }
+
+  // Next-Button wie immer erst am Schluss
   function showNextBtn() {
     const btn = document.createElement('button');
     btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
@@ -406,6 +471,7 @@ if (s.type === "breathing") {
   }
   return;
 }
+
 
 
   // ===== 3. ALLE ANDEREN SESSIONS (COUNTING, RHYME, ANIMALS, STORY) =====
