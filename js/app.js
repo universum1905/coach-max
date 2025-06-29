@@ -164,26 +164,7 @@ function showBreathingAnimationRhythm(stepIdx, session, breathingSteps) {
     return;
   }
 
-  // Smiley-Logik für drei Gesichter im Rhythmus
-  let content = pickBreathAnimation(session);
-  if (typ.includes("smiley")) {
-    const faces = ["😊", "😮", "😌"];
-    content = faces[stepIdx % faces.length];
-  }
-  animationDiv.innerHTML = content;
-
-  // Animations-Effekt für circle/cloud etc.
-  animationDiv.className = "breath-animation"; // Reset
-  if (["circle", "cloud"].some(t => typ.includes(t))) {
-    if (breathingSteps[stepIdx].line.match(/in/i)) animationDiv.classList.add("animate-grow");
-    if (breathingSteps[stepIdx].line.match(/out/i)) animationDiv.classList.add("animate-shrink");
-  }
-  if (typ.includes("star")) animationDiv.classList.add("animate-flash");
-}
-
-
-
-  // Smiley-Logik für drei Gesichter im Rhythmus
+   // Smiley-Logik für drei Gesichter im Rhythmus
   if (typ.includes("smiley")) {
     const faces = ["😊", "😮", "😌"];
     content = faces[stepIdx % faces.length];
