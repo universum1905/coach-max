@@ -20,15 +20,16 @@ html, body {
 
 .animated-lines {
   box-sizing: border-box;
-  padding-left: 20px;
-  padding-right: 20px;
-  min-height: 7em;   /* Platz für ca. 4 Zeilen */
-  max-height: 8.5em; /* ca. 4 Zeilen, je nach Fontgröße */
+  padding-top: 12px;   /* neu: Luft nach oben! */
+  padding-left: 14px;
+  padding-right: 14px;
+  min-height: 7em;
+  max-height: 8.5em;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  overflow: hidden;  /* WICHTIG: Rest wird unsichtbar! */
+  overflow: hidden;
 }
 
 
@@ -178,7 +179,7 @@ body {
   display: block;
   position: fixed;
   left: 50%;
-  bottom: 130px;  /* 40px höher als FrogBar */
+  bottom: 88px;  /* z.B. auf 88px statt 130px setzen – oder höher, nach Geschmack */
   transform: translateX(-50%);
   background: linear-gradient(90deg, #ffe082 40%, #81d4fa 100%);
   color: #333;
