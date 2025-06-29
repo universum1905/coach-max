@@ -353,173 +353,131 @@ function renderSession(idx) {
   }
 
   // ===== 2. BREATHING =====
-if (s.type === "breathing") {
-  // Überschrift
-  const heading = document.createElement('h2');
-  heading.className = "session-heading";
-  heading.textContent = `Day ${currentDay} Breathing`;
-  textArea.appendChild(heading);
+  if (s.type === "breathing") {
+    // ... Breathing-Block wie gehabt ...
+    const heading = document.createElement('h2');
+    heading.className = "session-heading";
+    heading.textContent = `Day ${currentDay} Breathing`;
+    textArea.appendChild(heading);
 
-  // Momo Bild oben
-  const momoImg = document.createElement('img');
-  momoImg.src = "images/momo.png";
-  momoImg.alt = "Momo";
-  momoImg.className = "intro-avatar-small";
-  textArea.appendChild(momoImg);
+    const momoImg = document.createElement('img');
+    momoImg.src = "images/momo.png";
+    momoImg.alt = "Momo";
+    momoImg.className = "intro-avatar-small";
+    textArea.appendChild(momoImg);
 
-  // Animations-Container für Atemübung
-  const breathAnim = document.createElement('div');
-  breathAnim.id = "breath-animation";
-  breathAnim.className = "breath-animation";
-  textArea.appendChild(breathAnim);
+    const breathAnim = document.createElement('div');
+    breathAnim.id = "breath-animation";
+    breathAnim.className = "breath-animation";
+    textArea.appendChild(breathAnim);
 
-  // Animierte Zeilen-Container
-  const linesBox = document.createElement('div');
-  linesBox.className = "animated-lines";
-  textArea.appendChild(linesBox);
+    const linesBox = document.createElement('div');
+    linesBox.className = "animated-lines";
+    textArea.appendChild(linesBox);
 
-  // Video (unten rechts, fixiert, mit Play-Overlay)
-  videoElement = document.createElement('video');
-  videoElement.src = `videos/${s.video}`;
-  videoElement.setAttribute("controls", "true");
-  videoElement.setAttribute("controlsList", "nodownload");
-  videoElement.autoplay = false;
-  videoElement.muted = false;
-  videoElement.playsInline = true;
-  videoElement.poster = "images/video-placeholder.png";
-  videoElement.style.display = "block";
-  videoElement.className = "session-video";
+    videoElement = document.createElement('video');
+    videoElement.src = `videos/${s.video}`;
+    videoElement.setAttribute("controls", "true");
+    videoElement.setAttribute("controlsList", "nodownload");
+    videoElement.autoplay = false;
+    videoElement.muted = false;
+    videoElement.playsInline = true;
+    videoElement.poster = "images/video-placeholder.png";
+    videoElement.style.display = "block";
+    videoElement.className = "session-video";
 
-  const videoBox = document.createElement('div');
-  videoBox.className = "floating-video";
-  videoBox.appendChild(videoElement);
-  document.body.appendChild(videoBox);
+    const videoBox = document.createElement('div');
+    videoBox.className = "floating-video";
+    videoBox.appendChild(videoElement);
+    document.body.appendChild(videoBox);
 
-  // Play-Button
-  const playBtn = document.createElement('button');
-  playBtn.className = "custom-play-btn";
-  playBtn.title = "Play";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-    <div class="play-tap-hint">Tap here to play!</div>
-  `;
-  playBtn.onclick = function() {
-    videoElement.play();
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  };
-  videoElement.addEventListener('play', () => {
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  });
-  videoElement.addEventListener('pause', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
-  videoElement.addEventListener('ended', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-    // Nach dem Video: Textanimation & Atemanimation starten
-    startBreathingSteps();
-  });
-  videoBox.appendChild(playBtn);
-
-  // Textanimation + Atemanimation NACH Video-Ende starten
-  let breathingStarted = false;
-  function startBreathingSteps() {
-    if (breathingStarted) return;
-    breathingStarted = true;
-    let idxStep = 0;
-    function nextBreathStep() {
-      if (idxStep < s.text.length) {
-        // Animation passend zur Zeile anzeigen
-        showBreathingAnimationRhythm(idxStep, s, s.text);
-
-        // Nur max. 4 Zeilen sichtbar lassen
-        while (linesBox.childNodes.length >= 4) {
-          linesBox.removeChild(linesBox.firstChild);
-        }
-        const p = document.createElement('div');
-        p.className = "animated-text";
-        p.innerText = s.text[idxStep].line;
-        linesBox.appendChild(p);
-
-        setTimeout(() => {
-          idxStep++;
-          nextBreathStep();
-        }, s.text[idxStep].duration * 1000);
-      } else {
-        showNextBtn();
-      }
-    }
-    nextBreathStep();
-  }
-
-  // Next-Button wie immer erst am Schluss
-  function showNextBtn() {
-    const btn = document.createElement('button');
-    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-    btn.className = "centered-next-btn";
-    btn.onclick = () => {
-      currentSession++;
-      if (currentSession < sessions.length) {
-        renderSession(currentSession);
-      } else {
-        finishDay();
-      }
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+      <div class="play-tap-hint">Tap here to play!</div>
+    `;
+    playBtn.onclick = function() {
+      videoElement.play();
+      playBtn.style.display = "none";
+      videoElement.style.pointerEvents = "auto";
     };
-    document.body.appendChild(btn);
+    videoElement.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      videoElement.style.pointerEvents = "auto";
+    });
+    videoElement.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      videoElement.style.pointerEvents = "none";
+    });
+    videoElement.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      videoElement.style.pointerEvents = "none";
+      startBreathingSteps();
+    });
+    videoBox.appendChild(playBtn);
+
+    let breathingStarted = false;
+    function startBreathingSteps() {
+      if (breathingStarted) return;
+      breathingStarted = true;
+      let idxStep = 0;
+      function nextBreathStep() {
+        if (idxStep < s.text.length) {
+          showBreathingAnimationRhythm(idxStep, s, s.text);
+
+          while (linesBox.childNodes.length >= 4) {
+            linesBox.removeChild(linesBox.firstChild);
+          }
+          const p = document.createElement('div');
+          p.className = "animated-text";
+          p.innerText = s.text[idxStep].line;
+          linesBox.appendChild(p);
+
+          setTimeout(() => {
+            idxStep++;
+            nextBreathStep();
+          }, s.text[idxStep].duration * 1000);
+        } else {
+          showNextBtn();
+        }
+      }
+      nextBreathStep();
+    }
+
+    function showNextBtn() {
+      const btn = document.createElement('button');
+      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      btn.className = "centered-next-btn";
+      btn.onclick = () => {
+        currentSession++;
+        if (currentSession < sessions.length) {
+          renderSession(currentSession);
+        } else {
+          finishDay();
+        }
+      };
+      document.body.appendChild(btn);
+    }
+    return;
   }
-  return;
-}
-function createDebugButtons() {
-  // Doppelte Buttons verhindern:
-  if (document.getElementById("debug-prev")) return;
-
-  const prevBtn = document.createElement('button');
-  prevBtn.id = "debug-prev";
-  prevBtn.innerText = "◀️ Prev";
-  prevBtn.style.cssText = "position:fixed;bottom:100px;left:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#ffe082;border:none;border-radius:18px;box-shadow:0 2px 8px #b3e5fc;";
-  prevBtn.onclick = () => {
-    if (currentSession > 0) {
-      currentSession--;
-      renderSession(currentSession);
-    }
-  };
-
-  const nextBtn = document.createElement('button');
-  nextBtn.id = "debug-next";
-  nextBtn.innerText = "Next ▶️";
-  nextBtn.style.cssText = "position:fixed;bottom:100px;right:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#81d4fa;border:none;border-radius:18px;box-shadow:0 2px 8px #ffe082;";
-  nextBtn.onclick = () => {
-    if (currentSession < sessions.length - 1) {
-      currentSession++;
-      renderSession(currentSession);
-    }
-  };
-
-  document.body.appendChild(prevBtn);
-  document.body.appendChild(nextBtn);
-}
-
 
 
   // ===== 3. ALLE ANDEREN SESSIONS (COUNTING, RHYME, ANIMALS, STORY) =====
-  // Überschrift (dynamisch: Day X Counting usw.)
+  // --- AB HIER KOMMT DEIN BLOCK FÜR RESTLICHE SESSIONS ---
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = `Day ${currentDay} ${capitalize(s.type)}`;
   textArea.appendChild(heading);
 
-  // Animierte Textzeilen-Container
   const linesBox = document.createElement('div');
   linesBox.className = "animated-lines";
   textArea.appendChild(linesBox);
 
-  // Video unten rechts, rund
   videoElement = document.createElement('video');
   videoElement.src = `videos/${s.video}`;
   videoElement.setAttribute("controls", "true");
@@ -536,7 +494,6 @@ function createDebugButtons() {
   videoBox.appendChild(videoElement);
   document.body.appendChild(videoBox);
 
-  // Play-Overlay
   const playBtn = document.createElement('button');
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
@@ -576,7 +533,6 @@ function createDebugButtons() {
 
   linesBox.hasAnimated = false;
 
-  // Next-Button nach Textanimation
   function showNextBtn() {
     const btn = document.createElement('button');
     btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
@@ -604,6 +560,36 @@ function finishDay() {
   document.querySelectorAll(".floating-video, .fixed-next-btn").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML =
     `<div class="animated-text glitter" style="font-size:1.8rem;">Congratulations! You finished today’s adventure! 🥳</div>`;
+}
+
+function createDebugButtons() {
+  // Doppelte Buttons verhindern:
+  if (document.getElementById("debug-prev")) return;
+
+  const prevBtn = document.createElement('button');
+  prevBtn.id = "debug-prev";
+  prevBtn.innerText = "◀️ Prev";
+  prevBtn.style.cssText = "position:fixed;bottom:100px;left:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#ffe082;border:none;border-radius:18px;box-shadow:0 2px 8px #b3e5fc;";
+  prevBtn.onclick = () => {
+    if (currentSession > 0) {
+      currentSession--;
+      renderSession(currentSession);
+    }
+  };
+
+  const nextBtn = document.createElement('button');
+  nextBtn.id = "debug-next";
+  nextBtn.innerText = "Next ▶️";
+  nextBtn.style.cssText = "position:fixed;bottom:100px;right:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#81d4fa;border:none;border-radius:18px;box-shadow:0 2px 8px #ffe082;";
+  nextBtn.onclick = () => {
+    if (currentSession < sessions.length - 1) {
+      currentSession++;
+      renderSession(currentSession);
+    }
+  };
+
+  document.body.appendChild(prevBtn);
+  document.body.appendChild(nextBtn);
 }
 
 window.onload = async () => {
