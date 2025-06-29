@@ -11,6 +11,11 @@ welcomeMusic.volume = 0.3;
 const frogSound = document.getElementById("frogSound");
 frogSound.volume = 0.42;
 
+const introMusic = new Audio("audio/counting-benny-bg.mp3");
+introMusic.loop = true;
+introMusic.volume = 0.18;
+
+
 // Fortschrittsbalken (Frosch)
 function renderFrogProgress(sessionIdx) {
   const total = sessions.length;
@@ -164,6 +169,54 @@ function renderSession(idx) {
 
   const s = sessions[idx];
   const textArea = document.getElementById('sessionTextArea');
+
+  // --- INTRO-SESSION: Musik + Bild + Smileys + zentriert + kein Video ---
+  if (s.type === "intro") {
+    try { introMusic.currentTime = 0; introMusic.play(); } catch(e) {}
+
+    // Oberes Maskottchen-Bild (z.B. Benny)
+    const topImg = document.createElement('img');
+    topImg.src = "images/benny.png"; // Pfad zu deinem Maskottchen
+    topImg.alt = "Benny";
+    topImg.className = "intro-mascot";
+    textArea.appendChild(topImg);
+
+    // Animierter Text, zentriert & gepolstert
+    textArea.style.textAlign = "center";
+    textArea.style.padding = "26px 14px 18px 14px";
+    textArea.style.alignItems = "center";
+
+    showAnimatedTexts(s, textArea, showNextBtn, true);
+
+    // Untere Smileys/Glitzer
+    const bottomBox = document.createElement('div');
+    bottomBox.className = "intro-emojis";
+    bottomBox.innerHTML = "🤩&nbsp;🎉&nbsp;⭐&nbsp;👏";
+    textArea.appendChild(bottomBox);
+
+    // Stoppe Musik beim Next
+    function showNextBtn() {
+      const btn = document.createElement('button');
+      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      btn.className = "centered-next-btn";
+      btn.onclick = () => {
+        try { introMusic.pause(); introMusic.currentTime = 0; } catch(e) {}
+        currentSession++;
+        if (currentSession < sessions.length) {
+          renderSession(currentSession);
+        } else {
+          finishDay();
+        }
+      };
+      document.body.appendChild(btn);
+    }
+    return; // Intro fertig, kein Video/Play-Overlay/Frosch hier
+  }
+
+  // --- Restliche Sessions (wie gehabt, Video etc.) ---
+  // ... (dein bisheriger Code für Video, Play, Next etc.)
+}
+
 
   // Video + Play-Overlay
   videoElement = document.createElement('video');

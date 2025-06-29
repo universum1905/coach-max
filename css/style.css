@@ -95,7 +95,7 @@ body {
 .session-text-area {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;  /* Zentriert alles auch mobil! */
   justify-content: flex-start;
   width: 100%;
   max-width: 500px;
@@ -103,6 +103,46 @@ body {
   padding: 0;
   background: none;
   box-shadow: none;
+}
+.intro-mascot {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  margin: 0 auto 18px auto;
+  box-shadow: 0 6px 22px #ffe082aa, 0 2px 24px #b3e5fc;
+  background: #fff;
+  object-fit: cover;
+}
+
+.intro-emojis {
+  font-size: 2.2rem;
+  margin: 32px auto 0 auto;
+  letter-spacing: 0.22em;
+  user-select: none;
+  pointer-events: none;
+}
+
+.centered-next-btn {
+  display: block;
+  position: fixed;
+  left: 50%;
+  bottom: 130px;  /* 40px höher als FrogBar */
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #ffe082 40%, #81d4fa 100%);
+  color: #333;
+  font-size: 1.22rem;
+  border-radius: 36px;
+  padding: 1rem 3.4rem;
+  border: none;
+  font-weight: bold;
+  box-shadow: 0 4px 22px #b3e5fc88, 0 0 6px #ffd54f66;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  z-index: 101;
+  transition: background 0.22s, transform 0.12s;
+}
+@media (max-width: 600px) {
+  .centered-next-btn { font-size: 1rem; padding: 0.8rem 1.7rem; bottom: 90px;}
 }
 .animated-text {
   font-size: 1.3rem;
