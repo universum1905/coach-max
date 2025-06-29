@@ -562,7 +562,7 @@ function capitalize(word) {
     };
     document.body.appendChild(btn);
   }
-}
+
 
 
 function finishDay() {
