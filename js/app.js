@@ -144,26 +144,30 @@ function showBreathingAnimationRhythm(stepIdx, session, breathingSteps) {
   const animationDiv = document.getElementById("breath-animation");
   const typ = session.animation || "";
 
-  // Balloon: animierter Kreis
   if (typ.includes("balloon")) {
-    if (!document.getElementById("breathing-balloon")) {
+    // Balloon nur EINMAL einfügen!
+    let balloon = document.getElementById("breathing-balloon");
+    if (!balloon) {
       animationDiv.innerHTML = `<div id="breathing-balloon" class="breath-balloon"></div>`;
+      balloon = document.getElementById("breathing-balloon");
     }
-    const balloon = document.getElementById("breathing-balloon");
+    // Immer zuerst alle Animationsklassen entfernen
     balloon.classList.remove("grow", "shrink");
 
-    // PRÜFUNG NUR PER breath
+    // NEU: nach "in"/"out" im Text prüfen!
     const step = breathingSteps[stepIdx];
-    if (step && step.breath === "in") {
+    if (step && step.line.match(/in/i)) {
       balloon.classList.add("grow");
-    } else if (step && step.breath === "out") {
+    } else if (step && step.line.match(/out/i)) {
       balloon.classList.add("shrink");
     } else {
+      // neutral
       balloon.style.transform = "scale(1)";
     }
     return;
   }
 
+ 
    // Smiley-Logik für drei Gesichter im Rhythmus
   if (typ.includes("smiley")) {
     const faces = ["😊", "😮", "😌"];
