@@ -532,4 +532,26 @@ function showBreathingInstructions(callback) {
 .breath-balloon.shrink {
   transform: scale(0.8);
 }
+.choose-day-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 1.24rem;
+}
+.choose-day-row button {
+  background: linear-gradient(90deg, #ffe082 40%, #81d4fa 100%);
+  border: none;
+  border-radius: 18px;
+  padding: 0.4em 1.3em;
+  font-size: 1.01rem;
+  cursor: pointer;
+  font-family: 'Comic Neue', Arial, sans-serif;
+  font-weight: bold;
+  box-shadow: 0 3px 12px #b3e5fc44;
+}
+.choose-day-row button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 

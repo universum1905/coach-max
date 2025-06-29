@@ -604,4 +604,55 @@ function unlockSticker(idx) {
     unlocked.push(idx);
     localStorage.setItem('unlockedStickers', JSON.stringify(unlocked));
   }
+const days = [
+  { nr: 1, title: "Day 1" },
+  { nr: 2, title: "Day 2" },
+  { nr: 3, title: "Day 3" },
+  // ...weitere Tage
+];
+
+function formatUnlockTime(ts) {
+  const d = new Date(ts);
+  // Format: 06:00
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function canStartDay(dayNr) {
+  const unlock = localStorage.getItem("day" + dayNr + "UnlockTime");
+  if (!unlock) return true; // Noch nie gesperrt → Start erlauben
+  return Date.now() > parseInt(unlock);
+}
+
+function renderDayList() {
+  const list = document.getElementById('dayList');
+  list.innerHTML = '';
+  days.forEach(day => {
+    const unlockTime = localStorage.getItem("day" + day.nr + "UnlockTime");
+    const unlocked = canStartDay(day.nr);
+
+    const div = document.createElement('div');
+    div.className = 'choose-day-row';
+
+    if (unlocked) {
+      div.innerHTML = `<span>✅ ${day.title}</span>
+        <button onclick="startDay(${day.nr})">Start</button>`;
+    } else {
+      div.innerHTML = `<span>🕒 ${day.title}</span>
+        <span style="color:#888;font-size:0.92em;margin-left:7px;">Gesperrt bis ${formatUnlockTime(unlockTime)} Uhr</span>`;
+    }
+    list.appendChild(div);
+  });
+}
+
+function startDay(dayNr) {
+  if (!canStartDay(dayNr)) {
+    alert("Dieser Tag ist erst ab 6:00 Uhr morgens verfügbar!");
+    return;
+  }
+  // Weiterleitung zum entsprechenden Tag (z.B. day1.html, day2.html, ...)
+  window.location.href = `day${dayNr}.html`;
+}
+
+// Beim Laden:
+renderDayList();
 
