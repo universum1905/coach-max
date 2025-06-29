@@ -213,12 +213,7 @@ function renderSession(idx) {
     return; // Intro fertig, kein Video/Play-Overlay/Frosch hier
   }
 
-  // --- Restliche Sessions (wie gehabt, Video etc.) ---
-  // ... (dein bisheriger Code für Video, Play, Next etc.)
-}
-
-
-  // Video + Play-Overlay
+    // --- Restliche Sessions (VIDEO, PLAY, NEXT) ---
   videoElement = document.createElement('video');
   videoElement.src = `videos/${s.video}`;
   videoElement.setAttribute("controls", "true");
@@ -229,6 +224,7 @@ function renderSession(idx) {
   videoElement.poster = "images/video-placeholder.png";
   videoElement.style.display = "block";
   videoElement.className = "session-video";
+
   // Video fixiert
   const videoBox = document.createElement('div');
   videoBox.className = "floating-video";
@@ -271,7 +267,6 @@ function renderSession(idx) {
 
   textArea.hasAnimated = false;
 
-  // Next-Button erst nach Textanimation anzeigen
   function showNextBtn() {
     const btn = document.createElement('button');
     btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
@@ -286,6 +281,7 @@ function renderSession(idx) {
     };
     document.body.appendChild(btn);
   }
+}
 
 
 function finishDay() {
