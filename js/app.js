@@ -180,33 +180,46 @@ function renderSession(idx) {
   if (s.type === "intro") {
   try { introMusic.currentTime = 0; introMusic.play(); } catch(e) {}
 
-  // --- MOMO-Bild ganz oben ---
-  const momoImg = document.createElement('img');
-  momoImg.src = "images/momo.png"; // Passe Pfad und Dateinamen ggf. an!
-  momoImg.alt = "Momo";
-  momoImg.className = "intro-mascot";
-  // Bild GANZ OBEN vor allen anderen Elementen:
-  textArea.appendChild(momoImg);
-  
-  // Maskottchen oben
-  const topImg = document.createElement('img');
-  topImg.src = "images/benny.png";
-  topImg.alt = "Benny";
-  topImg.className = "intro-mascot";
-  textArea.appendChild(topImg);
+  // --- Überschrift ---
+  const heading = document.createElement('h2');
+  heading.textContent = "Welcome to Day 1!";
+  heading.className = "intro-heading";
+  textArea.appendChild(heading);
 
-  // Smileys direkt unter dem Maskottchen
+  // --- Avatare nebeneinander: Momo & Benny ---
+  const avatarRow = document.createElement('div');
+  avatarRow.style.display = "flex";
+  avatarRow.style.justifyContent = "center";
+  avatarRow.style.alignItems = "center";
+  avatarRow.style.gap = "22px";
+  avatarRow.style.marginBottom = "12px";
+
+  const momoImg = document.createElement('img');
+  momoImg.src = "images/momo.png";
+  momoImg.alt = "Momo";
+  momoImg.className = "intro-avatar-small";
+
+  const bennyImg = document.createElement('img');
+  bennyImg.src = "images/benny.png";
+  bennyImg.alt = "Benny";
+  bennyImg.className = "intro-avatar-small";
+
+  avatarRow.appendChild(momoImg);
+  avatarRow.appendChild(bennyImg);
+  textArea.appendChild(avatarRow);
+
+  // --- Smileys ---
   const bottomBox = document.createElement('div');
   bottomBox.className = "intro-emojis";
   bottomBox.innerHTML = "🤩&nbsp;🎉&nbsp;⭐&nbsp;👏";
   textArea.appendChild(bottomBox);
 
-  // Animierten Text-Container unter den Smileys!
+  // --- Animierte Textzeilen-Container ---
   const linesBox = document.createElement('div');
   linesBox.className = "animated-lines";
   textArea.appendChild(linesBox);
 
-  // Video wie gehabt (fixiert unten rechts)
+  // --- Video (fixiert unten rechts) ---
   videoElement = document.createElement('video');
   videoElement.src = `videos/${s.video}`;
   videoElement.setAttribute("controls", "true");
@@ -223,7 +236,7 @@ function renderSession(idx) {
   videoBox.appendChild(videoElement);
   document.body.appendChild(videoBox);
 
-  // Play-Overlay
+  // --- Play-Overlay ---
   const playBtn = document.createElement('button');
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
@@ -261,7 +274,7 @@ function renderSession(idx) {
 
   // Text-Ausrichtung & Padding
   textArea.style.textAlign = "center";
-  textArea.style.padding = "26px 14px 18px 14px";
+  textArea.style.padding = "18px 6px 14px 6px";
   textArea.style.alignItems = "center";
 
   function showNextBtn() {
