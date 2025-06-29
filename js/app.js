@@ -180,6 +180,14 @@ function renderSession(idx) {
   if (s.type === "intro") {
   try { introMusic.currentTime = 0; introMusic.play(); } catch(e) {}
 
+  // --- MOMO-Bild ganz oben ---
+  const momoImg = document.createElement('img');
+  momoImg.src = "images/momo.png"; // Passe Pfad und Dateinamen ggf. an!
+  momoImg.alt = "Momo";
+  momoImg.className = "intro-mascot";
+  // Bild GANZ OBEN vor allen anderen Elementen:
+  textArea.appendChild(momoImg);
+  
   // Maskottchen oben
   const topImg = document.createElement('img');
   topImg.src = "images/benny.png";
