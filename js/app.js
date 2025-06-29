@@ -3,6 +3,7 @@ let sessions = [];
 let currentSession = 0;
 let textTimeouts = [];
 let videoElement = null;
+let currentDay = 1;
 
 // Musik & Sound
 const welcomeMusic = document.getElementById("welcomeMusic");
@@ -72,10 +73,10 @@ function showWelcome(onFinish) {
     welcomeArea.onclick = null;
   };
 
-  // Welcome Animation
+  // Welcome Animation (Dynamisch!)
   function startWelcomeAnimation() {
     const lines = [
-      "🎉 Welcome to Coach Max!",
+      `🎉 Welcome to Coach Max – Day ${currentDay}!`,     // <- Tag wird dynamisch gesetzt
       "Ready for a day full of fun and learning?",
       "Every tap brings you closer to today’s secret <span class='highlight-word'>sticker</span>!",
       "Let’s jump right in!"
@@ -110,6 +111,7 @@ function showWelcome(onFinish) {
     }, 5200);
   }
 }
+
 
 // Animierter Text, Next erst am Schluss
 function showAnimatedTexts(session, linesBox, onComplete) {
@@ -182,7 +184,7 @@ function renderSession(idx) {
 
   // --- Überschrift ---
   const heading = document.createElement('h2');
-  heading.textContent = "Welcome to Day 1!";
+  heading.textContent = "Welcome to Day ${currentDay}!";
   heading.className = "intro-heading";
   textArea.appendChild(heading);
 
@@ -379,9 +381,11 @@ window.onload = async () => {
   const res = await fetch(jsonURL);
   const data = await res.json();
   sessions = data.sessions;
+  currentDay = data.day || 1; // <-- Tagesnummer speichern!
   showWelcome(() => {
     renderSession(currentSession);
     handleOrientation();
   });
 };
+
 
