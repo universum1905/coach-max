@@ -8,6 +8,12 @@ let textTimeouts = [];
 let videoElement = null;
 let currentDay = 1;
 
+// Breathing Musik vorbereiten
+const breathingMusic = document.getElementById("breathingMusic") 
+   || new Audio("audio/focus-loop.mp3");  // Fallback, falls kein Audio-Tag
+breathingMusic.loop = true;
+breathingMusic.volume = 0.22;
+
 function capitalize(word) {
   if (!word) return "";
   return word.charAt(0).toUpperCase() + word.slice(1);
@@ -364,7 +370,12 @@ function renderSession(idx) {
 
   // ===== 2. BREATHING =====
   if (s.type === "breathing") {
-    const heading = document.createElement('h2');
+    try { 
+    breathingMusic.currentTime = 0; 
+    breathingMusic.play(); 
+} catch(e) {}
+
+	const heading = document.createElement('h2');
     heading.className = "session-heading";
     heading.textContent = `Day ${localDay} Breathing`;
     textArea.appendChild(heading);
@@ -536,6 +547,7 @@ function renderSession(idx) {
   linesBox.hasAnimated = false;
 
   function showNextBtn() {
+	try { breathingMusic.pause(); breathingMusic.currentTime = 0; } catch(e) {}
     const btn = document.createElement('button');
     btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
     btn.className = "centered-next-btn";
