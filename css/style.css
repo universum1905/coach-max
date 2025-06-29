@@ -20,8 +20,8 @@ html, body {
 
 .animated-lines {
   box-sizing: border-box;
-  padding-left: 18px;
-  padding-right: 23px;
+  padding-left: 20px;
+  padding-right: 20px;
   min-height: 7em;   /* Platz für ca. 4 Zeilen */
   max-height: 8.5em; /* ca. 4 Zeilen, je nach Fontgröße */
   display: flex;
@@ -199,8 +199,8 @@ body {
 .animated-text {
   width: 100%;
   box-sizing: border-box;
-  padding-left: 18px;
-  padding-right: 23px;
+  padding-left: 20px;
+  padding-right: 20px;
   font-size: 1.3rem;
   margin: 12px 0 0 0;
   padding: 0;
