@@ -484,6 +484,56 @@ function renderSession(idx) {
   }
 
   // ===== 3. ALLE ANDEREN SESSIONS (COUNTING, RHYME, ANIMALS, STORY) =====
+  if (s.type === "counting") {
+  // ... Video wie gehabt einbauen ...
+
+  // Overlay für Zahl & Tierbild
+  const overlay = document.createElement('div');
+  overlay.id = "counting-overlay";
+  overlay.style.position = "absolute";
+  overlay.style.top = "20px";
+  overlay.style.left = "50%";
+  overlay.style.transform = "translateX(-50%)";
+  overlay.style.display = "flex";
+  overlay.style.flexDirection = "column";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+  overlay.style.zIndex = 99;
+  overlay.innerHTML = `
+    <div id="counting-number" style="font-size: 3rem; font-weight: bold; color: #ffb300;"></div>
+    <img id="counting-animal" src="" alt="" style="width: 92px; height: 92px; margin-top: 10px;" />
+  `;
+  document.body.appendChild(overlay);
+
+  // Overlay aktualisieren, wenn das Video läuft
+  let currentIdx = -1;
+  videoElement.addEventListener('timeupdate', () => {
+    const t = videoElement.currentTime;
+    const timings = s.countingTimings;
+    // Das letzte Timing finden, das <= aktuelle Zeit ist
+    let found = -1;
+    for (let i = 0; i < timings.length; i++) {
+      if (t >= timings[i].time) found = i;
+      else break;
+    }
+    if (found !== -1 && found !== currentIdx) {
+      currentIdx = found;
+      document.getElementById('counting-number').innerText = timings[found].number;
+      document.getElementById('counting-animal').src = timings[found].image;
+      document.getElementById('counting-animal').alt = timings[found].animal;
+    }
+  });
+
+  // Overlay wieder ausblenden, wenn Video fertig ist
+  videoElement.addEventListener('ended', () => {
+    overlay.style.display = "none";
+  });
+}
+
+  
+  
+  
+  
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = `Day ${localDay} ${capitalize(s.type)}`;
