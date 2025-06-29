@@ -1,4 +1,4 @@
-const DEV_MODE = false;    // Auf true setzen für Entwicklung, auf false für Produktion
+const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
 let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 const jsonURL = "days/day1.json";
@@ -579,7 +579,7 @@ window.onload = async () => {
   sessions = data.sessions;
   currentDay = data.day || 1;
 
-  currentSession = 0;
+  currentSession = DEV_MODE ? DEV_START_SESSION : 0;
   showWelcome(() => {
     renderSession(currentSession);
     handleOrientation();
