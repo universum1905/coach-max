@@ -1,4 +1,4 @@
-const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
+const DEV_MODE = false;    // Auf true setzen für Entwicklung, auf false für Produktion
 let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 const jsonURL = "days/day1.json";
@@ -533,38 +533,7 @@ function finishDay() {
     `<div class="animated-text glitter" style="font-size:1.8rem;">Congratulations! You finished today’s adventure! 🥳</div>`;
 }
 
-function createDebugButtons() {
-  // Alte Buttons entfernen, damit niemals doppelt!
-  document.getElementById("debug-prev")?.remove();
-  document.getElementById("debug-next")?.remove();
 
-  // Prev-Button
-  const prevBtn = document.createElement('button');
-  prevBtn.id = "debug-prev";
-  prevBtn.innerText = "◀️ Prev";
-  prevBtn.style.cssText = "position:fixed;bottom:100px;left:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#ffe082;border:none;border-radius:18px;box-shadow:0 2px 8px #b3e5fc;";
-  prevBtn.onclick = () => {
-    if (currentSession > 0) {
-      currentSession--;
-      renderSession(currentSession);
-    }
-  };
-
-  // Next-Button
-  const nextBtn = document.createElement('button');
-  nextBtn.id = "debug-next";
-  nextBtn.innerText = "Next ▶️";
-  nextBtn.style.cssText = "position:fixed;bottom:100px;right:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#81d4fa;border:none;border-radius:18px;box-shadow:0 2px 8px #ffe082;";
-  nextBtn.onclick = () => {
-    if (currentSession < sessions.length - 1) {
-      currentSession++;
-      renderSession(currentSession);
-    }
-  };
-
-  document.body.appendChild(prevBtn);
-  document.body.appendChild(nextBtn);
-}
 
 window.onload = async () => {
   const res = await fetch(jsonURL);
@@ -572,17 +541,9 @@ window.onload = async () => {
   sessions = data.sessions;
   currentDay = data.day || 1;
 
-  if (DEV_MODE) {
-    currentSession = DEV_START_SESSION;
+  currentSession = 0;
+  showWelcome(() => {
     renderSession(currentSession);
     handleOrientation();
-    document.getElementById("mainContent").style.display = "";
-    createDebugButtons();
-  } else {
-    currentSession = 0;
-    showWelcome(() => {
-      renderSession(currentSession);
-      handleOrientation();
-    });
-  }
+  });
 };
