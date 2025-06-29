@@ -680,7 +680,7 @@ const unlocked = JSON.parse(localStorage.getItem('unlockedStickers') || "[]");
 
 // Sticker-Board-Element holen
 const board = document.getElementById('stickerBoard');
-
+if (!board) return; // oder: Fehlerhinweis/Skip
 // Alle Sticker anzeigen (bunt wenn freigeschaltet, grau wenn nicht)
 const board = document.getElementById('stickerBoard');
 stickerImages.forEach((src, idx) => {
