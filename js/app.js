@@ -145,24 +145,24 @@ function showBreathingAnimationRhythm(stepIdx, session, breathingSteps) {
   const typ = session.animation || "";
 
   if (typ.includes("balloon")) {
-    // Balloon nur EINMAL einfügen!
     let balloon = document.getElementById("breathing-balloon");
     if (!balloon) {
       animationDiv.innerHTML = `<div id="breathing-balloon" class="breath-balloon"></div>`;
       balloon = document.getElementById("breathing-balloon");
     }
-    // Immer zuerst alle Animationsklassen entfernen
+    // Immer beide Klassen entfernen, um Reset zu garantieren!
     balloon.classList.remove("grow", "shrink");
-	balloon.style.transform = ""; // Auf Standard zurücksetzen
+    balloon.style.transform = ""; // Fallback: neutral
 
-    // NEU: nach "in"/"out" im Text prüfen!
     const step = breathingSteps[stepIdx];
-    if (step && step.line.match(/in/i)) {
+
+    // Jetzt exakt nach dem breath-Property gehen!
+    if (step && step.breath === "in") {
       balloon.classList.add("grow");
-    } else if (step && step.line.match(/out/i)) {
+    } else if (step && step.breath === "out") {
       balloon.classList.add("shrink");
     }
-	// NEU: bei allen anderen Schritten (wie "Hold") bleibt scale(1)
+    // bei hold oder ohne breath bleibt neutral (scale 1)
     return;
   }
 
