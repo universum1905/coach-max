@@ -4,6 +4,42 @@ html, body {
   box-sizing: border-box;
 }
 
+.session-text-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100vw;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  overflow-x: hidden;
+}
+
+.animated-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100vw;
+  max-width: 480px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+@media (max-width: 600px) {
+  .session-text-area,
+  .animated-lines {
+    max-width: 98vw;
+    width: 100vw;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+
 body {
   margin: 0;
   padding: 0;
