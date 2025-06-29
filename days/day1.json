@@ -21,15 +21,22 @@
     }
    ,
     {
-      "type": "breathing",
-      "video": "day1-breath.mp4",
-      "text": [
-        "Let’s take a deep breath together with Momo.",
-        "Breathe in... hold it... and breathe out.",
-        "Feel how calm you are now? Great job!"
-      ],
-      "timings": [0, 3, 7]
-    },
+  "type": "breathing",
+  "avatar": "momo",
+  "video": "day1-breath.mp4",
+  "text": [
+    { "line": "Let’s take a fun breathing break with Momo!", "duration": 4 },
+    { "line": "Ready? Sit up straight and put your hand on your tummy.", "duration": 4 },
+    { "line": "Breathe in slowly…", "duration": 3 },
+    { "line": "Hold it…", "duration": 2 },
+    { "line": "Now breathe out…", "duration": 3 },
+    { "line": "One more time: in… hold… out…", "duration": 5 },
+    { "line": "Feel how calm you are? Great job!", "duration": 3 }
+  ],
+  "duration": 24,
+  "animation": "breath_balloon"
+}
+,
     {
       "type": "counting",
       "video": "day1-counting.mp4",

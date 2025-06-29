@@ -428,3 +428,56 @@ body {
   background: #fff;
   margin: 0;
 }
+
+„/* Zusatz: Breathing Animation */“
+.breathing-animation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 14px;
+  margin-bottom: 10px;
+}
+
+.breathing-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #b2ebf2 70%, #ffd54f 100%);
+  margin-bottom: 10px;
+  animation: breathingPulse 9s ease-in-out 1;
+}
+
+@keyframes breathingPulse {
+  0%   { transform: scale(1);   }
+  12%  { transform: scale(1.5); }
+  33%  { transform: scale(1.1); }
+  55%  { transform: scale(1.65);}
+  78%  { transform: scale(0.95);}
+  100% { transform: scale(1);   }
+}
+.breathing-instruction {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #0277bd;
+  min-height: 2em;
+  text-shadow: 0 1px 8px #fffde4;
+  transition: color 0.4s;
+}
+function showBreathingInstructions(callback) {
+  // Ablauf: Zeitangaben in ms!
+  const steps = [
+    { text: "Breathe in... (deep)", time: 0 },
+    { text: "Hold it...",           time: 3000 },
+    { text: "Breathe out... (slow)",time: 6000 },
+    { text: "Great job!",           time: 8800 }
+  ];
+  const el = document.getElementById('breathingInstruction');
+  if (!el) { if (callback) callback(); return; }
+  steps.forEach((step, i) => {
+    setTimeout(() => {
+      el.textContent = step.text;
+      if (i === steps.length - 1) el.style.color = "#43a047";
+      if (i === steps.length - 1 && typeof callback === "function") setTimeout(callback, 1000);
+    }, step.time);
+  });
+}

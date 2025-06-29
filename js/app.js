@@ -304,100 +304,109 @@ function renderSession(idx) {
   }
 
   // ===== 2. BREATHING =====
-  if (s.type === "breathing") {
-    // Überschrift
-    const heading = document.createElement('h2');
-    heading.className = "session-heading";
-    heading.textContent = `Day ${currentDay} Breathing`;
-    textArea.appendChild(heading);
+if (s.type === "breathing") {
+  // Überschrift
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = `Day ${currentDay} Breathing`;
+  textArea.appendChild(heading);
 
-    // Momo Bild oben
-    const momoImg = document.createElement('img');
-    momoImg.src = "images/momo.png";
-    momoImg.alt = "Momo";
-    momoImg.className = "intro-avatar-small";
-    textArea.appendChild(momoImg);
+  // Momo Bild oben
+  const momoImg = document.createElement('img');
+  momoImg.src = "images/momo.png";
+  momoImg.alt = "Momo";
+  momoImg.className = "intro-avatar-small";
+  textArea.appendChild(momoImg);
 
-    // Animierte Zeilen-Container
-    const linesBox = document.createElement('div');
-    linesBox.className = "animated-lines";
-    textArea.appendChild(linesBox);
+  // Animierte Zeilen-Container
+  const linesBox = document.createElement('div');
+  linesBox.className = "animated-lines";
+  textArea.appendChild(linesBox);
 
-    // Video (unten rechts, fixiert, mit Play-Overlay)
-    videoElement = document.createElement('video');
-    videoElement.src = `videos/${s.video}`;
-    videoElement.setAttribute("controls", "true");
-    videoElement.setAttribute("controlsList", "nodownload");
-    videoElement.autoplay = false;
-    videoElement.muted = false;
-    videoElement.playsInline = true;
-    videoElement.poster = "images/video-placeholder.png";
-    videoElement.style.display = "block";
-    videoElement.className = "session-video";
+  // --- Breathing Animation, versteckt ---
+  const breathingAnim = document.createElement('div');
+  breathingAnim.className = "breathing-animation";
+  breathingAnim.id = "breathingAnim";
+  breathingAnim.style.display = "none";
+  breathingAnim.innerHTML = `
+    <div class="breathing-circle"></div>
+    <div class="breathing-instruction" id="breathingInstruction"></div>
+  `;
+  textArea.appendChild(breathingAnim);
 
-    const videoBox = document.createElement('div');
-    videoBox.className = "floating-video";
-    videoBox.appendChild(videoElement);
-    document.body.appendChild(videoBox);
+  // Video (unten rechts, fixiert, mit Play-Overlay)
+  videoElement = document.createElement('video');
+  videoElement.src = `videos/${s.video}`;
+  videoElement.setAttribute("controls", "true");
+  videoElement.setAttribute("controlsList", "nodownload");
+  videoElement.autoplay = false;
+  videoElement.muted = false;
+  videoElement.playsInline = true;
+  videoElement.poster = "images/video-placeholder.png";
+  videoElement.style.display = "block";
+  videoElement.className = "session-video";
 
-    // Play-Button
-    const playBtn = document.createElement('button');
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-      <div class="play-tap-hint">Tap here to play!</div>
-    `;
-    playBtn.onclick = function() {
-      videoElement.play();
-      playBtn.style.display = "none";
-      videoElement.style.pointerEvents = "auto";
-    };
-    videoElement.addEventListener('play', () => {
-      playBtn.style.display = "none";
-      videoElement.style.pointerEvents = "auto";
-    });
-    videoElement.addEventListener('pause', () => {
-      playBtn.style.display = "";
-      videoElement.style.pointerEvents = "none";
-    });
-    videoElement.addEventListener('ended', () => {
-      playBtn.style.display = "";
-      videoElement.style.pointerEvents = "none";
-      // Nach dem Video: Textanimation starten
-      showAnimatedTexts(s, linesBox, showNextBtn);
-    });
-    videoBox.appendChild(playBtn);
+  const videoBox = document.createElement('div');
+  videoBox.className = "floating-video";
+  videoBox.appendChild(videoElement);
+  document.body.appendChild(videoBox);
 
-    // Textanimation nur nach Video-Ende (alternativ nach Play)
-    let textAnimated = false;
-    videoElement.addEventListener('ended', () => {
-      if (!textAnimated) {
+  // Play-Button
+  const playBtn = document.createElement('button');
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+    <div class="play-tap-hint">Tap here to play!</div>
+  `;
+  playBtn.onclick = function() {
+    videoElement.play();
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  };
+  videoElement.addEventListener('play', () => {
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  });
+  videoElement.addEventListener('pause', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoElement.addEventListener('ended', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+    // Nach dem Video: Animation & Text starten
+    if (!videoElement.hasAnimated) {
+      breathingAnim.style.display = "flex";
+      showBreathingInstructions(() => {
         showAnimatedTexts(s, linesBox, showNextBtn);
-        textAnimated = true;
-      }
-    });
-
-    // Next-Button
-    function showNextBtn() {
-      const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        currentSession++;
-        if (currentSession < sessions.length) {
-          renderSession(currentSession);
-        } else {
-          finishDay();
-        }
-      };
-      document.body.appendChild(btn);
+      });
+      videoElement.hasAnimated = true;
     }
-    return;
+  });
+  videoBox.appendChild(playBtn);
+
+  // Animierter Text, Next erst nach Animation & Text
+  function showNextBtn() {
+    const btn = document.createElement('button');
+    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+    btn.className = "centered-next-btn";
+    btn.onclick = () => {
+      currentSession++;
+      if (currentSession < sessions.length) {
+        renderSession(currentSession);
+      } else {
+        finishDay();
+      }
+    };
+    document.body.appendChild(btn);
   }
+  return;
+}
+
 
   // ===== 3. ALLE ANDEREN SESSIONS (COUNTING, RHYME, ANIMALS, STORY) =====
   // Überschrift (dynamisch: Day X Counting usw.)
