@@ -561,9 +561,19 @@ window.onload = async () => {
   currentDay = data.day || 1;
 
   currentSession = DEV_MODE ? DEV_START_SESSION : 0;
-  showWelcome(() => {
+
+  if (DEV_MODE) {
+    // Direkt die gewünschte Session anzeigen
+    document.getElementById("welcomeArea").style.display = "none";
+    document.getElementById("mainContent").style.display = "";
     renderSession(currentSession);
     handleOrientation();
-  });
+  } else {
+    showWelcome(() => {
+      renderSession(currentSession);
+      handleOrientation();
+    });
+  }
 };
+
 
