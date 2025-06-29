@@ -178,7 +178,7 @@ function showBreathingAnimationRhythm(stepIdx, session, breathingSteps) {
     if (breathingSteps[stepIdx].line.match(/out/i)) animationDiv.classList.add("animate-shrink");
   }
   if (typ.includes("star")) animationDiv.classList.add("animate-flash");
-
+}
 
 // Animierter Text, Next erst am Schluss
 function showAnimatedTexts(session, linesBox, onComplete) {
