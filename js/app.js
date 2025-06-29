@@ -113,7 +113,7 @@ function showWelcome(onFinish) {
 
 // Animierter Text, Next erst am Schluss
 function showAnimatedTexts(session, textArea, onComplete) {
-  textArea.innerHTML = "";
+  
   let totalDelay = 0;
   session.text.forEach((t, i) => {
     let delay = totalDelay * 1000;
