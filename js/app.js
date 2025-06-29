@@ -563,12 +563,13 @@ function finishDay() {
 }
 
 function createDebugButtons() {
-  // Vorherige Buttons entfernen (falls noch vorhanden)
+  // Vorherige Debug-Buttons entfernen
   const oldPrev = document.getElementById("debug-prev");
   const oldNext = document.getElementById("debug-next");
   if (oldPrev) oldPrev.remove();
   if (oldNext) oldNext.remove();
 
+  // Prev-Button
   const prevBtn = document.createElement('button');
   prevBtn.id = "debug-prev";
   prevBtn.innerText = "◀️ Prev";
@@ -577,10 +578,11 @@ function createDebugButtons() {
     if (currentSession > 0) {
       currentSession--;
       renderSession(currentSession);
-      createDebugButtons(); // <-- NEU! Immer Buttons neu erzeugen!
+      createDebugButtons();
     }
   };
 
+  // Next-Button
   const nextBtn = document.createElement('button');
   nextBtn.id = "debug-next";
   nextBtn.innerText = "Next ▶️";
@@ -589,13 +591,14 @@ function createDebugButtons() {
     if (currentSession < sessions.length - 1) {
       currentSession++;
       renderSession(currentSession);
-      createDebugButtons(); // <-- NEU! Immer Buttons neu erzeugen!
+      createDebugButtons();
     }
   };
 
   document.body.appendChild(prevBtn);
   document.body.appendChild(nextBtn);
 }
+
 
 
 window.onload = async () => {
