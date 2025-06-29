@@ -296,6 +296,102 @@ function renderSession(idx) {
   }
   return;
 }
+if (s.type === "breathing") {
+  clearTimeouts();
+  renderFrogProgress(idx);  // Froschbalken wie überall
+
+  document.querySelectorAll(".floating-video, .fixed-next-btn, .centered-next-btn").forEach(el => el.remove());
+  document.getElementById('sessionTextArea').innerHTML = "";
+
+  const textArea = document.getElementById('sessionTextArea');
+
+  // --- Momo Bild oben ---
+  const momoImg = document.createElement('img');
+  momoImg.src = "images/momo.png";
+  momoImg.alt = "Momo";
+  momoImg.className = "intro-avatar-small";
+  textArea.appendChild(momoImg);
+
+  // --- Animierte Zeilen-Container ---
+  const linesBox = document.createElement('div');
+  linesBox.className = "animated-lines";
+  textArea.appendChild(linesBox);
+
+  // --- Video (unten rechts, fixiert, mit Play-Overlay) ---
+  videoElement = document.createElement('video');
+  videoElement.src = `videos/${s.video}`;
+  videoElement.setAttribute("controls", "true");
+  videoElement.setAttribute("controlsList", "nodownload");
+  videoElement.autoplay = false;
+  videoElement.muted = false;
+  videoElement.playsInline = true;
+  videoElement.poster = "images/video-placeholder.png";
+  videoElement.style.display = "block";
+  videoElement.className = "session-video";
+
+  const videoBox = document.createElement('div');
+  videoBox.className = "floating-video";
+  videoBox.appendChild(videoElement);
+  document.body.appendChild(videoBox);
+
+  // --- Play-Button ---
+  const playBtn = document.createElement('button');
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+    <div class="play-tap-hint">Tap here to play!</div>
+  `;
+  playBtn.onclick = function() {
+    videoElement.play();
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  };
+  videoElement.addEventListener('play', () => {
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  });
+  videoElement.addEventListener('pause', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoElement.addEventListener('ended', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+    // Nach dem Video: Textanimation starten
+    showAnimatedTexts(s, linesBox, showNextBtn);
+  });
+  videoBox.appendChild(playBtn);
+
+  // Textanimation nur nach Video-Ende (optional: nach Play)
+  let textAnimated = false;
+  videoElement.addEventListener('ended', () => {
+    if (!textAnimated) {
+      showAnimatedTexts(s, linesBox, showNextBtn);
+      textAnimated = true;
+    }
+  });
+
+  // Next-Button wie immer erst am Schluss
+  function showNextBtn() {
+    const btn = document.createElement('button');
+    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+    btn.className = "centered-next-btn";
+    btn.onclick = () => {
+      currentSession++;
+      if (currentSession < sessions.length) {
+        renderSession(currentSession);
+      } else {
+        finishDay();
+      }
+    };
+    document.body.appendChild(btn);
+  }
+  return;
+}
 
 
  
