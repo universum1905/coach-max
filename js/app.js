@@ -164,31 +164,83 @@ window.addEventListener("resize", handleOrientation);
 function renderSession(idx) {
   clearTimeouts();
   renderFrogProgress(idx);
-  document.querySelectorAll(".floating-video, .fixed-next-btn").forEach(el => el.remove());
+  document.querySelectorAll(".floating-video, .fixed-next-btn, .centered-next-btn").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML = "";
 
   const s = sessions[idx];
   const textArea = document.getElementById('sessionTextArea');
 
-  // --- INTRO-SESSION: Musik + Bild + Smileys + zentriert + kein Video ---
+  // --- INTRO-SESSION: Musik + Bild + Video + Smileys + zentriert ---
   if (s.type === "intro") {
     try { introMusic.currentTime = 0; introMusic.play(); } catch(e) {}
 
-    // Oberes Maskottchen-Bild (z.B. Benny)
+    // Maskottchen oben
     const topImg = document.createElement('img');
-    topImg.src = "images/benny.png"; // Pfad zu deinem Maskottchen
+    topImg.src = "images/benny.png";
     topImg.alt = "Benny";
     topImg.className = "intro-mascot";
     textArea.appendChild(topImg);
+
+    // Video (wieder wie bei anderen Sessions!)
+    videoElement = document.createElement('video');
+    videoElement.src = `videos/${s.video}`;
+    videoElement.setAttribute("controls", "true");
+    videoElement.setAttribute("controlsList", "nodownload");
+    videoElement.autoplay = false;
+    videoElement.muted = false;
+    videoElement.playsInline = true;
+    videoElement.poster = "images/video-placeholder.png";
+    videoElement.style.display = "block";
+    videoElement.className = "session-video";
+
+    // Video fixiert
+    const videoBox = document.createElement('div');
+    videoBox.className = "floating-video";
+    videoBox.appendChild(videoElement);
+    document.body.appendChild(videoBox);
+
+    // Play-Overlay
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+      <div class="play-tap-hint">Tap here to play!</div>
+    `;
+    playBtn.onclick = function() {
+      videoElement.play();
+      playBtn.style.display = "none";
+      videoElement.style.pointerEvents = "auto";
+    };
+    videoElement.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      videoElement.style.pointerEvents = "auto";
+      if (!textArea.hasAnimated) {
+        showAnimatedTexts(s, textArea, showNextBtn);
+        textArea.hasAnimated = true;
+      }
+    });
+    videoElement.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      videoElement.style.pointerEvents = "none";
+    });
+    videoElement.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      videoElement.style.pointerEvents = "none";
+    });
+    videoBox.appendChild(playBtn);
+
+    textArea.hasAnimated = false;
 
     // Animierter Text, zentriert & gepolstert
     textArea.style.textAlign = "center";
     textArea.style.padding = "26px 14px 18px 14px";
     textArea.style.alignItems = "center";
 
-    showAnimatedTexts(s, textArea, showNextBtn, true);
-
-    // Untere Smileys/Glitzer
+    // Emojis unten
     const bottomBox = document.createElement('div');
     bottomBox.className = "intro-emojis";
     bottomBox.innerHTML = "🤩&nbsp;🎉&nbsp;⭐&nbsp;👏";
@@ -210,9 +262,9 @@ function renderSession(idx) {
       };
       document.body.appendChild(btn);
     }
-    return; // Intro fertig, kein Video/Play-Overlay/Frosch hier
+    return;
   }
-
+ 
     // --- Restliche Sessions (VIDEO, PLAY, NEXT) ---
   videoElement = document.createElement('video');
   videoElement.src = `videos/${s.video}`;
