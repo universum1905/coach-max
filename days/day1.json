@@ -54,7 +54,7 @@
     { "number": 7, "animal": "monkey", "image": "images/animals/monkey.png", "time": 36.0 },
     { "number": 8, "animal": "frog", "image": "images/animals/frog.png", "time": 40.0 },
     { "number": 9, "animal": "fox", "image": "images/animals/fox.png", "time": 44.0 },
-    { "number": 10, "animal": "owl", "image": "images/animals/bear.png", "time": 48.0 }
+    { "number": 10, "animal": "bear", "image": "images/animals/bear.png", "time": 48.0 }
   ],
   "text": [
     { "line": "Let's count to 10! Ready?", "duration": 2 },

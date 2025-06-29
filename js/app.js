@@ -485,32 +485,39 @@ function renderSession(idx) {
 
   // ===== 3. ALLE ANDEREN SESSIONS (COUNTING, RHYME, ANIMALS, STORY) =====
   if (s.type === "counting") {
-  // ... Video wie gehabt einbauen ...
+  // Video erzeugen (wie gehabt)
+  videoElement = document.createElement('video');
+  videoElement.src = `videos/${s.video}`;
+  videoElement.setAttribute("controls", "true");
+  videoElement.setAttribute("controlsList", "nodownload");
+  videoElement.autoplay = false;
+  videoElement.muted = false;
+  videoElement.playsInline = true;
+  videoElement.poster = "images/video-placeholder.png";
+  videoElement.style.display = "block";
+  videoElement.className = "session-video";
+  const videoBox = document.createElement('div');
+  videoBox.className = "floating-video";
+  videoBox.appendChild(videoElement);
+  document.body.appendChild(videoBox);
 
-  // Overlay für Zahl & Tierbild
-  const overlay = document.createElement('div');
-  overlay.id = "counting-overlay";
-  overlay.style.position = "absolute";
-  overlay.style.top = "20px";
-  overlay.style.left = "50%";
-  overlay.style.transform = "translateX(-50%)";
-  overlay.style.display = "flex";
-  overlay.style.flexDirection = "column";
-  overlay.style.alignItems = "center";
-  overlay.style.justifyContent = "center";
-  overlay.style.zIndex = 99;
-  overlay.innerHTML = `
-    <div id="counting-number" style="font-size: 3rem; font-weight: bold; color: #ffb300;"></div>
-    <img id="counting-animal" src="" alt="" style="width: 92px; height: 92px; margin-top: 10px;" />
-  `;
-  document.body.appendChild(overlay);
+  // Overlay anlegen
+  let overlay = document.getElementById('countingOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = "countingOverlay";
+    document.body.appendChild(overlay);
+  }
 
-  // Overlay aktualisieren, wenn das Video läuft
+  // Alles zurücksetzen
+  overlay.innerHTML = "";
+  overlay.style.display = "none";
   let currentIdx = -1;
+
+  // Bei jedem timeupdate passende Zahl & Tier anzeigen
   videoElement.addEventListener('timeupdate', () => {
     const t = videoElement.currentTime;
     const timings = s.countingTimings;
-    // Das letzte Timing finden, das <= aktuelle Zeit ist
     let found = -1;
     for (let i = 0; i < timings.length; i++) {
       if (t >= timings[i].time) found = i;
@@ -518,17 +525,37 @@ function renderSession(idx) {
     }
     if (found !== -1 && found !== currentIdx) {
       currentIdx = found;
-      document.getElementById('counting-number').innerText = timings[found].number;
-      document.getElementById('counting-animal').src = timings[found].image;
-      document.getElementById('counting-animal').alt = timings[found].animal;
+      const animalName = timings[found].animal;
+      overlay.innerHTML = `
+        <div class="count-overlay">
+          <img src="images/animals/${animalName}.png" alt="${animalName}" style="width:85px;vertical-align:middle;">
+          <span style="font-size:2.3rem;font-weight:bold;padding-left:15px;">${timings[found].number}</span>
+        </div>
+      `;
+      overlay.style.display = 'block';
+      setTimeout(() => { overlay.style.display = 'none'; }, 900);
     }
   });
 
-  // Overlay wieder ausblenden, wenn Video fertig ist
+  // Overlay ausblenden, wenn das Video zu Ende ist
   videoElement.addEventListener('ended', () => {
     overlay.style.display = "none";
   });
+
+  // Button anzeigen wie gehabt
+  function showNextBtn() {
+    const btn = document.createElement('button');
+    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+    btn.className = "centered-next-btn";
+    btn.onclick = () => {
+      currentSession++;
+      renderSession(currentSession);
+    };
+    document.body.appendChild(btn);
+  }
+  return;
 }
+
 
   
   
