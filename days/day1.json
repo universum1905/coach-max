@@ -41,15 +41,27 @@
 }
 ,
     {
-      "type": "counting",
-      "video": "day1-counting.mp4",
-      "text": [
-        "Let's count with Benny!",
-        "One, two, three, four, five...",
-        "Six, seven, eight, nine, ten! You did it!"
-      ],
-      "timings": [0, 2, 5]
-    },
+  "type": "counting",
+  "avatar": "benny",
+  "video": "day1-counting.mp4",
+  "countingTimings": [
+    { "number": 1, "animal": "mouse", "image": "images/animals/mouse.png", "time": 12.0 },
+    { "number": 2, "animal": "cat", "image": "images/animals/cat.png", "time": 16.0 },
+    { "number": 3, "animal": "dog", "image": "images/animals/dog.png", "time": 20.0 },
+    { "number": 4, "animal": "lion", "image": "images/animals/lion.png", "time": 24.0 },
+    { "number": 5, "animal": "rabbit", "image": "images/animals/rabbit.png", "time": 28.0 },
+    { "number": 6, "animal": "elephant", "image": "images/animals/elephant.png", "time": 32.0 },
+    { "number": 7, "animal": "monkey", "image": "images/animals/monkey.png", "time": 36.0 },
+    { "number": 8, "animal": "frog", "image": "images/animals/frog.png", "time": 40.0 },
+    { "number": 9, "animal": "fox", "image": "images/animals/fox.png", "time": 44.0 },
+    { "number": 10, "animal": "owl", "image": "images/animals/owl.png", "time": 48.0 }
+  ],
+  "text": [
+    { "line": "Let's count to 10! Ready?", "duration": 2 },
+    { "line": "Watch and count with Benny!", "duration": 3 }
+  ]
+}
+,
     {
       "type": "animals",
       "video": "day1-animals.mp4",
