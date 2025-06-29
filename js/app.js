@@ -243,6 +243,7 @@ window.addEventListener("resize", handleOrientation);
 
 // Session mit Video, Play-Overlay, animiertem Text und fixiertem Next-Button
 function renderSession(idx) {
+  try { breathingMusic.pause(); breathingMusic.currentTime = 0; } catch(e) {}
   clearTimeouts();
   renderFrogProgress(idx);
   document.querySelectorAll(".floating-video, .fixed-next-btn, .centered-next-btn").forEach(el => el.remove());
@@ -469,15 +470,16 @@ function renderSession(idx) {
     }
 
     function showNextBtn() {
-      const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        currentSession++;
-        renderSession(currentSession);
-      };
-      document.body.appendChild(btn);
-    }
+  try { breathingMusic.pause(); breathingMusic.currentTime = 0; } catch(e) {}
+  const btn = document.createElement('button');
+  btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+  btn.className = "centered-next-btn";
+  btn.onclick = () => {
+    currentSession++;
+    renderSession(currentSession);
+  };
+  document.body.appendChild(btn);
+}
     return;
   }
 
@@ -547,8 +549,7 @@ function renderSession(idx) {
   linesBox.hasAnimated = false;
 
   function showNextBtn() {
-	try { breathingMusic.pause(); breathingMusic.currentTime = 0; } catch(e) {}
-    const btn = document.createElement('button');
+	const btn = document.createElement('button');
     btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
     btn.className = "centered-next-btn";
     btn.onclick = () => {
