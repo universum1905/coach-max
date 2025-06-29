@@ -1,3 +1,7 @@
+const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
+let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+
+
 const jsonURL = "days/day1.json";
 let sessions = [];
 let currentSession = 0;
@@ -471,6 +475,35 @@ if (s.type === "breathing") {
   }
   return;
 }
+function createDebugButtons() {
+  // Doppelte Buttons verhindern:
+  if (document.getElementById("debug-prev")) return;
+
+  const prevBtn = document.createElement('button');
+  prevBtn.id = "debug-prev";
+  prevBtn.innerText = "◀️ Prev";
+  prevBtn.style.cssText = "position:fixed;bottom:100px;left:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#ffe082;border:none;border-radius:18px;box-shadow:0 2px 8px #b3e5fc;";
+  prevBtn.onclick = () => {
+    if (currentSession > 0) {
+      currentSession--;
+      renderSession(currentSession);
+    }
+  };
+
+  const nextBtn = document.createElement('button');
+  nextBtn.id = "debug-next";
+  nextBtn.innerText = "Next ▶️";
+  nextBtn.style.cssText = "position:fixed;bottom:100px;right:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#81d4fa;border:none;border-radius:18px;box-shadow:0 2px 8px #ffe082;";
+  nextBtn.onclick = () => {
+    if (currentSession < sessions.length - 1) {
+      currentSession++;
+      renderSession(currentSession);
+    }
+  };
+
+  document.body.appendChild(prevBtn);
+  document.body.appendChild(nextBtn);
+}
 
 
 
@@ -577,12 +610,24 @@ window.onload = async () => {
   const res = await fetch(jsonURL);
   const data = await res.json();
   sessions = data.sessions;
-  currentDay = data.day || 1; // <-- Tagesnummer speichern!
-  showWelcome(() => {
+  currentDay = data.day || 1;
+
+  // Developer Mode: Session-Sprung und Welcome-Überspringen
+  if (DEV_MODE) {
+    currentSession = DEV_START_SESSION;
     renderSession(currentSession);
     handleOrientation();
-  });
+    // Debug-Buttons einblenden
+    createDebugButtons();
+  } else {
+    currentSession = 0; // Immer bei Intro starten
+    showWelcome(() => {
+      renderSession(currentSession);
+      handleOrientation();
+    });
+  }
 };
+
 // Animiert die Atemübung per Emoji oder Icon
 function showBreathingAnimationRhythm(idx, s, textArr) {
   const anim = document.getElementById('breath-animation');
