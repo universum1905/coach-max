@@ -343,11 +343,11 @@ function renderSession(idx) {
         try { introMusic.pause(); introMusic.currentTime = 0; } catch(e) {}
         currentSession++;
         renderSession(currentSession);
-        if (DEV_MODE) createDebugButtons();
+        
       };
       document.body.appendChild(btn);
     }
-    if (DEV_MODE) createDebugButtons();
+    
     return;
   }
 
@@ -453,11 +453,11 @@ function renderSession(idx) {
       btn.onclick = () => {
         currentSession++;
         renderSession(currentSession);
-        if (DEV_MODE) createDebugButtons();
+        
       };
       document.body.appendChild(btn);
     }
-    if (DEV_MODE) createDebugButtons();
+    
     return;
   }
 
@@ -533,11 +533,11 @@ function renderSession(idx) {
     btn.onclick = () => {
       currentSession++;
       renderSession(currentSession);
-      if (DEV_MODE) createDebugButtons();
+      
     };
     document.body.appendChild(btn);
   }
-  if (DEV_MODE) createDebugButtons();
+  
 }
 
 
@@ -572,7 +572,7 @@ function createDebugButtons() {
     if (currentSession > 0) {
       currentSession--;
       renderSession(currentSession);
-      createDebugButtons();
+      
     }
   };
 
@@ -585,7 +585,7 @@ function createDebugButtons() {
     if (currentSession < sessions.length - 1) {
       currentSession++;
       renderSession(currentSession);
-      createDebugButtons();
+      
     }
   };
 
@@ -601,21 +601,20 @@ window.onload = async () => {
   sessions = data.sessions;
   currentDay = data.day || 1;
 
-  // Developer Mode: Session-Sprung und Welcome-Überspringen
   if (DEV_MODE) {
     currentSession = DEV_START_SESSION;
     renderSession(currentSession);
     handleOrientation();
-    // Debug-Buttons einblenden
-    createDebugButtons();
+    createDebugButtons(); // <<< Nur hier!
   } else {
-    currentSession = 0; // Immer bei Intro starten
+    currentSession = 0;
     showWelcome(() => {
       renderSession(currentSession);
       handleOrientation();
     });
   }
 };
+
 
 // Animiert die Atemübung per Emoji oder Icon
 function showBreathingAnimationRhythm(idx, s, textArr) {
@@ -634,6 +633,38 @@ function showBreathingAnimationRhythm(idx, s, textArr) {
   // Wenn zu wenig: fallback Emoji
   const emoji = steps[idx] || "🫁";
   anim.innerHTML = `<span style="font-size:3.1em;display:inline-block;animation:pop 0.9s;">${emoji}</span>`;
+}
+function createDebugButtons() {
+  // Alte Buttons entfernen, damit niemals doppelt!
+  document.getElementById("debug-prev")?.remove();
+  document.getElementById("debug-next")?.remove();
+
+  // Prev-Button
+  const prevBtn = document.createElement('button');
+  prevBtn.id = "debug-prev";
+  prevBtn.innerText = "◀️ Prev";
+  prevBtn.style.cssText = "position:fixed;bottom:100px;left:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#ffe082;border:none;border-radius:18px;box-shadow:0 2px 8px #b3e5fc;";
+  prevBtn.onclick = () => {
+    if (currentSession > 0) {
+      currentSession--;
+      renderSession(currentSession);
+    }
+  };
+
+  // Next-Button
+  const nextBtn = document.createElement('button');
+  nextBtn.id = "debug-next";
+  nextBtn.innerText = "Next ▶️";
+  nextBtn.style.cssText = "position:fixed;bottom:100px;right:8px;z-index:99999;font-size:1rem;padding:8px 16px;background:#81d4fa;border:none;border-radius:18px;box-shadow:0 2px 8px #ffe082;";
+  nextBtn.onclick = () => {
+    if (currentSession < sessions.length - 1) {
+      currentSession++;
+      renderSession(currentSession);
+    }
+  };
+
+  document.body.appendChild(prevBtn);
+  document.body.appendChild(nextBtn);
 }
 
 
