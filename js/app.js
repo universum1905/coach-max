@@ -335,20 +335,18 @@ function renderSession(idx) {
     textArea.style.alignItems = "center";
 
     function showNextBtn() {
-      const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        try { introMusic.pause(); introMusic.currentTime = 0; } catch(e) {}
-        currentSession++;
-        if (currentSession < sessions.length) {
-          renderSession(currentSession);
-        } else {
-          finishDay();
-        }
-      };
-      document.body.appendChild(btn);
-    }
+  const btn = document.createElement('button');
+  btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+  btn.className = "centered-next-btn";
+  btn.onclick = () => {
+    currentSession++;
+    renderSession(currentSession);
+    if (DEV_MODE) createDebugButtons(); // <== HIER!
+    // Es ist egal, ob du am Ende bist, dann wird ja finishDay() angezeigt
+  };
+  document.body.appendChild(btn);
+}
+
     return;
   }
 
@@ -450,19 +448,18 @@ function renderSession(idx) {
     }
 
     function showNextBtn() {
-      const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        currentSession++;
-        if (currentSession < sessions.length) {
-          renderSession(currentSession);
-        } else {
-          finishDay();
-        }
-      };
-      document.body.appendChild(btn);
-    }
+  const btn = document.createElement('button');
+  btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+  btn.className = "centered-next-btn";
+  btn.onclick = () => {
+    currentSession++;
+    renderSession(currentSession);
+    if (DEV_MODE) createDebugButtons(); // <== HIER!
+    // Es ist egal, ob du am Ende bist, dann wird ja finishDay() angezeigt
+  };
+  document.body.appendChild(btn);
+}
+
     return;
   }
 
@@ -534,19 +531,18 @@ function renderSession(idx) {
   linesBox.hasAnimated = false;
 
   function showNextBtn() {
-    const btn = document.createElement('button');
-    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-    btn.className = "centered-next-btn";
-    btn.onclick = () => {
-      currentSession++;
-      if (currentSession < sessions.length) {
-        renderSession(currentSession);
-      } else {
-        finishDay();
-      }
-    };
-    document.body.appendChild(btn);
-  }
+  const btn = document.createElement('button');
+  btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+  btn.className = "centered-next-btn";
+  btn.onclick = () => {
+    currentSession++;
+    renderSession(currentSession);
+    if (DEV_MODE) createDebugButtons(); // <== HIER!
+    // Es ist egal, ob du am Ende bist, dann wird ja finishDay() angezeigt
+  };
+  document.body.appendChild(btn);
+}
+
 }
 
 // Hilfsfunktion am Ende deiner Datei (oder im Kopf)
