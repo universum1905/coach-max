@@ -34,7 +34,7 @@
     { "line": "Feel how calm you are? Great job!", "duration": 3 }
   ],
   "duration": 24,
-  "animation": "breath_balloon"
+  "animation": "balloon"
 }
 ,
     {

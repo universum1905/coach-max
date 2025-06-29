@@ -567,30 +567,4 @@ window.onload = async () => {
     handleOrientation();
   });
 };
-function showBreathingBalloonAnimation(cycles = 3, inhale = 1500, exhale = 1500) {
-  const el = document.getElementById('breathing-balloon');
-  if (!el) return;
-  el.style.display = 'block'; // Ballon anzeigen
-  let count = 0;
 
-  function cycle() {
-    if (count >= cycles) {
-      el.style.transform = 'scale(1)';
-      el.style.display = 'none'; // Ballon wieder verstecken
-      return;
-    }
-    // Einatmen
-    el.style.transition = `transform ${inhale}ms cubic-bezier(.4,2,.5,.9)`;
-    el.style.transform = 'scale(1.3)';
-    setTimeout(() => {
-      // Ausatmen
-      el.style.transition = `transform ${exhale}ms cubic-bezier(.4,2,.5,.9)`;
-      el.style.transform = 'scale(0.8)';
-      setTimeout(() => {
-        count++;
-        cycle();
-      }, exhale);
-    }, inhale);
-  }
-  cycle();
-}
