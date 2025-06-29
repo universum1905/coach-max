@@ -286,7 +286,7 @@ function renderSession(idx) {
     };
     document.body.appendChild(btn);
   }
-}
+
 
 function finishDay() {
   clearTimeouts();
