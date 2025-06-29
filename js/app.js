@@ -579,11 +579,11 @@ window.onload = async () => {
   }
 };
 const stickerImages = [
-  "images/stickers/sticker-star.png",
-  "images/stickers/sticker-party.png",
-  "images/stickers/sticker-butterfly.png",
-  "images/stickers/sticker-trophy.png",
-  "images/stickers/sticker-medal.png"
+  "images/stickers/star.png",
+  "images/stickers/party.png",
+  "images/stickers/butterfly.png",
+  "images/stickers/trophy.png",
+  "images/stickers/medal.png"
 ];
 // Lies die freigeschalteten Sticker aus dem LocalStorage
 const unlocked = JSON.parse(localStorage.getItem('unlockedStickers') || "[]");
