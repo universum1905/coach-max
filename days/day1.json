@@ -1,113 +1,211 @@
 {
-  "day": 1,
-  "sessions": [
-    {
-      "id": 1,
-      "type": "intro",
-      "avatar": "luna",
-      "title": "Welcome to Day 1!",
-      "text": [
-        { "line": "Hi there, I’m Luna! Welcome to Day 1 of our learning adventure.", "duration": 5 },
-        { "line": "I’m so glad you’re here!", "duration": 3 },
-        { "line": "Today we’ll count together, rhyme, and meet some friendly animals.", "duration": 5 },
-        { "line": "Don’t worry, I’ll guide you every step of the way.", "duration": 4 },
-        { "line": "Just relax, take a deep breath, and get ready for some fun!", "duration": 5 },
-        { "line": "When you’re ready, tap Next to begin.", "duration": 4 },
-        { "line": "Let’s make today awesome—you’re a superstar!", "duration": 4 }
-      ],
-      "video": "day1-intro.mp4",
-      "duration": 30,
-      "animation": "welcome_rainbow"
-    }
-   ,
-   
-   {
-      "type": "breathing",
-      "text": [ { "line": "Breathe in...", "duration": 4, "breath": "in" }, 
-      "video": "day1-breath.mp4"
-    },
-   
-    {
-  "type": "memory",
-  "avatar": "benny",
-  "cards": [
-    { "img": "images/animals/cat.png", "pairId": 1 },
-    { "img": "images/animals/cat.png", "pairId": 1 },
-    { "img": "images/animals/lion.png", "pairId": 2 },
-    { "img": "images/animals/lion.png", "pairId": 2 }
-  ],
-  "successSticker": 1
-}
-,
-
-
-    {
-  "type": "counting",
-  "avatar": "benny",
-  "video": "day1-counting.mp4",
-  "countingTimings": [
-    { "number": 1, "animal": "mouse", "image": "images/animals/mouse.png", "time": 12.0 },
-    { "number": 2, "animal": "cat", "image": "images/animals/cat.png", "time": 16.0 },
-    { "number": 3, "animal": "dog", "image": "images/animals/dog.png", "time": 20.0 },
-    { "number": 4, "animal": "lion", "image": "images/animals/lion.png", "time": 24.0 },
-    { "number": 5, "animal": "rabbit", "image": "images/animals/rabbit.png", "time": 28.0 },
-    { "number": 6, "animal": "elephant", "image": "images/animals/elephant.png", "time": 32.0 },
-    { "number": 7, "animal": "monkey", "image": "images/animals/monkey.png", "time": 36.0 },
-    { "number": 8, "animal": "frog", "image": "images/animals/frog.png", "time": 40.0 },
-    { "number": 9, "animal": "fox", "image": "images/animals/fox.png", "time": 44.0 },
-    { "number": 10, "animal": "bear", "image": "images/animals/bear.png", "time": 48.0 }
-  ],
-  "text": [
-    { "line": "Let's count to 10! Ready?", "duration": 6 },
-    { "line": "Watch and count with Benny!", "duration": 8 }
-  ]
-}
-,
-    {
-      "type": "animals",
-      "video": "day1-animals.mp4",
-      "text": [
-        "Let’s play ‘Guess That Animal’ with Momo!",
-        "I’m small, I hop, and I love to eat carrots. Who am I?",
-        "That’s right, I’m a rabbit! Great guessing!"
-      ],
-      "timings": [0, 3, 7]
-    },
-    {
-      "type": "rhyme",
-      "video": "day1-rhyme.mp4",
-      "text": [
-        "Now a rhyme with Benny!",
-        "Benny the dog runs in the fog.",
-        "He jumps over a log, and greets a friendly frog!"
-      ],
-      "timings": [0, 2.5, 5.5]
-    },
-	
-	{
-  "type": "shadow",
-  "avatar": "luna",
-  "shadow": "images/animals/cat-shadow.png",
-  "choices": [
-    "images/animals/dog.png",
-    "images/animals/cat.png",
-    "images/animals/bear.png"
-  ],
-  "correct": 1,
-  "successSticker": 2
-},
-	
-	
-    {
-      "type": "story",
-      "video": "day1-story.mp4",
-      "text": [
-        "Time for a story with Luna!",
-        "Luna and her friends went on a treasure hunt.",
-        "At the end, they found a sparkling sticker just for you!",
-        "See you tomorrow for more fun adventures!"
-      ],
-      "timings": [0, 3, 6, 9]
-    }
-  ]
+    "day": 1,
+    "sessions": [
+        {
+            "id": 1,
+            "type": "intro",
+            "avatar": "luna",
+            "title": "Welcome to Day 1!",
+            "text": [
+                {
+                    "line": "Hi there, I’m Luna! Welcome to Day 1 of our learning adventure.",
+                    "duration": 5
+                },
+                {
+                    "line": "I’m so glad you’re here!",
+                    "duration": 3
+                },
+                {
+                    "line": "Today we’ll count together, rhyme, and meet some friendly animals.",
+                    "duration": 5
+                },
+                {
+                    "line": "Don’t worry, I’ll guide you every step of the way.",
+                    "duration": 4
+                },
+                {
+                    "line": "Just relax, take a deep breath, and get ready for some fun!",
+                    "duration": 5
+                },
+                {
+                    "line": "When you’re ready, tap Next to begin.",
+                    "duration": 4
+                },
+                {
+                    "line": "Let’s make today awesome—you’re a superstar!",
+                    "duration": 4
+                }
+            ],
+            "video": "day1-intro.mp4",
+            "duration": 30,
+            "animation": "welcome_rainbow"
+        },
+        {
+            "type": "breathing",
+            "text": [
+                {
+                    "line": "Breathe in...",
+                    "duration": 4,
+                    "breath": "in"
+                }
+            ],
+            "video": "day1-breathing.mp4"
+        },
+        {
+            "type": "memory",
+            "avatar": "benny",
+            "cards": [
+                {
+                    "img": "images/animals/cat.png",
+                    "pairId": 1
+                },
+                {
+                    "img": "images/animals/cat.png",
+                    "pairId": 1
+                },
+                {
+                    "img": "images/animals/lion.png",
+                    "pairId": 2
+                },
+                {
+                    "img": "images/animals/lion.png",
+                    "pairId": 2
+                }
+            ],
+            "successSticker": 1
+        },
+        {
+            "type": "counting",
+            "avatar": "benny",
+            "video": "day1-counting.mp4",
+            "countingTimings": [
+                {
+                    "number": 1,
+                    "animal": "mouse",
+                    "image": "images/animals/mouse.png",
+                    "time": 12
+                },
+                {
+                    "number": 2,
+                    "animal": "cat",
+                    "image": "images/animals/cat.png",
+                    "time": 16
+                },
+                {
+                    "number": 3,
+                    "animal": "dog",
+                    "image": "images/animals/dog.png",
+                    "time": 20
+                },
+                {
+                    "number": 4,
+                    "animal": "lion",
+                    "image": "images/animals/lion.png",
+                    "time": 24
+                },
+                {
+                    "number": 5,
+                    "animal": "rabbit",
+                    "image": "images/animals/rabbit.png",
+                    "time": 28
+                },
+                {
+                    "number": 6,
+                    "animal": "elephant",
+                    "image": "images/animals/elephant.png",
+                    "time": 32
+                },
+                {
+                    "number": 7,
+                    "animal": "monkey",
+                    "image": "images/animals/monkey.png",
+                    "time": 36
+                },
+                {
+                    "number": 8,
+                    "animal": "frog",
+                    "image": "images/animals/frog.png",
+                    "time": 40
+                },
+                {
+                    "number": 9,
+                    "animal": "fox",
+                    "image": "images/animals/fox.png",
+                    "time": 44
+                },
+                {
+                    "number": 10,
+                    "animal": "bear",
+                    "image": "images/animals/bear.png",
+                    "time": 48
+                }
+            ],
+            "text": [
+                {
+                    "line": "Let's count to 10! Ready?",
+                    "duration": 6
+                },
+                {
+                    "line": "Watch and count with Benny!",
+                    "duration": 8
+                }
+            ]
+        },
+        {
+            "type": "animals",
+            "video": "day1-animals.mp4",
+            "text": [
+                "Let’s play ‘Guess That Animal’ with Momo!",
+                "I’m small, I hop, and I love to eat carrots. Who am I?",
+                "That’s right, I’m a rabbit! Great guessing!"
+            ],
+            "timings": [
+                0,
+                3,
+                7
+            ]
+        },
+        {
+            "type": "rhyme",
+            "video": "day1-rhyme.mp4",
+            "text": [
+                "Now a rhyme with Benny!",
+                "Benny the dog runs in the fog.",
+                "He jumps over a log, and greets a friendly frog!"
+            ],
+            "timings": [
+                0,
+                2.5,
+                5.5
+            ]
+        },
+        {
+            "type": "shadow",
+            "avatar": "luna",
+            "shadow": "images/animals/cat-shadow.png",
+            "choices": [
+                "images/animals/dog.png",
+                "images/animals/cat.png",
+                "images/animals/bear.png"
+            ],
+            "correct": 1,
+            "successSticker": 2
+        },
+        {
+            "type": "story",
+            "video": "day1-story.mp4",
+            "text": [
+                "Time for a story with Luna!",
+                "Luna and her friends went on a treasure hunt.",
+                "At the end, they found a sparkling sticker just for you!",
+                "See you tomorrow for more fun adventures!"
+            ],
+            "timings": [
+                0,
+                3,
+                6,
+                9
+            ]
+        }
+    ]
 }
