@@ -20,6 +20,13 @@
       "animation": "welcome_rainbow"
     }
    ,
+   
+   {
+      "type": "breathing",
+      "text": [ { "line": "Breathe in...", "duration": 4, "breath": "in" }, ... ],
+      "video": "day1-breathing.mp4"
+    },
+   
     {
   "type": "memory",
   "avatar": "benny",
