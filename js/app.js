@@ -251,6 +251,7 @@ window.addEventListener("resize", handleOrientation);
 
 // Session mit Video, Play-Overlay, animiertem Text und fixiertem Next-Button
 function renderSession(idx) {
+	console.log("Session-Objekt:", s);
   try { breathingMusic.pause(); breathingMusic.currentTime = 0; } catch(e) {}
   clearTimeouts();
   renderFrogProgress(idx);
