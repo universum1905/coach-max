@@ -568,7 +568,7 @@ function renderSession(idx) {
 
 
   // ===== 3. ALLE ANDEREN SESSIONS (COUNTING, RHYME, ANIMALS, STORY) =====
-  if (s.type === "counting") {
+  if (s.type === "") {
   // Video erzeugen (wie gehabt)
   videoElement = document.createElement('video');
   videoElement.src = `videos/${s.video}`;
