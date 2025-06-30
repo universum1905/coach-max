@@ -5,7 +5,7 @@ function getDayParam() {
   const params = new URLSearchParams(window.location.search);
   return parseInt(params.get("day")) || 1;
 }
-const currentDay = getDayParam();
+let currentDay = getDayParam();
 const jsonURL = `days/day${currentDay}.json`;
 
 
