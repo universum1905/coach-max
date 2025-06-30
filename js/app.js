@@ -697,4 +697,4 @@ function startDay(dayNr) {
     alert("Dieser Tag ist erst ab 6:00 Uhr morgens verfügbar!");
     return;
   }
- 
+ }
