@@ -491,6 +491,8 @@ function renderSession(idx) {
 
   // ===== 3. COUNTING =====
   if (s.type === "counting") {
+  console.log('>> RENDER COUNTING', s.video, s.countingTimings);
+
   videoElement = document.createElement('video');
   videoElement.src = `videos/${s.video}`;
   videoElement.setAttribute("controls", "true");
@@ -501,92 +503,20 @@ function renderSession(idx) {
   videoElement.poster = "images/video-placeholder.png";
   videoElement.style.display = "block";
   videoElement.className = "session-video";
+  document.body.appendChild(videoElement);
 
-  const videoBox = document.createElement('div');
-  videoBox.className = "floating-video";
-  videoBox.appendChild(videoElement);
-  document.body.appendChild(videoBox);
-
-  // Play-Overlay wie bei den anderen Sessions!
-  const playBtn = document.createElement('button');
-  playBtn.className = "custom-play-btn";
-  playBtn.title = "Play";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-    <div class="play-tap-hint">Tap here to play!</div>
-  `;
-  playBtn.onclick = function() {
-    videoElement.play();
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  };
-  videoElement.addEventListener('play', () => {
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  });
-  videoElement.addEventListener('pause', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
-  videoElement.addEventListener('ended', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
-  videoBox.appendChild(playBtn);
-
-  // Counting-Overlay
-  let overlay = document.getElementById('countingOverlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = "countingOverlay";
-    document.body.appendChild(overlay);
-  }
-  overlay.innerHTML = "";
-  overlay.style.display = "none";
-  let currentIdx = -1;
-
-  videoElement.addEventListener('timeupdate', () => {
-    const t = videoElement.currentTime;
-    const timings = s.countingTimings;
-    let found = -1;
-    for (let i = 0; i < timings.length; i++) {
-      if (t >= timings[i].time) found = i;
-      else break;
-    }
-    if (found !== -1 && found !== currentIdx) {
-      currentIdx = found;
-      const animalName = timings[found].animal;
-      overlay.innerHTML = `
-        <div class="count-overlay">
-          <img src="images/animals/${animalName}.png" alt="${animalName}" style="width:85px;vertical-align:middle;">
-          <span style="font-size:2.3rem;font-weight:bold;padding-left:15px;">${timings[found].number}</span>
-        </div>
-      `;
-      overlay.style.display = 'block';
-      setTimeout(() => { overlay.style.display = 'none'; }, 900);
-    }
+  videoElement.addEventListener('error', (e) => {
+    console.error('VIDEO ERROR:', e, videoElement.error);
   });
 
-  videoElement.addEventListener('ended', () => {
-    overlay.style.display = "none";
-    showNextBtn();
+  // Test: Manuell abspielen
+  videoElement.addEventListener('canplay', () => {
+    console.log('VIDEO CAN PLAY');
   });
 
-  function showNextBtn() {
-    const btn = document.createElement('button');
-    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-    btn.className = "centered-next-btn";
-    btn.onclick = () => {
-      currentSession++;
-      renderSession(currentSession);
-    };
-    document.body.appendChild(btn);
-  }
-  return; // WICHTIG!
+  return;
 }
+
 
       
 
