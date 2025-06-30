@@ -491,8 +491,41 @@ function renderSession(idx) {
 
   // ===== 3. COUNTING =====
   if (s.type === "counting") {
-  console.log('>> RENDER COUNTING', s.video, s.countingTimings);
+  clearTimeouts();
+  const textArea = document.getElementById('sessionTextArea');
+  textArea.innerHTML = "";
 
+  // Überschrift und Avatar
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Counting Time!";
+  textArea.appendChild(heading);
+
+  if (s.avatar) {
+    const avatarImg = document.createElement('img');
+    avatarImg.src = "images/" + s.avatar + ".png";
+    avatarImg.alt = s.avatar;
+    avatarImg.className = "intro-avatar-small";
+    textArea.appendChild(avatarImg);
+  }
+
+  // Animierte Zeilen (oben)
+  const linesBox = document.createElement('div');
+  linesBox.className = "animated-lines";
+  textArea.appendChild(linesBox);
+
+  if (Array.isArray(s.text)) {
+    s.text.forEach((line, idx) => {
+      setTimeout(() => {
+        const p = document.createElement('div');
+        p.className = "animated-text";
+        p.innerText = line.line || line;
+        linesBox.appendChild(p);
+      }, idx * 900);
+    });
+  }
+
+  // Video-Bereich (unten rechts, wie bei Intro)
   videoElement = document.createElement('video');
   videoElement.src = `videos/${s.video}`;
   videoElement.setAttribute("controls", "true");
@@ -501,24 +534,309 @@ function renderSession(idx) {
   videoElement.muted = false;
   videoElement.playsInline = true;
   videoElement.poster = "images/video-placeholder.png";
-  videoElement.style.display = "block";
   videoElement.className = "session-video";
-  document.body.appendChild(videoElement);
 
-  videoElement.addEventListener('error', (e) => {
-    console.error('VIDEO ERROR:', e, videoElement.error);
+  const videoBox = document.createElement('div');
+  videoBox.className = "floating-video";
+  videoBox.appendChild(videoElement);
+  document.body.appendChild(videoBox);
+
+  // Play-Overlay
+  const playBtn = document.createElement('button');
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+    <div class="play-tap-hint">Tap here to play!</div>
+  `;
+  playBtn.onclick = function () {
+    videoElement.play();
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  };
+  videoElement.addEventListener('play', () => {
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
   });
-
-  // Test: Manuell abspielen
-  videoElement.addEventListener('canplay', () => {
-    console.log('VIDEO CAN PLAY');
+  videoElement.addEventListener('pause', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
   });
+  videoElement.addEventListener('ended', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+    showNextBtn();
+  });
+  videoBox.appendChild(playBtn);
 
-  return;
+  // Zähl-Overlay, wenn countingTimings definiert
+  if (Array.isArray(s.countingTimings) && s.countingTimings.length > 0) {
+    const overlay = document.createElement('div');
+    overlay.id = "countingOverlay";
+    overlay.style.display = "none";
+    document.body.appendChild(overlay);
+
+    let timeoutHandles = [];
+
+    function clearCountingOverlays() {
+      overlay.style.display = "none";
+      overlay.innerHTML = "";
+      timeoutHandles.forEach(handle => clearTimeout(handle));
+      timeoutHandles = [];
+    }
+
+    videoElement.addEventListener('play', () => {
+      clearCountingOverlays();
+      s.countingTimings.forEach((step, idx) => {
+        const timeout = setTimeout(() => {
+          overlay.style.display = "";
+          overlay.innerHTML = `
+            <div class="count-overlay">
+              <img src="${step.image}" style="width:48px;height:48px;margin-right:18px;">
+              <span style="font-size:2.3rem;font-weight:bold;">${step.number}</span>
+            </div>
+          `;
+          setTimeout(() => {
+            overlay.style.display = "none";
+          }, 1400); // Einblendzeit pro Zahl
+        }, (step.time || idx * 4) * 1000); // Zeitsteuerung in Sekunden
+        timeoutHandles.push(timeout);
+      });
+    });
+
+    videoElement.addEventListener('ended', clearCountingOverlays);
+    videoElement.addEventListener('pause', clearCountingOverlays);
+  }
+
+  // Next-Button, sobald Video zu Ende
+  function showNextBtn() {
+    const btn = document.createElement('button');
+    btn.innerText = currentSession < sessions.length - 1 ? "Next" : "Finish";
+    btn.className = "centered-next-btn";
+    btn.onclick = () => {
+      document.querySelectorAll('.floating-video, #countingOverlay').forEach(el => el.remove());
+      currentSession++;
+      renderSession(currentSession);
+    };
+    document.body.appendChild(btn);
+  }
+
+  // Direkt Next, falls kein Video
+  if (!s.video) showNextBtn();
+
+  return; // Wichtig!
 }
 
 
-      
+// Am Anfang von renderSession() nach dem Switch/if zu session.type
+
+// ...Intro, Counting, Animals usw. wie gehabt...
+
+// ==== 4. NEUES MODUL: MEMORY ====
+if (s.type === "memory") {
+  // Speicher die Session-TextArea
+  const textArea = document.getElementById('sessionTextArea');
+  textArea.innerHTML = "";
+  
+  // Überschrift, Avatar
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = "Memory Game!";
+  textArea.appendChild(heading);
+
+  if (s.avatar) {
+    const avatarImg = document.createElement('img');
+    avatarImg.src = "images/" + s.avatar + ".png";
+    avatarImg.alt = s.avatar;
+    avatarImg.className = "intro-avatar-small";
+    textArea.appendChild(avatarImg);
+  }
+
+  // Spielfeld
+  const board = document.createElement('div');
+  board.style.display = "grid";
+  board.style.gridTemplateColumns = "repeat(4, 58px)";
+  board.style.gap = "16px";
+  board.style.margin = "22px 0";
+  board.style.justifyContent = "center";
+  textArea.appendChild(board);
+
+  // Karten mischen
+  const shuffled = s.cards.slice().sort(() => Math.random() - 0.5);
+  let opened = [], matched = [];
+  shuffled.forEach((card, idx) => {
+    const btn = document.createElement('button');
+    btn.style.width = "58px";
+    btn.style.height = "58px";
+    btn.style.borderRadius = "16px";
+    btn.style.background = "#fffbe6";
+    btn.style.border = "2px solid #b2dfdb";
+    btn.style.boxShadow = "0 2px 8px #81d4fa88";
+    btn.style.fontSize = "2.1rem";
+    btn.style.cursor = "pointer";
+    btn.dataset.pair = card.pairId;
+    btn.dataset.idx = idx;
+    btn.innerHTML = `<span style="font-size:2.5rem;">❓</span>`; // Verdeckt
+
+    btn.onclick = function () {
+      if (btn.classList.contains("matched") || btn === opened[0]) return;
+      btn.innerHTML = `<img src="${card.img}" alt="card" style="width:48px;height:48px;">`;
+      opened.push(btn);
+
+      if (opened.length === 2) {
+        if (opened[0].dataset.pair === opened[1].dataset.pair) {
+          // Richtig!
+          opened[0].classList.add("matched");
+          opened[1].classList.add("matched");
+          matched.push(opened[0], opened[1]);
+          opened = [];
+          if (matched.length === shuffled.length) {
+            setTimeout(() => {
+              showMemoryReward();
+            }, 600);
+          }
+        } else {
+          // Falsch: kurz anzeigen, dann wieder verdecken
+          setTimeout(() => {
+            opened[0].innerHTML = `<span style="font-size:2.5rem;">❓</span>`;
+            opened[1].innerHTML = `<span style="font-size:2.5rem;">❓</span>`;
+            opened = [];
+          }, 800);
+        }
+      }
+    };
+    board.appendChild(btn);
+  });
+
+  // Belohnung/Sticker/Glitzer nach Abschluss
+  function showMemoryReward() {
+    // Glitzer-Konfetti
+    let confetti = document.createElement('div');
+    confetti.className = "animated-text glitter";
+    confetti.style.fontSize = "1.8rem";
+    confetti.innerHTML = "You did it! 🎉<br>Sticker unlocked!";
+    textArea.appendChild(confetti);
+
+    // Zufälliger Spruch
+    let compliments = [
+      "Super memory skills!",
+      "You are a clever fox!",
+      "Max is proud of you!",
+      "You rock!"
+    ];
+    let compliment = compliments[Math.floor(Math.random() * compliments.length)];
+    setTimeout(() => {
+      let praise = document.createElement('div');
+      praise.className = "animated-text";
+      praise.style.color = "#44a047";
+      praise.innerHTML = compliment;
+      textArea.appendChild(praise);
+    }, 1400);
+
+    // Sticker (direkt am Board/Popup) – hier kannst du unlockSticker(s.successSticker) aufrufen!
+    setTimeout(() => {
+      if (typeof unlockSticker === "function" && s.successSticker !== undefined) unlockSticker(s.successSticker);
+      const btn = document.createElement('button');
+      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      btn.className = "centered-next-btn";
+      btn.onclick = () => {
+        currentSession++;
+        renderSession(currentSession);
+      };
+      textArea.appendChild(btn);
+    }, 2200);
+  }
+  return; // Wichtig!
+}
+
+// ==== 5. NEUES MODUL: SCHATTENRÄTSEL ====
+if (s.type === "shadow") {
+  const textArea = document.getElementById('sessionTextArea');
+  textArea.innerHTML = "";
+
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = "Shadow Match!";
+  textArea.appendChild(heading);
+
+  // Schattenbild
+  const shadowImg = document.createElement('img');
+  shadowImg.src = s.shadow;
+  shadowImg.style.width = "90px";
+  shadowImg.style.height = "90px";
+  shadowImg.style.filter = "brightness(0) grayscale(1)";
+  shadowImg.style.margin = "18px 0";
+  textArea.appendChild(shadowImg);
+
+  // Auswahlmöglichkeiten
+  const choices = document.createElement('div');
+  choices.style.display = "flex";
+  choices.style.justifyContent = "center";
+  choices.style.gap = "18px";
+  textArea.appendChild(choices);
+
+  s.choices.forEach((img, i) => {
+    const btn = document.createElement('button');
+    btn.style.width = "72px";
+    btn.style.height = "72px";
+    btn.style.borderRadius = "20px";
+    btn.style.background = "#fffbe6";
+    btn.style.border = "2px solid #ffd54f";
+    btn.style.boxShadow = "0 2px 10px #81d4fa88";
+    btn.style.cursor = "pointer";
+    btn.innerHTML = `<img src="${img}" alt="choice" style="width:60px;height:60px;">`;
+    btn.onclick = () => {
+      if (i === s.correct) {
+        btn.style.border = "2px solid #43a047";
+        setTimeout(() => showShadowReward(), 350);
+      } else {
+        btn.style.border = "2px solid #d32f2f";
+        btn.classList.add("shake");
+        setTimeout(() => {
+          btn.style.border = "2px solid #ffd54f";
+          btn.classList.remove("shake");
+        }, 600);
+      }
+    };
+    choices.appendChild(btn);
+  });
+
+  function showShadowReward() {
+    let confetti = document.createElement('div');
+    confetti.className = "animated-text glitter";
+    confetti.style.fontSize = "1.6rem";
+    confetti.innerHTML = "Correct! 🥳 Sticker unlocked!";
+    textArea.appendChild(confetti);
+
+    setTimeout(() => {
+      let praise = document.createElement('div');
+      praise.className = "animated-text";
+      praise.style.color = "#44a047";
+      praise.innerHTML = "Coach Max says: You are a shadow detective!";
+      textArea.appendChild(praise);
+    }, 1200);
+
+    setTimeout(() => {
+      if (typeof unlockSticker === "function" && s.successSticker !== undefined) unlockSticker(s.successSticker);
+      const btn = document.createElement('button');
+      btn.innerText = currentSession < sessions.length - 1 ? "Next" : "Finish";
+      btn.className = "centered-next-btn";
+      btn.onclick = () => {
+        currentSession++;
+        renderSession(currentSession);
+      };
+      textArea.appendChild(btn);
+    }, 1800);
+  }
+  return;
+}
+
+// ...dein bestehendes renderSession geht weiter...
+
+   
 
 // Hilfsfunktion am Ende deiner Datei (oder im Kopf)
 function finishDay() {
