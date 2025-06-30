@@ -23,7 +23,7 @@
    
    {
       "type": "breathing",
-      "text": [ { "line": "Breathe in...", "duration": 4, "breath": "in" }, ... ],
+      "text": [ { "line": "Breathe in...", "duration": 4, "breath": "in" }, 
       "video": "day1-breathing.mp4"
     },
    
