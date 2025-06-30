@@ -627,4 +627,6 @@ function startDay(dayNr) {
     alert("Dieser Tag ist erst ab 6:00 Uhr morgens verfügbar!");
     return;
   }
- }
+ // Weiterleitung zum entsprechenden Tag (z.B. day1.html, day2.html, ...)
+  window.location.href = `day${dayNr}.html`;
+}
