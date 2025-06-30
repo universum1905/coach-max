@@ -14,7 +14,7 @@ let sessions = [];
 let currentSession = 0;
 let textTimeouts = [];
 let videoElement = null;
-let currentDay = 1;
+
 
 // Breathing Musik vorbereiten
 const breathingMusic = document.getElementById("breathingMusic") 
