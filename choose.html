@@ -16,8 +16,15 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-6 text-center">
   <h1 class="text-3xl font-bold mb-6">📅 Choose Your Day</h1>
-  <div id="day-list" class="grid grid-cols-2 gap-4 w-full max-w-md"></div>
-
+  
+  <div class="w-full max-w-md flex justify-end mb-4">
+    <a href="stickerboard.html" class="bg-yellow-200 text-yellow-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-yellow-300 transition mr-2">
+      🏅 Sticker Board
+    </a>
+  </div>
+  
+  <p class="text-gray-600 mb-2">Tap a day to start your adventure. New days unlock every morning at 6:00 AM!</p>
+  <div id="day-list" class="grid grid-cols-2 gap-4 w-full max-w-md"></div> 
   <script>
     const TOTAL_DAYS = 100;
     const container = document.getElementById('day-list');
