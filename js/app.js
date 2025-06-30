@@ -151,6 +151,7 @@ window.addEventListener("resize", handleOrientation);
 
 // Session-Rendering (Intro, Breathing, Counting etc.)
 function renderSession(idx) {
+  console.log("Session:", idx, sessions[idx]);
   try { breathingMusic.pause(); breathingMusic.currentTime = 0; } catch(e) {}
   clearTimeouts();
   renderFrogProgress(idx);
