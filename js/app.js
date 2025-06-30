@@ -526,114 +526,122 @@ function renderSession(idx) {
   }
 
   // Video-Bereich (unten rechts, wie bei Intro)
-  videoElement = document.createElement('video');
-  videoElement.src = `videos/${s.video}`;
-  videoElement.setAttribute("controls", "true");
-  videoElement.setAttribute("controlsList", "nodownload");
-  videoElement.autoplay = false;
-  videoElement.muted = false;
-  videoElement.playsInline = true;
-  videoElement.poster = "images/video-placeholder.png";
-  videoElement.className = "session-video";
+  if (s.video) {
+    videoElement = document.createElement('video');
+    videoElement.src = `videos/${s.video}`;
+    videoElement.setAttribute("controls", "true");
+    videoElement.setAttribute("controlsList", "nodownload");
+    videoElement.autoplay = false;
+    videoElement.muted = false;
+    videoElement.playsInline = true;
+    videoElement.poster = "images/video-placeholder.png";
+    videoElement.className = "session-video";
 
-  const videoBox = document.createElement('div');
-  videoBox.className = "floating-video";
-  videoBox.appendChild(videoElement);
-  document.body.appendChild(videoBox);
+    const videoBox = document.createElement('div');
+    videoBox.className = "floating-video";
+    videoBox.appendChild(videoElement);
+    document.body.appendChild(videoBox);
 
-  // Play-Overlay
-  const playBtn = document.createElement('button');
-  playBtn.className = "custom-play-btn";
-  playBtn.title = "Play";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-    <div class="play-tap-hint">Tap here to play!</div>
-  `;
-  playBtn.onclick = function () {
-    videoElement.play();
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  };
-  videoElement.addEventListener('play', () => {
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  });
-  videoElement.addEventListener('pause', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
-  videoElement.addEventListener('ended', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-    showNextBtn();
-  });
-  videoBox.appendChild(playBtn);
+    // Play-Overlay
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+      <div class="play-tap-hint">Tap here to play!</div>
+    `;
+    playBtn.onclick = function () {
+      videoElement.play();
+      playBtn.style.display = "none";
+      videoElement.style.pointerEvents = "auto";
+    };
+    videoElement.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      videoElement.style.pointerEvents = "auto";
+    });
+    videoElement.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      videoElement.style.pointerEvents = "none";
+    });
+    videoElement.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      videoElement.style.pointerEvents = "none";
+      showNextBtn();
+    });
+    videoBox.appendChild(playBtn);
 
-  // Zähl-Overlay, wenn countingTimings definiert
-  if (Array.isArray(s.countingTimings) && s.countingTimings.length > 0) {
-    const overlay = document.createElement('div');
-    overlay.id = "countingOverlay";
-    overlay.style.display = "none";
-    document.body.appendChild(overlay);
-
-    let timeoutHandles = [];
-
-    function clearCountingOverlays() {
+    // Zähl-Overlay, wenn countingTimings definiert
+    if (Array.isArray(s.countingTimings) && s.countingTimings.length > 0) {
+      const overlay = document.createElement('div');
+      overlay.id = "countingOverlay";
       overlay.style.display = "none";
-      overlay.innerHTML = "";
-      timeoutHandles.forEach(handle => clearTimeout(handle));
-      timeoutHandles = [];
+      document.body.appendChild(overlay);
+
+      let timeoutHandles = [];
+
+      function clearCountingOverlays() {
+        overlay.style.display = "none";
+        overlay.innerHTML = "";
+        timeoutHandles.forEach(handle => clearTimeout(handle));
+        timeoutHandles = [];
+      }
+
+      videoElement.addEventListener('play', () => {
+        clearCountingOverlays();
+        s.countingTimings.forEach((step, idx) => {
+          const timeout = setTimeout(() => {
+            overlay.style.display = "";
+            overlay.innerHTML = `
+              <div class="count-overlay">
+                <img src="${step.image}" style="width:48px;height:48px;margin-right:18px;">
+                <span style="font-size:2.3rem;font-weight:bold;">${step.number}</span>
+              </div>
+            `;
+            setTimeout(() => {
+              overlay.style.display = "none";
+            }, 1400);
+          }, (step.time || idx * 4) * 1000);
+          timeoutHandles.push(timeout);
+        });
+      });
+
+      videoElement.addEventListener('ended', clearCountingOverlays);
+      videoElement.addEventListener('pause', clearCountingOverlays);
     }
 
-    videoElement.addEventListener('play', () => {
-      clearCountingOverlays();
-      s.countingTimings.forEach((step, idx) => {
-        const timeout = setTimeout(() => {
-          overlay.style.display = "";
-          overlay.innerHTML = `
-            <div class="count-overlay">
-              <img src="${step.image}" style="width:48px;height:48px;margin-right:18px;">
-              <span style="font-size:2.3rem;font-weight:bold;">${step.number}</span>
-            </div>
-          `;
-          setTimeout(() => {
-            overlay.style.display = "none";
-          }, 1400); // Einblendzeit pro Zahl
-        }, (step.time || idx * 4) * 1000); // Zeitsteuerung in Sekunden
-        timeoutHandles.push(timeout);
-      });
-    });
-
-    videoElement.addEventListener('ended', clearCountingOverlays);
-    videoElement.addEventListener('pause', clearCountingOverlays);
-  }
-
-  // Next-Button, sobald Video zu Ende
-  function showNextBtn() {
+    // Next-Button nach Video-Ende
+    function showNextBtn() {
+      const btn = document.createElement('button');
+      btn.innerText = currentSession < sessions.length - 1 ? "Next" : "Finish";
+      btn.className = "centered-next-btn";
+      btn.onclick = () => {
+        document.querySelectorAll('.floating-video, #countingOverlay').forEach(el => el.remove());
+        currentSession++;
+        renderSession(currentSession);
+      };
+      document.body.appendChild(btn);
+    }
+  } else {
+    // Fallback: Kein Video, sofort Next-Button
     const btn = document.createElement('button');
     btn.innerText = currentSession < sessions.length - 1 ? "Next" : "Finish";
     btn.className = "centered-next-btn";
     btn.onclick = () => {
-      document.querySelectorAll('.floating-video, #countingOverlay').forEach(el => el.remove());
       currentSession++;
       renderSession(currentSession);
     };
     document.body.appendChild(btn);
   }
-
-  // Direkt Next, falls kein Video
-  if (!s.video) showNextBtn();
-
-  return; // Wichtig!
+  return;
 }
+
 
 
 // Am Anfang von renderSession() nach dem Switch/if zu session.type
 
-// ...Intro, Counting, Animals usw. wie gehabt...
 
 // ==== 4. NEUES MODUL: MEMORY ====
 if (s.type === "memory") {
