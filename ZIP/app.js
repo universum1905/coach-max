@@ -1,15 +1,7 @@
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
 let DEV_START_SESSION = 2; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
-function getDayParam() {
-  const params = new URLSearchParams(window.location.search);
-  return parseInt(params.get("day")) || 1;
-}
-const currentDay = getDayParam();
-const jsonURL = `days/day${currentDay}.json`;
-
-
-
+const jsonURL = "days/day1.json";
 let sessions = [];
 let currentSession = 0;
 let textTimeouts = [];

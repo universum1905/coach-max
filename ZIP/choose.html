@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose Your Day – Coach Max</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background: url('images/backgrounds/2.png') repeat;
+      background-size: cover;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-6 text-center">
+  <h1 class="text-3xl font-bold mb-6">📅 Choose Your Day</h1>
+  
+  <div class="w-full max-w-md flex justify-end mb-4">
+    <a href="stickerboard.html" class="bg-yellow-200 text-yellow-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-yellow-300 transition mr-2">
+      🏅 Sticker Board
+    </a>
+  </div>
+  
+  <p class="text-gray-600 mb-2">Tap a day to start your adventure. New days unlock every morning at 6:00 AM!</p>
+  <div id="day-list" class="grid grid-cols-2 gap-4 w-full max-w-md"></div> 
+  <script>
+    const TOTAL_DAYS = 100;
+    const container = document.getElementById('day-list');
+    const now = new Date();
+
+    for (let i = 1; i <= TOTAL_DAYS; i++) {
+      const unlockTime = localStorage.getItem(`day${i}UnlockTime`);
+      const isUnlocked = !unlockTime || now.getTime() >= parseInt(unlockTime);
+      const isCompleted = localStorage.getItem(`day${i}Completed`) === 'true';
+
+      const btn = document.createElement('a');
+      btn.className = `rounded-xl p-4 font-bold text-xl flex items-center justify-center shadow transition duration-300 ${
+        isUnlocked
+          ? isCompleted
+            ? 'bg-green-400 text-white hover:bg-green-500'
+            : 'bg-blue-400 text-white hover:bg-blue-500'
+          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+      }`;
+      btn.textContent = `Day ${i}`;
+
+      if (isUnlocked) {
+        btn.href = `day.html?day=${i}`;
+      }
+
+      container.appendChild(btn);
+    }
+
+    if (sessionStorage.getItem('dayUnlockedMessage') === 'true') {
+      const popup = document.createElement('div');
+      popup.textContent = '🎉 New Day Unlocked!';
+      popup.className = 'fixed top-8 left-1/2 transform -translate-x-1/2 bg-yellow-300 text-black px-4 py-2 rounded-xl shadow-xl z-50 animate-bounce';
+      document.body.appendChild(popup);
+      setTimeout(() => {
+        popup.remove();
+        sessionStorage.removeItem('dayUnlockedMessage');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
