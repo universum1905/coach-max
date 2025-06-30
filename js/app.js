@@ -378,95 +378,72 @@ function renderSession(idx) {
 
   // ===== 3. COUNTING (mit Tier-Bildern und Zahlen-Overlay) =====
   if (s.type === "counting") {
-    const heading = document.createElement('h2');
-    heading.className = "session-heading";
-    heading.textContent = `Day ${localDay} Counting`;
-    textArea.appendChild(heading);
+  // Video erzeugen
+  const textArea = document.getElementById('sessionTextArea');
+  textArea.innerHTML = ""; // Alles alte raus!
 
-    // Text/Instruktionen anzeigen (wenn gewünscht)
-    const linesBox = document.createElement('div');
-    linesBox.className = "animated-lines";
-    textArea.appendChild(linesBox);
-    if (Array.isArray(s.text)) {
-      s.text.forEach(obj => {
-        const p = document.createElement('div');
-        p.className = "animated-text";
-        p.innerText = obj.line;
-        linesBox.appendChild(p);
-      });
-    }
+  // Überschrift anzeigen (optional)
+  const heading = document.createElement('h2');
+  heading.textContent = "Let's count with Benny!";
+  heading.className = "session-heading";
+  textArea.appendChild(heading);
 
-    // Video
-    videoElement = document.createElement('video');
-    videoElement.src = `videos/${s.video}`;
-    videoElement.setAttribute("controls", "true");
-    videoElement.setAttribute("controlsList", "nodownload");
-    videoElement.autoplay = false;
-    videoElement.muted = false;
-    videoElement.playsInline = true;
-    videoElement.poster = "images/video-placeholder.png";
-    videoElement.style.display = "block";
-    videoElement.className = "session-video";
+  // Video erzeugen
+  const videoElement = document.createElement('video');
+  videoElement.src = `videos/${s.video}`;
+  videoElement.setAttribute("controls", "true");
+  videoElement.setAttribute("controlsList", "nodownload");
+  videoElement.autoplay = false;
+  videoElement.muted = false;
+  videoElement.playsInline = true;
+  videoElement.poster = "images/video-placeholder.png";
+  videoElement.className = "session-video";
+  videoElement.style.display = "block";
+  textArea.appendChild(videoElement);
 
-    const videoBox = document.createElement('div');
-    videoBox.className = "floating-video";
-    videoBox.appendChild(videoElement);
-    document.body.appendChild(videoBox);
-
-    // Overlay für Zahl und Tier
-    let overlay = document.getElementById('countingOverlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = "countingOverlay";
-      document.body.appendChild(overlay);
-    }
-    overlay.innerHTML = "";
-    overlay.style.display = "none";
-    let currentIdx = -1;
-
-    // Zeitgesteuert Tier/Nummer anzeigen
-    videoElement.addEventListener('timeupdate', () => {
-      const t = videoElement.currentTime;
-      const timings = s.countingTimings;
-      let found = -1;
-      for (let i = 0; i < timings.length; i++) {
-        if (t >= timings[i].time) found = i;
-        else break;
-      }
-      if (found !== -1 && found !== currentIdx) {
-        currentIdx = found;
-        const animalName = timings[found].animal;
-        overlay.innerHTML = `
-          <div class="count-overlay">
-            <img src="images/animals/${animalName}.png" alt="${animalName}" style="width:85px;vertical-align:middle;">
-            <span style="font-size:2.3rem;font-weight:bold;padding-left:15px;">${timings[found].number}</span>
-          </div>
-        `;
-        overlay.style.display = 'block';
-        setTimeout(() => { overlay.style.display = 'none'; }, 900);
-      }
-    });
-
-    videoElement.addEventListener('ended', () => {
-      overlay.style.display = "none";
-    });
-
-    // Next/Finish-Button wie gehabt
-    function showNextBtn() {
-      const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        currentSession++;
-        renderSession(currentSession);
-      };
-      document.body.appendChild(btn);
-    }
-    // Am Ende Video das showNextBtn einbauen (optional)
-    videoElement.addEventListener('ended', showNextBtn);
-    return;
+  // Overlay anlegen
+  let overlay = document.getElementById('countingOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = "countingOverlay";
+    document.body.appendChild(overlay);
   }
+  overlay.innerHTML = "";
+  overlay.style.display = "none";
+  let currentIdx = -1;
+
+  // Overlay-Logik
+  videoElement.addEventListener('timeupdate', () => {
+    const t = videoElement.currentTime;
+    const timings = s.countingTimings;
+    let found = -1;
+    for (let i = 0; i < timings.length; i++) {
+      if (t >= timings[i].time) found = i;
+      else break;
+    }
+    if (found !== -1 && found !== currentIdx) {
+      currentIdx = found;
+      const animalName = timings[found].animal;
+      overlay.innerHTML = `
+        <div class="count-overlay">
+          <img src="images/animals/${animalName}.png" alt="${animalName}" style="width:85px;vertical-align:middle;">
+          <span style="font-size:2.3rem;font-weight:bold;padding-left:15px;">${timings[found].number}</span>
+        </div>
+      `;
+      overlay.style.display = 'block';
+      setTimeout(() => { overlay.style.display = 'none'; }, 900);
+    }
+  });
+
+  // Overlay ausblenden, wenn das Video zu Ende ist
+  videoElement.addEventListener('ended', () => {
+    overlay.style.display = "none";
+  });
+
+  // KEINE weiteren Videoelemente, kein doppelter Code, keine anderen Video-Container im HTML!
+  return;
 }
+
 
 // Utility für animierte Texte
 function showAnimatedTexts(session, linesBox, onComplete) {
