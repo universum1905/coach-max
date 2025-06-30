@@ -1,41 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Coach Max – Day 1</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0"/>
-
-</head>
 <body>
   <div id="welcomeArea"></div>
-
   <div id="mainContent" style="display:none;">
     <div id="progressFrogBar"></div>
-    
+    <div class="session-text-area" id="sessionTextArea"></div>
   </div>
-
   <div id="rotationNotice" class="rotation-notice" style="display:none;">
     <div>
       <img src="images/rotate-phone.png" class="rotate-icon" alt="Rotate"/>
       <p>Please rotate your device to portrait mode to continue. 😊</p>
     </div>
   </div>
-  <div id="dayList"></div>
-
-<div class="session-text-area" id="sessionTextArea"></div>
-<div class="floating-video" id="floatingVideoBox">
-  <video id="countingVideo" src="videos/day1-counting.mp4" controls></video>
-</div>
-<div id="countingOverlay" style="display:none;"></div>
-<div id="stickerBoard"></div>
-
   <audio id="frogSound" src="audio/frog-hop.mp3" preload="auto"></audio>
   <audio id="welcomeMusic" src="audio/welcome-music.mp3" preload="auto" loop></audio>
   <audio id="breathingMusic" src="audio/focus-loop.mp3" preload="auto" loop></audio>
   <script src="js/app.js"></script>
 </body>
-
-</html>
