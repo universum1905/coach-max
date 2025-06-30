@@ -748,8 +748,7 @@ function startDay(dayNr) {
   window.location.href = `day${dayNr}.html`;
 }
 
-// Beim Laden:
-renderDayList();
+
 
 
 
