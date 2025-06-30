@@ -491,85 +491,6 @@ function renderSession(idx) {
 
   // ===== 3. COUNTING =====
   if (s.type === "counting") {
-    // Video erzeugen (wie gehabt)
-    videoElement = document.createElement('video');
-    videoElement.src = `videos/${s.video}`;
-    videoElement.setAttribute("controls", "true");
-    videoElement.setAttribute("controlsList", "nodownload");
-    videoElement.autoplay = false;
-    videoElement.muted = false;
-    videoElement.playsInline = true;
-    videoElement.poster = "images/video-placeholder.png";
-    videoElement.style.display = "block";
-    videoElement.className = "session-video";
-    const videoBox = document.createElement('div');
-    videoBox.className = "floating-video";
-    videoBox.appendChild(videoElement);
-    document.body.appendChild(videoBox);
-
-    // Overlay anlegen
-    let overlay = document.getElementById('countingOverlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = "countingOverlay";
-      document.body.appendChild(overlay);
-    }
-
-    // Alles zurücksetzen
-    overlay.innerHTML = "";
-    overlay.style.display = "none";
-    let currentIdx = -1;
-
-    // Bei jedem timeupdate passende Zahl & Tier anzeigen
-    videoElement.addEventListener('timeupdate', () => {
-      const t = videoElement.currentTime;
-      const timings = s.countingTimings;
-      let found = -1;
-      for (let i = 0; i < timings.length; i++) {
-        if (t >= timings[i].time) found = i;
-        else break;
-      }
-      if (found !== -1 && found !== currentIdx) {
-        currentIdx = found;
-        const animalName = timings[found].animal;
-        overlay.innerHTML = `
-          <div class="count-overlay">
-            <img src="images/animals/${animalName}.png" alt="${animalName}" style="width:85px;vertical-align:middle;">
-            <span style="font-size:2.3rem;font-weight:bold;padding-left:15px;">${timings[found].number}</span>
-          </div>
-        `;
-        overlay.style.display = 'block';
-        setTimeout(() => { overlay.style.display = 'none'; }, 900);
-      }
-    });
-
-    // Overlay ausblenden, wenn das Video zu Ende ist
-    videoElement.addEventListener('ended', () => {
-      overlay.style.display = "none";
-    });
-
-    // Button anzeigen wie gehabt
-    function showNextBtn() {
-      const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        currentSession++;
-        renderSession(currentSession);
-      };
-      document.body.appendChild(btn);
-    }
-    return; // WICHTIG!
-  }
-
-  // ===== 4. ALLE ANDEREN SESSION-TYPEN =====
-  // Hier kannst du weitere Session-Typen wie „animals“, „rhyme“, „story“ nach diesem Prinzip einfügen.
-
-
-
-  // ===== 3. ALLE ANDEREN SESSIONS (COUNTING, RHYME, ANIMALS, STORY) =====
-  if (s.type === "") {
-  // Video erzeugen (wie gehabt)
   videoElement = document.createElement('video');
   videoElement.src = `videos/${s.video}`;
   videoElement.setAttribute("controls", "true");
@@ -585,20 +506,16 @@ function renderSession(idx) {
   videoBox.appendChild(videoElement);
   document.body.appendChild(videoBox);
 
-  // Overlay anlegen
   let overlay = document.getElementById('countingOverlay');
   if (!overlay) {
     overlay = document.createElement('div');
     overlay.id = "countingOverlay";
     document.body.appendChild(overlay);
   }
-
-  // Alles zurücksetzen
   overlay.innerHTML = "";
   overlay.style.display = "none";
   let currentIdx = -1;
 
-  // Bei jedem timeupdate passende Zahl & Tier anzeigen
   videoElement.addEventListener('timeupdate', () => {
     const t = videoElement.currentTime;
     const timings = s.countingTimings;
@@ -621,12 +538,10 @@ function renderSession(idx) {
     }
   });
 
-  // Overlay ausblenden, wenn das Video zu Ende ist
   videoElement.addEventListener('ended', () => {
     overlay.style.display = "none";
   });
 
-  // Button anzeigen wie gehabt
   function showNextBtn() {
     const btn = document.createElement('button');
     btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
@@ -639,7 +554,6 @@ function renderSession(idx) {
   }
   return;
 }
-
 
   
   
