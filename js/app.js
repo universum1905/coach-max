@@ -501,11 +501,43 @@ function renderSession(idx) {
   videoElement.poster = "images/video-placeholder.png";
   videoElement.style.display = "block";
   videoElement.className = "session-video";
+
   const videoBox = document.createElement('div');
   videoBox.className = "floating-video";
   videoBox.appendChild(videoElement);
   document.body.appendChild(videoBox);
 
+  // Play-Overlay wie bei den anderen Sessions!
+  const playBtn = document.createElement('button');
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+    <div class="play-tap-hint">Tap here to play!</div>
+  `;
+  playBtn.onclick = function() {
+    videoElement.play();
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  };
+  videoElement.addEventListener('play', () => {
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  });
+  videoElement.addEventListener('pause', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoElement.addEventListener('ended', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoBox.appendChild(playBtn);
+
+  // Counting-Overlay
   let overlay = document.getElementById('countingOverlay');
   if (!overlay) {
     overlay = document.createElement('div');
@@ -540,6 +572,7 @@ function renderSession(idx) {
 
   videoElement.addEventListener('ended', () => {
     overlay.style.display = "none";
+    showNextBtn();
   });
 
   function showNextBtn() {
@@ -552,88 +585,10 @@ function renderSession(idx) {
     };
     document.body.appendChild(btn);
   }
-  return;
+  return; // WICHTIG!
 }
 
-  
-  
-  
-  
-  const heading = document.createElement('h2');
-  heading.className = "session-heading";
-  heading.textContent = `Day ${localDay} ${capitalize(s.type)}`;
-  textArea.appendChild(heading);
-
-  const linesBox = document.createElement('div');
-  linesBox.className = "animated-lines";
-  textArea.appendChild(linesBox);
-
-  videoElement = document.createElement('video');
-  videoElement.src = `videos/${s.video}`;
-  videoElement.setAttribute("controls", "true");
-  videoElement.setAttribute("controlsList", "nodownload");
-  videoElement.autoplay = false;
-  videoElement.muted = false;
-  videoElement.playsInline = true;
-  videoElement.poster = "images/video-placeholder.png";
-  videoElement.style.display = "block";
-  videoElement.className = "session-video";
-
-  const videoBox = document.createElement('div');
-  videoBox.className = "floating-video";
-  videoBox.appendChild(videoElement);
-  document.body.appendChild(videoBox);
-
-  const playBtn = document.createElement('button');
-  playBtn.className = "custom-play-btn";
-  playBtn.title = "Play";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-    <div class="play-tap-hint">Tap here to play!</div>
-  `;
-  playBtn.onclick = function() {
-    videoElement.play();
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  };
-  videoElement.addEventListener('play', () => {
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-    if (!linesBox.hasAnimated) {
-      showAnimatedTexts(s, linesBox, showNextBtn);
-      linesBox.hasAnimated = true;
-    }
-  });
-  videoElement.addEventListener('pause', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
-  videoElement.addEventListener('ended', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-    if (!linesBox.hasAnimated) {
-      showAnimatedTexts(s, linesBox, showNextBtn);
-      linesBox.hasAnimated = true;
-    }
-  });
-  videoBox.appendChild(playBtn);
-
-  linesBox.hasAnimated = false;
-
-  function showNextBtn() {
-	const btn = document.createElement('button');
-    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-    btn.className = "centered-next-btn";
-    btn.onclick = () => {
-      currentSession++;
-      renderSession(currentSession);
-    };
-    document.body.appendChild(btn);
-  }
-}
+      
 
 // Hilfsfunktion am Ende deiner Datei (oder im Kopf)
 function finishDay() {
