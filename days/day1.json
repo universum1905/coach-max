@@ -40,19 +40,7 @@
 }
 ,
 
-{
-  "type": "counting",
-  "avatar": "benny",
-  "video": "day1-counting.mp4",
-  "text": [
-    { "line": "Let's count to 10! Ready?", "duration": 4 }
-  ],
-  "countingTimings": [
-    { "number": 1, "animal": "mouse", "image": "images/animals/mouse.png", "time": 12.0 },
-    { "number": 2, "animal": "cat", "image": "images/animals/cat.png", "time": 16.0 }
-    
-  ]
-},
+
     {
   "type": "counting",
   "avatar": "benny",
