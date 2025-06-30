@@ -57,8 +57,8 @@
     { "number": 10, "animal": "bear", "image": "images/animals/bear.png", "time": 48.0 }
   ],
   "text": [
-    { "line": "Let's count to 10! Ready?", "duration": 2 },
-    { "line": "Watch and count with Benny!", "duration": 3 }
+    { "line": "Let's count to 10! Ready?", "duration": 6 },
+    { "line": "Watch and count with Benny!", "duration": 8 }
   ]
 }
 ,
