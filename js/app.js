@@ -961,42 +961,64 @@ if (s.type === "animals") {
       ok.innerText = s.onCorrect; // „I am a dog 🐶“
       textArea.appendChild(ok);
 
-     // 6b) Sticker fliegt rein
-const sticker = document.createElement("img");
-sticker.src = "images/stickers/star.png";
-sticker.style.position = "absolute";
-sticker.style.left = "-100px";
-sticker.style.top = "50%";
-sticker.style.transform = "translateY(-50%)";
-sticker.style.width = "80px";
-sticker.style.transition = "left 0.8s ease-out";
-document.body.appendChild(sticker);
+           // 6b) Sticker fliegt rein
+      const sticker = document.createElement("img");
+      sticker.src = "images/stickers/star.png";
+      sticker.style.position = "absolute";
+      sticker.style.left = "-100px";
+      sticker.style.top = "50%";
+      sticker.style.transform = "translateY(-50%)";
+      sticker.style.width = "80px";
+      sticker.style.zIndex = 9999;
+      sticker.style.transition = "left 0.8s cubic-bezier(.7,1.6,.55,1), top 0.6s 0.9s cubic-bezier(.7,1.6,.55,1), opacity 0.6s 1.4s";
+      document.body.appendChild(sticker);
 
-setTimeout(() => {
-  // zunächst zur Mitte
-  const mid = window.innerWidth / 2 - 40;
-  sticker.style.left = mid + "px";
-}, 50);
+      setTimeout(() => {
+        // In die Mitte
+        const mid = window.innerWidth / 2 - 40;
+        sticker.style.left = mid + "px";
+      }, 50);
 
-setTimeout(() => {
-  // dann nach oben rechts und ausblenden
-  sticker.style.transition = "all 0.6s ease-in";
-  sticker.style.left = (window.innerWidth - 100) + "px";
-  sticker.style.top = "10px";
-  sticker.style.opacity = "0";
-}, 900);
+      setTimeout(() => {
+        // Nach rechts oben & ausblenden
+        sticker.style.left = (window.innerWidth - 110) + "px";
+        sticker.style.top = "18px";
+        sticker.style.opacity = "0";
+      }, 900);
 
-setTimeout(() => {
-  // festes Reward-Label oberhalb des Next-Buttons
-  const reward = document.createElement("div");
-  reward.textContent = "Your reward";
-  reward.className = "animated-text";
-  reward.style.position = "fixed";
-  reward.style.left = "50%";
-  reward.style.bottom = "140px";
-  reward.style.transform = "translateX(-50%)";
-  document.body.appendChild(reward);
-}, 1600);
+      setTimeout(() => {
+        sticker.remove();
+        // Fix: Sticker + Text über Next Button
+        const rewardBox = document.createElement("div");
+        rewardBox.style.position = "fixed";
+        rewardBox.style.left = "50%";
+        rewardBox.style.bottom = "140px";
+        rewardBox.style.transform = "translateX(-50%)";
+        rewardBox.style.display = "flex";
+        rewardBox.style.flexDirection = "column";
+        rewardBox.style.alignItems = "center";
+        rewardBox.style.zIndex = 9999;
+
+        const rewardText = document.createElement("div");
+        rewardText.textContent = "Your reward";
+        rewardText.className = "animated-text";
+        rewardText.style.fontWeight = "bold";
+        rewardText.style.fontSize = "1.3rem";
+        rewardText.style.marginBottom = "4px";
+        rewardText.style.textAlign = "center";
+
+        const rewardSticker = document.createElement("img");
+        rewardSticker.src = "images/stickers/star.png";
+        rewardSticker.style.width = "68px";
+        rewardSticker.style.height = "68px";
+        rewardSticker.style.filter = "drop-shadow(0 4px 20px #ffd54faa)";
+        rewardSticker.style.animation = "popSticker 0.7s cubic-bezier(.18,2.2,.21,.89)";
+
+        rewardBox.appendChild(rewardText);
+        rewardBox.appendChild(rewardSticker);
+        document.body.appendChild(rewardBox);
+      }, 1700);
+
 
 
       // 6c) Next-Button
