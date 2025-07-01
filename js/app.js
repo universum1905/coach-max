@@ -901,7 +901,7 @@ if (s.type === "animals") {
 
   // 3) Nach Ende: Avatar zeigen & Sequenz starten
   video.addEventListener("ended", () => {
-    videoBox.innerHTML = `<img src="images/momo.png" class="intro-avatar-small" alt="Momo">`;
+    videoBox.innerHTML = `<img src="images/momo.png" class="avatar" alt="Momo">`;
     startAnimalSequence();
   });
 

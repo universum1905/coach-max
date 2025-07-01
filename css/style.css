@@ -259,7 +259,7 @@ body {
   align-items: center;
   justify-content: center;
 }
-.floating-video video 
+.floating-video video, 
 .floating-video img.avatar {
   width: 140px;
   height: 140px;
