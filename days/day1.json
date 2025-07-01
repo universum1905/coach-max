@@ -144,20 +144,25 @@
         {
   "type": "animals",
   "video": "day1-animals.mp4",
+  "sound": "dog-bark.mp3",
+  "repeats": 3,
   "text": [
-    "Let’s play ‘Guess That Animal’ with Momo!",
-    "I’m friendly, I bark, and I love to chase balls. Who am I?",
-    "That’s right, I’m a dog! Great guessing!"
+    "I have four paws and a wagging tail.",
+    "I love to chase balls and go for walks.",
+    "I say woof woof loudly when I see my friends."
   ],
-  "timings": [3, 7, 10],
+  "timings": [0, 4, 8],
   "choices": [
+    "images/animals/cat.png",
     "images/animals/dog.png",
-    "images/animals/rabbit.png",
     "images/animals/bear.png"
   ],
-  "correct": 0,
-  "sound": "audio/dog-bark.mp3"
-},
+  "correct": 1,
+  "onCorrect": "I am a dog 🐶",
+  "onWrong": "Oops, that’s not right. Try again!"
+}
+
+,
         {
             "type": "rhyme",
             "video": "day1-rhyme.mp4",

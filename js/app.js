@@ -852,110 +852,87 @@ if (s.type === "shadow") {
 
 // ganz unten in renderSession(), direkt nach allen anderen `if (s.type === "...")`-Blöcken:
 // ==== neues Modul: ANIMALS ====
-if (s.type === "animals") {
-  // aufräumen
-  clearTimeouts();
-  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
-  const textArea = document.getElementById("sessionTextArea");
-  textArea.innerHTML = "";
+// Innerhalb von renderSession(idx), ersetze den bisherigen animals-Block durch:
 
-  // 1) Überschrift
+if (s.type === "animals") {
+  // Cleanup und Fortschritt
+  clearTimeouts();
+  renderFrogProgress(idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.getElementById("sessionTextArea").innerHTML = "";
+
+  const textArea = document.getElementById("sessionTextArea");
+
+  // 1) Heading
   const heading = document.createElement("h2");
   heading.className = "session-heading";
-  heading.textContent = "Guess That Animal!";
+  heading.textContent = "Guess the animal!";
   textArea.appendChild(heading);
 
-  // 2) Video einbinden (rund, floating)
-  videoElement = document.createElement("video");
-  videoElement.src = `videos/${s.video}`;
-  videoElement.poster = "images/video-placeholder.png";
-  videoElement.autoplay = false;
-  videoElement.controls = false;
-  videoElement.muted = false;
-  videoElement.playsInline = true;
-  videoElement.className = "session-video";
-
+  // 2) Video
+  const video = document.createElement("video");
+  video.src = `videos/${s.video}`;
+  video.controls = true;
+  video.playsInline = true;
+  video.className = "session-video";
   const videoBox = document.createElement("div");
   videoBox.className = "floating-video";
-  videoBox.appendChild(videoElement);
+  videoBox.appendChild(video);
   document.body.appendChild(videoBox);
 
-  // 3) Tap-to-play Overlay
-  const playBtn = document.createElement("button");
-  playBtn.className = "custom-play-btn";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-    <div class="play-tap-hint">Tap to Play!</div>`;
-  playBtn.onclick = () => {
-    videoElement.play();
-    playBtn.style.display = "none";
-  };
-  videoBox.appendChild(playBtn);
+  // 3) Choices
+  const choicesBox = document.createElement("div");
+  choicesBox.style.display = "flex";
+  choicesBox.style.justifyContent = "center";
+  choicesBox.style.gap = "16px";
+  textArea.appendChild(choicesBox);
 
-  // 4) Text-Timings
-  s.text.forEach((line, i) => {
-    const t = s.timings[i] * 1000;
-    textTimeouts.push(setTimeout(() => {
-      const p = document.createElement("div");
-      p.className = "animated-text";
-      p.innerText = line;
-      textArea.appendChild(p);
-    }, t));
-  });
-
-  // 5) Auswahl‐Buttons (z.B. 3 Tiere)
-  const choices = document.createElement("div");
-  choices.style.display = "flex";
-  choices.style.justifyContent = "center";
-  choices.style.gap = "16px";
-  textArea.appendChild(choices);
-
-  s.choices.forEach((img, i) => {
+  s.choices.forEach((imgSrc, i) => {
     const btn = document.createElement("button");
-    btn.innerHTML = `<img src="${img}" style="width:60px;height:60px;">`;
-    btn.onclick = () => handleAnimalChoice(i, btn);
-    choices.appendChild(btn);
+    btn.style.border = "none";
+    btn.style.background = "none";
+    btn.innerHTML = `<img src="${imgSrc}" alt="Option ${i+1}" style="width:72px;height:72px;border-radius:12px;">`;
+
+    btn.onclick = () => {
+      // play animal sound
+      if (s.sound) {
+        const animalAudio = new Audio(`audio/${s.sound}`);
+        animalAudio.volume = typeof s.volume === "number" ? s.volume : 0.5;
+        animalAudio.play();
+      }
+      // play feedback
+      const feedback = new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`);
+      feedback.volume = 0.4;
+      feedback.play();
+
+      if (i === s.correct) {
+        const resolution = document.createElement("div");
+        resolution.className = "animated-text glitter";
+        resolution.textContent = "I’m a dog 🐶 – correct!";
+        textArea.appendChild(resolution);
+
+        const nextBtn = document.createElement("button");
+        nextBtn.className = "centered-next-btn";
+        nextBtn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+        nextBtn.onclick = () => {
+          document.querySelectorAll(".floating-video").forEach(el => el.remove());
+          currentSession++;
+          renderSession(currentSession);
+        };
+        document.body.appendChild(nextBtn);
+      } else {
+        btn.classList.add("shake");
+        setTimeout(() => btn.classList.remove("shake"), 600);
+      }
+    };
+
+    choicesBox.appendChild(btn);
   });
 
-  // Callback für Auswahl
-  function handleAnimalChoice(i, btn) {
-    // Buttons sperren
-    choices.querySelectorAll("button").forEach(b => b.disabled = true);
+  return;  // stop further processing
+}
 
-    // Feedback‐Sound
-    const sound = new Audio(i === s.correct ? "audio/yay.mp3" : "audio/fail.mp3");
-    sound.play();
-
-    // visuelles Feedback
-    const fb = document.createElement("div");
-    fb.className = "animated-text glitter";
-    if (i === s.correct) {
-      btn.style.border = "2px solid #43a047";
-      fb.innerText = "Correct! 🎉";
-    } else {
-      btn.style.border = "2px solid #d32f2f";
-      fb.innerText = "Oops, try next time!";
-    }
-    textArea.appendChild(fb);
-
-    // nach kurzer Pause Next-Button zeigen
-    setTimeout(() => {
-      const nxt = document.createElement("button");
-      nxt.className = "centered-next-btn";
-      nxt.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      nxt.onclick = () => {
-        document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
-        currentSession++;
-        renderSession(currentSession);
-      };
-      document.body.appendChild(nxt);
-    }, 1200);
-  }
-
-  return; // wichtig: kein Fall-Through
-}}
+}
 
 
 
