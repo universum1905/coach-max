@@ -644,7 +644,7 @@ function renderSession(idx) {
     document.body.appendChild(btn);
   }
   return;
-}
+
 
 
 
@@ -848,7 +848,7 @@ if (s.type === "shadow") {
     }, 1800);
   }
   return;
-}}
+}}}
 
 // ...dein bestehendes renderSession geht weiter...
 
