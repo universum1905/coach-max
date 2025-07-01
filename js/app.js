@@ -510,11 +510,12 @@ function renderSession(idx) {
   textArea.appendChild(heading);
 
   if (s.avatar) {
-    const avatarImg = document.createElement('img');
+    videoBox.remove(); 
+	const avatarImg = document.createElement('img');
     avatarImg.src = "images/" + s.avatar + ".png";
     avatarImg.alt = s.avatar;
-    avatarImg.className = "intro-avatar-small";
-    textArea.appendChild(avatarImg);
+    avatarImg.className = "avatar";
+    document.body.appendChild(avatarImg);
   }
 
   // Animierte Zeilen (oben)

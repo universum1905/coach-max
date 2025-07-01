@@ -260,6 +260,7 @@ body {
   justify-content: center;
 }
 .floating-video video {
+.floating-video img.avatar 
   width: 140px;
   height: 140px;
   border-radius: 50%;
