@@ -1,4 +1,4 @@
-const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
+const DEV_MODE = false;    // Auf true setzen für Entwicklung, auf false für Produktion
 let DEV_START_SESSION = 0; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 function getDayParam() {
