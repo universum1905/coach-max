@@ -964,7 +964,7 @@ if (s.type === "animals") {
 
 
 
-// ...dein bestehendes renderSession geht weiter...
+
 
    
 
