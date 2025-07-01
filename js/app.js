@@ -1008,16 +1008,52 @@ if (s.type === "animals") {
       }, 900);
 
       setTimeout(() => {
-        // festes Reward-Label oberhalb des Next-Buttons
-        const reward = document.createElement("div");
-        reward.textContent = "Your reward";
-        reward.className = "animated-text";
-        reward.style.position = "fixed";
-        reward.style.left = "50%";
-        reward.style.bottom = "140px";
-        reward.style.transform = "translateX(-50%)";
-        document.body.appendChild(reward);
-      }, 1600);
+  // Next-Button erzeugen
+  const next = document.createElement("button");
+  next.className = "centered-next-btn";
+  next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+  document.body.appendChild(next);
+
+  // Container für Reward
+  const rewardBox = document.createElement("div");
+  rewardBox.style.position = "fixed";
+  rewardBox.style.left = "50%";
+  rewardBox.style.transform = "translateX(-50%)";
+  rewardBox.style.bottom = "110px"; // exakt über dem Next-Button
+  rewardBox.style.display = "flex";
+  rewardBox.style.flexDirection = "column";
+  rewardBox.style.alignItems = "center";
+  rewardBox.style.zIndex = "1000";
+
+  // "Your reward"-Text
+  const rewardText = document.createElement("div");
+  rewardText.textContent = "Your reward";
+  rewardText.style.fontSize = "1.17rem";
+  rewardText.style.fontWeight = "700";
+  rewardText.style.color = "#faaf08";
+  rewardText.style.marginBottom = "7px";
+  rewardText.style.textShadow = "0 1px 8px #fffde7";
+  rewardBox.appendChild(rewardText);
+
+  // Sticker-Bild
+  const rewardSticker = document.createElement("img");
+  rewardSticker.src = "images/stickers/star.png";
+  rewardSticker.style.width = "68px";
+  rewardSticker.style.height = "68px";
+  rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
+  rewardSticker.style.borderRadius = "22px";
+  rewardSticker.style.background = "#fffbe6";
+  rewardBox.appendChild(rewardSticker);
+
+  document.body.appendChild(rewardBox);
+
+  next.onclick = () => {
+    document.querySelectorAll(".floating-video, .centered-next-btn, img[alt='Momo'], .glitter, div[style*='fixed']").forEach(e => e.remove());
+    currentSession++;
+    renderSession(currentSession);
+  };
+}, 1600);
+
 
       // 6c) Next-Button
       const next = document.createElement("button");
