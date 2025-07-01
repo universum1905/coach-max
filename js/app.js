@@ -900,17 +900,9 @@ if (s.type === "animals") {
 
   // 3) Ablauf nach Video-Ende
   video.addEventListener("ended", () => {
-    // Video entfernen & Avatar anzeigen
-    videoBox.remove();
-    const avatar = document.createElement("img");
-    avatar.src = "images/momo.png";
-    avatar.style.position = "fixed";
-    avatar.style.right = "18px";
-    avatar.style.bottom = "90px";
-    avatar.style.width = "160px";
-    avatar.style.height = "160px";
-    avatar.className = "session-video";
-    document.body.appendChild(avatar);
+    videoBox.innerHTML = `<img src="images/momo.png" class="intro-avatar-small" alt="Momo">`;
+    startAnimalSequence();
+  });
 
     // 4) Tiergeräusch mehrfach abspielen
     if (s.sound) {
