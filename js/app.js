@@ -902,14 +902,22 @@ if (s.type === "animals") {
       setTimeout(() => {
         const p = document.createElement("div");
         p.className = "animated-text";
+        p.style.textAlign = "center";           // zentriert
         p.innerText = s.text[i];
         textArea.appendChild(p);
 
         // Wenn das letzte Textstück erschienen ist: Choices einblenden
         if (i === s.text.length - 1) {
-          setTimeout(showChoices, 600);
+          const cta = document.createElement("div");
+          cta.className = "animated-text";
+          cta.style.textAlign = "center";
+          cta.style.fontWeight = "bold";
+          cta.innerText = "Tap the correct picture!";
+          textArea.appendChild(cta);
+          
+		  setTimeout(showChoices, 600);
         }
-      }, baseDelay + t * 1000);
+      }, t * 1000);
     });
   });
 
