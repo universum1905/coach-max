@@ -905,25 +905,37 @@ if (s.type === "animals") {
     startAnimalSequence();
   });
 
+  // --- NEU: Sound n-mal und danach Text/Choices ---
+  function playRepeatedAudio(audioSrc, repeats, onComplete) {
+    let count = 0;
+    function playNext() {
+      if (count < repeats) {
+        const audio = new Audio(audioSrc);
+        audio.onended = playNext;
+        audio.play();
+        count++;
+      } else if (typeof onComplete === 'function') {
+        onComplete();
+      }
+    }
+    playNext();
+  }
+
   // 4) Tiergeräusch + Beschreibung + Auswahl
   function startAnimalSequence() {
-    // 4a) Sound mehrfach
-    for (let i = 0; i < s.repeats; i++) {
-      setTimeout(() => {
-        const audio = new Audio(`audio/${s.sound}`);
-        audio.play();
-      }, i * 600);
-    }
-    // 4b) Textzeilen zeitgesteuert
-    s.timings.forEach((t, i) => {
-      textTimeouts.push(setTimeout(() => {
-        const p = document.createElement("div");
-        p.className = "animated-text";
-        p.style.textAlign = "center";
-        p.innerText = s.text[i];
-        textArea.appendChild(p);
-        if (i === s.text.length - 1) showChoices();
-      }, t * 1000));
+    // a) Tiergeräusch n-mal, dann Text+Choices!
+    playRepeatedAudio(`audio/${s.sound}`, s.repeats, () => {
+      // b) Textzeilen nach timings, dann showChoices
+      s.text.forEach((line, i) => {
+        textTimeouts.push(setTimeout(() => {
+          const p = document.createElement("div");
+          p.className = "animated-text";
+          p.style.textAlign = "center";
+          p.innerText = line;
+          textArea.appendChild(p);
+          if (i === s.text.length - 1) showChoices();
+        }, s.timings[i] * 1000));
+      });
     });
   }
 
@@ -958,10 +970,10 @@ if (s.type === "animals") {
       const ok = document.createElement("div");
       ok.className = "animated-text glitter";
       ok.style.textAlign = "center";
-      ok.innerText = s.onCorrect; // „I am a dog 🐶“
+      ok.innerText = s.onCorrect;
       textArea.appendChild(ok);
 
-           // 6b) Sticker fliegt rein
+      // 6b) Sticker fliegt rein
       const sticker = document.createElement("img");
       sticker.src = "images/stickers/star.png";
       sticker.style.position = "absolute";
@@ -969,57 +981,34 @@ if (s.type === "animals") {
       sticker.style.top = "50%";
       sticker.style.transform = "translateY(-50%)";
       sticker.style.width = "80px";
-      sticker.style.zIndex = 9999;
-      sticker.style.transition = "left 0.8s cubic-bezier(.7,1.6,.55,1), top 0.6s 0.9s cubic-bezier(.7,1.6,.55,1), opacity 0.6s 1.4s";
+      sticker.style.transition = "left 0.8s ease-out";
       document.body.appendChild(sticker);
 
       setTimeout(() => {
-        // In die Mitte
+        // zunächst zur Mitte
         const mid = window.innerWidth / 2 - 40;
         sticker.style.left = mid + "px";
       }, 50);
 
       setTimeout(() => {
-        // Nach rechts oben & ausblenden
-        sticker.style.left = (window.innerWidth - 110) + "px";
-        sticker.style.top = "18px";
+        // dann nach oben rechts und ausblenden
+        sticker.style.transition = "all 0.6s ease-in";
+        sticker.style.left = (window.innerWidth - 100) + "px";
+        sticker.style.top = "10px";
         sticker.style.opacity = "0";
       }, 900);
 
       setTimeout(() => {
-        sticker.remove();
-        // Fix: Sticker + Text über Next Button
-        const rewardBox = document.createElement("div");
-        rewardBox.style.position = "fixed";
-        rewardBox.style.left = "50%";
-        rewardBox.style.bottom = "140px";
-        rewardBox.style.transform = "translateX(-50%)";
-        rewardBox.style.display = "flex";
-        rewardBox.style.flexDirection = "column";
-        rewardBox.style.alignItems = "center";
-        rewardBox.style.zIndex = 9999;
-
-        const rewardText = document.createElement("div");
-        rewardText.textContent = "Your reward";
-        rewardText.className = "animated-text";
-        rewardText.style.fontWeight = "bold";
-        rewardText.style.fontSize = "1.3rem";
-        rewardText.style.marginBottom = "4px";
-        rewardText.style.textAlign = "center";
-
-        const rewardSticker = document.createElement("img");
-        rewardSticker.src = "images/stickers/star.png";
-        rewardSticker.style.width = "68px";
-        rewardSticker.style.height = "68px";
-        rewardSticker.style.filter = "drop-shadow(0 4px 20px #ffd54faa)";
-        rewardSticker.style.animation = "popSticker 0.7s cubic-bezier(.18,2.2,.21,.89)";
-
-        rewardBox.appendChild(rewardText);
-        rewardBox.appendChild(rewardSticker);
-        document.body.appendChild(rewardBox);
-      }, 1700);
-
-
+        // festes Reward-Label oberhalb des Next-Buttons
+        const reward = document.createElement("div");
+        reward.textContent = "Your reward";
+        reward.className = "animated-text";
+        reward.style.position = "fixed";
+        reward.style.left = "50%";
+        reward.style.bottom = "140px";
+        reward.style.transform = "translateX(-50%)";
+        document.body.appendChild(reward);
+      }, 1600);
 
       // 6c) Next-Button
       const next = document.createElement("button");
@@ -1039,7 +1028,7 @@ if (s.type === "animals") {
       const wrong = document.createElement("div");
       wrong.className = "animated-text wrong-msg";
       wrong.style.textAlign = "center";
-      wrong.innerText = s.onWrong; // „Oops…“
+      wrong.innerText = s.onWrong;
       textArea.appendChild(wrong);
       btn.classList.add("shake");
       setTimeout(() => btn.classList.remove("shake"), 600);
@@ -1048,6 +1037,7 @@ if (s.type === "animals") {
 
   return; // Ende des animals-Blocks
 }
+
 }
 
 
