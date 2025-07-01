@@ -1019,7 +1019,7 @@ if (s.type === "animals") {
   rewardBox.style.position = "fixed";
   rewardBox.style.left = "50%";
   rewardBox.style.transform = "translateX(-50%)";
-  rewardBox.style.bottom = "110px"; // exakt über dem Next-Button
+  rewardBox.style.bottom = "150px"; // exakt über dem Next-Button
   rewardBox.style.display = "flex";
   rewardBox.style.flexDirection = "column";
   rewardBox.style.alignItems = "center";
