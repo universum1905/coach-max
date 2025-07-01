@@ -29,7 +29,9 @@ function capitalize(word) {
 
 // Musik & Sound
 const welcomeMusic = document.getElementById("welcomeMusic");
-welcomeMusic.volume = 0.3;
+if (welcomeMusic) {
+  welcomeMusic.volume = 0.3;
+}
 
 const frogSound = document.getElementById("frogSound");
 frogSound.volume = 0.42;
