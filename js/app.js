@@ -951,9 +951,9 @@ function renderDayList() {
 
 function startDay(dayNr) {
   if (!canStartDay(dayNr)) {
-    alert("Dieser Tag ist erst ab 6:00 Uhr morgens verfügbar!");
+    alert("This day is only available from 6:00 am!");
     return;
   }
  // Weiterleitung zum entsprechenden Tag (z.B. day1.html, day2.html, ...)
-  window.location.href = `day${dayNr}.html`;
+  window.location.href = `day.html?day=${dayNr}`;
 }
