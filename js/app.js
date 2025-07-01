@@ -855,7 +855,7 @@ if (s.type === "shadow") {
 // Innerhalb von renderSession(idx), ersetze den bisherigen animals-Block durch:
 
 if (s.type === "animals") {
-  // 0) Cleanup & Fortschritt
+  // Cleanup & Fortschritt
   clearTimeouts();
   renderFrogProgress(idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -882,15 +882,19 @@ if (s.type === "animals") {
 
   const playBtn = document.createElement("button");
   playBtn.className = "custom-play-btn";
-  playBtn.innerHTML = `<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" fill="none"/><polygon points="22,16 46,30 22,44" fill="#383838"/></svg>
-                       <div class="play-tap-hint">Tap here to play!</div>`;
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+    <div class="play-tap-hint">Tap here to play!</div>
+  `;
   videoBox.appendChild(playBtn);
   playBtn.onclick = () => { video.play(); playBtn.style.display = "none"; };
-
   video.addEventListener("play",  () => playBtn.style.display = "none");
   video.addEventListener("pause", () => playBtn.style.display = "");
-  
-  // 3) Nach Video-Ende: Tiergeräusch + Hinweise + Call-to-Action
+
+  // 3) Nach Video-Ende: Sound & Hinweise
   video.addEventListener("ended", async () => {
     // Tiergeräusch mehrfach abspielen
     for (let i = 0; i < (s.repeats||1); i++) {
@@ -901,7 +905,7 @@ if (s.type === "animals") {
         a.play();
       });
     }
-    // Texte nacheinander zentriert einblenden
+    // Hinweise nacheinander zentriert einblenden
     s.timings.forEach((t, i) => {
       setTimeout(() => {
         const p = document.createElement("div");
@@ -909,8 +913,7 @@ if (s.type === "animals") {
         p.style.textAlign = "center";
         p.innerText = s.text[i];
         textArea.appendChild(p);
-
-        // Call-to-Action nach letztem Hinweis
+        // Call-to-Action nach letztem
         if (i === s.text.length - 1) {
           const cta = document.createElement("div");
           cta.className = "animated-text";
@@ -918,15 +921,13 @@ if (s.type === "animals") {
           cta.style.fontWeight = "bold";
           cta.innerText = "Tap the correct picture!";
           textArea.appendChild(cta);
-
-          // Bilder erst jetzt anzeigen
           setTimeout(showChoices, 800);
         }
       }, t * 1000);
     });
   });
 
-  // 4) Funktion zum Anzeigen der Auswahl
+  // 4) Auswahl anzeigen
   function showChoices() {
     const choicesBox = document.createElement("div");
     choicesBox.style.display = "flex";
@@ -939,28 +940,31 @@ if (s.type === "animals") {
       btn.style.border = "none";
       btn.style.background = "none";
       btn.innerHTML = `<img src="${imgSrc}" style="width:72px;height:72px;border-radius:12px;">`;
-
       btn.onclick = () => {
-        // direktes Feedback
+        // Feedback-Sound
         const fb = new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`);
         fb.volume = 0.4;
         fb.play();
 
         if (i === s.correct) {
+          // Buttons deaktivieren
+          choicesBox.querySelectorAll("button").forEach(b => b.disabled = true);
+
           // Sticker freischalten
           if (typeof unlockSticker === "function" && s.successSticker!=null) {
             unlockSticker(s.successSticker);
           }
-          // Bestätigungstext + Stickerbild
+          // Bestätigungstext
           const ok = document.createElement("div");
           ok.className = "animated-text glitter";
           ok.style.textAlign = "center";
           ok.innerText = s.onCorrect || "Correct!";
           textArea.appendChild(ok);
 
+          // Stickerbild anzeigen
           if (s.successSticker!=null) {
             const img = document.createElement("img");
-            img.src = `images/stickers/${s.successSticker}.png`;
+            img.src = stickerImages[s.successSticker];  // aus deinem stickerImages-Array
             img.style.display = "block";
             img.style.margin = "12px auto";
             img.style.width = "80px";
@@ -977,19 +981,26 @@ if (s.type === "animals") {
             renderSession(currentSession);
           };
           document.body.appendChild(next);
+
         } else {
-          // falsche Wahl – kurz schütteln
+          // Fehlermeldung
+          const wrong = document.createElement("div");
+          wrong.className = "animated-text";
+          wrong.style.textAlign = "center";
+          wrong.innerText = s.onWrong || "Oops, that’s not right. Try again!";
+          textArea.appendChild(wrong);
+          // Button kurz schütteln
           btn.classList.add("shake");
-          setTimeout(()=>btn.classList.remove("shake"),600);
+          setTimeout(() => btn.classList.remove("shake"), 600);
         }
       };
-
       choicesBox.appendChild(btn);
     });
   }
 
-  return;  // hier stoppen
+  return;  // keine weiteren Sessions
 }
+
 
 
 
