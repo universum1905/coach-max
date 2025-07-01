@@ -961,20 +961,43 @@ if (s.type === "animals") {
       ok.innerText = s.onCorrect; // „I am a dog 🐶“
       textArea.appendChild(ok);
 
-      // 6b) Sticker fliegt rein
-      const sticker = document.createElement("img");
-      sticker.src = "images/stickers/star.png";
-      sticker.style.position = "absolute";
-      sticker.style.left = "-100px";
-      sticker.style.top = "50%";
-      sticker.style.transform = "translateY(-50%)";
-      sticker.style.width = "80px";
-      sticker.style.transition = "left 0.8s ease-out";
-      document.body.appendChild(sticker);
-      setTimeout(() => {
-        const mid = window.innerWidth/2 - 40;
-        sticker.style.left = mid + "px";
-      }, 50);
+     // 6b) Sticker fliegt rein
+const sticker = document.createElement("img");
+sticker.src = "images/stickers/star.png";
+sticker.style.position = "absolute";
+sticker.style.left = "-100px";
+sticker.style.top = "50%";
+sticker.style.transform = "translateY(-50%)";
+sticker.style.width = "80px";
+sticker.style.transition = "left 0.8s ease-out";
+document.body.appendChild(sticker);
+
+setTimeout(() => {
+  // zunächst zur Mitte
+  const mid = window.innerWidth / 2 - 40;
+  sticker.style.left = mid + "px";
+}, 50);
+
+setTimeout(() => {
+  // dann nach oben rechts und ausblenden
+  sticker.style.transition = "all 0.6s ease-in";
+  sticker.style.left = (window.innerWidth - 100) + "px";
+  sticker.style.top = "10px";
+  sticker.style.opacity = "0";
+}, 900);
+
+setTimeout(() => {
+  // festes Reward-Label oberhalb des Next-Buttons
+  const reward = document.createElement("div");
+  reward.textContent = "Your reward";
+  reward.className = "animated-text";
+  reward.style.position = "fixed";
+  reward.style.left = "50%";
+  reward.style.bottom = "140px";
+  reward.style.transform = "translateX(-50%)";
+  document.body.appendChild(reward);
+}, 1600);
+
 
       // 6c) Next-Button
       const next = document.createElement("button");
