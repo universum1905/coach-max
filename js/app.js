@@ -959,8 +959,7 @@ if (s.type === "animals") {
 
 
 
-  return;  // wichtig, damit nichts weiter durchläuft
-}}
+  
 
 
 
