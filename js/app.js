@@ -863,26 +863,33 @@ function finishDay() {
 
 
 window.onload = async () => {
-  const res = await fetch(jsonURL);
-  const data = await res.json();
-  sessions = data.sessions;
-  currentDay = data.day || 1;
+  try {
+    console.log("Lade JSON von", jsonURL);
+    const res = await fetch(jsonURL);
+    if (!res.ok) throw new Error("Fehler beim Laden des JSON: " + res.statusText);
+    const data = await res.json();
+    sessions = data.sessions;
+    currentDay = data.day || 1;
 
-  currentSession = DEV_MODE ? DEV_START_SESSION : 0;
+    currentSession = DEV_MODE ? DEV_START_SESSION : 0;
 
-  if (DEV_MODE) {
-    // Direkt die gewünschte Session anzeigen
-    document.getElementById("welcomeArea").style.display = "none";
-    document.getElementById("mainContent").style.display = "";
-    renderSession(currentSession);
-    handleOrientation();
-  } else {
-    showWelcome(() => {
+    if (DEV_MODE) {
+      document.getElementById("welcomeArea").style.display = "none";
+      document.getElementById("mainContent").style.display = "";
       renderSession(currentSession);
       handleOrientation();
-    });
+    } else {
+      showWelcome(() => {
+        renderSession(currentSession);
+        handleOrientation();
+      });
+    }
+  } catch (e) {
+    console.error("Fehler beim Initialisieren:", e);
+    document.body.innerHTML = `<div style="color:red;font-size:1.4em;">Fehler beim Initialisieren:<br>${e.message}</div>`;
   }
 };
+
 const stickerImages = [
   "images/stickers/star.png",
   "images/stickers/party.png",
