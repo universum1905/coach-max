@@ -848,7 +848,7 @@ if (s.type === "shadow") {
     }, 1800);
   }
   return;
-}
+}}
 
 // ...dein bestehendes renderSession geht weiter...
 
