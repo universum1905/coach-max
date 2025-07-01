@@ -848,7 +848,136 @@ if (s.type === "shadow") {
     }, 1800);
   }
   return;
+}
+
+// ===== 4. ANIMALS =====
+if (s.type === "animals") {
+  clearTimeouts();
+  // Fortschrittsanzeige aktualisieren
+  renderFrogProgress(idx);
+
+  // Überschrift
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = "Guess That Animal!";
+  textArea.appendChild(heading);
+
+  // Video anzeigen wie gewohnt
+  videoElement = document.createElement('video');
+  videoElement.src = `videos/${s.video}`;
+  videoElement.setAttribute("controls", "true");
+  videoElement.setAttribute("controlsList", "nodownload");
+  videoElement.autoplay = false;
+  videoElement.muted = false;
+  videoElement.playsInline = true;
+  videoElement.poster = "images/video-placeholder.png";
+  videoElement.className = "session-video";
+
+  const videoBox = document.createElement('div');
+  videoBox.className = "floating-video";
+  videoBox.appendChild(videoElement);
+  document.body.appendChild(videoBox);
+
+  // Play-Overlay
+  const playBtn = document.createElement('button');
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+    <div class="play-tap-hint">Tap here to play!</div>
+  `;
+  playBtn.onclick = () => {
+    videoElement.play();
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  };
+  videoElement.addEventListener('play', () => {
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  });
+  videoElement.addEventListener('pause', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoElement.addEventListener('ended', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+    showChoices();  // erscheint, sobald das Video zu Ende ist
+  });
+  videoBox.appendChild(playBtn);
+
+  // Textzeilen zu festen Zeitpunkten einblenden
+  s.text.forEach((line, i) => {
+    const t = (s.timings && s.timings[i]) != null ? s.timings[i] * 1000 : i * 2000;
+    textTimeouts.push(setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = "animated-text";
+      p.innerText = line;
+      textArea.appendChild(p);
+    }, t));
+  });
+
+  // Funktionen für die Auswahl-Buttons
+  function showChoices() {
+    const choicesDiv = document.createElement('div');
+    choicesDiv.style.display = "flex";
+    choicesDiv.style.justifyContent = "center";
+    choicesDiv.style.gap = "18px";
+    textArea.appendChild(choicesDiv);
+
+    s.choices.forEach((imgSrc, i) => {
+      const btn = document.createElement('button');
+      btn.style.border = "2px solid #ffd54f";
+      btn.style.borderRadius = "20px";
+      btn.style.padding = "6px";
+      btn.style.cursor = "pointer";
+      btn.innerHTML = `<img src="${imgSrc}" style="width:60px;height:60px;">`;
+      btn.onclick = () => handleChoice(btn, i);
+      choicesDiv.appendChild(btn);
+    });
+  }
+
+  function handleChoice(btn, idxChoice) {
+    // deaktivieren aller Buttons
+    document.querySelectorAll('#sessionTextArea button').forEach(b => b.disabled = true);
+
+    if (idxChoice === s.correct) {
+      btn.style.border = "2px solid #43a047";
+      // Erfolgstext
+      const ok = document.createElement('div');
+      ok.className = "animated-text glitter";
+      ok.innerText = "Correct! 🎉";
+      textArea.appendChild(ok);
+    } else {
+      btn.style.border = "2px solid #d32f2f";
+      btn.classList.add("shake");
+      // Fehlertext
+      const no = document.createElement('div');
+      no.className = "animated-text";
+      no.innerText = "Try again next time!";
+      textArea.appendChild(no);
+    }
+
+    // Next-Button nach kurzer Pause
+    setTimeout(() => {
+      const next = document.createElement('button');
+      next.className = "centered-next-btn";
+      next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      next.onclick = () => {
+        document.querySelectorAll('.floating-video, .centered-next-btn').forEach(el => el.remove());
+        currentSession++;
+        renderSession(currentSession);
+      };
+      document.body.appendChild(next);
+    }, 1200);
+  }
+
+  return; // wichtig, damit nicht weiter in den anderen Blöcken gesucht wird
 }}
+
 
 // ...dein bestehendes renderSession geht weiter...
 
