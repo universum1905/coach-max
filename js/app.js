@@ -644,11 +644,11 @@ function renderSession(idx) {
     document.body.appendChild(btn);
   }
   return;
+}
 
 
 
 
-// Am Anfang von renderSession() nach dem Switch/if zu session.type
 
 
 // ==== 4. NEUES MODUL: MEMORY ====
@@ -848,7 +848,7 @@ if (s.type === "shadow") {
     }, 1800);
   }
   return;
-}}}
+}}
 
 // ...dein bestehendes renderSession geht weiter...
 
