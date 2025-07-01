@@ -851,128 +851,112 @@ if (s.type === "shadow") {
 }
 
 // ganz unten in renderSession(), direkt nach allen anderen `if (s.type === "...")`-Blöcken:
+// ==== neues Modul: ANIMALS ====
 if (s.type === "animals") {
-  clearTimeouts();          // stoppt alte timeouts
-  renderFrogProgress(idx);  // aktualisiert den Frosch
-  document.getElementById('sessionTextArea').innerHTML = "";
-  document
-    .querySelectorAll(".floating-video, .centered-next-btn")
-    .forEach(el => el.remove());
-
-  const textArea = document.getElementById('sessionTextArea');
+  // aufräumen
+  clearTimeouts();
+  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
 
   // 1) Überschrift
-  const heading = document.createElement('h2');
+  const heading = document.createElement("h2");
   heading.className = "session-heading";
-  heading.textContent = `Guess That Animal!`;
+  heading.textContent = "Guess That Animal!";
   textArea.appendChild(heading);
 
-  // 2) Container für die zeitgesteuerten Textzeilen
-  const linesBox = document.createElement('div');
-  linesBox.className = "animated-lines";
-  textArea.appendChild(linesBox);
-
-  // 3) Zeitgesteuertes Einblenden der Texte
-  s.text.forEach((line, i) => {
-    const t = (s.timings && s.timings[i]) != null
-      ? s.timings[i] * 1000
-      : i * 3000;
-    textTimeouts.push(setTimeout(() => {
-      const p = document.createElement('div');
-      p.className = "animated-text";
-      p.innerText = line;
-      linesBox.appendChild(p);
-    }, t));
-  });
-
-  // 4) Video-Element wie zuvor
-  videoElement = document.createElement('video');
+  // 2) Video einbinden (rund, floating)
+  videoElement = document.createElement("video");
   videoElement.src = `videos/${s.video}`;
-  videoElement.controls = true;
+  videoElement.poster = "images/video-placeholder.png";
   videoElement.autoplay = false;
+  videoElement.controls = false;
+  videoElement.muted = false;
   videoElement.playsInline = true;
   videoElement.className = "session-video";
-  const videoBox = document.createElement('div');
+
+  const videoBox = document.createElement("div");
   videoBox.className = "floating-video";
   videoBox.appendChild(videoElement);
   document.body.appendChild(videoBox);
 
-  // 5) Play-Overlay
-  const playBtn = document.createElement('button');
+  // 3) Tap-to-play Overlay
+  const playBtn = document.createElement("button");
   playBtn.className = "custom-play-btn";
-  playBtn.innerHTML = `<svg viewBox="0 0 60 60"><polygon points="22,16 46,30 22,44"/></svg>`;
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+    <div class="play-tap-hint">Tap to Play!</div>`;
   playBtn.onclick = () => {
     videoElement.play();
     playBtn.style.display = "none";
   };
   videoBox.appendChild(playBtn);
 
-  videoElement.addEventListener('play', () => {
-    playBtn.style.display = "none";
+  // 4) Text-Timings
+  s.text.forEach((line, i) => {
+    const t = s.timings[i] * 1000;
+    textTimeouts.push(setTimeout(() => {
+      const p = document.createElement("div");
+      p.className = "animated-text";
+      p.innerText = line;
+      textArea.appendChild(p);
+    }, t));
   });
 
-  // 6) Nach Ende: Auswahl-Buttons anzeigen
-  videoElement.addEventListener('ended', () => {
-    showAnimalChoices();
+  // 5) Auswahl‐Buttons (z.B. 3 Tiere)
+  const choices = document.createElement("div");
+  choices.style.display = "flex";
+  choices.style.justifyContent = "center";
+  choices.style.gap = "16px";
+  textArea.appendChild(choices);
+
+  s.choices.forEach((img, i) => {
+    const btn = document.createElement("button");
+    btn.innerHTML = `<img src="${img}" style="width:60px;height:60px;">`;
+    btn.onclick = () => handleAnimalChoice(i, btn);
+    choices.appendChild(btn);
   });
 
-  // Helper: rendert deine choices aus s.choices und s.correct
-  function showAnimalChoices() {
-    // optional: Tier-Sound
-    if (s.sound) new Audio(s.sound).play();
-
-    const wrap = document.createElement('div');
-    wrap.style.display = "flex";
-    wrap.style.justifyContent = "center";
-    wrap.style.gap = "16px";
-    textArea.appendChild(wrap);
-
-    s.choices.forEach((imgSrc, i) => {
-      const btn = document.createElement('button');
-      btn.innerHTML = `<img src="${imgSrc}" style="width:60px;height:60px;">`;
-      btn.onclick = () => handleAnimalChoice(i, btn);
-      wrap.appendChild(btn);
-    });
-  }
-
-  // Helper: reagiert auf Auswahl
+  // Callback für Auswahl
   function handleAnimalChoice(i, btn) {
-  // Buttons deaktivieren
-  document.querySelectorAll('#sessionTextArea button').forEach(b => b.disabled = true);
+    // Buttons sperren
+    choices.querySelectorAll("button").forEach(b => b.disabled = true);
 
-  // Sound abspielen
-  if (i === s.correct) {
-    new Audio('audio/yay.mp3').play();
-  } else {
-    new Audio('audio/fail.mp3').play();
+    // Feedback‐Sound
+    const sound = new Audio(i === s.correct ? "audio/yay.mp3" : "audio/fail.mp3");
+    sound.play();
+
+    // visuelles Feedback
+    const fb = document.createElement("div");
+    fb.className = "animated-text glitter";
+    if (i === s.correct) {
+      btn.style.border = "2px solid #43a047";
+      fb.innerText = "Correct! 🎉";
+    } else {
+      btn.style.border = "2px solid #d32f2f";
+      fb.innerText = "Oops, try next time!";
+    }
+    textArea.appendChild(fb);
+
+    // nach kurzer Pause Next-Button zeigen
+    setTimeout(() => {
+      const nxt = document.createElement("button");
+      nxt.className = "centered-next-btn";
+      nxt.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      nxt.onclick = () => {
+        document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+        currentSession++;
+        renderSession(currentSession);
+      };
+      document.body.appendChild(nxt);
+    }, 1200);
   }
 
-  // Feedback-Text
-  const feedback = document.createElement('div');
-  feedback.className = "animated-text glitter";
-  if (i === s.correct) {
-    btn.style.border = "2px solid #43a047";
-    feedback.innerText = "Correct! 🎉";
-  } else {
-    btn.style.border = "2px solid #d32f2f";
-    feedback.innerText = "Oops, try next time!";
-  }
-  textArea.appendChild(feedback);
+  return; // wichtig: kein Fall-Through
+}}
 
-  // Next-Button nach kurzer Pause
-  setTimeout(() => {
-    const nxt = document.createElement('button');
-    nxt.className = "centered-next-btn";
-    nxt.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-    nxt.onclick = () => {
-      document.querySelectorAll('.floating-video, .centered-next-btn')
-              .forEach(el => el.remove());
-      currentSession++;
-      renderSession(currentSession);
-    };
-    document.body.appendChild(nxt);
-  }, 1200);
-}
 
 
   return;  // wichtig, damit nichts weiter durchläuft
