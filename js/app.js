@@ -18,9 +18,11 @@ let videoElement = null;
 
 // Breathing Musik vorbereiten
 const breathingMusic = document.getElementById("breathingMusic") 
-   || new Audio("audio/focus-loop.mp3");  // Fallback, falls kein Audio-Tag
-breathingMusic.loop = true;
-breathingMusic.volume = 0.22;
+  || new Audio("audio/focus-loop.mp3");
+if (breathingMusic) {
+  breathingMusic.loop = true;
+  breathingMusic.volume = 0.22;
+}
 
 function capitalize(word) {
   if (!word) return "";
@@ -34,7 +36,7 @@ if (welcomeMusic) {
 }
 
 const frogSound = document.getElementById("frogSound");
-frogSound.volume = 0.42;
+if (frogSound) frogSound.volume = 0.42;
 
 const introMusic = new Audio("audio/counting-benny-bg.mp3");
 introMusic.loop = true;
@@ -959,4 +961,4 @@ function startDay(dayNr) {
   }
  // Weiterleitung zum entsprechenden Tag (z.B. day1.html, day2.html, ...)
   window.location.href = `day.html?day=${dayNr}`;
-}
+}}
