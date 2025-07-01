@@ -869,16 +869,34 @@ if (s.type === "animals") {
   heading.textContent = "Guess the Animal!";
   textArea.appendChild(heading);
 
-  // 2) Video mit Tap-to-Play
+  // 2) Video + Tap-to-Play Overlay
   const video = document.createElement("video");
   video.src = `videos/${s.video}`;
-  video.controls = true;
   video.playsInline = true;
+  video.autoplay = false;
+  video.muted = false;
   video.className = "session-video";
   const videoBox = document.createElement("div");
   videoBox.className = "floating-video";
   videoBox.appendChild(video);
   document.body.appendChild(videoBox);
+
+  const playBtn = document.createElement("button");
+  playBtn.className = "custom-play-btn";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+    <div class="play-tap-hint">Tap to play!</div>
+  `;
+  videoBox.appendChild(playBtn);
+
+  playBtn.onclick = () => {
+    video.play();
+    playBtn.style.display = "none";
+  };
+  video.addEventListener("play", () => playBtn.style.display = "none");
 
   // 3) Ablauf nach Video-Ende
   video.addEventListener("ended", () => {
