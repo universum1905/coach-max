@@ -855,18 +855,18 @@ if (s.type === "shadow") {
 // Innerhalb von renderSession(idx), ersetze den bisherigen animals-Block durch:
 
 if (s.type === "animals") {
-  // Cleanup & Fortschritt
+  // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
-  textArea.innerHTML = "";
 
   // 1) Überschrift
   const heading = document.createElement("h2");
   heading.className = "session-heading";
-  heading.style.textAlign = "center";
   heading.textContent = "Guess the Animal!";
+  heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
   // 2) Video + Tap-to-Play Overlay
@@ -898,105 +898,110 @@ if (s.type === "animals") {
   };
   video.addEventListener("play", () => playBtn.style.display = "none");
 
-  // 3) Ablauf nach Video-Ende
+  // 3) Nach Ende: Avatar zeigen & Sequenz starten
   video.addEventListener("ended", () => {
     videoBox.innerHTML = `<img src="images/momo.png" class="intro-avatar-small" alt="Momo">`;
     startAnimalSequence();
   });
 
-    // 4) Tiergeräusch mehrfach abspielen
-    if (s.sound) {
-      for (let i = 0; i < s.repeats; i++) {
-        setTimeout(() => new Audio(`audio/${s.sound}`).play(), i * 600);
-      }
-    }
-
-    // 5) Beschreibungstexte anzeigen
-    s.text.forEach((line, i) => {
+  // 4) Tiergeräusch + Beschreibung + Auswahl
+  function startAnimalSequence() {
+    // 4a) Sound mehrfach
+    for (let i = 0; i < s.repeats; i++) {
       setTimeout(() => {
+        const audio = new Audio(`audio/${s.sound}`);
+        audio.play();
+      }, i * 600);
+    }
+    // 4b) Textzeilen zeitgesteuert
+    s.timings.forEach((t, i) => {
+      textTimeouts.push(setTimeout(() => {
         const p = document.createElement("div");
         p.className = "animated-text";
         p.style.textAlign = "center";
-        p.textContent = line;
+        p.innerText = s.text[i];
         textArea.appendChild(p);
-      }, s.timings[i] * 1000);
+        if (i === s.text.length - 1) showChoices();
+      }, t * 1000));
     });
+  }
 
-    // 6) Auswahl erst nach letztem Text
-    const delay = s.timings[s.timings.length - 1] + 1.2;
-    setTimeout(() => {
-      const choicesBox = document.createElement("div");
-      choicesBox.style.display = "flex";
-      choicesBox.style.justifyContent = "center";
-      choicesBox.style.gap = "16px";
-      textArea.appendChild(choicesBox);
+  // 5) Auswahl-Buttons & Feedback
+  function showChoices() {
+    const box = document.createElement("div");
+    box.style.display = "flex";
+    box.style.justifyContent = "center";
+    box.style.gap = "16px";
+    textArea.appendChild(box);
 
-      s.choices.forEach((imgSrc, i) => {
-        const btn = document.createElement("button");
-        btn.style.border = "none";
-        btn.style.background = "none";
-        btn.innerHTML = `<img src="${imgSrc}" alt="Option" style="width:72px;height:72px;border-radius:12px;">`;
+    s.choices.forEach((src, i) => {
+      const btn = document.createElement("button");
+      btn.style.border = "none";
+      btn.style.background = "none";
+      btn.innerHTML = `<img src="${src}" style="width:72px;height:72px;border-radius:12px;">`;
+      btn.onclick = () => handleChoice(btn, i);
+      box.appendChild(btn);
+    });
+  }
 
-        btn.addEventListener("click", () => {
-          // vorhergehende Fehlermeldung entfernen
-          const prev = textArea.querySelector(".wrong-msg");
-          if (prev) prev.remove();
+  function handleChoice(btn, i) {
+    // remove vorheriges „Oops…“
+    const prev = document.querySelector(".wrong-msg");
+    if (prev) prev.remove();
 
-          // Feedback-Sound
-          new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+    // Feedback-Sound
+    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
-          if (i === s.correct) {
-            // korrekte Antwort
-            const correctMsg = document.createElement("div");
-            correctMsg.className = "animated-text glitter";
-            correctMsg.style.textAlign = "center";
-            correctMsg.textContent = s.onCorrect;
-            textArea.appendChild(correctMsg);
+    if (i === s.correct) {
+      // 6a) Erfolgstext
+      const ok = document.createElement("div");
+      ok.className = "animated-text glitter";
+      ok.style.textAlign = "center";
+      ok.innerText = s.onCorrect; // „I am a dog 🐶“
+      textArea.appendChild(ok);
 
-            // Sticker animiert von links in die Mitte
-            const sticker = document.createElement("img");
-            sticker.src = "images/stickers/star.png";
-            sticker.style.position = "absolute";
-            sticker.style.top = `${correctMsg.offsetTop + correctMsg.offsetHeight + 10}px`;
-            sticker.style.left = "-100px";
-            sticker.style.width = "80px";
-            sticker.style.opacity = "0";
-            document.body.appendChild(sticker);
-            requestAnimationFrame(() => {
-              sticker.style.transition = "all 1s ease-out";
-              sticker.style.left = `calc(50% - 40px)`;
-              sticker.style.opacity = "1";
-            });
+      // 6b) Sticker fliegt rein
+      const sticker = document.createElement("img");
+      sticker.src = "images/stickers/star.png";
+      sticker.style.position = "absolute";
+      sticker.style.left = "-100px";
+      sticker.style.top = "50%";
+      sticker.style.transform = "translateY(-50%)";
+      sticker.style.width = "80px";
+      sticker.style.transition = "left 0.8s ease-out";
+      document.body.appendChild(sticker);
+      setTimeout(() => {
+        const mid = window.innerWidth/2 - 40;
+        sticker.style.left = mid + "px";
+      }, 50);
 
-            btn.disabled = true;
-            const nextBtn = document.createElement("button");
-            nextBtn.className = "centered-next-btn";
-            nextBtn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-            nextBtn.addEventListener("click", () => {
-              document.querySelectorAll(".floating-video, img.session-video").forEach(el => el.remove());
-              currentSession++;
-              renderSession(currentSession);
-            });
-            document.body.appendChild(nextBtn);
+      // 6c) Next-Button
+      const next = document.createElement("button");
+      next.className = "centered-next-btn";
+      next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      next.onclick = () => {
+        document.querySelectorAll(".floating-video, .centered-next-btn, img[alt='Momo'], .glitter").forEach(e => e.remove());
+        currentSession++;
+        renderSession(currentSession);
+      };
+      document.body.appendChild(next);
 
-          } else {
-            // falsche Antwort
-            const wrongMsg = document.createElement("div");
-            wrongMsg.className = "animated-text wrong-msg";
-            wrongMsg.style.textAlign = "center";
-            wrongMsg.textContent = s.onWrong;
-            textArea.appendChild(wrongMsg);
-            btn.classList.add("shake");
-            setTimeout(() => btn.classList.remove("shake"), 600);
-          }
-        });
+      // 6d) Sticker für später sichern
+      unlockSticker( /* index für „star.png“ im Sticker-Array */ 0 );
+    } else {
+      // 7) Falschmeldung zentriert
+      const wrong = document.createElement("div");
+      wrong.className = "animated-text wrong-msg";
+      wrong.style.textAlign = "center";
+      wrong.innerText = s.onWrong; // „Oops…“
+      textArea.appendChild(wrong);
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 600);
+    }
+  }
 
-        choicesBox.appendChild(btn);
-      });
-    }, delay * 1000);
-};
-
-  return;  // nichts weiter ausführen
+  return; // Ende des animals-Blocks
+}
 }
 
 
