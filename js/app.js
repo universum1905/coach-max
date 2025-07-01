@@ -968,4 +968,4 @@ function startDay(dayNr) {
   }
  // Weiterleitung zum entsprechenden Tag (z.B. day1.html, day2.html, ...)
   window.location.href = `day.html?day=${dayNr}`;
-}}
+}
