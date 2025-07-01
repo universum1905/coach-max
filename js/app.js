@@ -994,14 +994,14 @@ if (s.type === "animals") {
         choicesBox.appendChild(btn);
       });
     }, delay * 1000);
-  };
+};
 
   return;  // nichts weiter ausführen
 }
 
 
 
-}
+
 
    
 
