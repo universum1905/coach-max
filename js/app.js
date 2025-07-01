@@ -941,11 +941,20 @@ if (s.type === "animals") {
 
   // 5) Auswahl-Buttons & Feedback
   function showChoices() {
-    const box = document.createElement("div");
-    box.style.display = "flex";
-    box.style.justifyContent = "center";
-    box.style.gap = "16px";
-    textArea.appendChild(box);
+  // Call to Action einfügen
+  const cta = document.createElement("div");
+  cta.className = "animated-text";
+  cta.style.textAlign = "center";
+  cta.style.fontSize = "1.18rem";
+  cta.style.marginBottom = "16px";
+  cta.innerText = "Tap the right animal!";
+  textArea.appendChild(cta);
+
+  const box = document.createElement("div");
+  box.style.display = "flex";
+  box.style.justifyContent = "center";
+  box.style.gap = "16px";
+  textArea.appendChild(box);
 
     s.choices.forEach((src, i) => {
       const btn = document.createElement("button");
