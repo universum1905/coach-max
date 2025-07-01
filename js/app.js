@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 const DEV_MODE = false;    // Auf true setzen für Entwicklung, auf false für Produktion
 let DEV_START_SESSION = 0; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
@@ -967,5 +969,5 @@ function startDay(dayNr) {
     return;
   }
  // Weiterleitung zum entsprechenden Tag (z.B. day1.html, day2.html, ...)
-window.location.href = `day.html?day=${dayNr}`;}
+window.location.href = `day.html?day=${dayNr}`;
 }
