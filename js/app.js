@@ -909,7 +909,7 @@ function unlockSticker(idx) {
     unlocked.push(idx);
     localStorage.setItem('unlockedStickers', JSON.stringify(unlocked));
   }
- }  
+ }
 const days = [
   { nr: 1, title: "Day 1" },
   { nr: 2, title: "Day 2" },
