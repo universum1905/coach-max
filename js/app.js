@@ -855,134 +855,155 @@ if (s.type === "shadow") {
 // Innerhalb von renderSession(idx), ersetze den bisherigen animals-Block durch:
 
 if (s.type === "animals") {
+  // Cleanup & Fortschritt
   clearTimeouts();
   renderFrogProgress(idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.getElementById("sessionTextArea").innerHTML = "";
+
   const textArea = document.getElementById("sessionTextArea");
-  textArea.innerHTML = "";
 
-  // --- Überschrift + Play-to-Tap wie gehabt ---
+  // 1) Überschrift
+  const heading = document.createElement("h2");
+  heading.className = "session-heading";
+  heading.style.textAlign = "center";
+  heading.textContent = "Guess the animal!";
+  textArea.appendChild(heading);
 
-  // Video-Box anlegen
+  // 2) Video mit Tap-to-play
   const video = document.createElement("video");
   video.src = `videos/${s.video}`;
   video.playsInline = true;
-  video.autoplay = false;
-  video.controls = false;
-  video.loop = false;
   video.className = "session-video";
+  video.loop = false;
+
   const videoBox = document.createElement("div");
   videoBox.className = "floating-video";
   videoBox.appendChild(video);
-  document.body.appendChild(videoBox);
 
-  // Play-Overlay
   const playBtn = document.createElement("button");
   playBtn.className = "custom-play-btn";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-    <div class="play-tap-hint">Tap here to play!</div>
-  `;
+  playBtn.innerHTML = `<span>Tap to play ▶️</span>`;
   playBtn.onclick = () => {
     playBtn.style.display = "none";
-    video.style.pointerEvents = "auto";
     video.play();
   };
   videoBox.appendChild(playBtn);
+  document.body.appendChild(videoBox);
 
-  // --- Hier kommt die Änderung: sobald das Video endet, ersetzen wir es durch momo.png UND zentrieren den Feedback-Text und zeigen den Sticker ---
+  // 3) Nach Video-Ende: Avatar & Sound-Abfolge
   video.addEventListener("ended", () => {
-    // 1) Avatar unten rechts in derselben Box
+    // Avatar unten rechts
     videoBox.innerHTML = `<img src="images/momo.png" alt="Momo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
 
-    // 2) Tier-Sound & Text
-    if (s.sound) new Audio(`audio/${s.sound}`).play();
+    // mehrfache Tierlaute
+    if (s.sound && s.repeats) {
+      let count = 0;
+      const bark = new Audio(`audio/${s.sound}`);
+      bark.volume = 0.6;
+      bark.addEventListener("ended", () => {
+        if (++count < s.repeats) bark.play();
+        else showDescription();
+      });
+      bark.play();
+    } else showDescription();
+  });
+
+  // 4) Beschreibungstext zentriert
+  function showDescription() {
     s.text.forEach((line, i) => {
       setTimeout(() => {
         const p = document.createElement("div");
         p.className = "animated-text";
-        p.style.textAlign = "center";            // zentriert
-        p.innerText = line;
+        p.style.textAlign = "center";
+        p.textContent = line;
         textArea.appendChild(p);
-      }, (s.timings[i] || 0) * 1000);
+      }, s.timings[i] * 1000);
     });
-
-    // 3) Choices + Feedback nach letztem Text
-    const delay = (s.timings[s.timings.length - 1] || 0) * 1000 + 1200;
-    setTimeout(() => {
-      const choicesBox = document.createElement("div");
-      choicesBox.style.display = "flex";
-      choicesBox.style.justifyContent = "center";
-      choicesBox.style.gap = "16px";
-      textArea.appendChild(choicesBox);
-
-      s.choices.forEach((imgSrc, i) => {
-        const btn = document.createElement("button");
-        btn.style.border = "none";
-        btn.style.background = "none";
-        btn.innerHTML = `<img src="${imgSrc}" style="width:72px;height:72px;border-radius:12px;">`;
-        let answered = false;
-        btn.onclick = () => {
-          if (answered) return;
-          answered = true;
-          new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
-
-          if (i === s.correct) {
-            // zentrierter Erfolgstext
-            const ok = document.createElement("div");
-            ok.className = "animated-text glitter";
-            ok.style.textAlign = "center";          // zentriert
-            ok.innerText = s.onCorrect || "Correct!";
-            textArea.appendChild(ok);
-
-            // Sticker anzeigen
-            const stickerImg = document.createElement("img");
-            stickerImg.src = stickerImages[s.successSticker];
-            stickerImg.alt = "Sticker";
-            stickerImg.style.display = "block";
-            stickerImg.style.margin = "12px auto"; // zentriert
-            textArea.appendChild(stickerImg);
-
-            // LocalStorage unlock
-            if (typeof unlockSticker === "function") unlockSticker(s.successSticker);
-
-            // Next-Button
-            const nextBtn = document.createElement("button");
-            nextBtn.className = "centered-next-btn";
-            nextBtn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-            nextBtn.onclick = () => {
-              currentSession++;
-              renderSession(currentSession);
-            };
-            document.body.appendChild(nextBtn);
-          } else {
-    // 1) Shake-Effekt
-    btn.classList.add("shake");
-    setTimeout(() => btn.classList.remove("shake"), 600);
-
-    // 2) onWrong-Text zentriert anzeigen
-    const wrong = document.createElement("div");
-    wrong.className = "animated-text";
-    wrong.style.textAlign = "center";
-    wrong.textContent = s.onWrong || "Oops, that’s not right. Try again!";
-    textArea.appendChild(wrong);
+    setTimeout(renderChoices, (s.timings.at(-1) + 1) * 1000);
   }
-};
-        choicesBox.appendChild(btn);
-      });
-    }, delay);
-  });
 
-  return;
+  // 5) Auswahl mit Feedback & Sticker-Animation
+  function renderChoices() {
+    const choicesBox = document.createElement("div");
+    choicesBox.style.display = "flex";
+    choicesBox.style.justifyContent = "center";
+    choicesBox.style.gap = "16px";
+    choicesBox.style.marginTop = "12px";
+    textArea.appendChild(choicesBox);
+
+    s.choices.forEach((imgSrc, i) => {
+      const btn = document.createElement("button");
+      btn.style.border = "none";
+      btn.style.background = "none";
+      btn.innerHTML = `<img src="${imgSrc}" alt="Option ${i+1}" style="width:72px;height:72px;border-radius:12px;">`;
+      choicesBox.appendChild(btn);
+
+      btn.onclick = () => {
+        // altes Feedback entfernen
+        const oldFb = textArea.querySelector(".feedback");
+        if (oldFb) oldFb.remove();
+
+        // Feedback-Sound
+        const fx = new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`);
+        fx.volume = 0.5;
+        fx.play();
+
+        // Feedback-Text
+        const fb = document.createElement("div");
+        fb.className = "animated-text feedback";
+        fb.style.textAlign = "center";
+        fb.textContent = i === s.correct ? s.onCorrect : s.onWrong;
+        textArea.appendChild(fb);
+
+        if (i === s.correct) {
+          // Sticker freischalten
+          unlockSticker(0); // index 0 → images/stickers/star.png
+
+          // Sticker-Animation
+          const stickerImg = document.createElement("img");
+          stickerImg.src = "images/stickers/star.png";
+          stickerImg.style.position = "fixed";
+          stickerImg.style.top = "40%";
+          stickerImg.style.left = "-100px";
+          stickerImg.style.width = "80px";
+          stickerImg.style.zIndex = "200";
+          document.body.appendChild(stickerImg);
+
+          // Von links nach mitte
+          stickerImg.animate([
+            { transform: 'translateX(0)' },
+            { transform: 'translateX(calc(50vw + 40px))' }
+          ], {
+            duration: 800,
+            easing: 'ease-out',
+            fill: 'forwards'
+          });
+
+          // Next-Button
+          const nextBtn = document.createElement("button");
+          nextBtn.className = "centered-next-btn";
+          nextBtn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+          nextBtn.onclick = () => {
+            document.querySelectorAll(".floating-video img, .floating-video video").forEach(el => el.remove());
+            currentSession++;
+            renderSession(currentSession);
+          };
+          document.body.appendChild(nextBtn);
+
+          // Buttons deaktivieren
+          choicesBox.querySelectorAll("button").forEach(b => b.disabled = true);
+        } else {
+          // Shake-Effekt
+          btn.classList.add("shake");
+          setTimeout(() => btn.classList.remove("shake"), 600);
+        }
+      };
+    });
+  }
+
+  return; // nicht weiter verarbeiten
 }
-
-
-
-
-
 
 
 }
