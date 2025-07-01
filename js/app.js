@@ -857,32 +857,26 @@ if (s.type === "shadow") {
 if (s.type === "animals") {
   clearTimeouts();
   renderFrogProgress(idx);
-  // Entferne altes Video, Buttons, etc.
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // 1) Überschrift
-  const heading = document.createElement("h2");
-  heading.className = "session-heading";
-  heading.textContent = "Guess the animal!";
-  textArea.appendChild(heading);
+  // --- Überschrift + Play-to-Tap wie gehabt ---
 
-  // 2) Video in runder Box
+  // Video-Box anlegen
   const video = document.createElement("video");
   video.src = `videos/${s.video}`;
   video.playsInline = true;
   video.autoplay = false;
-  video.controls = false;                // keine native Controls
-  video.loop = false;                    // nur einmal abspielen
+  video.controls = false;
+  video.loop = false;
   video.className = "session-video";
   const videoBox = document.createElement("div");
   videoBox.className = "floating-video";
   videoBox.appendChild(video);
   document.body.appendChild(videoBox);
 
-  // 3) Play-Overlay
-  video.style.pointerEvents = "none";
+  // Play-Overlay
   const playBtn = document.createElement("button");
   playBtn.className = "custom-play-btn";
   playBtn.innerHTML = `
@@ -899,35 +893,25 @@ if (s.type === "animals") {
   };
   videoBox.appendChild(playBtn);
 
-  // 4) Nach Ende: Video-Box entfernen, Avatar anzeigen, dann weiter mit Sound/Text/Auswahl
+  // --- Hier kommt die Änderung: sobald das Video endet, ersetzen wir es durch momo.png UND zentrieren den Feedback-Text und zeigen den Sticker ---
   video.addEventListener("ended", () => {
-    videoBox.remove();
-    // Avatar anzeigen
-    const avatar = document.createElement("img");
-    avatar.src = "images/momo.png";
-    avatar.alt = "Momo";
-    avatar.className = "intro-avatar-small";
-    textArea.appendChild(avatar);
+    // 1) Avatar unten rechts in derselben Box
+    videoBox.innerHTML = `<img src="images/momo.png" alt="Momo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
 
-    // Animal Sound
-    if (s.sound) {
-      const sound = new Audio(`audio/${s.sound}`);
-      sound.play();
-    }
-
-    // Beschreibungstext in s.text rhythmisch nach timings
+    // 2) Tier-Sound & Text
+    if (s.sound) new Audio(`audio/${s.sound}`).play();
     s.text.forEach((line, i) => {
       setTimeout(() => {
         const p = document.createElement("div");
         p.className = "animated-text";
+        p.style.textAlign = "center";            // zentriert
         p.innerText = line;
-        p.style.textAlign = "center";
         textArea.appendChild(p);
       }, (s.timings[i] || 0) * 1000);
     });
 
-    // 5) Choices erst NACH letztem Text
-    const totalDelay = (s.timings[s.timings.length - 1] || 0) * 1000 + 1200;
+    // 3) Choices + Feedback nach letztem Text
+    const delay = (s.timings[s.timings.length - 1] || 0) * 1000 + 1200;
     setTimeout(() => {
       const choicesBox = document.createElement("div");
       choicesBox.style.display = "flex";
@@ -939,21 +923,32 @@ if (s.type === "animals") {
         const btn = document.createElement("button");
         btn.style.border = "none";
         btn.style.background = "none";
-        btn.innerHTML = `<img src="${imgSrc}" alt="Option ${i+1}" style="width:72px;height:72px;border-radius:12px;">`;
+        btn.innerHTML = `<img src="${imgSrc}" style="width:72px;height:72px;border-radius:12px;">`;
         let answered = false;
         btn.onclick = () => {
           if (answered) return;
           answered = true;
-          // Feedback-Sound
-          const feedback = new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`);
-          feedback.play();
+          new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+
           if (i === s.correct) {
-            // Erfolgstext & Sticker unlock
+            // zentrierter Erfolgstext
             const ok = document.createElement("div");
             ok.className = "animated-text glitter";
+            ok.style.textAlign = "center";          // zentriert
             ok.innerText = s.onCorrect || "Correct!";
             textArea.appendChild(ok);
+
+            // Sticker anzeigen
+            const stickerImg = document.createElement("img");
+            stickerImg.src = stickerImages[s.successSticker];
+            stickerImg.alt = "Sticker";
+            stickerImg.style.display = "block";
+            stickerImg.style.margin = "12px auto"; // zentriert
+            textArea.appendChild(stickerImg);
+
+            // LocalStorage unlock
             if (typeof unlockSticker === "function") unlockSticker(s.successSticker);
+
             // Next-Button
             const nextBtn = document.createElement("button");
             nextBtn.className = "centered-next-btn";
@@ -964,20 +959,26 @@ if (s.type === "animals") {
             };
             document.body.appendChild(nextBtn);
           } else {
-            // Fehlertext
-            const err = document.createElement("div");
-            err.className = "animated-text";
-            err.innerText = s.onWrong || "Oops, not right!";
-            textArea.appendChild(err);
-          }
-        };
+    // 1) Shake-Effekt
+    btn.classList.add("shake");
+    setTimeout(() => btn.classList.remove("shake"), 600);
+
+    // 2) onWrong-Text zentriert anzeigen
+    const wrong = document.createElement("div");
+    wrong.className = "animated-text";
+    wrong.style.textAlign = "center";
+    wrong.textContent = s.onWrong || "Oops, that’s not right. Try again!";
+    textArea.appendChild(wrong);
+  }
+};
         choicesBox.appendChild(btn);
       });
-    }, totalDelay);
+    }, delay);
   });
 
   return;
 }
+
 
 
 
