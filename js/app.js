@@ -883,15 +883,42 @@ if (s.type === "animals") {
   document.body.appendChild(videoBox);
 
   const playBtn = document.createElement("button");
-  playBtn.className = "custom-play-btn";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-    <div class="play-tap-hint">Tap to play!</div>
-  `;
-  videoBox.appendChild(playBtn);
+playBtn.className = "custom-play-btn";
+playBtn.style.position = "absolute";
+playBtn.style.top = "50%";
+playBtn.style.left = "50%";
+playBtn.style.transform = "translate(-50%, -50%)";
+playBtn.style.width = "80px";
+playBtn.style.height = "80px";
+playBtn.style.borderRadius = "50%";
+playBtn.style.background = "linear-gradient(135deg, #ffd54f 60%, #81d4fa 100%)";
+playBtn.style.display = "flex";
+playBtn.style.alignItems = "center";
+playBtn.style.justifyContent = "center";
+playBtn.style.border = "none";
+playBtn.style.boxShadow = "0 2px 8px #b3e5fc";
+playBtn.style.zIndex = "45";
+playBtn.style.cursor = "pointer";
+playBtn.style.transition = "transform 0.1s";
+playBtn.innerHTML = `
+  <svg viewBox="0 0 60 60" width="36" height="36">
+    <circle cx="30" cy="30" r="28" fill="none"/>
+    <polygon points="22,16 46,30 22,44" fill="#383838"/>
+  </svg>
+  <div class="play-tap-hint" style="
+      position:absolute;
+      top:105%;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:1.1rem;
+      color:#383838;
+      font-family:inherit;
+      font-weight:600;
+      letter-spacing:0.01em;">Tap to play!</div>
+`;
+
+videoBox.appendChild(playBtn);
+
 
   playBtn.onclick = () => {
     video.play();
