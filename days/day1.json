@@ -142,19 +142,22 @@
             ]
         },
         {
-            "type": "animals",
-            "video": "day1-animals.mp4",
-            "text": [
-                "Let’s play ‘Guess That Animal’ with Momo!",
-                "I’m small, I hop, and I love to eat carrots. Who am I?",
-                "That’s right, I’m a rabbit! Great guessing!"
-            ],
-            "timings": [
-                0,
-                3,
-                7
-            ]
-        },
+  "type": "animals",
+  "video": "day1-animals.mp4",
+  "text": [
+    "Let’s play ‘Guess That Animal’ with Momo!",
+    "I’m friendly, I bark, and I love to chase balls. Who am I?",
+    "That’s right, I’m a dog! Great guessing!"
+  ],
+  "timings": [3, 7, 10],
+  "choices": [
+    "images/animals/dog.png",
+    "images/animals/rabbit.png",
+    "images/animals/bear.png"
+  ],
+  "correct": 0,
+  "sound": "audio/dog-bark.mp3"
+},
         {
             "type": "rhyme",
             "video": "day1-rhyme.mp4",
