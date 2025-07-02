@@ -337,3 +337,14 @@ html, body {
   filter: grayscale(1) brightness(0.12) blur(0.5px);
   opacity: 0.92;
 }
+.shadow-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  margin-top: 10px;
+}
+.shadow-buttons button {
+  width: 100%;
+  max-width: 160px;
+}
