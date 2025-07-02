@@ -1508,6 +1508,18 @@ if (s.type === "story") {
       video.style.pointerEvents = "auto";
       showStoryTextLines();
 	};
+	
+	 // === Luna-Bild unten rechts einfügen ===
+  if (videoBox) {
+    videoBox.innerHTML = ""; // Entfernt das Video für mehr Fokus auf Luna
+    const lunaImg = document.createElement('img');
+    lunaImg.src = "images/luna.png";
+    lunaImg.alt = "Luna";
+    lunaImg.className = "avatar"; // oder ein anderes passendes Avatar-Style
+    videoBox.appendChild(lunaImg);
+  }
+};
+	
     video.addEventListener('play', () => {
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
