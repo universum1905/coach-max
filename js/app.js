@@ -628,7 +628,7 @@ linesBox.appendChild(p);
             `;
             setTimeout(() => {
               overlay.style.display = "none";
-            }, 1400);
+            }, 2800);
           }, (step.time || idx * 4) * 1000);
           timeoutHandles.push(timeout);
         });
