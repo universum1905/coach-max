@@ -1545,12 +1545,12 @@ btn.onclick = () => {
 document.body.appendChild(btn);
 
     }, 1200);
-  }
+  
   return;
 }
 
 
-}
+}}
 
 
 
