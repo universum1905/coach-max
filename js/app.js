@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 5; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 0; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
@@ -267,7 +267,7 @@ function renderSession(idx) {
   console.log("Session-Objekt:", s);
   try { breathingMusic.pause(); breathingMusic.currentTime = 0; } catch(e) {}
   clearTimeouts();
-  renderFrogProgress(idx);
+  renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .fixed-next-btn, .centered-next-btn").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML = "";
 
@@ -492,13 +492,15 @@ function renderSession(idx) {
     function showNextBtn() {
       try { breathingMusic.pause(); breathingMusic.currentTime = 0; } catch(e) {}
       const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        currentSession++;
-        renderSession(currentSession);
-      };
-      document.body.appendChild(btn);
+btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+btn.className = "centered-next-btn";
+btn.onclick = () => {
+  lastSessionIdx = idx;
+  currentSession++;
+  renderSession(currentSession);
+};
+document.body.appendChild(btn);
+
     }
     return; // WICHTIG!
   }
@@ -630,25 +632,28 @@ function renderSession(idx) {
     // Next-Button nach Video-Ende
     function showNextBtn() {
       const btn = document.createElement('button');
-      btn.innerText = currentSession < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        document.querySelectorAll('.floating-video, #countingOverlay').forEach(el => el.remove());
-        currentSession++;
-        renderSession(currentSession);
-      };
-      document.body.appendChild(btn);
+btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+btn.className = "centered-next-btn";
+btn.onclick = () => {
+  lastSessionIdx = idx;
+  currentSession++;
+  renderSession(currentSession);
+};
+document.body.appendChild(btn);
+
     }
   } else {
     // Fallback: Kein Video, sofort Next-Button
     const btn = document.createElement('button');
-    btn.innerText = currentSession < sessions.length - 1 ? "Next" : "Finish";
-    btn.className = "centered-next-btn";
-    btn.onclick = () => {
-      currentSession++;
-      renderSession(currentSession);
-    };
-    document.body.appendChild(btn);
+btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+btn.className = "centered-next-btn";
+btn.onclick = () => {
+  lastSessionIdx = idx;
+  currentSession++;
+  renderSession(currentSession);
+};
+document.body.appendChild(btn);
+
   }
   return;
 }
@@ -778,7 +783,7 @@ if (s.type === "memory") {
 // ==== 5. NEUES MODUL: SCHATTENRÄTSEL ====
 if (s.type === "shadow") {
   clearTimeouts();
-  renderFrogProgress(idx);
+  renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
   document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
@@ -983,7 +988,7 @@ if (s.type === "shadow") {
 if (s.type === "animals") {
   // 0) Aufräumen & Fortschritt
   clearTimeouts();
-  renderFrogProgress(idx);
+  renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
   document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
@@ -1239,7 +1244,7 @@ videoBox.appendChild(playBtn);
 if (s.type === "rhyme") {
   // Aufräumen & Fortschritt
   clearTimeouts();
-  renderFrogProgress(idx);
+  renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
   document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
@@ -1435,6 +1440,122 @@ box.style.boxSizing = "border-box";
       btn.classList.add("shake");
       setTimeout(() => btn.classList.remove("shake"), 600);
     }
+  }
+  return;
+}
+
+if (s.type === "story") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.getElementById("sessionTextArea").innerHTML = "";
+  const textArea = document.getElementById("sessionTextArea");
+
+  // Überschrift
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Story Time!";
+  heading.style.textAlign = "center";
+  textArea.appendChild(heading);
+
+  // Video (unten rechts, wie bei anderen Sessions)
+  if (s.video) {
+    const video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    videoBox.appendChild(playBtn);
+  }
+
+  // Animierter Story-Text (wie animated-lines)
+  const linesBox = document.createElement('div');
+  linesBox.className = "animated-lines";
+  textArea.appendChild(linesBox);
+
+  if (Array.isArray(s.story)) {
+    let i = 0;
+    function showNextLine() {
+      if (i < s.story.length) {
+        const p = document.createElement('div');
+        p.className = "animated-text";
+        p.innerText = s.story[i];
+        linesBox.appendChild(p);
+        i++;
+        setTimeout(showNextLine, 2300); // Timing anpassen wie gewünscht
+      } else {
+        showImagesAndNext();
+      }
+    }
+    showNextLine();
+  }
+
+  // Story-Bilder und Next-Button am Ende
+  function showImagesAndNext() {
+    if (Array.isArray(s.images)) {
+      const imgBox = document.createElement('div');
+      imgBox.style.display = "flex";
+      imgBox.style.justifyContent = "center";
+      imgBox.style.gap = "22px";
+      imgBox.style.marginTop = "18px";
+      s.images.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.style.width = "120px";
+        img.style.height = "120px";
+        img.style.objectFit = "cover";
+        img.style.borderRadius = "18px";
+        img.style.boxShadow = "0 4px 18px #ffd54faa";
+        imgBox.appendChild(img);
+      });
+      textArea.appendChild(imgBox);
+    }
+    setTimeout(() => {
+      const btn = document.createElement('button');
+      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      btn.className = "centered-next-btn";
+      btn.onclick = () => {
+        lastSessionIdx = idx;
+        currentSession++;
+        renderSession(currentSession);
+      };
+      document.body.appendChild(btn);
+    }, 1200);
   }
   return;
 }
