@@ -261,6 +261,16 @@ function handleOrientation() {
 window.addEventListener("orientationchange", handleOrientation);
 window.addEventListener("resize", handleOrientation);
 
+function showAvatarInVideoBox(videoBox, avatarName, avatarClass = "avatar") {
+  if (!videoBox) return;
+  videoBox.innerHTML = "";
+  const avatarImg = document.createElement('img');
+  avatarImg.src = `images/${avatarName}.png`;
+  avatarImg.alt = capitalize(avatarName);
+  avatarImg.className = avatarClass;
+  videoBox.appendChild(avatarImg);
+}
+
 // Session mit Video, Play-Overlay, animiertem Text und fixiertem Next-Button
 function renderSession(idx) {
   const s = sessions[idx];
@@ -336,15 +346,15 @@ function renderSession(idx) {
 
     // Play-Overlay
     const playBtn = document.createElement('button');
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-      
-    `;
+playBtn.className = "custom-play-btn";
+playBtn.title = "Play";
+playBtn.innerHTML = `
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="28" fill="none"/>
+    <polygon points="22,16 46,30 22,44" fill="#383838"/>
+  </svg>
+`;
+
     playBtn.onclick = function() {
       videoElement.play();
       playBtn.style.display = "none";
@@ -433,15 +443,15 @@ function renderSession(idx) {
     document.body.appendChild(videoBox);
 
     const playBtn = document.createElement('button');
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-      
-    `;
+playBtn.className = "custom-play-btn";
+playBtn.title = "Play";
+playBtn.innerHTML = `
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="28" fill="none"/>
+    <polygon points="22,16 46,30 22,44" fill="#383838"/>
+  </svg>
+`;
+
     playBtn.onclick = function() {
       videoElement.play();
       playBtn.style.display = "none";
@@ -554,14 +564,15 @@ linesBox.appendChild(p);
 
     // Play-Overlay
     const playBtn = document.createElement('button');
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-    `;
+playBtn.className = "custom-play-btn";
+playBtn.title = "Play";
+playBtn.innerHTML = `
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="28" fill="none"/>
+    <polygon points="22,16 46,30 22,44" fill="#383838"/>
+  </svg>
+`;
+
     playBtn.onclick = function () {
       videoElement.play();
       playBtn.style.display = "none";
@@ -576,27 +587,10 @@ linesBox.appendChild(p);
       videoElement.style.pointerEvents = "none";
     });
     videoElement.addEventListener('ended', () => {
-      playBtn.style.display = "";
-      videoElement.style.pointerEvents = "none";
+  if (s.avatar) showAvatarInVideoBox(videoBox, s.avatar);
+  showNextBtn();
+});
 
-      // Avatar nach Video-Ende anzeigen
-      if (s.avatar) {
-        // Vorherige Avatare entfernen (falls mehrfach geklickt)
-        document.querySelectorAll('.avatar').forEach(el => el.remove());
-        const avatarImg = document.createElement('img');
-        avatarImg.src = "images/" + s.avatar + ".png";
-        avatarImg.alt = s.avatar;
-        avatarImg.className = "avatar";
-        if (videoBox) {
-          videoBox.innerHTML = ""; // Video raus, Platz für Avatar!
-          videoBox.appendChild(avatarImg);
-        } else {
-          textArea.appendChild(avatarImg);
-        }
-      }
-
-      showNextBtn();
-    });
     videoBox.appendChild(playBtn);
 
     // Zähl-Overlay, wenn countingTimings definiert
@@ -830,16 +824,16 @@ if (s.type === "shadow") {
     document.body.appendChild(videoBox);
 
     // Play-Overlay
-    const playBtn = document.createElement("button");
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-      
-    `;
+    const playBtn = document.createElement('button');
+playBtn.className = "custom-play-btn";
+playBtn.title = "Play";
+playBtn.innerHTML = `
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="28" fill="none"/>
+    <polygon points="22,16 46,30 22,44" fill="#383838"/>
+  </svg>
+`;
+
     playBtn.onclick = function () {
       video.play();
       playBtn.style.display = "none";
@@ -854,17 +848,10 @@ if (s.type === "shadow") {
       video.style.pointerEvents = "none";
     });
     video.addEventListener('ended', () => {
-      playBtn.style.display = "";
-      video.style.pointerEvents = "none";
-      videoBox.innerHTML = ""; // Video raus, Platz machen für Avatar!
-      const avatar = document.createElement('img');
-      avatar.src = "images/luna.png"; // oder avatar deiner Wahl!
-      avatar.alt = "Luna";
-      avatar.className = "avatar";
-      videoBox.appendChild(avatar);
+  showAvatarInVideoBox(videoBox, "luna");
+  setTimeout(() => { showGame(); }, 400);
+});
 
-      setTimeout(() => { showGame(); }, 400); // kleine Pause für Effekt
-    });
     videoBox.appendChild(playBtn);
 
     // Shadow-Quiz erst nach Video
@@ -1031,29 +1018,16 @@ if (s.type === "animals") {
   videoBox.appendChild(video);
   document.body.appendChild(videoBox);
 
-  const playBtn = document.createElement("button");
+  const playBtn = document.createElement('button');
 playBtn.className = "custom-play-btn";
-playBtn.style.position = "absolute";
-playBtn.style.top = "50%";
-playBtn.style.left = "50%";
-playBtn.style.transform = "translate(-50%, -50%)";
-playBtn.style.width = "80px";
-playBtn.style.height = "80px";
-playBtn.style.borderRadius = "50%";
-playBtn.style.background = "linear-gradient(135deg, #ffd54f 60%, #81d4fa 100%)";
-playBtn.style.display = "flex";
-playBtn.style.alignItems = "center";
-playBtn.style.justifyContent = "center";
-playBtn.style.border = "none";
-playBtn.style.boxShadow = "0 2px 8px #b3e5fc";
-playBtn.style.zIndex = "45";
-playBtn.style.cursor = "pointer";
-playBtn.style.transition = "transform 0.1s";
+playBtn.title = "Play";
 playBtn.innerHTML = `
-  <svg viewBox="0 0 60 60" width="36" height="36">
+  <svg viewBox="0 0 60 60">
     <circle cx="30" cy="30" r="28" fill="none"/>
     <polygon points="22,16 46,30 22,44" fill="#383838"/>
   </svg>
+`;
+
   <div class="play-tap-hint" style="
       position:absolute;
       top:105%;
@@ -1076,10 +1050,10 @@ videoBox.appendChild(playBtn);
   video.addEventListener("play", () => playBtn.style.display = "none");
 
   // 3) Nach Ende: Avatar zeigen & Sequenz starten
-  video.addEventListener("ended", () => {
-    videoBox.innerHTML = `<img src="images/momo.png" class="avatar" alt="Momo">`;
-    startAnimalSequence();
-  });
+  video.addEventListener('ended', () => {
+  showAvatarInVideoBox(videoBox, "momo");
+  startAnimalSequence();
+});
 
   // --- NEU: Sound n-mal und danach Text/Choices ---
   function playRepeatedAudio(audioSrc, repeats, onComplete) {
@@ -1289,13 +1263,16 @@ if (s.type === "rhyme") {
     videoBox.appendChild(video);
     document.body.appendChild(videoBox);
 
-    const playBtn = document.createElement("button");
-    playBtn.className = "custom-play-btn";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60" width="36" height="36">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
+    const playBtn = document.createElement('button');
+playBtn.className = "custom-play-btn";
+playBtn.title = "Play";
+playBtn.innerHTML = `
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="28" fill="none"/>
+    <polygon points="22,16 46,30 22,44" fill="#383838"/>
+  </svg>
+`;
+
       <div class="play-tap-hint" style="
         position:absolute;top:105%;left:50%;transform:translateX(-50%);
         font-size:1.1rem;color:#383838;font-family:inherit;
@@ -1310,10 +1287,11 @@ if (s.type === "rhyme") {
     video.addEventListener("play", () => playBtn.style.display = "none");
 
     // Nach Video-Ende: avatar anzeigen, dann Frage & Auswahl
-    video.addEventListener("ended", () => {
-      videoBox.innerHTML = `<img src="images/benny.png" class="avatar" alt="Benny" style="width:110px;height:110px;border-radius:50%;background:#fffbe6;box-shadow:0 2px 16px #ffd54faa;">`;
-      setTimeout(showQuestionAndChoices, 300); // Kurze Pause für Effekt
-    });
+    video.addEventListener('ended', () => {
+  showAvatarInVideoBox(videoBox, "benny");
+  setTimeout(showQuestionAndChoices, 300);
+});
+
 
     // Alternativ: showQuestionAndChoices() sofort aufrufen, falls kein Video
   } else {
@@ -1493,15 +1471,16 @@ if (s.type === "story") {
     videoBox.appendChild(video);
     document.body.appendChild(videoBox);
 
-    const playBtn = document.createElement("button");
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-    `;
+    const playBtn = document.createElement('button');
+playBtn.className = "custom-play-btn";
+playBtn.title = "Play";
+playBtn.innerHTML = `
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="28" fill="none"/>
+    <polygon points="22,16 46,30 22,44" fill="#383838"/>
+  </svg>
+`;
+
     playBtn.onclick = function () {
       video.play();
       playBtn.style.display = "none";
@@ -1519,17 +1498,7 @@ if (s.type === "story") {
       video.style.pointerEvents = "none";
     });
     video.addEventListener('ended', () => {
-      playBtn.style.display = "";
-      video.style.pointerEvents = "none";
-    // Jetzt Luna-Bild anzeigen
-  if (videoBox) {
-    videoBox.innerHTML = ""; // Video raus
-    const lunaImg = document.createElement('img');
-    lunaImg.src = "images/luna.png";
-    lunaImg.alt = "Luna";
-    lunaImg.className = "avatar"; // oder avatar-large
-    videoBox.appendChild(lunaImg);
-  }
+  showAvatarInVideoBox(videoBox, "luna");
 });
 
   // Animierter Story-Text (wie animated-lines)
@@ -1581,19 +1550,16 @@ function showStoryTextLines() {
     }
     setTimeout(() => {
       const btn = document.createElement('button');
-      btn.onclick = () => {
-  if (idx < sessions.length - 1) {
-    lastSessionIdx = idx;
-    currentSession++;
-    renderSession(currentSession);
-  } else {
-    // Tag als abgeschlossen markieren (falls nicht schon passiert)
-    // und dann weiterleiten:
-    window.location.href = "choose.html";
-  }
+btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+btn.className = "centered-next-btn";
+btn.onclick = () => {
+  if (idx >= sessions.length - 1) {
+  localStorage.setItem(`day${localDay}Completed`, "1");
+  window.location.href = "choose.html";
+}
 };
+document.body.appendChild(btn);
 
-      document.body.appendChild(btn);
     }, 1200);
   }
   return;
