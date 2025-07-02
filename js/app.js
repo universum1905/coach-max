@@ -1126,14 +1126,15 @@ if (s.type === "rhyme") {
   textArea.appendChild(heading);
 
   // Video + Tap-to-Play Overlay (optional)
+  let videoBox, video;
   if (s.video) {
-    const video = document.createElement("video");
+    video = document.createElement("video");
     video.src = `videos/${s.video}`;
     video.playsInline = true;
     video.autoplay = false;
     video.muted = false;
     video.className = "session-video";
-    const videoBox = document.createElement("div");
+    videoBox = document.createElement("div");
     videoBox.className = "floating-video";
     videoBox.appendChild(video);
     document.body.appendChild(videoBox);
@@ -1157,20 +1158,18 @@ if (s.type === "rhyme") {
       playBtn.style.display = "none";
     };
     video.addEventListener("play", () => playBtn.style.display = "none");
+
+    // Nach Video-Ende: avatar anzeigen, dann Frage & Auswahl
     video.addEventListener("ended", () => {
-      videoBox.innerHTML = ""; // Optional: Avatar statt Video anzeigen
-      showQuestionAndChoices();
+      videoBox.innerHTML = `<img src="images/benny.png" class="avatar" alt="Benny" style="width:110px;height:110px;border-radius:50%;background:#fffbe6;box-shadow:0 2px 16px #ffd54faa;">`;
+      setTimeout(showQuestionAndChoices, 300); // Kurze Pause für Effekt
     });
 
-    // Falls du möchtest, Frage direkt schon vorher anzeigen:
-    // showQuestionAndChoices();
-    // Dann einfach return hier entfernen
-
+    // Alternativ: showQuestionAndChoices() sofort aufrufen, falls kein Video
   } else {
     showQuestionAndChoices();
   }
 
-  // 3. Funktion: Frage und Buttons anzeigen
   function showQuestionAndChoices() {
     // Frage zentriert
     const questionDiv = document.createElement("div");
@@ -1206,7 +1205,6 @@ if (s.type === "rhyme") {
     });
   }
 
-  // 4. Auswahl-Logik (Feedback und Next-Button nach Erfolg)
   function handleChoice(btn, i) {
     // Feedback Sound
     new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
@@ -1226,8 +1224,31 @@ if (s.type === "rhyme") {
       feedback.textContent = s.onCorrect || "Yes, that's a rhyme!";
       textArea.appendChild(feedback);
 
-      // Sticker, Glitzer, etc. wie bei animals
+      // Animierter Stern (wie animals)
+      const sticker = document.createElement("img");
+      sticker.src = "images/stickers/star.png";
+      sticker.style.position = "absolute";
+      sticker.style.left = "-100px";
+      sticker.style.top = "50%";
+      sticker.style.transform = "translateY(-50%)";
+      sticker.style.width = "80px";
+      sticker.style.transition = "left 0.8s ease-out";
+      document.body.appendChild(sticker);
+
       setTimeout(() => {
+        const mid = window.innerWidth / 2 - 40;
+        sticker.style.left = mid + "px";
+      }, 50);
+
+      setTimeout(() => {
+        sticker.style.transition = "all 0.6s ease-in";
+        sticker.style.left = (window.innerWidth - 100) + "px";
+        sticker.style.top = "10px";
+        sticker.style.opacity = "0";
+      }, 900);
+
+      setTimeout(() => {
+        // Reward-Box wie bei animals
         const rewardBox = document.createElement("div");
         rewardBox.style.position = "fixed";
         rewardBox.style.left = "50%";
@@ -1271,10 +1292,10 @@ if (s.type === "rhyme") {
           document.body.appendChild(next);
         }, 1000);
 
-      }, 800);
+      }, 1600);
 
       // Sticker im Speicher freischalten (wie animals)
-      unlockSticker && unlockSticker(0); // z. B. für den ersten Sticker
+      unlockSticker && unlockSticker(0);
 
     } else {
       btn.style.background = "#ffd6d6";
@@ -1286,6 +1307,7 @@ if (s.type === "rhyme") {
   }
   return;
 }
+
 
 }
 
