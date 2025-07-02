@@ -337,7 +337,7 @@ function renderSession(idx) {
         <circle cx="30" cy="30" r="28" fill="none"/>
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
-      <div class="play-tap-hint">Tap here to play!</div>
+      <div class="play-tap-hint"></div>
     `;
     playBtn.onclick = function() {
       videoElement.play();
@@ -434,7 +434,7 @@ function renderSession(idx) {
         <circle cx="30" cy="30" r="28" fill="none"/>
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
-      <div class="play-tap-hint">Tap here to play!</div>
+      <div class="play-tap-hint"></div>
     `;
     playBtn.onclick = function() {
       videoElement.play();
@@ -560,7 +560,7 @@ function renderSession(idx) {
         <circle cx="30" cy="30" r="28" fill="none"/>
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
-      <div class="play-tap-hint">Tap here to play!</div>
+      <div class="play-tap-hint"></div>
     `;
     playBtn.onclick = function () {
       videoElement.play();
@@ -914,7 +914,7 @@ playBtn.innerHTML = `
       color:#383838;
       font-family:inherit;
       font-weight:600;
-      letter-spacing:0.01em;">Tap to play!</div>
+      letter-spacing:0.01em;"></div>
 `;
 
 videoBox.appendChild(playBtn);
@@ -1150,7 +1150,7 @@ if (s.type === "rhyme") {
       <div class="play-tap-hint" style="
         position:absolute;top:105%;left:50%;transform:translateX(-50%);
         font-size:1.1rem;color:#383838;font-family:inherit;
-        font-weight:600;letter-spacing:0.01em;">Tap to play!</div>
+        font-weight:600;letter-spacing:0.01em;"></div>
     `;
     videoBox.appendChild(playBtn);
 
