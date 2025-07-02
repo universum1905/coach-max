@@ -1111,86 +1111,182 @@ videoBox.appendChild(playBtn);
 }
 
 if (s.type === "rhyme") {
+  // Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
   document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
 
-  // Frage anzeigen
+  // Überschrift
   const heading = document.createElement("h2");
   heading.className = "session-heading";
-  heading.textContent = "Rhyming Game!";
+  heading.textContent = "Find the Rhyme!";
+  heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  const question = document.createElement("div");
-  question.className = "animated-text";
-  question.textContent = s.question;
-  textArea.appendChild(question);
-
-  // Video falls gewünscht
+  // Video + Tap-to-Play Overlay (optional)
   if (s.video) {
-    videoElement = document.createElement('video');
-    videoElement.src = `videos/${s.video}`;
-    videoElement.setAttribute("controls", "true");
-    videoElement.setAttribute("controlsList", "nodownload");
-    videoElement.autoplay = false;
-    videoElement.muted = false;
-    videoElement.playsInline = true;
-    videoElement.poster = "images/video-placeholder.png";
-    videoElement.className = "session-video";
-    const videoBox = document.createElement('div');
+    const video = document.createElement("video");
+    video.src = `videos/${s.video}`;
+    video.playsInline = true;
+    video.autoplay = false;
+    video.muted = false;
+    video.className = "session-video";
+    const videoBox = document.createElement("div");
     videoBox.className = "floating-video";
-    videoBox.appendChild(videoElement);
+    videoBox.appendChild(video);
     document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60" width="36" height="36">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+      <div class="play-tap-hint" style="
+        position:absolute;top:105%;left:50%;transform:translateX(-50%);
+        font-size:1.1rem;color:#383838;font-family:inherit;
+        font-weight:600;letter-spacing:0.01em;">Tap to play!</div>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = () => {
+      video.play();
+      playBtn.style.display = "none";
+    };
+    video.addEventListener("play", () => playBtn.style.display = "none");
+    video.addEventListener("ended", () => {
+      videoBox.innerHTML = ""; // Optional: Avatar statt Video anzeigen
+      showQuestionAndChoices();
+    });
+
+    // Falls du möchtest, Frage direkt schon vorher anzeigen:
+    // showQuestionAndChoices();
+    // Dann einfach return hier entfernen
+
+  } else {
+    showQuestionAndChoices();
   }
 
-  // Buttons für Auswahl
-  const box = document.createElement("div");
-  box.style.display = "flex";
-  box.style.justifyContent = "center";
-  box.style.gap = "16px";
-  box.style.marginTop = "18px";
-  textArea.appendChild(box);
+  // 3. Funktion: Frage und Buttons anzeigen
+  function showQuestionAndChoices() {
+    // Frage zentriert
+    const questionDiv = document.createElement("div");
+    questionDiv.className = "animated-text";
+    questionDiv.style.textAlign = "center";
+    questionDiv.style.fontSize = "1.19rem";
+    questionDiv.style.margin = "18px auto 12px auto";
+    questionDiv.textContent = s.question;
+    textArea.appendChild(questionDiv);
 
-  s.choices.forEach((word, i) => {
-    const btn = document.createElement("button");
-    btn.className = "centered-next-btn";
-    btn.textContent = word;
-    btn.onclick = () => {
-      if (i === s.correct) {
-        btn.style.background = "#b2dfdb";
-        showFeedback(s.onCorrect, true);
-      } else {
-        btn.style.background = "#ffd6d6";
-        showFeedback(s.onWrong, false);
-      }
-    };
-    box.appendChild(btn);
-  });
+    // Auswahl-Buttons (zentriert)
+    const box = document.createElement("div");
+    box.style.display = "flex";
+    box.style.justifyContent = "center";
+    box.style.gap = "16px";
+    box.style.margin = "10px auto 0 auto";
+    textArea.appendChild(box);
 
-  function showFeedback(msg, correct) {
+    s.choices.forEach((word, i) => {
+      const btn = document.createElement("button");
+      btn.style.border = "none";
+      btn.style.background = "#fffbe6";
+      btn.style.fontSize = "1.44rem";
+      btn.style.fontWeight = "700";
+      btn.style.padding = "0.9em 1.7em";
+      btn.style.borderRadius = "16px";
+      btn.style.boxShadow = "0 2px 10px #81d4fa88";
+      btn.style.cursor = "pointer";
+      btn.textContent = word;
+
+      btn.onclick = () => handleChoice(btn, i);
+      box.appendChild(btn);
+    });
+  }
+
+  // 4. Auswahl-Logik (Feedback und Next-Button nach Erfolg)
+  function handleChoice(btn, i) {
+    // Feedback Sound
+    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+
+    // Feedback-Text (vorherigen entfernen)
+    const prev = document.querySelector(".rhyme-feedback");
+    if (prev) prev.remove();
+
     const feedback = document.createElement("div");
-    feedback.className = "animated-text";
-    feedback.style.marginTop = "18px";
-    feedback.textContent = msg;
-    textArea.appendChild(feedback);
-    if (correct) {
-      // Sticker, Glitzer oder Sound abspielen
+    feedback.className = "animated-text rhyme-feedback";
+    feedback.style.textAlign = "center";
+    feedback.style.marginTop = "17px";
+
+    if (i === s.correct) {
+      btn.style.background = "#b2dfdb";
+      feedback.classList.add("glitter");
+      feedback.textContent = s.onCorrect || "Yes, that's a rhyme!";
+      textArea.appendChild(feedback);
+
+      // Sticker, Glitzer, etc. wie bei animals
       setTimeout(() => {
-        const btn = document.createElement('button');
-        btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-        btn.className = "centered-next-btn";
-        btn.onclick = () => {
-          currentSession++;
-          renderSession(currentSession);
-        };
-        document.body.appendChild(btn);
-      }, 1200);
+        const rewardBox = document.createElement("div");
+        rewardBox.style.position = "fixed";
+        rewardBox.style.left = "50%";
+        rewardBox.style.transform = "translateX(-50%)";
+        rewardBox.style.bottom = "150px";
+        rewardBox.style.display = "flex";
+        rewardBox.style.flexDirection = "column";
+        rewardBox.style.alignItems = "center";
+        rewardBox.style.zIndex = "1000";
+
+        const rewardText = document.createElement("div");
+        rewardText.textContent = "Your reward";
+        rewardText.style.fontSize = "1.17rem";
+        rewardText.style.fontWeight = "700";
+        rewardText.style.color = "#faaf08";
+        rewardText.style.marginBottom = "7px";
+        rewardText.style.textShadow = "0 1px 8px #fffde7";
+        rewardBox.appendChild(rewardText);
+
+        const rewardSticker = document.createElement("img");
+        rewardSticker.src = "images/stickers/star.png";
+        rewardSticker.style.width = "68px";
+        rewardSticker.style.height = "68px";
+        rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
+        rewardSticker.style.borderRadius = "22px";
+        rewardSticker.style.background = "#fffbe6";
+        rewardBox.appendChild(rewardSticker);
+
+        document.body.appendChild(rewardBox);
+
+        // Next-Button nach kurzer Zeit
+        setTimeout(() => {
+          const next = document.createElement("button");
+          next.className = "centered-next-btn";
+          next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+          next.onclick = () => {
+            document.querySelectorAll(".floating-video, .centered-next-btn, .glitter, div[style*='fixed']").forEach(e => e.remove());
+            currentSession++;
+            renderSession(currentSession);
+          };
+          document.body.appendChild(next);
+        }, 1000);
+
+      }, 800);
+
+      // Sticker im Speicher freischalten (wie animals)
+      unlockSticker && unlockSticker(0); // z. B. für den ersten Sticker
+
+    } else {
+      btn.style.background = "#ffd6d6";
+      feedback.textContent = s.onWrong || "Try again!";
+      textArea.appendChild(feedback);
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 600);
     }
   }
   return;
 }
+
 }
 
 
