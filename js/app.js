@@ -1506,7 +1506,8 @@ if (s.type === "story") {
       video.play();
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
-    };
+      showStoryTextLines();
+	};
     video.addEventListener('play', () => {
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
@@ -1524,25 +1525,30 @@ if (s.type === "story") {
 
   // Animierter Story-Text (wie animated-lines)
   const linesBox = document.createElement('div');
-  linesBox.className = "animated-lines";
-  textArea.appendChild(linesBox);
+linesBox.className = "animated-lines";
+textArea.appendChild(linesBox);
 
+// Funktion zum animierten Anzeigen der Story-Textzeilen
+function showStoryTextLines() {
   if (Array.isArray(s.story)) {
     let i = 0;
     function showNextLine() {
       if (i < s.story.length) {
         const p = document.createElement('div');
         p.className = "animated-text";
+        p.style.textAlign = "center";
         p.innerText = s.story[i];
         linesBox.appendChild(p);
         i++;
-        setTimeout(showNextLine, 2300); // Timing anpassen wie gewünscht
+        setTimeout(showNextLine, 2300); // Timing nach Wunsch
       } else {
         showImagesAndNext();
       }
     }
     showNextLine();
   }
+}
+
 
   // Story-Bilder und Next-Button am Ende
   function showImagesAndNext() {
