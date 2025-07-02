@@ -185,20 +185,18 @@
   "successSticker": 2
 },
         {
-            "type": "story",
-            "video": "day1-story.mp4",
-            "text": [
-                "Time for a story with Luna!",
-                "Luna and her friends went on a treasure hunt.",
-                "At the end, they found a sparkling sticker just for you!",
-                "See you tomorrow for more fun adventures!"
-            ],
-            "timings": [
-                0,
-                3,
-                6,
-                9
-            ]
-        }
-    ]
+  "type": "story",
+  "video": "day1-story.mp4",
+  "title": "Luna's Big Adventure",
+  "story": [
+    "One sunny morning, Luna the little cat saw a shiny star in her garden.",
+    "Curious, she ran to Benny the dog. “Let’s find the star together!” said Luna.",
+    "They searched and giggled, then found the sparkling star under a flower.",
+    "Luna learned: Adventures are more fun with friends!"
+  ],
+  "images": [
+    "images/story1-scene1.png",
+    "images/story1-scene2.png"
+  ],
+  "onFinish": "Great listening! See you tomorrow for another adventure!"
 }
