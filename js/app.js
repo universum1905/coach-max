@@ -1421,7 +1421,7 @@ box.style.boxSizing = "border-box";
       btn.classList.add("shake");
       setTimeout(() => btn.classList.remove("shake"), 600);
     }
-  }
+  
   return;
 }
 
@@ -1548,9 +1548,9 @@ document.body.appendChild(btn);
   
   return;
 }
-
-
 }
+
+
 
 
 
