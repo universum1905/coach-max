@@ -1325,7 +1325,7 @@ box.style.boxSizing = "border-box";
   function handleChoice(btn, i) {
     // Feedback Sound
     new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
-
+  }
     // Feedback-Text (vorherigen entfernen)
     const prev = document.querySelector(".rhyme-feedback");
     if (prev) prev.remove();
