@@ -677,7 +677,7 @@ playBtn.innerHTML = `
 
 
 // ==== 4. NEUES MODUL: MEMORY ====
-if (s.type === "memory") {
+   if (s.type === "memory") {
   // Speicher die Session-TextArea
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
@@ -794,7 +794,7 @@ if (s.type === "memory") {
 }
 
 // ==== 5. NEUES MODUL: SCHATTENRÄTSEL ====
-if (s.type === "shadow") {
+  if (s.type === "shadow") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -991,7 +991,7 @@ playBtn.innerHTML = `
 // ==== neues Modul: ANIMALS ====
 // Innerhalb von renderSession(idx), ersetze den bisherigen animals-Block durch:
 
-if (s.type === "animals") {
+  if (s.type === "animals") {
   // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -1223,7 +1223,7 @@ videoBox.appendChild(playBtn);
   return; // Ende des animals-Blocks
 }
 
-if (s.type === "rhyme") {
+  if (s.type === "rhyme") {
   // Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -1425,7 +1425,7 @@ box.style.boxSizing = "border-box";
   return;
 }
 
-if (s.type === "story") {
+  if (s.type === "story") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
