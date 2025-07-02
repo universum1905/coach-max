@@ -164,19 +164,14 @@
 
 ,
         {
-            "type": "rhyme",
-            "video": "day1-rhyme.mp4",
-            "text": [
-                "Now a rhyme with Benny!",
-                "Benny the dog runs in the fog.",
-                "He jumps over a log, and greets a friendly frog!"
-            ],
-            "timings": [
-                0,
-                2.5,
-                5.5
-            ]
-        },
+  "type": "rhyme",
+  "question": "What rhymes with dog?",
+  "choices": ["fog", "cat", "ball"],
+  "correct": 0,
+  "video": "day1-rhyme.mp4",   // Optional: Video, wie Benny animiert spricht
+  "onCorrect": "Great! Fog rhymes with dog.",
+  "onWrong": "Try again!"
+},
         {
             "type": "shadow",
             "avatar": "luna",

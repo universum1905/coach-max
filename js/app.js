@@ -1110,6 +1110,87 @@ videoBox.appendChild(playBtn);
   return; // Ende des animals-Blocks
 }
 
+if (s.type === "rhyme") {
+  clearTimeouts();
+  renderFrogProgress(idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.getElementById("sessionTextArea").innerHTML = "";
+  const textArea = document.getElementById("sessionTextArea");
+
+  // Frage anzeigen
+  const heading = document.createElement("h2");
+  heading.className = "session-heading";
+  heading.textContent = "Rhyming Game!";
+  textArea.appendChild(heading);
+
+  const question = document.createElement("div");
+  question.className = "animated-text";
+  question.textContent = s.question;
+  textArea.appendChild(question);
+
+  // Video falls gewünscht
+  if (s.video) {
+    videoElement = document.createElement('video');
+    videoElement.src = `videos/${s.video}`;
+    videoElement.setAttribute("controls", "true");
+    videoElement.setAttribute("controlsList", "nodownload");
+    videoElement.autoplay = false;
+    videoElement.muted = false;
+    videoElement.playsInline = true;
+    videoElement.poster = "images/video-placeholder.png";
+    videoElement.className = "session-video";
+    const videoBox = document.createElement('div');
+    videoBox.className = "floating-video";
+    videoBox.appendChild(videoElement);
+    document.body.appendChild(videoBox);
+  }
+
+  // Buttons für Auswahl
+  const box = document.createElement("div");
+  box.style.display = "flex";
+  box.style.justifyContent = "center";
+  box.style.gap = "16px";
+  box.style.marginTop = "18px";
+  textArea.appendChild(box);
+
+  s.choices.forEach((word, i) => {
+    const btn = document.createElement("button");
+    btn.className = "centered-next-btn";
+    btn.textContent = word;
+    btn.onclick = () => {
+      if (i === s.correct) {
+        btn.style.background = "#b2dfdb";
+        showFeedback(s.onCorrect, true);
+      } else {
+        btn.style.background = "#ffd6d6";
+        showFeedback(s.onWrong, false);
+      }
+    };
+    box.appendChild(btn);
+  });
+
+  function showFeedback(msg, correct) {
+    const feedback = document.createElement("div");
+    feedback.className = "animated-text";
+    feedback.style.marginTop = "18px";
+    feedback.textContent = msg;
+    textArea.appendChild(feedback);
+    if (correct) {
+      // Sticker, Glitzer oder Sound abspielen
+      setTimeout(() => {
+        const btn = document.createElement('button');
+        btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+        btn.className = "centered-next-btn";
+        btn.onclick = () => {
+          currentSession++;
+          renderSession(currentSession);
+        };
+        document.body.appendChild(btn);
+      }, 1200);
+    }
+  }
+  return;
+}
 }
 
 
