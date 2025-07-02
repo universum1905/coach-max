@@ -168,7 +168,7 @@
   "question": "What rhymes with dog?",
   "choices": ["fog", "cat", "ball"],
   "correct": 0,
-  "video": "day1-rhyme.mp4",   // Optional: Video, wie Benny animiert spricht
+  "video": "day1-rhyme.mp4",   
   "onCorrect": "Great! Fog rhymes with dog.",
   "onWrong": "Try again!"
 },
