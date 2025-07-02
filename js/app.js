@@ -1507,17 +1507,7 @@ if (s.type === "story") {
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
       showStoryTextLines();
-	
-	
-	 // === Luna-Bild unten rechts einfügen ===
-  if (videoBox) {
-    videoBox.innerHTML = ""; // Entfernt das Video für mehr Fokus auf Luna
-    const lunaImg = document.createElement('img');
-    lunaImg.src = "images/luna.png";
-    lunaImg.alt = "Luna";
-    lunaImg.className = "avatar"; // oder ein anderes passendes Avatar-Style
-    videoBox.appendChild(lunaImg);
-  }
+		 
 };
 	
     video.addEventListener('play', () => {
@@ -1531,9 +1521,16 @@ if (s.type === "story") {
     video.addEventListener('ended', () => {
       playBtn.style.display = "";
       video.style.pointerEvents = "none";
-    });
-    videoBox.appendChild(playBtn);
+    // Jetzt Luna-Bild anzeigen
+  if (videoBox) {
+    videoBox.innerHTML = ""; // Video raus
+    const lunaImg = document.createElement('img');
+    lunaImg.src = "images/luna.png";
+    lunaImg.alt = "Luna";
+    lunaImg.className = "avatar"; // oder avatar-large
+    videoBox.appendChild(lunaImg);
   }
+});
 
   // Animierter Story-Text (wie animated-lines)
   const linesBox = document.createElement('div');
