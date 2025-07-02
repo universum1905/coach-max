@@ -1484,12 +1484,12 @@ playBtn.innerHTML = `
     video.addEventListener('ended', () => {
   showAvatarInVideoBox(videoBox, "luna");
 });
-
+  
   // Animierter Story-Text (wie animated-lines)
   const linesBox = document.createElement('div');
 linesBox.className = "animated-lines";
 textArea.appendChild(linesBox);
-
+  
 // Funktion zum animierten Anzeigen der Story-Textzeilen
 function showStoryTextLines() {
   if (Array.isArray(s.story)) {
@@ -1509,7 +1509,7 @@ function showStoryTextLines() {
     }
     showNextLine();
   }
-}
+
 
 
   // Story-Bilder und Next-Button am Ende
@@ -1550,7 +1550,7 @@ document.body.appendChild(btn);
 }
 
 
-}}
+}
 
 
 
