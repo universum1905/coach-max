@@ -68,7 +68,7 @@ html, body {
   border-radius: 0;
   box-shadow: none;
   animation: fadeInText 1s;
-  text-align: left;
+  text-align: center !important;
   color: #383838;
   font-weight: 500;
 }

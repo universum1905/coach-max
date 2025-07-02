@@ -526,9 +526,10 @@ document.body.appendChild(btn);
     s.text.forEach((line, idx) => {
       setTimeout(() => {
         const p = document.createElement('div');
-        p.className = "animated-text";
-        p.innerText = line.line || line;
-        linesBox.appendChild(p);
+p.className = "animated-text";
+p.style.textAlign = "center"; // <-- das ist entscheidend!
+p.innerText = line.line || line;
+linesBox.appendChild(p);
       }, idx * 900);
     });
   }
