@@ -511,20 +511,11 @@ document.body.appendChild(btn);
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
 
-  // Überschrift und Avatar
+  // Überschrift
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = s.title || "Counting Time!";
   textArea.appendChild(heading);
-
-  if (s.avatar) {
-    videoBox.remove(); 
-	const avatarImg = document.createElement('img');
-    avatarImg.src = "images/" + s.avatar + ".png";
-    avatarImg.alt = s.avatar;
-    avatarImg.className = "avatar";
-    document.body.appendChild(avatarImg);
-  }
 
   // Animierte Zeilen (oben)
   const linesBox = document.createElement('div');
@@ -542,6 +533,7 @@ document.body.appendChild(btn);
     });
   }
 
+  let videoBox = null;
   // Video-Bereich (unten rechts, wie bei Intro)
   if (s.video) {
     videoElement = document.createElement('video');
@@ -554,7 +546,7 @@ document.body.appendChild(btn);
     videoElement.poster = "images/video-placeholder.png";
     videoElement.className = "session-video";
 
-    const videoBox = document.createElement('div');
+    videoBox = document.createElement('div');
     videoBox.className = "floating-video";
     videoBox.appendChild(videoElement);
     document.body.appendChild(videoBox);
@@ -568,7 +560,6 @@ document.body.appendChild(btn);
         <circle cx="30" cy="30" r="28" fill="none"/>
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
-      
     `;
     playBtn.onclick = function () {
       videoElement.play();
@@ -586,6 +577,23 @@ document.body.appendChild(btn);
     videoElement.addEventListener('ended', () => {
       playBtn.style.display = "";
       videoElement.style.pointerEvents = "none";
+
+      // Avatar nach Video-Ende anzeigen
+      if (s.avatar) {
+        // Vorherige Avatare entfernen (falls mehrfach geklickt)
+        document.querySelectorAll('.avatar').forEach(el => el.remove());
+        const avatarImg = document.createElement('img');
+        avatarImg.src = "images/" + s.avatar + ".png";
+        avatarImg.alt = s.avatar;
+        avatarImg.className = "avatar";
+        if (videoBox) {
+          videoBox.innerHTML = ""; // Video raus, Platz für Avatar!
+          videoBox.appendChild(avatarImg);
+        } else {
+          textArea.appendChild(avatarImg);
+        }
+      }
+
       showNextBtn();
     });
     videoBox.appendChild(playBtn);
@@ -629,34 +637,44 @@ document.body.appendChild(btn);
       videoElement.addEventListener('pause', clearCountingOverlays);
     }
 
-    // Next-Button nach Video-Ende
+    // Next-Button nach Video-Ende (kommt nach Avatar)
     function showNextBtn() {
       const btn = document.createElement('button');
-btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-btn.className = "centered-next-btn";
-btn.onclick = () => {
-  lastSessionIdx = idx;
-  currentSession++;
-  renderSession(currentSession);
-};
-document.body.appendChild(btn);
-
+      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      btn.className = "centered-next-btn";
+      btn.onclick = () => {
+        lastSessionIdx = idx;
+        currentSession++;
+        renderSession(currentSession);
+      };
+      document.body.appendChild(btn);
     }
-  } else {
-    // Fallback: Kein Video, sofort Next-Button
-    const btn = document.createElement('button');
-btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-btn.className = "centered-next-btn";
-btn.onclick = () => {
-  lastSessionIdx = idx;
-  currentSession++;
-  renderSession(currentSession);
-};
-document.body.appendChild(btn);
 
+  } else {
+    // Fallback: Kein Video, Avatar sofort anzeigen
+    if (s.avatar) {
+      document.querySelectorAll('.avatar').forEach(el => el.remove());
+      const avatarImg = document.createElement('img');
+      avatarImg.src = "images/" + s.avatar + ".png";
+      avatarImg.alt = s.avatar;
+      avatarImg.className = "avatar";
+      textArea.appendChild(avatarImg);
+    }
+
+    // Next-Button sofort
+    const btn = document.createElement('button');
+    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+    btn.className = "centered-next-btn";
+    btn.onclick = () => {
+      lastSessionIdx = idx;
+      currentSession++;
+      renderSession(currentSession);
+    };
+    document.body.appendChild(btn);
   }
   return;
 }
+
 
 
 
