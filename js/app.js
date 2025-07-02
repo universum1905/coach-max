@@ -620,10 +620,10 @@ document.body.appendChild(btn);
           const timeout = setTimeout(() => {
             overlay.style.display = "";
             overlay.innerHTML = `
-              <div class="count-overlay">
-                <img src="${step.image}" style="width:48px;height:48px;margin-right:18px;">
-                <span style="font-size:2.3rem;font-weight:bold;">${step.number}</span>
-              </div>
+  <div class="count-overlay" style="display: flex; align-items: center; justify-content: center;">
+    <img src="${step.image}" style="width:48px;height:48px;margin-right:18px;">
+    <span style="font-size:2.3rem;font-weight:bold;">${step.number}</span>
+  </div>
             `;
             setTimeout(() => {
               overlay.style.display = "none";

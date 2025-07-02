@@ -369,3 +369,26 @@ html, body {
   object-fit: contain;
   pointer-events: none;
 }
+#countingOverlay {
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  left: 0;
+  bottom: 36%;
+  z-index: 999;
+  pointer-events: none;
+}
+.count-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fffbe6;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px #ffd54faa;
+  padding: 10px 28px;
+  min-width: 160px;
+  min-height: 68px;
+  font-family: inherit;
+}
