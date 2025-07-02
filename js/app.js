@@ -782,6 +782,7 @@ if (s.type === "shadow") {
   // Schattenbild
   const shadowImg = document.createElement('img');
   shadowImg.src = s.shadow;
+  shadowImg.className = "shadow-image";
   shadowImg.style.width = "90px";
   shadowImg.style.height = "90px";
   shadowImg.style.filter = "brightness(0) grayscale(1)";

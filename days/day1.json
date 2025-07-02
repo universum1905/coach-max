@@ -175,7 +175,7 @@
         {
             "type": "shadow",
             "avatar": "luna",
-            "shadow": "images/animals/cat-shadow.png",
+            "shadow": "images/animals/cat.png",
             "choices": [
                 "images/animals/dog.png",
                 "images/animals/cat.png",

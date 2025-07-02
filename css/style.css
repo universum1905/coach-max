@@ -332,3 +332,8 @@ html, body {
 /* Glitzer und Pop Animationen, Buttons usw. */
 /* ... (Deine weiteren bestehenden Animations- und Modul-Styles kannst du einfach unten dranhängen) ... */
 
+/* Schattierte Tierbilder (Shadow-Game) */
+.shadow-image {
+  filter: grayscale(1) brightness(0.12) blur(0.5px);
+  opacity: 0.92;
+}
