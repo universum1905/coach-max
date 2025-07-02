@@ -1260,7 +1260,7 @@ playBtn.innerHTML = `
     <circle cx="30" cy="30" r="28" fill="none"/>
     <polygon points="22,16 46,30 22,44" fill="#383838"/>
   </svg>
-;
+`;
  
     videoBox.appendChild(playBtn);
 
