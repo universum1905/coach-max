@@ -978,6 +978,7 @@ videoBox.appendChild(playBtn);
   textArea.appendChild(cta);
 
   const box = document.createElement("div");
+  box.className = "animals-buttons";
   box.style.display = "flex";
   box.style.justifyContent = "center";
   box.style.gap = "16px";
@@ -1182,10 +1183,15 @@ if (s.type === "rhyme") {
 
     // Auswahl-Buttons (zentriert)
     const box = document.createElement("div");
-    box.style.display = "flex";
-    box.style.justifyContent = "center";
-    box.style.gap = "16px";
-    box.style.margin = "10px auto 0 auto";
+    box.className = "rhyme-buttons";
+	box.style.display = "flex";
+box.style.justifyContent = "center";
+box.style.gap = "16px";
+box.style.margin = "10px auto 0 auto";
+box.style.padding = "0 24px"; // Abstand links und rechts
+box.style.maxWidth = "440px";
+box.style.boxSizing = "border-box";
+
     textArea.appendChild(box);
 
     s.choices.forEach((word, i) => {
