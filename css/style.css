@@ -45,7 +45,8 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  align-items: center;
+  align-items: center !important;
+  text-align: center !important;
   overflow: hidden;
 }
 

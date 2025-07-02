@@ -516,12 +516,12 @@ document.body.appendChild(btn);
   heading.className = "session-heading";
   heading.textContent = s.title || "Counting Time!";
   textArea.appendChild(heading);
-
+  textArea.style.textAlign = "center";
   // Animierte Zeilen (oben)
   const linesBox = document.createElement('div');
   linesBox.className = "animated-lines";
   textArea.appendChild(linesBox);
-
+  linesBox.style.alignItems = "center";
   if (Array.isArray(s.text)) {
     s.text.forEach((line, idx) => {
       setTimeout(() => {
