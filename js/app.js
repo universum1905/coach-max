@@ -1581,13 +1581,18 @@ function showStoryTextLines() {
     }
     setTimeout(() => {
       const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
       btn.onclick = () => {
-        lastSessionIdx = idx;
-        currentSession++;
-        renderSession(currentSession);
-      };
+  if (idx < sessions.length - 1) {
+    lastSessionIdx = idx;
+    currentSession++;
+    renderSession(currentSession);
+  } else {
+    // Tag als abgeschlossen markieren (falls nicht schon passiert)
+    // und dann weiterleiten:
+    window.location.href = "choose.html";
+  }
+};
+
       document.body.appendChild(btn);
     }, 1200);
   }
