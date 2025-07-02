@@ -771,9 +771,13 @@ if (s.type === "memory") {
 
 // ==== 5. NEUES MODUL: SCHATTENRÄTSEL ====
 if (s.type === "shadow") {
-  const textArea = document.getElementById('sessionTextArea');
-  textArea.innerHTML = "";
+  clearTimeouts();
+  renderFrogProgress(idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.getElementById("sessionTextArea").innerHTML = "";
+  const textArea = document.getElementById("sessionTextArea");
 
+  // Überschrift
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = "Shadow Match!";
@@ -781,76 +785,139 @@ if (s.type === "shadow") {
 
   // Schattenbild
   const shadowImg = document.createElement('img');
-  shadowImg.src = s.shadow;
+  shadowImg.src = s.shadow; // Nutze z. B. cat.png mit shadow-image
   shadowImg.className = "shadow-image";
   shadowImg.style.width = "90px";
   shadowImg.style.height = "90px";
-  shadowImg.style.filter = "brightness(0) grayscale(1)";
   shadowImg.style.margin = "18px 0";
   textArea.appendChild(shadowImg);
 
-  // Auswahlmöglichkeiten
+  // Auswahlmöglichkeiten (untereinander)
   const choices = document.createElement('div');
-  choices.style.display = "flex";
-  choices.style.justifyContent = "center";
-  choices.style.gap = "18px";
+  choices.className = "shadow-buttons";
   textArea.appendChild(choices);
 
   s.choices.forEach((img, i) => {
     const btn = document.createElement('button');
-    btn.style.width = "72px";
-    btn.style.height = "72px";
-    btn.style.borderRadius = "20px";
     btn.style.background = "#fffbe6";
     btn.style.border = "2px solid #ffd54f";
+    btn.style.borderRadius = "20px";
     btn.style.boxShadow = "0 2px 10px #81d4fa88";
     btn.style.cursor = "pointer";
+    btn.style.padding = "0.4em";
+    btn.style.width = "100%";
+    btn.style.maxWidth = "130px";
+    btn.style.margin = "0 auto";
+    btn.style.display = "block";
     btn.innerHTML = `<img src="${img}" alt="choice" style="width:60px;height:60px;">`;
-    btn.onclick = () => {
-      if (i === s.correct) {
-        btn.style.border = "2px solid #43a047";
-        setTimeout(() => showShadowReward(), 350);
-      } else {
-        btn.style.border = "2px solid #d32f2f";
-        btn.classList.add("shake");
-        setTimeout(() => {
-          btn.style.border = "2px solid #ffd54f";
-          btn.classList.remove("shake");
-        }, 600);
-      }
-    };
+    btn.onclick = () => handleChoice(btn, i);
     choices.appendChild(btn);
   });
 
-  function showShadowReward() {
-    let confetti = document.createElement('div');
-    confetti.className = "animated-text glitter";
-    confetti.style.fontSize = "1.6rem";
-    confetti.innerHTML = "Correct! 🥳 Sticker unlocked!";
-    textArea.appendChild(confetti);
+  function handleChoice(btn, i) {
+    // Sound abspielen
+    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
-    setTimeout(() => {
-      let praise = document.createElement('div');
-      praise.className = "animated-text";
-      praise.style.color = "#44a047";
-      praise.innerHTML = "Coach Max says: You are a shadow detective!";
-      textArea.appendChild(praise);
-    }, 1200);
+    // Feedback-Text (vorherigen entfernen)
+    const prev = document.querySelector(".shadow-feedback");
+    if (prev) prev.remove();
 
-    setTimeout(() => {
+    const feedback = document.createElement("div");
+    feedback.className = "animated-text shadow-feedback";
+    feedback.style.textAlign = "center";
+    feedback.style.marginTop = "17px";
+
+    if (i === s.correct) {
+      btn.style.border = "2px solid #43a047";
+      feedback.classList.add("glitter");
+      feedback.textContent = s.onCorrect || "Correct! Sticker unlocked!";
+      textArea.appendChild(feedback);
+
+      // Animierter Stern (wie animals/rhyme)
+      const sticker = document.createElement("img");
+      sticker.src = "images/stickers/star.png";
+      sticker.style.position = "absolute";
+      sticker.style.left = "-100px";
+      sticker.style.top = "50%";
+      sticker.style.transform = "translateY(-50%)";
+      sticker.style.width = "80px";
+      sticker.style.transition = "left 0.8s ease-out";
+      document.body.appendChild(sticker);
+
+      setTimeout(() => {
+        const mid = window.innerWidth / 2 - 40;
+        sticker.style.left = mid + "px";
+      }, 50);
+
+      setTimeout(() => {
+        sticker.style.transition = "all 0.6s ease-in";
+        sticker.style.left = (window.innerWidth - 100) + "px";
+        sticker.style.top = "10px";
+        sticker.style.opacity = "0";
+      }, 900);
+
+      setTimeout(() => {
+        // Reward-Box
+        const rewardBox = document.createElement("div");
+        rewardBox.style.position = "fixed";
+        rewardBox.style.left = "50%";
+        rewardBox.style.transform = "translateX(-50%)";
+        rewardBox.style.bottom = "150px";
+        rewardBox.style.display = "flex";
+        rewardBox.style.flexDirection = "column";
+        rewardBox.style.alignItems = "center";
+        rewardBox.style.zIndex = "1000";
+
+        const rewardText = document.createElement("div");
+        rewardText.textContent = "Your reward";
+        rewardText.style.fontSize = "1.17rem";
+        rewardText.style.fontWeight = "700";
+        rewardText.style.color = "#faaf08";
+        rewardText.style.marginBottom = "7px";
+        rewardText.style.textShadow = "0 1px 8px #fffde7";
+        rewardBox.appendChild(rewardText);
+
+        const rewardSticker = document.createElement("img");
+        rewardSticker.src = "images/stickers/star.png";
+        rewardSticker.style.width = "68px";
+        rewardSticker.style.height = "68px";
+        rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
+        rewardSticker.style.borderRadius = "22px";
+        rewardSticker.style.background = "#fffbe6";
+        rewardBox.appendChild(rewardSticker);
+
+        document.body.appendChild(rewardBox);
+
+        // Next-Button nach kurzer Zeit
+        setTimeout(() => {
+          const next = document.createElement("button");
+          next.className = "centered-next-btn";
+          next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+          next.onclick = () => {
+            document.querySelectorAll(".floating-video, .centered-next-btn, .glitter, div[style*='fixed']").forEach(e => e.remove());
+            currentSession++;
+            renderSession(currentSession);
+          };
+          document.body.appendChild(next);
+        }, 1000);
+
+      }, 1600);
+
+      // Sticker freischalten, falls gewünscht:
       if (typeof unlockSticker === "function" && s.successSticker !== undefined) unlockSticker(s.successSticker);
-      const btn = document.createElement('button');
-      btn.innerText = currentSession < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        currentSession++;
-        renderSession(currentSession);
-      };
-      textArea.appendChild(btn);
-    }, 1800);
+
+    } else {
+      btn.style.border = "2px solid #d32f2f";
+      feedback.textContent = s.onWrong || "Try again!";
+      textArea.appendChild(feedback);
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 600);
+      setTimeout(() => { btn.style.border = "2px solid #ffd54f"; }, 900);
+    }
   }
   return;
 }
+
 
 // ganz unten in renderSession(), direkt nach allen anderen `if (s.type === "...")`-Blöcken:
 // ==== neues Modul: ANIMALS ====
