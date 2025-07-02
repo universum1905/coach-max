@@ -337,7 +337,7 @@ function renderSession(idx) {
         <circle cx="30" cy="30" r="28" fill="none"/>
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
-      <div class="play-tap-hint"></div>
+      
     `;
     playBtn.onclick = function() {
       videoElement.play();
@@ -434,7 +434,7 @@ function renderSession(idx) {
         <circle cx="30" cy="30" r="28" fill="none"/>
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
-      <div class="play-tap-hint"></div>
+      
     `;
     playBtn.onclick = function() {
       videoElement.play();
@@ -560,7 +560,7 @@ function renderSession(idx) {
         <circle cx="30" cy="30" r="28" fill="none"/>
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
-      <div class="play-tap-hint"></div>
+      
     `;
     playBtn.onclick = function () {
       videoElement.play();
@@ -808,7 +808,7 @@ if (s.type === "shadow") {
         <circle cx="30" cy="30" r="28" fill="none"/>
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
-      <div class="play-tap-hint">Tap here to play!</div>
+      
     `;
     playBtn.onclick = function () {
       video.play();
