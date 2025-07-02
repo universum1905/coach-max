@@ -1262,11 +1262,7 @@ playBtn.innerHTML = `
   </svg>
 `;
 
-      <div class="play-tap-hint" style="
-        position:absolute;top:105%;left:50%;transform:translateX(-50%);
-        font-size:1.1rem;color:#383838;font-family:inherit;
-        font-weight:600;letter-spacing:0.01em;"></div>
-    `;
+     
     videoBox.appendChild(playBtn);
 
     playBtn.onclick = () => {
