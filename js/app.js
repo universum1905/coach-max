@@ -830,7 +830,7 @@ if (s.type === "shadow") {
       const avatar = document.createElement('img');
       avatar.src = "images/luna.png"; // oder avatar deiner Wahl!
       avatar.alt = "Luna";
-      avatar.className = "intro-avatar-small";
+      avatar.className = "avatar";
       videoBox.appendChild(avatar);
 
       setTimeout(() => { showGame(); }, 400); // kleine Pause für Effekt
