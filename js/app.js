@@ -1553,240 +1553,274 @@ box.style.boxSizing = "border-box";
 } // Ende if (s.type === "story")
   
 if (s.type === "pattern") {
-clearTimeouts();
-renderFrogProgress(lastSessionIdx, idx);
-document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
-document.getElementById("sessionTextArea").innerHTML = "";
-const textArea = document.getElementById("sessionTextArea");
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.getElementById("sessionTextArea").innerHTML = "";
+  const textArea = document.getElementById("sessionTextArea");
 
-// 1. Hintergrundmusik
-let patternMusic;
-if (s.music) {
-  patternMusic = new Audio("audio/" + s.music);
-  patternMusic.loop = true;
-  patternMusic.volume = 0.24;
-  patternMusic.play();
-}
-function cleanupPatternAudio() {
-  if (patternMusic) {
-    patternMusic.pause();
-    patternMusic.currentTime = 0;
+  // --- Hintergrundmusik starten ---
+  let patternMusic;
+  if (s.music) {
+    patternMusic = new Audio("audio/" + s.music);
+    patternMusic.loop = true;
+    patternMusic.volume = 0.24;
+    patternMusic.play();
   }
-}
 
-// 2. Titel
-const heading = document.createElement("h2");
-heading.className = "session-heading";
-heading.textContent = s.title || "What comes next?";
-textArea.appendChild(heading);
+  // Überschrift
+  const heading = document.createElement("h2");
+  heading.className = "session-heading";
+  heading.textContent = s.title || "What comes next?";
+  heading.style.textAlign = "center";
+  textArea.appendChild(heading);
 
-// 3. Videobox
-const video = document.createElement("video");
-video.src = `videos/${s.video}`;
-video.playsInline = true;
-video.autoplay = false;
-video.muted = false;
-video.className = "session-video";
-video.poster = "images/video-placeholder.png";
-const videoBox = document.createElement("div");
-videoBox.className = "floating-video";
-videoBox.appendChild(video);
-document.body.appendChild(videoBox);
+  // --- Video mit Play-Button ---
+  const video = document.createElement("video");
+  video.src = "videos/" + s.video;
+  video.playsInline = true;
+  video.autoplay = false;
+  video.muted = false;
+  video.className = "session-video";
+  video.poster = "images/video-placeholder.png";
+  const videoBox = document.createElement("div");
+  videoBox.className = "floating-video";
+  videoBox.appendChild(video);
+  document.body.appendChild(videoBox);
 
-// Play-Button Overlay
-const playBtn = document.createElement('button');
-playBtn.className = "custom-play-btn";
-playBtn.title = "Play";
-playBtn.innerHTML = `
-  <svg viewBox="0 0 60 60">
-    <circle cx="30" cy="30" r="28" fill="none"/>
-    <polygon points="22,16 46,30 22,44" fill="#383838"/>
-  </svg>
-`;
-videoBox.appendChild(playBtn);
+  // Play-Button
+  const playBtn = document.createElement('button');
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+  `;
+  videoBox.appendChild(playBtn);
 
-let patternRow = null;
+  // --- Pattern-Fragefeld (initial noch unsichtbar) ---
+  const patternBox = document.createElement("div");
+  patternBox.style.display = "flex";
+  patternBox.style.justifyContent = "center";
+  patternBox.style.gap = "12px";
+  patternBox.style.margin = "18px 0 7px 0";
+  patternBox.style.flexWrap = "wrap";
+  patternBox.style.maxWidth = "95vw";
+  patternBox.style.fontSize = "2.1rem";
+  patternBox.style.fontWeight = "bold";
+  patternBox.style.overflowX = "auto";
+  patternBox.style.padding = "0 10px";
+  patternBox.style.visibility = "hidden";
+  patternBox.setAttribute("id", "patternBox");
+  textArea.appendChild(patternBox);
 
-// 4. Nur Pattern beim Play-Button
-playBtn.onclick = () => {
-  video.play();
-  playBtn.style.display = "none";
-  if (patternMusic) patternMusic.pause();
-
-  // Pattern anzeigen (zentriert, responsive, Kasten, Abstand)
-  if (!patternRow) {
-    patternRow = document.createElement("div");
-    patternRow.style.display = "flex";
-    patternRow.style.justifyContent = "center";
-    patternRow.style.gap = "10px";
-    patternRow.style.margin = "20px auto";
-    patternRow.style.flexWrap = "wrap";
-    patternRow.style.fontSize = "2.1rem";
-    patternRow.style.padding = "8px 12px";
-    s.pattern.forEach((num, i) => {
-      const el = document.createElement("div");
-      el.textContent = num === "?" ? "?" : num;
-      el.style.background = "#fffbe6";
-      el.style.borderRadius = "15px";
-      el.style.padding = "10px 24px";
-      el.style.minWidth = "38px";
-      el.style.boxShadow = "0 2px 10px #ffe08288";
-      el.style.fontWeight = "700";
-      el.style.margin = "2px";
-      patternRow.appendChild(el);
-    });
-    textArea.appendChild(patternRow);
-  }
-};
-video.addEventListener("play", () => {
-  playBtn.style.display = "none";
-  if (patternMusic) patternMusic.pause();
-});
-
-// 5. Nach Video-Ende: Avatar + Antwortmöglichkeiten
-video.addEventListener("ended", () => {
-  showAvatarInVideoBox(videoBox, "benny");
-  if (patternMusic) patternMusic.play();
-
-  // Antwortmöglichkeiten
-  showPatternAnswers();
-});
-
-function showPatternAnswers() {
-  // Noch keine Antworten zeigen? (doppelt verhindern)
-  if (document.querySelector(".pattern-answers")) return;
-
-  // Abstand nach oben
-  const answerBox = document.createElement("div");
-  answerBox.className = "pattern-answers";
-  answerBox.style.display = "flex";
-  answerBox.style.flexDirection = "column";
-  answerBox.style.alignItems = "center";
-  answerBox.style.gap = "16px";
-  answerBox.style.marginTop = "30px";
-  textArea.appendChild(answerBox);
-
-  s.answers.forEach((num, i) => {
-    const btn = document.createElement("button");
-    btn.style.fontSize = "1.5rem";
-    btn.style.padding = "12px 30px";
-    btn.style.background = "#fffbe6";
-    btn.style.border = "2px solid #b2dfdb";
-    btn.style.borderRadius = "17px";
-    btn.style.boxShadow = "0 2px 12px #81d4fa55";
-    btn.style.marginBottom = "5px";
-    btn.style.fontWeight = "700";
-    btn.style.cursor = "pointer";
-    btn.style.width = "90%";
-    btn.style.maxWidth = "320px";
-    btn.textContent = num;
-
-    btn.onclick = () => handlePatternAnswer(btn, i, answerBox);
-    answerBox.appendChild(btn);
+  // Füge die Pattern-Zahlen als Boxen hinzu
+  (s.pattern || []).forEach((n, idx) => {
+    const el = document.createElement("div");
+    el.style.minWidth = "52px";
+    el.style.minHeight = "48px";
+    el.style.background = n === "?" ? "#ffd54f" : "#fffbe6";
+    el.style.margin = "0 4px";
+    el.style.borderRadius = "12px";
+    el.style.boxShadow = "0 2px 8px #b2dfdb99";
+    el.style.display = "flex";
+    el.style.justifyContent = "center";
+    el.style.alignItems = "center";
+    el.style.fontSize = "2.1rem";
+    el.textContent = n;
+    patternBox.appendChild(el);
   });
-}
 
-function handlePatternAnswer(btn, i, answerBox) {
-  // Falsche Buttons entfernen nach richtiger Antwort
-  if (i === s.correct) {
-    Array.from(answerBox.children).forEach(child => {
-      if (child !== btn) child.remove();
+  // --- Frage anzeigen, aber erst nach Video ---
+  const questionDiv = document.createElement("div");
+  questionDiv.className = "animated-text";
+  questionDiv.style.textAlign = "center";
+  questionDiv.style.fontSize = "1.19rem";
+  questionDiv.style.margin = "8px 0 12px 0";
+  questionDiv.style.visibility = "hidden";
+  questionDiv.textContent = s.question || "What comes next in the pattern?";
+  textArea.appendChild(questionDiv);
+
+  // --- Antwortmöglichkeiten (Buttons), aber erst nach Video ---
+  const answersBox = document.createElement("div");
+  answersBox.className = "pattern-answers";
+  answersBox.style.display = "flex";
+  answersBox.style.justifyContent = "center";
+  answersBox.style.gap = "16px";
+  answersBox.style.flexWrap = "wrap";
+  answersBox.style.margin = "8px 0 0 0";
+  answersBox.style.padding = "0 8px";
+  answersBox.style.visibility = "hidden";
+  textArea.appendChild(answersBox);
+
+  // Play-Button klick
+  playBtn.onclick = () => {
+    video.play();
+    playBtn.style.display = "none";
+    video.style.pointerEvents = "auto";
+    // Zahlen und Frage schon während Video anzeigen
+    patternBox.style.visibility = "visible";
+    questionDiv.style.visibility = "visible";
+  };
+  video.addEventListener("play", () => {
+    playBtn.style.display = "none";
+    video.style.pointerEvents = "auto";
+    patternBox.style.visibility = "visible";
+    questionDiv.style.visibility = "visible";
+  });
+
+  video.addEventListener("pause", () => {
+    playBtn.style.display = "";
+    video.style.pointerEvents = "none";
+  });
+
+  // --- Nach Video-Ende: Antworten anzeigen, Avatar anzeigen wie bei animals ---
+  video.addEventListener("ended", () => {
+    playBtn.style.display = "";
+    video.style.pointerEvents = "none";
+    showAvatarInVideoBox(videoBox, "benny");
+    answersBox.style.visibility = "visible";
+    renderAnswers();
+  });
+
+  // --- Antworten generieren ---
+  function renderAnswers() {
+    answersBox.innerHTML = "";
+    (s.answers || []).forEach((ans, i) => {
+      const btn = document.createElement("button");
+      btn.style.border = "none";
+      btn.style.background = "#fffbe6";
+      btn.style.fontSize = "1.5rem";
+      btn.style.fontWeight = "bold";
+      btn.style.padding = "0.92em 1.44em";
+      btn.style.borderRadius = "18px";
+      btn.style.boxShadow = "0 2px 10px #81d4fa88";
+      btn.style.cursor = "pointer";
+      btn.style.margin = "4px 0";
+      btn.style.minWidth = "88px";
+      btn.style.transition = "all 0.2s";
+      btn.textContent = ans;
+      btn.onclick = () => handleAnswer(btn, i);
+      answersBox.appendChild(btn);
     });
-
-    // Feedback-Sound
-    new Audio(`audio/yay.mp3`).play();
-
-    // Feedback
-    const ok = document.createElement("div");
-    ok.className = "animated-text glitter";
-    ok.style.textAlign = "center";
-    ok.innerText = s.onCorrect;
-    answerBox.insertBefore(ok, answerBox.firstChild);
-
-    // Star-Animation
-    const sticker = document.createElement("img");
-    sticker.src = "images/stickers/star.png";
-    sticker.style.position = "absolute";
-    sticker.style.left = "-100px";
-    sticker.style.top = "50%";
-    sticker.style.transform = "translateY(-50%)";
-    sticker.style.width = "80px";
-    sticker.style.transition = "left 0.8s ease-out";
-    document.body.appendChild(sticker);
-    setTimeout(() => {
-      const mid = window.innerWidth / 2 - 40;
-      sticker.style.left = mid + "px";
-    }, 50);
-    setTimeout(() => {
-      sticker.style.transition = "all 0.6s ease-in";
-      sticker.style.left = (window.innerWidth - 100) + "px";
-      sticker.style.top = "10px";
-      sticker.style.opacity = "0";
-    }, 900);
-
-    // Reward-Box + Next-Button
-    setTimeout(() => {
-      const rewardBox = document.createElement("div");
-      rewardBox.style.position = "fixed";
-      rewardBox.style.left = "50%";
-      rewardBox.style.transform = "translateX(-50%)";
-      rewardBox.style.bottom = "150px";
-      rewardBox.style.display = "flex";
-      rewardBox.style.flexDirection = "column";
-      rewardBox.style.alignItems = "center";
-      rewardBox.style.zIndex = "1000";
-      rewardBox.innerHTML = `
-        <div style="font-size:1.17rem;font-weight:700;color:#faaf08;margin-bottom:7px;text-shadow:0 1px 8px #fffde7;">Your reward</div>
-        <img src="images/stickers/star.png" style="width:68px;height:68px;box-shadow:0 4px 18px #ffe082b5;border-radius:22px;background:#fffbe6;">
-      `;
-      document.body.appendChild(rewardBox);
-
-      const next = document.createElement("button");
-      next.className = "centered-next-btn";
-      next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      next.onclick = () => {
-        cleanupPatternAudio();
-        document.querySelectorAll(".floating-video, .centered-next-btn, .glitter, div[style*='fixed']").forEach(e => e.remove());
-        currentSession++;
-        renderSession(currentSession);
-      };
-      document.body.appendChild(next);
-    }, 1600);
-
-    // Sticker unlock
-    unlockSticker && unlockSticker(s.successSticker);
-
-  } else {
-    // Feedback-Sound
-    new Audio("audio/fail.mp3").play();
-
-    // Nur einmal Fehlertext, immer oben!
-    if (!answerBox.querySelector(".wrong-msg")) {
-      const wrong = document.createElement("div");
-      wrong.className = "animated-text wrong-msg";
-      wrong.style.textAlign = "center";
-      wrong.innerText = s.onWrong;
-      answerBox.insertBefore(wrong, answerBox.firstChild);
-    }
-    btn.classList.add("shake");
-    setTimeout(() => btn.classList.remove("shake"), 600);
   }
+
+  // --- Antwort-Feedback ---
+  let feedbackDiv = null;
+  function handleAnswer(btn, i) {
+    // Vorheriges Feedback entfernen
+    if (feedbackDiv) feedbackDiv.remove();
+
+    // Feedback-Sound
+    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+
+    feedbackDiv = document.createElement("div");
+    feedbackDiv.className = "animated-text";
+    feedbackDiv.style.textAlign = "center";
+    feedbackDiv.style.fontSize = "1.22rem";
+    feedbackDiv.style.fontWeight = "600";
+    feedbackDiv.style.margin = "18px 0 8px 0";
+    feedbackDiv.style.minHeight = "30px";
+    feedbackDiv.style.transition = "all 0.22s";
+
+    if (i === s.correct) {
+      feedbackDiv.classList.add("glitter");
+      feedbackDiv.textContent = s.onCorrect || "Great job! You found the right number!";
+      // Falsche Antworten ausblenden
+      Array.from(answersBox.children).forEach((child, idx) => {
+        if (idx !== i) child.style.display = "none";
+      });
+
+      textArea.insertBefore(feedbackDiv, answersBox);
+
+      // Stern-Animation wie bei animals
+      const sticker = document.createElement("img");
+      sticker.src = "images/stickers/star.png";
+      sticker.style.position = "absolute";
+      sticker.style.left = "-100px";
+      sticker.style.top = "50%";
+      sticker.style.transform = "translateY(-50%)";
+      sticker.style.width = "80px";
+      sticker.style.transition = "left 0.8s cubic-bezier(.32,1.4,.51,1.01)";
+      document.body.appendChild(sticker);
+
+      setTimeout(() => {
+        sticker.style.left = (window.innerWidth / 2 - 40) + "px";
+      }, 50);
+
+      setTimeout(() => {
+        sticker.style.transition = "all 0.6s ease-in";
+        sticker.style.left = (window.innerWidth - 100) + "px";
+        sticker.style.top = "10px";
+        sticker.style.opacity = "0";
+      }, 900);
+
+      setTimeout(() => {
+        // Reward-Box wie bei animals
+        const rewardBox = document.createElement("div");
+        rewardBox.style.position = "fixed";
+        rewardBox.style.left = "50%";
+        rewardBox.style.transform = "translateX(-50%)";
+        rewardBox.style.bottom = "150px";
+        rewardBox.style.display = "flex";
+        rewardBox.style.flexDirection = "column";
+        rewardBox.style.alignItems = "center";
+        rewardBox.style.zIndex = "1000";
+
+        const rewardText = document.createElement("div");
+        rewardText.textContent = "Your reward";
+        rewardText.style.fontSize = "1.17rem";
+        rewardText.style.fontWeight = "700";
+        rewardText.style.color = "#faaf08";
+        rewardText.style.marginBottom = "7px";
+        rewardText.style.textShadow = "0 1px 8px #fffde7";
+        rewardBox.appendChild(rewardText);
+
+        const rewardSticker = document.createElement("img");
+        rewardSticker.src = "images/stickers/star.png";
+        rewardSticker.style.width = "68px";
+        rewardSticker.style.height = "68px";
+        rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
+        rewardSticker.style.borderRadius = "22px";
+        rewardSticker.style.background = "#fffbe6";
+        rewardBox.appendChild(rewardSticker);
+
+        document.body.appendChild(rewardBox);
+
+        // Next-Button
+        const next = document.createElement("button");
+        next.className = "centered-next-btn";
+        next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+        next.onclick = () => {
+          // Musik stoppen
+          if (patternMusic) {
+            patternMusic.pause();
+            patternMusic.currentTime = 0;
+          }
+          document.querySelectorAll(".floating-video, .centered-next-btn, .glitter, div[style*='fixed']").forEach(e => e.remove());
+          currentSession++;
+          renderSession(currentSession);
+        };
+        document.body.appendChild(next);
+
+        // Sticker im Speicher freischalten
+        if (typeof unlockSticker === "function" && s.successSticker !== undefined)
+          unlockSticker(s.successSticker);
+
+      }, 1600);
+
+    } else {
+      btn.style.background = "#ffd6d6";
+      feedbackDiv.textContent = s.onWrong || "Try again! Look at the pattern closely.";
+      textArea.insertBefore(feedbackDiv, answersBox);
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 600);
+    }
+  }
+  return;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
