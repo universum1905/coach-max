@@ -15,7 +15,7 @@
       "video": "day2-pattern.mp4",
       "music": "focus-loop.mp3",  
       "title": "What comes next?",
-      "pattern": [5, 10, 15, ?],
+      "pattern": [5, 10, 15, _],
       "question": "What comes next in the pattern?",
       "answers": [20, 18, 25],
       "correct": 0,
