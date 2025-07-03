@@ -1829,14 +1829,9 @@ if (s.type === "chatgpt-quiz") {
   document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
 
-  // Überschrift
-  const heading = document.createElement("h2");
-  heading.className = "session-heading";
-  heading.textContent = s.title || "Quiz Time!";
-  heading.style.textAlign = "center";
-  textArea.appendChild(heading);
+  let currentQ = 0;
+  const totalQ = Array.isArray(s.questions) ? s.questions.length : 1;
 
-  // Video (optional, wie immer unten rechts)
   if (s.video) {
     const video = document.createElement("video");
     video.src = `videos/${s.video}`;
@@ -1847,12 +1842,13 @@ if (s.type === "chatgpt-quiz") {
     video.playsInline = true;
     video.poster = "images/video-placeholder.png";
     video.className = "session-video";
+    
     const videoBox = document.createElement("div");
     videoBox.className = "floating-video";
     videoBox.appendChild(video);
     document.body.appendChild(videoBox);
 
-    const playBtn = document.createElement('button');
+    const playBtn = document.createElement("button");
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
     playBtn.innerHTML = `
@@ -1866,36 +1862,54 @@ if (s.type === "chatgpt-quiz") {
     playBtn.onclick = () => {
       video.play();
       playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
     };
-    video.addEventListener("play", () => playBtn.style.display = "none");
-    video.addEventListener("ended", () => {
-      showQuiz();
+    video.addEventListener("play", () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
     });
+    video.addEventListener("pause", () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener("ended", () => {
+      showQuizQuestion();
+    });
+
+    return; // Wichtig: warte bis Video fertig
   } else {
-    showQuiz();
+    showQuizQuestion(); // Falls kein Video vorhanden
   }
 
-  function showQuiz() {
-    // Frage zentriert anzeigen
+  function showQuizQuestion() {
+    textArea.innerHTML = "";
+
+    const q = s.questions[currentQ];
+
+    const heading = document.createElement("h2");
+    heading.className = "session-heading";
+    heading.textContent = s.title || "Quiz Time!";
+    heading.style.textAlign = "center";
+    textArea.appendChild(heading);
+
     const question = document.createElement("div");
     question.className = "animated-text";
     question.style.textAlign = "center";
     question.style.fontSize = "1.18rem";
-    question.style.margin = "22px auto 12px auto";
-    question.textContent = s.question;
+    question.style.margin = "20px auto 14px auto";
+    question.textContent = q.question;
     textArea.appendChild(question);
 
-    // Antwortmöglichkeiten
     const box = document.createElement("div");
     box.className = "chatgpt-quiz-buttons";
     box.style.display = "flex";
     box.style.flexDirection = "column";
     box.style.alignItems = "center";
-    box.style.gap = "12px";
+    box.style.gap = "14px";
     box.style.margin = "10px auto";
     textArea.appendChild(box);
 
-    s.answers.forEach((ans, i) => {
+    q.answers.forEach((ans, i) => {
       const btn = document.createElement("button");
       btn.style.border = "none";
       btn.style.background = "#fffbe6";
@@ -1906,110 +1920,99 @@ if (s.type === "chatgpt-quiz") {
       btn.style.boxShadow = "0 2px 8px #81d4fa88";
       btn.style.cursor = "pointer";
       btn.textContent = ans;
-
-      btn.onclick = () => handleChoice(btn, i);
+      btn.onclick = () => handleAnswer(btn, i);
       box.appendChild(btn);
     });
-  }
 
-  function handleChoice(btn, i) {
-    // Nur eine Auswahl erlauben
-    document.querySelectorAll(".chatgpt-quiz-buttons button").forEach(b => b.disabled = true);
+    function handleAnswer(btn, i) {
+      const prev = document.querySelector(".quiz-feedback");
+      if (prev) prev.remove();
 
-    // Feedback-Sound
-    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+      const feedback = document.createElement("div");
+      feedback.className = "animated-text quiz-feedback";
+      feedback.style.textAlign = "center";
+      feedback.style.marginTop = "17px";
 
-    // Feedback-Text
-    const prev = document.querySelector(".quiz-feedback");
-    if (prev) prev.remove();
+      const correct = i === q.correct;
+      feedback.textContent = correct ? (q.onCorrect || "Great!") : (q.onWrong || "Try again!");
+      textArea.appendChild(feedback);
 
-    const feedback = document.createElement("div");
-    feedback.className = "animated-text quiz-feedback";
-    feedback.style.textAlign = "center";
-    feedback.style.marginTop = "17px";
-    feedback.textContent = (i === s.correct) ? (s.onCorrect || "Great job!") : (s.onWrong || "Try again!");
-    textArea.appendChild(feedback);
+      new Audio(`audio/${correct ? "yay" : "fail"}.mp3`).play();
 
-    if (i === s.correct) {
-      // Animation: Stern wie bei animals
-      const sticker = document.createElement("img");
-      sticker.src = "images/stickers/star.png";
-      sticker.style.position = "absolute";
-      sticker.style.left = "-100px";
-      sticker.style.top = "50%";
-      sticker.style.transform = "translateY(-50%)";
-      sticker.style.width = "80px";
-      sticker.style.transition = "left 0.8s ease-out";
-      document.body.appendChild(sticker);
-
-      setTimeout(() => {
-        const mid = window.innerWidth / 2 - 40;
-        sticker.style.left = mid + "px";
-      }, 50);
-
-      setTimeout(() => {
-        sticker.style.transition = "all 0.6s ease-in";
-        sticker.style.left = (window.innerWidth - 100) + "px";
-        sticker.style.top = "10px";
-        sticker.style.opacity = "0";
-      }, 900);
-
-      setTimeout(() => {
-        // Reward-Box wie bei animals
-        const rewardBox = document.createElement("div");
-        rewardBox.style.position = "fixed";
-        rewardBox.style.left = "50%";
-        rewardBox.style.transform = "translateX(-50%)";
-        rewardBox.style.bottom = "150px";
-        rewardBox.style.display = "flex";
-        rewardBox.style.flexDirection = "column";
-        rewardBox.style.alignItems = "center";
-        rewardBox.style.zIndex = "1000";
-
-        const rewardText = document.createElement("div");
-        rewardText.textContent = "Your reward";
-        rewardText.style.fontSize = "1.17rem";
-        rewardText.style.fontWeight = "700";
-        rewardText.style.color = "#faaf08";
-        rewardText.style.marginBottom = "7px";
-        rewardText.style.textShadow = "0 1px 8px #fffde7";
-        rewardBox.appendChild(rewardText);
-
-        const rewardSticker = document.createElement("img");
-        rewardSticker.src = "images/stickers/star.png";
-        rewardSticker.style.width = "68px";
-        rewardSticker.style.height = "68px";
-        rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
-        rewardSticker.style.borderRadius = "22px";
-        rewardSticker.style.background = "#fffbe6";
-        rewardBox.appendChild(rewardSticker);
-
-        document.body.appendChild(rewardBox);
-
-        // Next-Button
+      if (correct) {
+        currentQ++;
         setTimeout(() => {
-          const next = document.createElement("button");
-          next.className = "centered-next-btn";
-          next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-          next.onclick = () => {
-            document.querySelectorAll(".floating-video, .centered-next-btn, .quiz-feedback, div[style*='fixed']").forEach(e => e.remove());
-            currentSession++;
-            renderSession(currentSession);
-          };
-          document.body.appendChild(next);
+          if (currentQ < totalQ) {
+            showQuizQuestion();
+          } else {
+            showFinalReward();
+          }
         }, 1000);
-
-      }, 1600);
-
-      // Sticker freischalten
-      unlockSticker && unlockSticker(s.successSticker !== undefined ? s.successSticker : 0);
-    } else {
-      btn.classList.add("shake");
-      setTimeout(() => btn.classList.remove("shake"), 600);
+      } else {
+        btn.classList.add("shake");
+        setTimeout(() => btn.classList.remove("shake"), 600);
+      }
     }
   }
+
+  function showFinalReward() {
+    textArea.innerHTML = "";
+
+    const msg = document.createElement("div");
+    msg.className = "animated-text glitter";
+    msg.style.textAlign = "center";
+    msg.textContent = "Awesome! You finished the quiz!";
+    textArea.appendChild(msg);
+
+    const rewardBox = document.createElement("div");
+    rewardBox.style.position = "fixed";
+    rewardBox.style.left = "50%";
+    rewardBox.style.transform = "translateX(-50%)";
+    rewardBox.style.bottom = "150px";
+    rewardBox.style.display = "flex";
+    rewardBox.style.flexDirection = "column";
+    rewardBox.style.alignItems = "center";
+    rewardBox.style.zIndex = "1000";
+
+    const rewardText = document.createElement("div");
+    rewardText.textContent = "Your reward";
+    rewardText.style.fontSize = "1.17rem";
+    rewardText.style.fontWeight = "700";
+    rewardText.style.color = "#faaf08";
+    rewardText.style.marginBottom = "7px";
+    rewardText.style.textShadow = "0 1px 8px #fffde7";
+    rewardBox.appendChild(rewardText);
+
+    const rewardSticker = document.createElement("img");
+    rewardSticker.src = "images/stickers/star.png";
+    rewardSticker.style.width = "68px";
+    rewardSticker.style.height = "68px";
+    rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
+    rewardSticker.style.borderRadius = "22px";
+    rewardSticker.style.background = "#fffbe6";
+    rewardBox.appendChild(rewardSticker);
+
+    document.body.appendChild(rewardBox);
+
+    if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
+      unlockSticker(s.successSticker);
+    }
+
+    const next = document.createElement("button");
+    next.className = "centered-next-btn";
+    next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+    next.onclick = () => {
+      document.querySelectorAll(".floating-video, .centered-next-btn, .quiz-feedback, div[style*='fixed']").forEach(e => e.remove());
+      currentSession++;
+      renderSession(currentSession);
+    };
+    document.body.appendChild(next);
+  }
+
   return;
 }
+
+
 
 
 }
