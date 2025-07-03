@@ -17,7 +17,7 @@
       "title": "What comes next?",
       "pattern": [5, 10, 15],
       "question": "What comes next in the pattern?",
-      "answers": [20, 18, 25, 12],
+      "answers": [20, 18, 25],
       "correct": 0,
       "onCorrect": "Great job! You found the right number!",
       "onWrong": "Try again! Look at the pattern closely.",
