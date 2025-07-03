@@ -1882,97 +1882,112 @@ if (s.type === "chatgpt-quiz") {
   }
 
   function showQuizQuestion() {
-    textArea.innerHTML = "";
+  textArea.innerHTML = "";
 
-    const q = s.questions[currentQ];
+  const q = s.questions[currentQ];
 
-    // Fortschrittsanzeige
-    const progress = document.createElement("div");
-    progress.className = "animated-text";
-    progress.style.textAlign = "center";
-    progress.style.fontSize = "1.05rem";
-    progress.style.color = "#888";
-    progress.style.marginBottom = "6px";
-    progress.textContent = `Question ${currentQ + 1} of ${totalQ}`;
-    textArea.appendChild(progress);
+  // Fortschrittsbalken (z. B. ●●○)
+  const progress = document.createElement("div");
+  progress.style.display = "flex";
+  progress.style.justifyContent = "center";
+  progress.style.gap = "10px";
+  progress.style.margin = "6px 0 10px 0";
+  for (let i = 0; i < totalQ; i++) {
+    const dot = document.createElement("div");
+    dot.style.width = "16px";
+    dot.style.height = "16px";
+    dot.style.borderRadius = "50%";
+    dot.style.boxShadow = "0 1px 4px #b3e5fc88";
+    dot.style.background = i < currentQ ? "#aed581" : (i === currentQ ? "#ffca28" : "#eee");
+    progress.appendChild(dot);
+  }
+  textArea.appendChild(progress);
 
-    // Frage
-    const question = document.createElement("div");
-    question.className = "animated-text";
-    question.style.textAlign = "center";
-    question.style.fontSize = "1.18rem";
-    question.style.margin = "12px auto 14px auto";
-    question.textContent = q.question;
-    textArea.appendChild(question);
+  // Frage
+  const question = document.createElement("div");
+  question.className = "animated-text";
+  question.style.textAlign = "center";
+  question.style.fontSize = "1.18rem";
+  question.style.margin = "12px auto 14px auto";
+  question.textContent = q.question;
+  textArea.appendChild(question);
 
-    const box = document.createElement("div");
-    box.className = "chatgpt-quiz-buttons";
-    box.style.display = "flex";
-    box.style.flexDirection = "column";
-    box.style.alignItems = "center";
-    box.style.gap = "14px";
-    box.style.margin = "10px auto";
-    textArea.appendChild(box);
+  const box = document.createElement("div");
+  box.className = "chatgpt-quiz-buttons";
+  box.style.display = "flex";
+  box.style.flexDirection = "column";
+  box.style.alignItems = "center";
+  box.style.gap = "14px";
+  box.style.margin = "10px auto";
+  textArea.appendChild(box);
 
-    q.answers.forEach((ans, i) => {
-      const btn = document.createElement("button");
-      btn.style.border = "2px solid transparent";
-      btn.style.background = "#fffbe6";
-      btn.style.fontSize = "1.28rem";
-      btn.style.fontWeight = "600";
-      btn.style.padding = "0.6em 1.3em";
-      btn.style.borderRadius = "16px";
-      btn.style.boxShadow = "0 2px 8px #81d4fa88";
-      btn.style.cursor = "pointer";
-      btn.style.minWidth = "200px";
-      btn.style.display = "flex";
-      btn.style.justifyContent = "center";
-      btn.style.alignItems = "center";
-      btn.style.gap = "12px";
-      btn.textContent = ans;
+  // Antworten mischen (Zufall)
+  const shuffled = q.answers.map((text, i) => ({ text, index: i }))
+                            .sort(() => Math.random() - 0.5);
 
-      btn.onclick = () => handleAnswer(btn, i);
-      box.appendChild(btn);
-    });
+  shuffled.forEach((answerObj) => {
+    const btn = document.createElement("button");
+    btn.style.border = "2px solid transparent";
+    btn.style.background = "#fffbe6";
+    btn.style.fontSize = "1.28rem";
+    btn.style.fontWeight = "600";
+    btn.style.padding = "0.6em 1.3em";
+    btn.style.borderRadius = "16px";
+    btn.style.boxShadow = "0 2px 8px #81d4fa88";
+    btn.style.cursor = "pointer";
+    btn.style.minWidth = "200px";
+    btn.style.display = "flex";
+    btn.style.justifyContent = "center";
+    btn.style.alignItems = "center";
+    btn.style.gap = "12px";
+    btn.textContent = answerObj.text;
 
-    function handleAnswer(btn, i) {
-      const prev = document.querySelector(".quiz-feedback");
-      if (prev) prev.remove();
+    btn.onclick = () => handleAnswer(btn, answerObj.index);
+    box.appendChild(btn);
+  });
 
-      const feedback = document.createElement("div");
-      feedback.className = "animated-text quiz-feedback";
-      feedback.style.textAlign = "center";
-      feedback.style.marginTop = "17px";
+  function handleAnswer(btn, i) {
+    const prev = document.querySelector(".quiz-feedback");
+    if (prev) prev.remove();
 
-      const correct = i === q.correct;
-      feedback.textContent = correct ? (q.onCorrect || "Great!") : (q.onWrong || "Try again!");
-      textArea.appendChild(feedback);
+    const feedback = document.createElement("div");
+    feedback.className = "animated-text quiz-feedback";
+    feedback.style.textAlign = "center";
+    feedback.style.marginTop = "17px";
 
-      new Audio(`audio/${correct ? "yay" : "fail"}.mp3`).play();
+    const correct = i === q.correct;
+    feedback.textContent = correct ? (q.onCorrect || "Great!") : (q.onWrong || "Try again!");
+    textArea.appendChild(feedback);
 
-      // Icon + Farbe
-      const icon = document.createElement("span");
-      icon.textContent = correct ? " ✅" : " ❌";
-      icon.style.fontSize = "1.4rem";
-      btn.appendChild(icon);
-      btn.style.background = correct ? "#c8e6c9" : "#ffcdd2";
-      btn.style.border = correct ? "2px solid #388e3c" : "2px solid #d32f2f";
+    // Sounds (kindlich)
+    const audio = new Audio(correct ? "audio/correct-bell.mp3" : "audio/wrong-boing.mp3");
+    audio.volume = 0.75;
+    audio.play();
 
-      if (correct) {
-        currentQ++;
-        setTimeout(() => {
-          if (currentQ < totalQ) {
-            showQuizQuestion();
-          } else {
-            showFinalReward();
-          }
-        }, 1000);
-      } else {
-        btn.classList.add("shake");
-        setTimeout(() => btn.classList.remove("shake"), 600);
-      }
+    // Icon + Farbe
+    const icon = document.createElement("span");
+    icon.textContent = correct ? " ✅" : " ❌";
+    icon.style.fontSize = "1.4rem";
+    btn.appendChild(icon);
+    btn.style.background = correct ? "#c8e6c9" : "#ffcdd2";
+    btn.style.border = correct ? "2px solid #388e3c" : "2px solid #d32f2f";
+
+    if (correct) {
+      currentQ++;
+      setTimeout(() => {
+        if (currentQ < totalQ) {
+          showQuizQuestion();
+        } else {
+          showFinalReward();
+        }
+      }, 1000);
+    } else {
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 600);
     }
   }
+}
+
 
   function showFinalReward() {
     textArea.innerHTML = "";
