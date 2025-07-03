@@ -38,15 +38,33 @@
 
 {
   "type": "chatgpt-quiz",
-  "video": "day2-pattern.mp4",
   "title": "Quiz Time!",
-  "question": "Which animal barks?",
-  "answers": ["Cat", "Dog", "Cow"],
-  "correct": 1,
-  "onCorrect": "That's right! Dogs bark. Awesome!",
-  "onWrong": "Hmm... listen to the sounds again and try!",
-  "successSticker": 3
-},
+  "questions": [
+    {
+      "question": "Which animal barks?",
+      "answers": ["Cat", "Dog", "Cow"],
+      "correct": 1,
+      "onCorrect": "Yes, dogs bark!",
+      "onWrong": "Try again!"
+    },
+    {
+      "question": "What is 2 + 2?",
+      "answers": ["3", "4", "5"],
+      "correct": 1,
+      "onCorrect": "Great! That's 4.",
+      "onWrong": "Oops, try again!"
+    },
+    {
+      "question": "What color is the sky?",
+      "answers": ["Green", "Blue", "Red"],
+      "correct": 1,
+      "onCorrect": "Exactly, blue!",
+      "onWrong": "Not quite, try again!"
+    }
+  ],
+  "successSticker": 1
+}
+,
 	
 	{
       "type": "animals",

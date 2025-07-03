@@ -172,18 +172,7 @@
   "onCorrect": "Great! Fog rhymes with dog.",
   "onWrong": "Try again!"
 },
-        {
-  "type": "shadow",
-  "video": "day1-breath.mp4",
-  "shadow": "images/animals/cat.png",
-  "choices": [
-    "images/animals/dog.png",
-    "images/animals/cat.png",
-    "images/animals/bear.png"
-  ],
-  "correct": 1,
-  "successSticker": 2
-},
+        
         {
   "type": "story",
   "video": "day1-story.mp4",
