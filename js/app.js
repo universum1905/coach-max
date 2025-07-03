@@ -1552,232 +1552,227 @@ box.style.boxSizing = "border-box";
 
 } // Ende if (s.type === "story")
   
-
 if (s.type === "pattern") {
-  clearTimeouts();
-  renderFrogProgress(lastSessionIdx, idx);
-  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
-  document.getElementById("sessionTextArea").innerHTML = "";
-  const textArea = document.getElementById("sessionTextArea");
+clearTimeouts();
+renderFrogProgress(lastSessionIdx, idx);
+document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+document.getElementById("sessionTextArea").innerHTML = "";
+const textArea = document.getElementById("sessionTextArea");
 
-  // Titel
-  const heading = document.createElement("h2");
-  heading.className = "session-heading";
-  heading.textContent = s.title || "What comes next?";
-  heading.style.textAlign = "center";
-  textArea.appendChild(heading);
-
-  // Video mit Poster & Play-Overlay
-  const video = document.createElement("video");
-  video.src = `videos/${s.video}`;
-  video.poster = "images/video-placeholder.png"; // <== DEIN POSTER!
-  video.playsInline = true;
-  video.autoplay = false;
-  video.muted = false;
-  video.className = "session-video";
-  const videoBox = document.createElement("div");
-  videoBox.className = "floating-video";
-  videoBox.appendChild(video);
-  document.body.appendChild(videoBox);
-
-  const playBtn = document.createElement("button");
-  playBtn.className = "custom-play-btn";
-  playBtn.title = "Play";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-  `;
-  videoBox.appendChild(playBtn);
-
-  playBtn.onclick = () => {
-    video.play();
-    playBtn.style.display = "none";
-  };
-  video.addEventListener("play", () => playBtn.style.display = "none");
-  video.addEventListener("ended", () => {
-    showAvatarInVideoBox(videoBox, "benny"); // oder dein Wunsch-Avatar
-    showPatternGame();
-  });
-
-  // Pattern & Answers erst nach Video zeigen
-  function showPatternGame() {
-    // Pattern-Zahlen mittig, mit Kasten und Abstand
-    const patternBox = document.createElement("div");
-    patternBox.style.display = "flex";
-    patternBox.style.justifyContent = "center";
-    patternBox.style.gap = "15px";
-    patternBox.style.margin = "28px 0 18px 0";
-    patternBox.style.flexWrap = "wrap";
-
-    s.pattern.forEach(num => {
-      const box = document.createElement("div");
-      box.style.minWidth = "44px";
-      box.style.height = "48px";
-      box.style.background = "#fffbe6";
-      box.style.fontSize = "2.1rem";
-      box.style.fontWeight = "bold";
-      box.style.borderRadius = "13px";
-      box.style.display = "flex";
-      box.style.alignItems = "center";
-      box.style.justifyContent = "center";
-      box.style.boxShadow = "0 1px 8px #b2dfdb77";
-      box.style.margin = "0 2px";
-      box.innerText = num === "?" ? "?" : num;
-      patternBox.appendChild(box);
-    });
-    textArea.appendChild(patternBox);
-
-    // Frage
-    const questionDiv = document.createElement("div");
-    questionDiv.className = "animated-text";
-    questionDiv.style.textAlign = "center";
-    questionDiv.style.fontSize = "1.17rem";
-    questionDiv.style.margin = "0 0 18px 0";
-    questionDiv.textContent = s.question || "What comes next in the pattern?";
-    textArea.appendChild(questionDiv);
-
-    // Antwort-Buttons untereinander
-    const answersBox = document.createElement("div");
-    answersBox.style.display = "flex";
-    answersBox.style.flexDirection = "column";
-    answersBox.style.alignItems = "center";
-    answersBox.style.gap = "14px";
-    answersBox.style.width = "100%";
-    textArea.appendChild(answersBox);
-
-    s.answers.forEach((ans, i) => {
-      const btn = document.createElement("button");
-      btn.style.border = "none";
-      btn.style.background = "#fffbe6";
-      btn.style.fontSize = "1.4rem";
-      btn.style.fontWeight = "700";
-      btn.style.padding = "0.9em 0";
-      btn.style.borderRadius = "15px";
-      btn.style.boxShadow = "0 2px 10px #81d4fa55";
-      btn.style.cursor = "pointer";
-      btn.style.margin = "0 15vw";
-      btn.style.width = "60vw";
-      btn.textContent = ans;
-      btn.onclick = () => handleChoice(btn, i, answersBox);
-      answersBox.appendChild(btn);
-    });
-  }
-
-  // Antworten & Animationen
-  function handleChoice(btn, i, answersBox) {
-    // Sound abspielen
-    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
-
-    // Vorherige Feedbacks entfernen
-    document.querySelectorAll(".pattern-feedback, .wrong-msg").forEach(e => e.remove());
-
-    if (i === s.correct) {
-      // Falsche Buttons ausblenden, nur richtige bleibt
-      Array.from(answersBox.children).forEach((b, idx) => {
-        if (idx !== i) b.style.display = "none";
-      });
-
-      // Erfolgstext (über Reward)
-      const ok = document.createElement("div");
-      ok.className = "animated-text pattern-feedback glitter";
-      ok.style.textAlign = "center";
-      ok.style.fontSize = "1.19rem";
-      ok.style.margin = "0 0 16px 0";
-      ok.innerText = s.onCorrect || "Great job!";
-      textArea.appendChild(ok);
-
-      // Sticker-Animation (star.png)
-      const sticker = document.createElement("img");
-      sticker.src = "images/stickers/star.png";
-      sticker.style.position = "absolute";
-      sticker.style.left = "-100px";
-      sticker.style.top = "55%";
-      sticker.style.transform = "translateY(-50%)";
-      sticker.style.width = "80px";
-      sticker.style.transition = "left 0.8s ease-out";
-      document.body.appendChild(sticker);
-
-      setTimeout(() => {
-        const mid = window.innerWidth / 2 - 40;
-        sticker.style.left = mid + "px";
-      }, 50);
-      setTimeout(() => {
-        sticker.style.transition = "all 0.6s ease-in";
-        sticker.style.left = (window.innerWidth - 100) + "px";
-        sticker.style.top = "10px";
-        sticker.style.opacity = "0";
-      }, 900);
-
-      setTimeout(() => {
-        // Reward-Box (wie bei animals)
-        const rewardBox = document.createElement("div");
-        rewardBox.style.position = "fixed";
-        rewardBox.style.left = "50%";
-        rewardBox.style.transform = "translateX(-50%)";
-        rewardBox.style.bottom = "150px";
-        rewardBox.style.display = "flex";
-        rewardBox.style.flexDirection = "column";
-        rewardBox.style.alignItems = "center";
-        rewardBox.style.zIndex = "1000";
-
-        // "Your reward"-Text
-        const rewardText = document.createElement("div");
-        rewardText.textContent = "Your reward";
-        rewardText.style.fontSize = "1.17rem";
-        rewardText.style.fontWeight = "700";
-        rewardText.style.color = "#faaf08";
-        rewardText.style.marginBottom = "7px";
-        rewardText.style.textShadow = "0 1px 8px #fffde7";
-        rewardBox.appendChild(rewardText);
-
-        // Sticker-Bild
-        const rewardSticker = document.createElement("img");
-        rewardSticker.src = "images/stickers/star.png";
-        rewardSticker.style.width = "68px";
-        rewardSticker.style.height = "68px";
-        rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
-        rewardSticker.style.borderRadius = "22px";
-        rewardSticker.style.background = "#fffbe6";
-        rewardBox.appendChild(rewardSticker);
-
-        document.body.appendChild(rewardBox);
-
-        // Next-Button nach kurzer Zeit
-        setTimeout(() => {
-          const next = document.createElement("button");
-          next.className = "centered-next-btn";
-          next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-          next.onclick = () => {
-            document.querySelectorAll(".floating-video, .centered-next-btn, .pattern-feedback, .glitter, div[style*='fixed']").forEach(e => e.remove());
-            currentSession++;
-            renderSession(currentSession);
-          };
-          document.body.appendChild(next);
-        }, 600);
-
-      }, 1200);
-
-      unlockSticker && unlockSticker(s.successSticker || 0);
-
-    } else {
-      // Falsch: Feedback zentriert, nur 1x
-      if (!document.querySelector(".wrong-msg")) {
-        const wrong = document.createElement("div");
-        wrong.className = "animated-text wrong-msg";
-        wrong.style.textAlign = "center";
-        wrong.style.marginTop = "16px";
-        wrong.style.marginBottom = "5px";
-        wrong.innerText = s.onWrong || "Try again!";
-        textArea.appendChild(wrong);
-        btn.classList.add("shake");
-        setTimeout(() => btn.classList.remove("shake"), 600);
-      }
-    }
-  }
-  return;
+// 1. Hintergrundmusik
+let patternMusic;
+if (s.music) {
+  patternMusic = new Audio("audio/" + s.music);
+  patternMusic.loop = true;
+  patternMusic.volume = 0.24;
+  patternMusic.play();
 }
+function cleanupPatternAudio() {
+  if (patternMusic) {
+    patternMusic.pause();
+    patternMusic.currentTime = 0;
+  }
+}
+
+// 2. Titel
+const heading = document.createElement("h2");
+heading.className = "session-heading";
+heading.textContent = s.title || "What comes next?";
+textArea.appendChild(heading);
+
+// 3. Videobox
+const video = document.createElement("video");
+video.src = `videos/${s.video}`;
+video.playsInline = true;
+video.autoplay = false;
+video.muted = false;
+video.className = "session-video";
+video.poster = "images/video-placeholder.png";
+const videoBox = document.createElement("div");
+videoBox.className = "floating-video";
+videoBox.appendChild(video);
+document.body.appendChild(videoBox);
+
+// Play-Button Overlay
+const playBtn = document.createElement('button');
+playBtn.className = "custom-play-btn";
+playBtn.title = "Play";
+playBtn.innerHTML = `
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="28" fill="none"/>
+    <polygon points="22,16 46,30 22,44" fill="#383838"/>
+  </svg>
+`;
+videoBox.appendChild(playBtn);
+
+let patternRow = null;
+
+// 4. Nur Pattern beim Play-Button
+playBtn.onclick = () => {
+  video.play();
+  playBtn.style.display = "none";
+  if (patternMusic) patternMusic.pause();
+
+  // Pattern anzeigen (zentriert, responsive, Kasten, Abstand)
+  if (!patternRow) {
+    patternRow = document.createElement("div");
+    patternRow.style.display = "flex";
+    patternRow.style.justifyContent = "center";
+    patternRow.style.gap = "10px";
+    patternRow.style.margin = "20px auto";
+    patternRow.style.flexWrap = "wrap";
+    patternRow.style.fontSize = "2.1rem";
+    patternRow.style.padding = "8px 12px";
+    s.pattern.forEach((num, i) => {
+      const el = document.createElement("div");
+      el.textContent = num === "?" ? "?" : num;
+      el.style.background = "#fffbe6";
+      el.style.borderRadius = "15px";
+      el.style.padding = "10px 24px";
+      el.style.minWidth = "38px";
+      el.style.boxShadow = "0 2px 10px #ffe08288";
+      el.style.fontWeight = "700";
+      el.style.margin = "2px";
+      patternRow.appendChild(el);
+    });
+    textArea.appendChild(patternRow);
+  }
+};
+video.addEventListener("play", () => {
+  playBtn.style.display = "none";
+  if (patternMusic) patternMusic.pause();
+});
+
+// 5. Nach Video-Ende: Avatar + Antwortmöglichkeiten
+video.addEventListener("ended", () => {
+  showAvatarInVideoBox(videoBox, "benny");
+  if (patternMusic) patternMusic.play();
+
+  // Antwortmöglichkeiten
+  showPatternAnswers();
+});
+
+function showPatternAnswers() {
+  // Noch keine Antworten zeigen? (doppelt verhindern)
+  if (document.querySelector(".pattern-answers")) return;
+
+  // Abstand nach oben
+  const answerBox = document.createElement("div");
+  answerBox.className = "pattern-answers";
+  answerBox.style.display = "flex";
+  answerBox.style.flexDirection = "column";
+  answerBox.style.alignItems = "center";
+  answerBox.style.gap = "16px";
+  answerBox.style.marginTop = "30px";
+  textArea.appendChild(answerBox);
+
+  s.answers.forEach((num, i) => {
+    const btn = document.createElement("button");
+    btn.style.fontSize = "1.5rem";
+    btn.style.padding = "12px 30px";
+    btn.style.background = "#fffbe6";
+    btn.style.border = "2px solid #b2dfdb";
+    btn.style.borderRadius = "17px";
+    btn.style.boxShadow = "0 2px 12px #81d4fa55";
+    btn.style.marginBottom = "5px";
+    btn.style.fontWeight = "700";
+    btn.style.cursor = "pointer";
+    btn.style.width = "90%";
+    btn.style.maxWidth = "320px";
+    btn.textContent = num;
+
+    btn.onclick = () => handlePatternAnswer(btn, i, answerBox);
+    answerBox.appendChild(btn);
+  });
+}
+
+function handlePatternAnswer(btn, i, answerBox) {
+  // Falsche Buttons entfernen nach richtiger Antwort
+  if (i === s.correct) {
+    Array.from(answerBox.children).forEach(child => {
+      if (child !== btn) child.remove();
+    });
+
+    // Feedback-Sound
+    new Audio(`audio/yay.mp3`).play();
+
+    // Feedback
+    const ok = document.createElement("div");
+    ok.className = "animated-text glitter";
+    ok.style.textAlign = "center";
+    ok.innerText = s.onCorrect;
+    answerBox.insertBefore(ok, answerBox.firstChild);
+
+    // Star-Animation
+    const sticker = document.createElement("img");
+    sticker.src = "images/stickers/star.png";
+    sticker.style.position = "absolute";
+    sticker.style.left = "-100px";
+    sticker.style.top = "50%";
+    sticker.style.transform = "translateY(-50%)";
+    sticker.style.width = "80px";
+    sticker.style.transition = "left 0.8s ease-out";
+    document.body.appendChild(sticker);
+    setTimeout(() => {
+      const mid = window.innerWidth / 2 - 40;
+      sticker.style.left = mid + "px";
+    }, 50);
+    setTimeout(() => {
+      sticker.style.transition = "all 0.6s ease-in";
+      sticker.style.left = (window.innerWidth - 100) + "px";
+      sticker.style.top = "10px";
+      sticker.style.opacity = "0";
+    }, 900);
+
+    // Reward-Box + Next-Button
+    setTimeout(() => {
+      const rewardBox = document.createElement("div");
+      rewardBox.style.position = "fixed";
+      rewardBox.style.left = "50%";
+      rewardBox.style.transform = "translateX(-50%)";
+      rewardBox.style.bottom = "150px";
+      rewardBox.style.display = "flex";
+      rewardBox.style.flexDirection = "column";
+      rewardBox.style.alignItems = "center";
+      rewardBox.style.zIndex = "1000";
+      rewardBox.innerHTML = `
+        <div style="font-size:1.17rem;font-weight:700;color:#faaf08;margin-bottom:7px;text-shadow:0 1px 8px #fffde7;">Your reward</div>
+        <img src="images/stickers/star.png" style="width:68px;height:68px;box-shadow:0 4px 18px #ffe082b5;border-radius:22px;background:#fffbe6;">
+      `;
+      document.body.appendChild(rewardBox);
+
+      const next = document.createElement("button");
+      next.className = "centered-next-btn";
+      next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      next.onclick = () => {
+        cleanupPatternAudio();
+        document.querySelectorAll(".floating-video, .centered-next-btn, .glitter, div[style*='fixed']").forEach(e => e.remove());
+        currentSession++;
+        renderSession(currentSession);
+      };
+      document.body.appendChild(next);
+    }, 1600);
+
+    // Sticker unlock
+    unlockSticker && unlockSticker(s.successSticker);
+
+  } else {
+    // Feedback-Sound
+    new Audio("audio/fail.mp3").play();
+
+    // Nur einmal Fehlertext, immer oben!
+    if (!answerBox.querySelector(".wrong-msg")) {
+      const wrong = document.createElement("div");
+      wrong.className = "animated-text wrong-msg";
+      wrong.style.textAlign = "center";
+      wrong.innerText = s.onWrong;
+      answerBox.insertBefore(wrong, answerBox.firstChild);
+    }
+    btn.classList.add("shake");
+    setTimeout(() => btn.classList.remove("shake"), 600);
+  }
+}
+
 
 
 
