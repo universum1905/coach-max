@@ -24,6 +24,19 @@
       "successSticker": 1 
     },
     {
+  "type": "shadow",
+  "video": "day1-breath.mp4",
+  "shadow": "images/animals/cat.png",
+  "choices": [
+    "images/animals/dog.png",
+    "images/animals/cat.png",
+    "images/animals/bear.png"
+  ],
+  "correct": 1,
+  "successSticker": 2
+},	
+	
+	{
       "type": "animals",
       "video": "day2-animals.mp4",
       "sound": "lion.mp3",
