@@ -3,44 +3,38 @@
   "sessions": [
     {
       "type": "intro",
-      "title": "Welcome to Day 2!",
       "video": "day2-intro.mp4",
+      "title": "Welcome to Day 2!",
       "text": [
-        { "line": "Today will be super fun!", "duration": 2 },
-        { "line": "Ready for new adventures?", "duration": 2 }
+        { "line": "Today is full of new challenges. Are you ready?", "duration": 2 },
+        { "line": "Let’s have fun together!", "duration": 2 }
       ]
     },
     {
-  "type": "pattern",
-  "title": "Patterns",
-  "video": "day2-pattern.mp4",
-  "question": "What comes next?",
-  "patternArray": ["5", "10", "15", "___"],
-  "choices": ["18", "20", "25"],
-  "correct": 1, 
-  "onCorrect": "Great job! You found the next number!",
-  "onWrong": "Try again!",
-  "successSticker": 2 
-},
+      "type": "pattern",
+      "video": "day2-pattern.mp4",
+      "music": "focus-loop.mp3",  
+      "title": "What comes next?",
+      "pattern": [5, 10, 15],
+      "question": "What comes next in the pattern?",
+      "answers": [20, 18, 25, 12],
+      "correct": 0,
+      "onCorrect": "Great job! You found the right number!",
+      "onWrong": "Try again! Look at the pattern closely.",
+      "successSticker": 1 
+    },
     {
       "type": "animals",
-      "title": "Guess the Animal!",
       "video": "day2-animals.mp4",
-      "sound": "dog-bark.mp3",
+      "sound": "lion.mp3",
       "repeats": 2,
-      "text": [
-        "Listen to the sound.",
-        "Which animal makes this noise?"
-      ],
-      "timings": [0, 2],
-      "choices": [
-        "images/dog.png",
-        "images/cat.png",
-        "images/cow.png"
-      ],
+      "title": "Guess the Animal!",
+      "text": ["Listen carefully to the sound. Which animal is it?"],
+      "timings": [0],
+      "choices": ["images/lion.png", "images/elephant.png", "images/monkey.png"],
       "correct": 0,
-      "onCorrect": "Yes, that was the dog! 🐶",
-      "onWrong": "Oops, try again!",
+      "onCorrect": "Awesome! That’s a lion!",
+      "onWrong": "Oops! Try again!",
       "avatar": "momo",
       "successSticker": 0
     }
