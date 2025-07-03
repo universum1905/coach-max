@@ -1577,25 +1577,34 @@ if (s.type === "pattern") {
   textArea.appendChild(heading);
 
   // Pattern-Zahlen, schön zentriert und mit Abstand
-  const patternBox = document.createElement("div");
-  patternBox.style.display = "flex";
-  patternBox.style.justifyContent = "center";
-  patternBox.style.gap = "14px";
-  patternBox.style.margin = "16px 0 26px 0";
-  s.pattern.forEach(val => {
-    const box = document.createElement("div");
-    box.style.minWidth = "42px";
-    box.style.fontSize = "2.1rem";
-    box.style.fontWeight = "bold";
-    box.style.padding = "0.4em 0.85em";
-    box.style.background = "#fffbe6";
-    box.style.borderRadius = "13px";
-    box.style.boxShadow = "0 2px 8px #b3e5fc77";
-    box.style.display = "inline-block";
-    box.innerText = val;
-    patternBox.appendChild(box);
-  });
-  textArea.appendChild(patternBox);
+  // Pattern-Zahlen, schön zentriert und mobilfreundlich
+const patternBox = document.createElement("div");
+patternBox.style.display = "flex";
+patternBox.style.justifyContent = "center";
+patternBox.style.alignItems = "center";
+patternBox.style.flexWrap = "wrap"; // Zeilenumbruch falls zu breit
+patternBox.style.gap = "10px";
+patternBox.style.margin = "16px 0 26px 0";
+patternBox.style.padding = "0 10vw"; // Abstand zum Rand auf mobilen Geräten
+patternBox.style.width = "100%";
+patternBox.style.boxSizing = "border-box";
+patternBox.style.maxWidth = "100vw"; // auf keinen Fall breiter als Bildschirm
+
+s.pattern.forEach(val => {
+  const box = document.createElement("div");
+  box.style.minWidth = "38px";
+  box.style.fontSize = "2rem";
+  box.style.fontWeight = "bold";
+  box.style.padding = "0.4em 0.8em";
+  box.style.background = "#fffbe6";
+  box.style.borderRadius = "13px";
+  box.style.boxShadow = "0 2px 8px #b3e5fc77";
+  box.style.display = "inline-block";
+  box.innerText = val;
+  patternBox.appendChild(box);
+});
+textArea.appendChild(patternBox);
+
 
   // Video + Play-Overlay
   if (s.video) {
