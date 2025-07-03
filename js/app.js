@@ -1439,7 +1439,7 @@ box.style.boxSizing = "border-box";
   heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // Video (unten rechts, wie bei anderen Sessions)
+  // Video-Container
   if (s.video) {
     const video = document.createElement('video');
     video.src = `videos/${s.video}`;
@@ -1450,29 +1450,31 @@ box.style.boxSizing = "border-box";
     video.playsInline = true;
     video.poster = "images/video-placeholder.png";
     video.className = "session-video";
+
     const videoBox = document.createElement("div");
     videoBox.className = "floating-video";
     videoBox.appendChild(video);
-    document.body.appendChild(videoBox);
 
+    // Play-Overlay-Button
     const playBtn = document.createElement('button');
-playBtn.className = "custom-play-btn";
-playBtn.title = "Play";
-playBtn.innerHTML = `
-  <svg viewBox="0 0 60 60">
-    <circle cx="30" cy="30" r="28" fill="none"/>
-    <polygon points="22,16 46,30 22,44" fill="#383838"/>
-  </svg>
-`;
-
-    playBtn.onclick = function () {
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    playBtn.onclick = () => {
       video.play();
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
       showStoryTextLines();
-		 
-};
-	
+    };
+    videoBox.appendChild(playBtn);
+
+    document.body.appendChild(videoBox);
+
     video.addEventListener('play', () => {
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
@@ -1482,73 +1484,73 @@ playBtn.innerHTML = `
       video.style.pointerEvents = "none";
     });
     video.addEventListener('ended', () => {
-  showAvatarInVideoBox(videoBox, "luna");
-});
-  
-  // Animierter Story-Text (wie animated-lines)
-  const linesBox = document.createElement('div');
-linesBox.className = "animated-lines";
-textArea.appendChild(linesBox);
-  
-// Funktion zum animierten Anzeigen der Story-Textzeilen
-function showStoryTextLines() {
-  if (Array.isArray(s.story)) {
-    let i = 0;
-    function showNextLine() {
-      if (i < s.story.length) {
-        const p = document.createElement('div');
-        p.className = "animated-text";
-        p.style.textAlign = "center";
-        p.innerText = s.story[i];
-        linesBox.appendChild(p);
-        i++;
-        setTimeout(showNextLine, 2300); // Timing nach Wunsch
-      } else {
-        showImagesAndNext();
-      }
+      showAvatarInVideoBox(videoBox, "luna");
+    });
+
+    // Container für den animierten Text
+    const linesBox = document.createElement('div');
+    linesBox.className = "animated-lines";
+    textArea.appendChild(linesBox);
+
+    // Funktion: Story-Text Zeile für Zeile
+    function showStoryTextLines() {
+      if (!Array.isArray(s.story)) return;
+      let i = 0;
+      (function nextLine() {
+        if (i < s.story.length) {
+          const p = document.createElement('div');
+          p.className = "animated-text";
+          p.style.textAlign = "center";
+          p.innerText = s.story[i++];
+          linesBox.appendChild(p);
+          setTimeout(nextLine, 2300);
+        } else {
+          showImagesAndNext();
+        }
+      })();
     }
-    showNextLine();
+
+    // Funktion: Bilder & Next-Button am Ende
+    function showImagesAndNext() {
+      if (Array.isArray(s.images)) {
+        const imgBox = document.createElement('div');
+        imgBox.style.display = "flex";
+        imgBox.style.justifyContent = "center";
+        imgBox.style.gap = "22px";
+        imgBox.style.marginTop = "18px";
+        s.images.forEach(src => {
+          const img = document.createElement('img');
+          img.src = src;
+          img.style.width = "120px";
+          img.style.height = "120px";
+          img.style.objectFit = "cover";
+          img.style.borderRadius = "18px";
+          img.style.boxShadow = "0 4px 18px #ffd54faa";
+          imgBox.appendChild(img);
+        });
+        textArea.appendChild(imgBox);
+      }
+      setTimeout(() => {
+        const btn = document.createElement('button');
+        btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+        btn.className = "centered-next-btn";
+        btn.onclick = () => {
+          if (idx >= sessions.length - 1) {
+            localStorage.setItem(`day${localDay}Completed`, "1");
+            window.location.href = "choose.html";
+          } else {
+            currentSession++;
+            renderSession(currentSession);
+          }
+        };
+        document.body.appendChild(btn);
+      }, 1200);
+    }
+
+    return; // Ende des s.video-Blocks
   }
 
-
-
-  // Story-Bilder und Next-Button am Ende
-  function showImagesAndNext() {
-    if (Array.isArray(s.images)) {
-      const imgBox = document.createElement('div');
-      imgBox.style.display = "flex";
-      imgBox.style.justifyContent = "center";
-      imgBox.style.gap = "22px";
-      imgBox.style.marginTop = "18px";
-      s.images.forEach(src => {
-        const img = document.createElement('img');
-        img.src = src;
-        img.style.width = "120px";
-        img.style.height = "120px";
-        img.style.objectFit = "cover";
-        img.style.borderRadius = "18px";
-        img.style.boxShadow = "0 4px 18px #ffd54faa";
-        imgBox.appendChild(img);
-      });
-      textArea.appendChild(imgBox);
-    }
-    setTimeout(() => {
-      const btn = document.createElement('button');
-btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-btn.className = "centered-next-btn";
-btn.onclick = () => {
-  if (idx >= sessions.length - 1) {
-  localStorage.setItem(`day${localDay}Completed`, "1");
-  window.location.href = "choose.html";
-}
-};
-document.body.appendChild(btn);
-
-    }, 1200);
-  
-  return;
-}
-}
+} // Ende if (s.type === "story")
   }
   }
 }
