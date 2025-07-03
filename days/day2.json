@@ -38,7 +38,7 @@
 
 {
   "type": "chatgpt-quiz",
-  "video": "day2-chatgptquiz.mp4",
+  "video": "day2-pattern.mp4",
   "title": "Quiz Time!",
   "question": "Which animal barks?",
   "answers": ["Cat", "Dog", "Cow"],
