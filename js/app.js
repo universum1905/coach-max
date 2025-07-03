@@ -1828,6 +1828,17 @@ if (s.type === "chatgpt-quiz") {
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
   document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
+textArea.innerHTML = ""; // zuerst alles löschen
+
+// Überschrift sofort ganz oben einfügen
+const headerWrap = document.createElement("div");
+headerWrap.className = "chatgpt-quiz-header";
+
+const heading = document.createElement("div");
+heading.className = "chatgpt-quiz-heading";
+heading.innerHTML = "🧠 Quiz Time!";
+headerWrap.appendChild(heading);
+textArea.appendChild(headerWrap);
 
   let currentQ = 0;
   const totalQ = Array.isArray(s.questions) ? s.questions.length : 1;
@@ -1885,17 +1896,7 @@ if (s.type === "chatgpt-quiz") {
   function showQuizQuestion() {
   textArea.innerHTML = "";
 
-    // 🟡 Titel der Session immer ganz oben
-  const headerWrap = document.createElement("div");
-headerWrap.className = "chatgpt-quiz-header";
-
-const heading = document.createElement("h2");
-heading.className = "session-heading";
-heading.textContent = s.title || "Quiz Time!";
-headerWrap.appendChild(heading);
-
-textArea.appendChild(headerWrap);
-
+    
   const q = s.questions[currentQ];
 
   // Fortschrittsbalken (z. B. ●●○)
@@ -2002,7 +2003,10 @@ textArea.appendChild(headerWrap);
 
 
   function showFinalReward() {
-    textArea.innerHTML = "";
+    // lösche nur alles UNTER der Überschrift
+Array.from(textArea.children).forEach((child, i) => {
+  if (i > 0) child.remove();
+});
 
     const msg = document.createElement("div");
     msg.className = "animated-text glitter";
