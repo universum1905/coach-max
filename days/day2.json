@@ -40,6 +40,7 @@
   "type": "chatgpt-quiz",
   "title": "Quiz Time!",
   "video": "day2-pattern.mp4",
+  "avatar": "benny",
   "questions": [
     {
       "question": "Which animal barks?",

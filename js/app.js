@@ -1873,8 +1873,9 @@ if (s.type === "chatgpt-quiz") {
       video.style.pointerEvents = "none";
     });
     video.addEventListener("ended", () => {
-      showQuizQuestion();
-    });
+  if (s.avatar) showAvatarInVideoBox(videoBox, s.avatar);
+  setTimeout(() => showQuizQuestion(), 400);
+});
 
     return; // Wichtig: warte auf Videoende
   } else {
