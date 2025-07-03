@@ -1552,7 +1552,7 @@ box.style.boxSizing = "border-box";
 
 } // Ende if (s.type === "story")
   }
-  }
+  
 
 
 
