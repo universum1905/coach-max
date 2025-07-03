@@ -1551,7 +1551,111 @@ box.style.boxSizing = "border-box";
   }
 
 } // Ende if (s.type === "story")
+  
+
+if (s.type === "pattern") {
+  try { 
+    // Musik-File deiner Wahl, z.B. "audio/pattern-bg.mp3"
+    if (window.patternMusic) { patternMusic.currentTime = 0; patternMusic.play(); }
+    else {
+      window.patternMusic = new Audio("audio/counting-benny-bg.mp3");
+      window.patternMusic.loop = true;
+      window.patternMusic.volume = 0.15;
+      window.patternMusic.play();
+    }
+  } catch(e) {}
+  
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.getElementById("sessionTextArea").innerHTML = "";
+  const textArea = document.getElementById("sessionTextArea");
+
+  // Überschrift
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Pattern!";
+  heading.style.textAlign = "center";
+  textArea.appendChild(heading);
+
+  // Zeige Zahlenreihe
+  const seqDiv = document.createElement("div");
+  seqDiv.className = "pattern-sequence";
+  seqDiv.style.fontSize = "2.1rem";
+  seqDiv.style.textAlign = "center";
+  seqDiv.style.margin = "18px 0";
+  seqDiv.innerHTML = s.sequence.join(" – ") + " – ?";
+  textArea.appendChild(seqDiv);
+
+  // Frage (optional)
+  if (s.text && s.text.length) {
+    const question = document.createElement("div");
+    question.className = "animated-text";
+    question.style.textAlign = "center";
+    question.style.margin = "12px 0 22px 0";
+    question.textContent = s.text[0];
+    textArea.appendChild(question);
   }
+
+  // Auswahlmöglichkeiten (Buttons)
+  const box = document.createElement("div");
+  box.className = "pattern-choices";
+  box.style.display = "flex";
+  box.style.justifyContent = "center";
+  box.style.gap = "20px";
+  textArea.appendChild(box);
+
+  s.choices.forEach((num, i) => {
+    const btn = document.createElement("button");
+    btn.textContent = num;
+    btn.style.fontSize = "1.8rem";
+    btn.style.background = "#fffbe6";
+    btn.style.border = "2px solid #ffd54f";
+    btn.style.borderRadius = "18px";
+    btn.style.padding = "0.6em 1.7em";
+    btn.style.cursor = "pointer";
+    btn.onclick = () => handleChoice(i, btn);
+    box.appendChild(btn);
+  });
+
+  function handleChoice(i, btn) {
+    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+    if (i === s.correct) {
+      btn.style.border = "2px solid #43a047";
+      btn.classList.add("glitter");
+      setTimeout(() => {
+        const next = document.createElement("button");
+        next.className = "centered-next-btn";
+        next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+        next.onclick = () => {
+          document.querySelectorAll(".centered-next-btn, .glitter").forEach(e => e.remove());
+          currentSession++;
+          renderSession(currentSession);
+        };
+        document.body.appendChild(next);
+      }, 1000);
+    } else {
+      btn.style.border = "2px solid #d32f2f";
+      btn.classList.add("shake");
+      setTimeout(() => {
+        btn.style.border = "2px solid #ffd54f";
+        btn.classList.remove("shake");
+      }, 800);
+    }
+  }
+  return;
+}
+
+
+
+
+
+
+
+
+
+
+}
   
 
 
