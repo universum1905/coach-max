@@ -1876,7 +1876,7 @@ if (s.type === "chatgpt-quiz") {
       showQuizQuestion();
     });
 
-    return; // Wichtig: warte bis Video fertig
+    return; // Wichtig: warte auf Videoende
   } else {
     showQuizQuestion(); // Falls kein Video vorhanden
   }
@@ -1886,17 +1886,22 @@ if (s.type === "chatgpt-quiz") {
 
     const q = s.questions[currentQ];
 
-    const heading = document.createElement("h2");
-    heading.className = "session-heading";
-    heading.textContent = s.title || "Quiz Time!";
-    heading.style.textAlign = "center";
-    textArea.appendChild(heading);
+    // Fortschrittsanzeige
+    const progress = document.createElement("div");
+    progress.className = "animated-text";
+    progress.style.textAlign = "center";
+    progress.style.fontSize = "1.05rem";
+    progress.style.color = "#888";
+    progress.style.marginBottom = "6px";
+    progress.textContent = `Question ${currentQ + 1} of ${totalQ}`;
+    textArea.appendChild(progress);
 
+    // Frage
     const question = document.createElement("div");
     question.className = "animated-text";
     question.style.textAlign = "center";
     question.style.fontSize = "1.18rem";
-    question.style.margin = "20px auto 14px auto";
+    question.style.margin = "12px auto 14px auto";
     question.textContent = q.question;
     textArea.appendChild(question);
 
@@ -1911,7 +1916,7 @@ if (s.type === "chatgpt-quiz") {
 
     q.answers.forEach((ans, i) => {
       const btn = document.createElement("button");
-      btn.style.border = "none";
+      btn.style.border = "2px solid transparent";
       btn.style.background = "#fffbe6";
       btn.style.fontSize = "1.28rem";
       btn.style.fontWeight = "600";
@@ -1919,7 +1924,13 @@ if (s.type === "chatgpt-quiz") {
       btn.style.borderRadius = "16px";
       btn.style.boxShadow = "0 2px 8px #81d4fa88";
       btn.style.cursor = "pointer";
+      btn.style.minWidth = "200px";
+      btn.style.display = "flex";
+      btn.style.justifyContent = "center";
+      btn.style.alignItems = "center";
+      btn.style.gap = "12px";
       btn.textContent = ans;
+
       btn.onclick = () => handleAnswer(btn, i);
       box.appendChild(btn);
     });
@@ -1938,6 +1949,14 @@ if (s.type === "chatgpt-quiz") {
       textArea.appendChild(feedback);
 
       new Audio(`audio/${correct ? "yay" : "fail"}.mp3`).play();
+
+      // Icon + Farbe
+      const icon = document.createElement("span");
+      icon.textContent = correct ? " ✅" : " ❌";
+      icon.style.fontSize = "1.4rem";
+      btn.appendChild(icon);
+      btn.style.background = correct ? "#c8e6c9" : "#ffcdd2";
+      btn.style.border = correct ? "2px solid #388e3c" : "2px solid #d32f2f";
 
       if (correct) {
         currentQ++;
@@ -2011,6 +2030,7 @@ if (s.type === "chatgpt-quiz") {
 
   return;
 }
+
 
 
 
