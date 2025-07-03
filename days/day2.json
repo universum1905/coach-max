@@ -34,7 +34,19 @@
   ],
   "correct": 1,
   "successSticker": 2
-},	
+},
+
+{
+  "type": "chatgpt-quiz",
+  "video": "day2-chatgptquiz.mp4",
+  "title": "Quiz Time!",
+  "question": "Which animal barks?",
+  "answers": ["Cat", "Dog", "Cow"],
+  "correct": 1,
+  "onCorrect": "That's right! Dogs bark. Awesome!",
+  "onWrong": "Hmm... listen to the sounds again and try!",
+  "successSticker": 3
+},
 	
 	{
       "type": "animals",

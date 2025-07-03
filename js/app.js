@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 3; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
@@ -1815,6 +1815,195 @@ if (s.type === "pattern") {
       btn.style.background = "#ffd6d6";
       feedbackDiv.textContent = s.onWrong || "Try again! Look at the pattern closely.";
       textArea.insertBefore(feedbackDiv, answersBox);
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 600);
+    }
+  }
+  return;
+}
+
+if (s.type === "chatgpt-quiz") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.getElementById("sessionTextArea").innerHTML = "";
+  const textArea = document.getElementById("sessionTextArea");
+
+  // Überschrift
+  const heading = document.createElement("h2");
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Quiz Time!";
+  heading.style.textAlign = "center";
+  textArea.appendChild(heading);
+
+  // Video (optional, wie immer unten rechts)
+  if (s.video) {
+    const video = document.createElement("video");
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = () => {
+      video.play();
+      playBtn.style.display = "none";
+    };
+    video.addEventListener("play", () => playBtn.style.display = "none");
+    video.addEventListener("ended", () => {
+      showQuiz();
+    });
+  } else {
+    showQuiz();
+  }
+
+  function showQuiz() {
+    // Frage zentriert anzeigen
+    const question = document.createElement("div");
+    question.className = "animated-text";
+    question.style.textAlign = "center";
+    question.style.fontSize = "1.18rem";
+    question.style.margin = "22px auto 12px auto";
+    question.textContent = s.question;
+    textArea.appendChild(question);
+
+    // Antwortmöglichkeiten
+    const box = document.createElement("div");
+    box.className = "chatgpt-quiz-buttons";
+    box.style.display = "flex";
+    box.style.flexDirection = "column";
+    box.style.alignItems = "center";
+    box.style.gap = "12px";
+    box.style.margin = "10px auto";
+    textArea.appendChild(box);
+
+    s.answers.forEach((ans, i) => {
+      const btn = document.createElement("button");
+      btn.style.border = "none";
+      btn.style.background = "#fffbe6";
+      btn.style.fontSize = "1.28rem";
+      btn.style.fontWeight = "600";
+      btn.style.padding = "0.6em 1.3em";
+      btn.style.borderRadius = "16px";
+      btn.style.boxShadow = "0 2px 8px #81d4fa88";
+      btn.style.cursor = "pointer";
+      btn.textContent = ans;
+
+      btn.onclick = () => handleChoice(btn, i);
+      box.appendChild(btn);
+    });
+  }
+
+  function handleChoice(btn, i) {
+    // Nur eine Auswahl erlauben
+    document.querySelectorAll(".chatgpt-quiz-buttons button").forEach(b => b.disabled = true);
+
+    // Feedback-Sound
+    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+
+    // Feedback-Text
+    const prev = document.querySelector(".quiz-feedback");
+    if (prev) prev.remove();
+
+    const feedback = document.createElement("div");
+    feedback.className = "animated-text quiz-feedback";
+    feedback.style.textAlign = "center";
+    feedback.style.marginTop = "17px";
+    feedback.textContent = (i === s.correct) ? (s.onCorrect || "Great job!") : (s.onWrong || "Try again!");
+    textArea.appendChild(feedback);
+
+    if (i === s.correct) {
+      // Animation: Stern wie bei animals
+      const sticker = document.createElement("img");
+      sticker.src = "images/stickers/star.png";
+      sticker.style.position = "absolute";
+      sticker.style.left = "-100px";
+      sticker.style.top = "50%";
+      sticker.style.transform = "translateY(-50%)";
+      sticker.style.width = "80px";
+      sticker.style.transition = "left 0.8s ease-out";
+      document.body.appendChild(sticker);
+
+      setTimeout(() => {
+        const mid = window.innerWidth / 2 - 40;
+        sticker.style.left = mid + "px";
+      }, 50);
+
+      setTimeout(() => {
+        sticker.style.transition = "all 0.6s ease-in";
+        sticker.style.left = (window.innerWidth - 100) + "px";
+        sticker.style.top = "10px";
+        sticker.style.opacity = "0";
+      }, 900);
+
+      setTimeout(() => {
+        // Reward-Box wie bei animals
+        const rewardBox = document.createElement("div");
+        rewardBox.style.position = "fixed";
+        rewardBox.style.left = "50%";
+        rewardBox.style.transform = "translateX(-50%)";
+        rewardBox.style.bottom = "150px";
+        rewardBox.style.display = "flex";
+        rewardBox.style.flexDirection = "column";
+        rewardBox.style.alignItems = "center";
+        rewardBox.style.zIndex = "1000";
+
+        const rewardText = document.createElement("div");
+        rewardText.textContent = "Your reward";
+        rewardText.style.fontSize = "1.17rem";
+        rewardText.style.fontWeight = "700";
+        rewardText.style.color = "#faaf08";
+        rewardText.style.marginBottom = "7px";
+        rewardText.style.textShadow = "0 1px 8px #fffde7";
+        rewardBox.appendChild(rewardText);
+
+        const rewardSticker = document.createElement("img");
+        rewardSticker.src = "images/stickers/star.png";
+        rewardSticker.style.width = "68px";
+        rewardSticker.style.height = "68px";
+        rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
+        rewardSticker.style.borderRadius = "22px";
+        rewardSticker.style.background = "#fffbe6";
+        rewardBox.appendChild(rewardSticker);
+
+        document.body.appendChild(rewardBox);
+
+        // Next-Button
+        setTimeout(() => {
+          const next = document.createElement("button");
+          next.className = "centered-next-btn";
+          next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+          next.onclick = () => {
+            document.querySelectorAll(".floating-video, .centered-next-btn, .quiz-feedback, div[style*='fixed']").forEach(e => e.remove());
+            currentSession++;
+            renderSession(currentSession);
+          };
+          document.body.appendChild(next);
+        }, 1000);
+
+      }, 1600);
+
+      // Sticker freischalten
+      unlockSticker && unlockSticker(s.successSticker !== undefined ? s.successSticker : 0);
+    } else {
       btn.classList.add("shake");
       setTimeout(() => btn.classList.remove("shake"), 600);
     }
