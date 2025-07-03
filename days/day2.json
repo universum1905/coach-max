@@ -19,7 +19,7 @@
       "correct": 1,
       "onCorrect": "Great job! 20 is the next number! 🎉",
       "onWrong": "Try again!",
-      "successSticker": 2 // z.B. Index für den butterfly-Sticker
+      "successSticker": 2 
     },
     {
       "type": "animals",
