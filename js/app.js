@@ -1885,6 +1885,17 @@ if (s.type === "chatgpt-quiz") {
   function showQuizQuestion() {
   textArea.innerHTML = "";
 
+    // 🟡 Titel der Session immer ganz oben
+  const headerWrap = document.createElement("div");
+headerWrap.className = "chatgpt-quiz-header";
+
+const heading = document.createElement("h2");
+heading.className = "session-heading";
+heading.textContent = s.title || "Quiz Time!";
+headerWrap.appendChild(heading);
+
+textArea.appendChild(headerWrap);
+
   const q = s.questions[currentQ];
 
   // Fortschrittsbalken (z. B. ●●○)
