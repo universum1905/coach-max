@@ -1682,6 +1682,10 @@ window.onload = async () => {
     const data = await res.json();
     sessions = data.sessions;
     currentDay = data.day || 1;
+	
+	 // ======= HIER DEN TITEL SETZEN! =======
+    document.title = `Coach Max – Day ${currentDay}`;
+    // ======================================
 
     currentSession = DEV_MODE ? DEV_START_SESSION : 0;
 
