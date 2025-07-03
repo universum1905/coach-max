@@ -11,16 +11,17 @@
       ]
     },
     {
-      "type": "pattern",
-      "title": "What comes next?",
-      "backgroundMusic": "focus-loop.mp3",
-      "sequence": [5, 10, 15],
-      "choices": [18, 20, 25],
-      "correct": 1,
-      "onCorrect": "Great job! 20 is the next number! 🎉",
-      "onWrong": "Try again!",
-      "successSticker": 2 
-    },
+  "type": "pattern",
+  "title": "Patterns",
+  "video": "day2-pattern.mp4",
+  "question": "What comes next?",
+  "patternArray": ["5", "10", "15", "___"],
+  "choices": ["18", "20", "25"],
+  "correct": 1, 
+  "onCorrect": "Great job! You found the next number!",
+  "onWrong": "Try again!",
+  "successSticker": 2 
+},
     {
       "type": "animals",
       "title": "Guess the Animal!",

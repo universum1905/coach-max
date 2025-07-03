@@ -1554,17 +1554,6 @@ box.style.boxSizing = "border-box";
   
 
 if (s.type === "pattern") {
-  try { 
-    // Musik-File deiner Wahl, z.B. "audio/pattern-bg.mp3"
-    if (window.patternMusic) { patternMusic.currentTime = 0; patternMusic.play(); }
-    else {
-      window.patternMusic = new Audio("audio/counting-benny-bg.mp3");
-      window.patternMusic.loop = true;
-      window.patternMusic.volume = 0.15;
-      window.patternMusic.play();
-    }
-  } catch(e) {}
-  
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -1572,79 +1561,213 @@ if (s.type === "pattern") {
   const textArea = document.getElementById("sessionTextArea");
 
   // Überschrift
-  const heading = document.createElement('h2');
+  const heading = document.createElement("h2");
   heading.className = "session-heading";
-  heading.textContent = s.title || "Pattern!";
+  heading.textContent = s.title || "What's next?";
   heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // Zeige Zahlenreihe
-  const seqDiv = document.createElement("div");
-  seqDiv.className = "pattern-sequence";
-  seqDiv.style.fontSize = "2.1rem";
-  seqDiv.style.textAlign = "center";
-  seqDiv.style.margin = "18px 0";
-  seqDiv.innerHTML = s.sequence.join(" – ") + " – ?";
-  textArea.appendChild(seqDiv);
+  // Video-Intro
+  if (s.video) {
+    const video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
 
-  // Frage (optional)
-  if (s.text && s.text.length) {
-    const question = document.createElement("div");
-    question.className = "animated-text";
-    question.style.textAlign = "center";
-    question.style.margin = "12px 0 22px 0";
-    question.textContent = s.text[0];
-    textArea.appendChild(question);
+    // Play-Button
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    playBtn.onclick = () => {
+      video.play();
+      playBtn.style.display = "none";
+    };
+    video.addEventListener("play", () => playBtn.style.display = "none");
+    video.addEventListener("pause", () => playBtn.style.display = "");
+    videoBox.appendChild(playBtn);
+
+    // Nach Video-Intro: Frage und Auswahl anzeigen
+    video.addEventListener("ended", () => {
+      showPatternTask();
+    });
+  } else {
+    showPatternTask();
   }
 
-  // Auswahlmöglichkeiten (Buttons)
-  const box = document.createElement("div");
-  box.className = "pattern-choices";
-  box.style.display = "flex";
-  box.style.justifyContent = "center";
-  box.style.gap = "20px";
-  textArea.appendChild(box);
+  // Frage/Aufgabe und Auswahlmöglichkeiten anzeigen
+  function showPatternTask() {
+    // Aufgabe (optional)
+    if (s.question) {
+      const questionDiv = document.createElement("div");
+      questionDiv.className = "animated-text";
+      questionDiv.style.textAlign = "center";
+      questionDiv.style.fontSize = "1.18rem";
+      questionDiv.style.margin = "12px auto 18px auto";
+      questionDiv.textContent = s.question;
+      textArea.appendChild(questionDiv);
+    }
 
-  s.choices.forEach((num, i) => {
-    const btn = document.createElement("button");
-    btn.textContent = num;
-    btn.style.fontSize = "1.8rem";
-    btn.style.background = "#fffbe6";
-    btn.style.border = "2px solid #ffd54f";
-    btn.style.borderRadius = "18px";
-    btn.style.padding = "0.6em 1.7em";
-    btn.style.cursor = "pointer";
-    btn.onclick = () => handleChoice(i, btn);
-    box.appendChild(btn);
+    // Musterrreihe anzeigen (optional: s.patternArray)
+    if (Array.isArray(s.patternArray)) {
+  const patternBox = document.createElement("div");
+  patternBox.className = "pattern-row";
+  patternBox.style.display = "flex";
+  patternBox.style.justifyContent = "center";
+  patternBox.style.gap = "10px";
+  patternBox.style.marginBottom = "16px";
+  s.patternArray.forEach(val => {
+    const p = document.createElement("div");
+    p.className = "pattern-cell";
+    p.style.display = "inline-block";
+    p.style.background = "#fffbe6";
+    p.style.borderRadius = "13px";
+    p.style.padding = "0.47em 1.25em";
+    p.style.fontWeight = "bold";
+    p.style.fontSize = "1.23rem";
+    p.style.boxShadow = "0 2px 8px #ffd54f55";
+    p.innerText = val;
+    patternBox.appendChild(p);
   });
+  textArea.appendChild(patternBox);
+}
 
-  function handleChoice(i, btn) {
+
+    // Antwortmöglichkeiten (vertikal!)
+    const box = document.createElement("div");
+    box.className = "pattern-choices";
+    box.style.display = "flex";
+    box.style.flexDirection = "column";
+    box.style.alignItems = "center";
+    box.style.gap = "14px";
+    textArea.appendChild(box);
+
+    s.choices.forEach((choice, i) => {
+      const btn = document.createElement("button");
+      btn.className = "pattern-choice-btn";
+      btn.style.minWidth = "120px";
+      btn.style.padding = "0.8em 1.5em";
+      btn.style.fontSize = "1.3rem";
+      btn.style.borderRadius = "16px";
+      btn.style.border = "2px solid #ffd54f";
+      btn.style.background = "#fffbe6";
+      btn.style.cursor = "pointer";
+      btn.textContent = choice;
+      btn.onclick = () => handleChoice(btn, i);
+      box.appendChild(btn);
+    });
+  }
+
+  function handleChoice(btn, i) {
+    // Vorheriges Feedback entfernen
+    document.querySelectorAll(".pattern-feedback, .wrong-msg").forEach(e => e.remove());
+
+    // Feedback Sound
     new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+
     if (i === s.correct) {
-      btn.style.border = "2px solid #43a047";
-      btn.classList.add("glitter");
+      btn.style.background = "#b2dfdb";
+
+      // Animierter Stern-Sticker wie bei animals
+      const sticker = document.createElement("img");
+      sticker.src = "images/stickers/star.png";
+      sticker.style.position = "absolute";
+      sticker.style.left = "-100px";
+      sticker.style.top = "50%";
+      sticker.style.transform = "translateY(-50%)";
+      sticker.style.width = "80px";
+      sticker.style.transition = "left 0.8s ease-out";
+      document.body.appendChild(sticker);
+
       setTimeout(() => {
+        const mid = window.innerWidth / 2 - 40;
+        sticker.style.left = mid + "px";
+      }, 50);
+
+      setTimeout(() => {
+        sticker.style.transition = "all 0.6s ease-in";
+        sticker.style.left = (window.innerWidth - 100) + "px";
+        sticker.style.top = "10px";
+        sticker.style.opacity = "0";
+      }, 900);
+
+      // Belohnungs-Box und Next-Button nach kurzer Zeit
+      setTimeout(() => {
+        // Belohnung
+        const rewardBox = document.createElement("div");
+        rewardBox.style.position = "fixed";
+        rewardBox.style.left = "50%";
+        rewardBox.style.transform = "translateX(-50%)";
+        rewardBox.style.bottom = "150px";
+        rewardBox.style.display = "flex";
+        rewardBox.style.flexDirection = "column";
+        rewardBox.style.alignItems = "center";
+        rewardBox.style.zIndex = "1000";
+
+        const rewardText = document.createElement("div");
+        rewardText.textContent = "Your reward";
+        rewardText.style.fontSize = "1.17rem";
+        rewardText.style.fontWeight = "700";
+        rewardText.style.color = "#faaf08";
+        rewardText.style.marginBottom = "7px";
+        rewardText.style.textShadow = "0 1px 8px #fffde7";
+        rewardBox.appendChild(rewardText);
+
+        const rewardSticker = document.createElement("img");
+        rewardSticker.src = "images/stickers/star.png";
+        rewardSticker.style.width = "68px";
+        rewardSticker.style.height = "68px";
+        rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
+        rewardSticker.style.borderRadius = "22px";
+        rewardSticker.style.background = "#fffbe6";
+        rewardBox.appendChild(rewardSticker);
+
+        document.body.appendChild(rewardBox);
+
+        // Next-Button
         const next = document.createElement("button");
         next.className = "centered-next-btn";
         next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
         next.onclick = () => {
-          document.querySelectorAll(".centered-next-btn, .glitter").forEach(e => e.remove());
+          document.querySelectorAll(".floating-video, .centered-next-btn, .glitter, div[style*='fixed']").forEach(e => e.remove());
           currentSession++;
           renderSession(currentSession);
         };
         document.body.appendChild(next);
-      }, 1000);
+      }, 1600);
+
+      // Sticker im Speicher freischalten (wie animals)
+      unlockSticker && unlockSticker(0);
+
     } else {
-      btn.style.border = "2px solid #d32f2f";
+      // Falschmeldung zentriert
+      const wrong = document.createElement("div");
+      wrong.className = "animated-text wrong-msg";
+      wrong.style.textAlign = "center";
+      wrong.style.marginTop = "13px";
+      wrong.innerText = s.onWrong || "Try again!";
+      textArea.appendChild(wrong);
       btn.classList.add("shake");
-      setTimeout(() => {
-        btn.style.border = "2px solid #ffd54f";
-        btn.classList.remove("shake");
-      }, 800);
+      setTimeout(() => btn.classList.remove("shake"), 600);
     }
   }
   return;
 }
+
 
 
 
