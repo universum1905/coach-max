@@ -451,4 +451,16 @@ html, body {
   text-shadow: 0 0 4px #fff9c4, 0 0 12px #ffd54f;
   font-weight: 700;
 }
+.yay-over-image {
+  position: absolute;
+  top: -24px;
+  left: 60%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 0 4px #fff, 0 0 10px #ffd54f;
+  animation: yay-bounce 1s ease-in-out infinite;
+  color: #ffa000;
+  pointer-events: none;
+}
 

@@ -1132,12 +1132,9 @@ img.style.transition = "transform 0.4s ease";
 
   // ✅ 3. Kleines „Yay!“ darunter (kindlich, zentriert)
   const yay = document.createElement("div");
-  yay.className = "animated-text yay-animated";
-  yay.style.textAlign = "center";
-  yay.style.margin = "0 auto 20px auto";
-  yay.style.fontSize = "1.5rem";
-  yay.textContent = "🎉 Yay!";
-  textArea.appendChild(yay);
+yay.className = "yay-over-image";
+yay.textContent = "🎉 Yay!";
+btn.appendChild(yay); // ← über dem Button platzieren
 
   // ✅ 4. Sticker fliegt rein
   const sticker = document.createElement("img");
