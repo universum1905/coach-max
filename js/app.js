@@ -1188,6 +1188,7 @@ document.body.appendChild(sticker);
     const rewardSticker = document.createElement("img");
     rewardSticker.src = "images/stickers/star.png";
     rewardSticker.style.width = "68px";
+	rewardSticker.className = "reward-animated";
     rewardSticker.style.height = "68px";
     rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
     rewardSticker.style.borderRadius = "22px";

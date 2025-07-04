@@ -491,4 +491,19 @@ html, body {
   transform: translateY(-50%);
   pointer-events: none;
 }
+@keyframes reward-glow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 8px #fff176) brightness(1.1);
+  }
+  50% {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 14px #ffe082) brightness(1.4);
+  }
+}
+
+.reward-animated {
+  animation: reward-glow 2s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
 
