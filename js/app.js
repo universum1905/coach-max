@@ -1128,13 +1128,15 @@ box.appendChild(btn);
   const img = btn.querySelector("img");
   img.style.boxShadow = "0 0 12px 4px #ffd54f";
   img.style.transform = "scale(1.1)";
+  img.style.marginBottom = "8px";
+img.style.marginTop = "20px";
   img.style.transition = "all 0.4s ease";
 
   // ✅ 3. Kleines „Yay!“ darunter (kindlich, zentriert)
   const yay = document.createElement("div");
-  yay.className = "animated-text";
+  yay.className = "animated-text yay-animated";
   yay.style.textAlign = "center";
-  yay.style.marginTop = "12px";
+  yay.style.margin = "0 auto 20px auto";
   yay.style.fontSize = "1.5rem";
   yay.textContent = "🎉 Yay!";
   textArea.appendChild(yay);
