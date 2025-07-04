@@ -927,6 +927,7 @@ playBtn.innerHTML = `
   } else {
     renderShadowQuiz(); // Kein Video, Shadow-Quiz sofort anzeigen
   }
+  }
 
   // Die Shadow-Quiz-Logik als eigene Funktion:
   function renderShadowQuiz() {
