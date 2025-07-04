@@ -860,12 +860,13 @@ playBtn.innerHTML = `
 }
 
 // ==== 5. NEUES MODUL: SCHATTENRÄTSEL ====
-  if (s.type === "shadow") {
+  // ==== Modul: SCHATTENRÄTSEL ====
+if (s.type === "shadow") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
-  document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
 
   // Überschrift
   const heading = document.createElement('h2');
@@ -873,8 +874,8 @@ playBtn.innerHTML = `
   heading.textContent = "Shadow Match!";
   textArea.appendChild(heading);
 
-  // Video-Erklärung (optional)
   if (s.video) {
+    // --- Video-Container ---
     const video = document.createElement('video');
     video.src = `videos/${s.video}`;
     video.setAttribute("controls", "true");
@@ -884,11 +885,13 @@ playBtn.innerHTML = `
     video.playsInline = true;
     video.poster = "images/video-placeholder.png";
     video.className = "session-video";
+
     const videoBox = document.createElement("div");
     videoBox.className = "floating-video";
     videoBox.appendChild(video);
     document.body.appendChild(videoBox);
 
+    // --- Play-Overlay ---
     const playBtn = document.createElement('button');
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
@@ -900,11 +903,11 @@ playBtn.innerHTML = `
     `;
     videoBox.appendChild(playBtn);
 
-    playBtn.onclick = () => {
+    playBtn.addEventListener('click', () => {
       video.play();
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
-    };
+    });
     video.addEventListener('play', () => {
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
@@ -915,17 +918,17 @@ playBtn.innerHTML = `
     });
     video.addEventListener('ended', () => {
       showAvatarInVideoBox(videoBox, "luna");
-      setTimeout(() => renderShadowQuiz(), 400);
+      setTimeout(renderShadowQuiz, 400);
     });
 
-    return; // ✅ Video vorhanden, danach nichts mehr ausführen
+  } else {
+    // Kein Video – direkt starten
+    renderShadowQuiz();
   }
-
-  // Kein Video – direkt starten
-  renderShadowQuiz();
 
   // ===== Funktion: Shadow-Quiz =====
   function renderShadowQuiz() {
+    // Schattenbild
     const shadowImg = document.createElement('img');
     shadowImg.src = s.shadow;
     shadowImg.className = "shadow-image";
@@ -934,23 +937,26 @@ playBtn.innerHTML = `
     shadowImg.style.margin = "18px 0";
     textArea.appendChild(shadowImg);
 
+    // Auswahl-Buttons (horizontal)
     const choices = document.createElement('div');
     choices.className = "shadow-buttons";
     textArea.appendChild(choices);
 
-    s.choices.forEach((img, i) => {
+    s.choices.forEach((imgSrc, i) => {
       const btn = document.createElement('button');
-      btn.innerHTML = `<img src="${img}" alt="choice" style="width:60px;height:60px;">`;
-      btn.onclick = () => handleChoice(btn, i);
+      btn.innerHTML = `<img src="${imgSrc}" alt="choice" style="width:60px;height:60px;">`;
+      btn.addEventListener('click', () => handleChoice(btn, i));
       choices.appendChild(btn);
     });
 
     function handleChoice(btn, i) {
       new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
+      // Vorheriges Feedback entfernen
       const prev = document.querySelector(".shadow-feedback");
       if (prev) prev.remove();
 
+      // Feedback-Element
       const feedback = document.createElement("div");
       feedback.className = "animated-text shadow-feedback";
       feedback.style.textAlign = "center";
@@ -962,6 +968,7 @@ playBtn.innerHTML = `
         feedback.textContent = s.onCorrect || "Correct! Sticker unlocked!";
         textArea.appendChild(feedback);
 
+        // Stern-Animation
         const sticker = document.createElement("img");
         sticker.src = "images/stickers/star.png";
         sticker.className = "sticker-animate";
@@ -976,24 +983,26 @@ playBtn.innerHTML = `
           sticker.style.top = "10px";
           sticker.style.opacity = "0";
         }, 900);
-        setTimeout(() => {
-          createRewardStar();
-        }, 1600);
+        setTimeout(() => createRewardStar(), 1600);
 
         if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
           unlockSticker(s.successSticker);
         }
+
       } else {
         btn.style.border = "2px solid #d32f2f";
         feedback.textContent = s.onWrong || "Try again!";
         textArea.appendChild(feedback);
         btn.classList.add("shake");
         setTimeout(() => btn.classList.remove("shake"), 600);
-        setTimeout(() => { btn.style.border = "2px solid #ffd54f"; }, 900);
+        setTimeout(() => {
+          btn.style.border = "2px solid #ffd54f";
+        }, 900);
       }
     }
   }
 }
+
 
 
 
