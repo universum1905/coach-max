@@ -1778,6 +1778,7 @@ if (s.type === "pattern") {
 
 // --- START DES BLOCKS app.js: chatgpt-quiz ---
 // --- START DES BLOCKS app.js: chatgpt-quiz ---
+// ==== Modul: CHATGPT-QUIZ ====
 if (s.type === "chatgpt-quiz") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -1785,11 +1786,9 @@ if (s.type === "chatgpt-quiz") {
   const textArea = document.getElementById("sessionTextArea");
 
   // Nur beim ersten Aufruf Header einfügen
-  const existingHeader = document.querySelector(".chatgpt-quiz-header");
-  if (!existingHeader) {
+  if (!document.querySelector(".chatgpt-quiz-header")) {
     const headerWrap = document.createElement("div");
     headerWrap.className = "chatgpt-quiz-header";
-
     const heading = document.createElement("div");
     heading.className = "chatgpt-quiz-heading";
     heading.innerHTML = "🧠 Quiz Time!";
@@ -1827,11 +1826,11 @@ if (s.type === "chatgpt-quiz") {
     `;
     videoBox.appendChild(playBtn);
 
-    playBtn.onclick = () => {
+    playBtn.addEventListener("click", () => {
       video.play();
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
-    };
+    });
     video.addEventListener("play", () => {
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
@@ -1842,27 +1841,25 @@ if (s.type === "chatgpt-quiz") {
     });
     video.addEventListener("ended", () => {
       if (s.avatar) showAvatarInVideoBox(videoBox, s.avatar);
-      setTimeout(() => showQuizQuestion(), 400);
+      setTimeout(showQuizQuestion, 400);
     });
-    return;
   } else {
     showQuizQuestion();
   }
 
   function showQuizQuestion() {
-    // Nur Inhalt unter Header leeren
+    // Header belassen, Rest leeren
     Array.from(textArea.children).forEach((child, i) => {
       if (i > 0) child.remove();
     });
 
     const q = s.questions[currentQ];
-
     // Fortschrittsbalken
     const progress = document.createElement("div");
     progress.style.display = "flex";
     progress.style.justifyContent = "center";
     progress.style.gap = "10px";
-    progress.style.margin = "6px 0 10px 0";
+    progress.style.margin = "6px 0 10px";
     for (let i = 0; i < totalQ; i++) {
       const dot = document.createElement("div");
       dot.style.width = "16px";
@@ -1874,7 +1871,7 @@ if (s.type === "chatgpt-quiz") {
     }
     textArea.appendChild(progress);
 
-    // Frage animiert
+    // Frage
     const question = document.createElement("div");
     question.className = "chatgpt-question animated-text fade-in-up";
     question.textContent = q.question;
@@ -1885,9 +1882,9 @@ if (s.type === "chatgpt-quiz") {
     textArea.appendChild(box);
 
     const shuffled = q.answers.map((text, i) => ({ text, index: i }))
-                             .sort(() => Math.random() - 0.5);
+                              .sort(() => Math.random() - 0.5);
 
-    shuffled.forEach((answerObj, j) => {
+    shuffled.forEach((ansObj, j) => {
       const btn = document.createElement("button");
       btn.style.border = "2px solid transparent";
       btn.style.background = "#fffbe6";
@@ -1904,50 +1901,50 @@ if (s.type === "chatgpt-quiz") {
       btn.style.gap = "12px";
       btn.classList.add("animated-text", "fade-in-up");
       btn.style.animationDelay = `${0.3 + j * 0.15}s`;
-      btn.style.animationDuration = `0.6s`;
-
-      btn.textContent = answerObj.text;
-      btn.onclick = () => handleAnswer(btn, answerObj.index);
+      btn.style.animationDuration = "0.6s";
+      btn.textContent = ansObj.text;
+      btn.addEventListener("click", () => handleAnswer(btn, ansObj.index));
       box.appendChild(btn);
     });
+  }
 
-    function handleAnswer(btn, i) {
-      const prev = document.querySelector(".quiz-feedback");
-      if (prev) prev.remove();
+  function handleAnswer(btn, i) {
+    const prev = document.querySelector(".quiz-feedback");
+    if (prev) prev.remove();
 
-      const feedback = document.createElement("div");
-      feedback.className = "animated-text quiz-feedback fade-in-up";
-      feedback.style.textAlign = "center";
-      feedback.style.marginTop = "17px";
+    const feedback = document.createElement("div");
+    feedback.className = "animated-text quiz-feedback fade-in-up";
+    feedback.style.textAlign = "center";
+    feedback.style.marginTop = "17px";
 
-      const correct = i === q.correct;
-      feedback.textContent = correct ? (q.onCorrect || "Great!") : (q.onWrong || "Try again!");
-      textArea.appendChild(feedback);
+    const q = s.questions[currentQ];
+    const correct = i === q.correct;
+    feedback.textContent = correct ? (q.onCorrect || "Great!") : (q.onWrong || "Try again!");
+    textArea.appendChild(feedback);
 
-      const audio = new Audio(correct ? "audio/correct-bell.mp3" : "audio/wrong-boing.mp3");
-      audio.volume = 0.75;
-      audio.play();
+    const audio = new Audio(correct ? "audio/correct-bell.mp3" : "audio/wrong-boing.mp3");
+    audio.volume = 0.75;
+    audio.play();
 
-      const icon = document.createElement("span");
-      icon.textContent = correct ? " ✅" : " ❌";
-      icon.style.fontSize = "1.4rem";
-      btn.appendChild(icon);
-      btn.style.background = correct ? "#c8e6c9" : "#ffcdd2";
-      btn.style.border = correct ? "2px solid #388e3c" : "2px solid #d32f2f";
+    const icon = document.createElement("span");
+    icon.textContent = correct ? " ✅" : " ❌";
+    icon.style.fontSize = "1.4rem";
+    btn.appendChild(icon);
+    btn.style.background = correct ? "#c8e6c9" : "#ffcdd2";
+    btn.style.border = correct ? "2px solid #388e3c" : "2px solid #d32f2f";
 
-      if (correct) {
-        currentQ++;
-        setTimeout(() => {
-          if (currentQ < totalQ) {
-            showQuizQuestion();
-          } else {
-            showFinalReward();
-          }
-        }, 1000);
-      } else {
-        btn.classList.add("shake");
-        setTimeout(() => btn.classList.remove("shake"), 600);
-      }
+    if (correct) {
+      currentQ++;
+      setTimeout(() => {
+        if (currentQ < totalQ) {
+          showQuizQuestion();
+        } else {
+          showFinalReward();
+        }
+      }, 1000);
+    } else {
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 600);
     }
   }
 
@@ -1999,15 +1996,17 @@ if (s.type === "chatgpt-quiz") {
     const next = document.createElement("button");
     next.className = "centered-next-btn";
     next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-    next.onclick = () => {
+    next.addEventListener("click", () => {
       document.querySelectorAll(".floating-video, .centered-next-btn, .quiz-feedback, div[style*='fixed']").forEach(e => e.remove());
       currentSession++;
       renderSession(currentSession);
-    };
+    });
     document.body.appendChild(next);
   }
-  return;
+
+  // (kein return – danach folgen andere Module)
 }
+
 
 
 
