@@ -857,7 +857,7 @@ playBtn.innerHTML = `
     }, 2200);
   }
   return; // Wichtig!
-}
+
 
 // ==== 5. NEUES MODUL: SCHATTENRÄTSEL ====
   // ==== Modul: SCHATTENRÄTSEL ====
@@ -2009,7 +2009,7 @@ if (s.type === "chatgpt-quiz") {
 
 
 
-
+}
 
 
 
