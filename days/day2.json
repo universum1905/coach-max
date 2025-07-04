@@ -25,7 +25,7 @@
     },
     {
   "type": "shadow",
-  "video": "day1-breath.mp4",
+  "video": "day1-test.mp4",
   "shadow": "images/animals/cat.png",
   "choices": [
     "images/animals/dog.png",
