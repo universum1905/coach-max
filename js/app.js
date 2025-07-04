@@ -884,7 +884,7 @@ if (s.type === "shadow") {
   if (s.video) {
     const videoBox = document.createElement("div");
     videoBox.className = "floating-video";
-    textArea.appendChild(videoBox);
+    document.body.appendChild(videoBox);
 
     // 2a) Video-Element
     const video = document.createElement("video");
