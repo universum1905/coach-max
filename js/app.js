@@ -1129,7 +1129,7 @@ box.appendChild(btn);
   img.style.boxShadow = "0 0 12px 4px #ffd54f";
   img.style.transform = "scale(1.1)";
   img.style.marginTop = "0";
-img.style.marginBottom = "-20px";
+img.style.marginBottom = "-28px";
   img.style.transition = "all 0.4s ease";
 
   // ✅ 3. Kleines „Yay!“ darunter (kindlich, zentriert)
