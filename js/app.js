@@ -919,7 +919,7 @@ playBtn.innerHTML = `
       setTimeout(() => { renderShadowQuiz(); }, 400);
     });
 
-    return; // ✅ Wichtig: nichts weiter ausführen!
+    
   } else {
     renderShadowQuiz(); // Kein Video – direkt starten
   }
