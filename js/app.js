@@ -1098,11 +1098,14 @@ videoBox.appendChild(playBtn);
 
     s.choices.forEach((src, i) => {
       const btn = document.createElement("button");
-      btn.style.border = "none";
-      btn.style.background = "none";
-      btn.innerHTML = `<img src="${src}" style="width:72px;height:72px;border-radius:12px;">`;
-      btn.onclick = () => handleChoice(btn, i);
-      box.appendChild(btn);
+btn.className = "animated-text fade-in-up";
+btn.style.animationDelay = `${i * 0.2}s`;
+btn.style.animationDuration = "0.6s";
+btn.style.border = "none";
+btn.style.background = "none";
+btn.innerHTML = `<img src="${src}" style="width:72px;height:72px;border-radius:12px;">`;
+btn.onclick = () => handleChoice(btn, i);
+box.appendChild(btn);
     });
   }
 
