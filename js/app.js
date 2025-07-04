@@ -859,10 +859,7 @@ playBtn.innerHTML = `
   return; // Wichtig!
 
 
-// ==== 5. NEUES MODUL: SCHATTENRÄTSEL ====
-  // ==== Modul: SCHATTENRÄTSEL ====
-// ==== Modul: SCHATTENRÄTSEL ====
-// ==== Modul: SCHATTENRÄTSEL ====
+
 // ==== Modul: SCHATTENRÄTSEL ====
 if (s.type === "shadow") {
   // 0) Aufräumen & Fortschritt
@@ -884,7 +881,7 @@ if (s.type === "shadow") {
   if (s.video) {
     const videoBox = document.createElement("div");
     videoBox.className = "floating-video";
-    document.body.appendChild(videoBox);
+    textArea.appendChild(videoBox);
 
     // 2a) Video-Element
     const video = document.createElement("video");
