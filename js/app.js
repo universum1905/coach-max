@@ -1207,7 +1207,7 @@ box.appendChild(btn);
 
   // ✅ 6. Sticker intern speichern
   unlockSticker(0); // ← Index bei Bedarf anpassen
-  }
+  
      } else {
       // 7) Falschmeldung zentriert
       const wrong = document.createElement("div");
