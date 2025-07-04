@@ -922,9 +922,10 @@ playBtn.innerHTML = `
 
     // Shadow-Quiz erst nach Video
     function showGame() { renderShadowQuiz(); }
-    return; // Das eigentliche Shadow-Quiz startet erst nach Video!
+     // Das eigentliche Shadow-Quiz startet erst nach Video!
   } else {
     renderShadowQuiz(); // Kein Video, Shadow-Quiz sofort anzeigen
+  return;
   }
 
   // Die Shadow-Quiz-Logik als eigene Funktion:
