@@ -32,6 +32,55 @@ function capitalize(word) {
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
+// 🎁 Globale Funktion für zentrierten Reward-Sticker + Yay!
+function createRewardStar() {
+  const rewardBox = document.createElement("div");
+  rewardBox.style.position = "fixed";
+  rewardBox.style.left = "50%";
+  rewardBox.style.transform = "translateX(-50%)";
+  rewardBox.style.bottom = "140px";
+  rewardBox.style.display = "flex";
+  rewardBox.style.flexDirection = "column";
+  rewardBox.style.alignItems = "center";
+  rewardBox.style.padding = "18px 22px";
+  rewardBox.style.borderRadius = "28px";
+  rewardBox.style.boxShadow = "0 4px 16px #fff9c466, 0 0 32px #ffe08266";
+  rewardBox.style.background = "linear-gradient(145deg, #fffde7cc, #fff9c4cc)";
+  rewardBox.style.backdropFilter = "blur(4px)";
+  rewardBox.style.zIndex = "1000";
+  rewardBox.style.pointerEvents = "none";
+
+  const yay = document.createElement("div");
+  yay.textContent = "🎉 Yay!";
+  yay.className = "yay-animated";
+  yay.style.fontSize = "1.6rem";
+  yay.style.marginBottom = "10px";
+  yay.style.fontWeight = "700";
+  rewardBox.appendChild(yay);
+
+  const rewardText = document.createElement("div");
+  rewardText.textContent = "Your reward";
+  rewardText.style.fontSize = "1.17rem";
+  rewardText.style.fontWeight = "700";
+  rewardText.style.color = "#faaf08";
+  rewardText.style.marginBottom = "7px";
+  rewardText.style.textShadow = "0 1px 8px #fffde7";
+  rewardBox.appendChild(rewardText);
+
+  const rewardSticker = document.createElement("img");
+  rewardSticker.src = "images/stickers/star.png";
+  rewardSticker.style.width = "68px";
+  rewardSticker.style.height = "68px";
+  rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
+  rewardSticker.style.borderRadius = "22px";
+  rewardSticker.style.background = "#fffbe6";
+  rewardSticker.className = "reward-animated";
+  rewardBox.appendChild(rewardSticker);
+
+  document.body.appendChild(rewardBox);
+}
+
+
 // Musik & Sound
 const welcomeMusic = document.getElementById("welcomeMusic");
 if (welcomeMusic) {
@@ -754,28 +803,45 @@ playBtn.innerHTML = `
 
   // Belohnung/Sticker/Glitzer nach Abschluss
   function showMemoryReward() {
-    // Glitzer-Konfetti
-    let confetti = document.createElement('div');
-    confetti.className = "animated-text glitter";
-    confetti.style.fontSize = "1.8rem";
-    confetti.innerHTML = "You did it! 🎉<br>Sticker unlocked!";
-    textArea.appendChild(confetti);
+  createRewardStar(); // 🎉 Neues Belohnungs-Widget anzeigen
 
-    // Zufälliger Spruch
-    let compliments = [
-      "Super memory skills!",
-      "You are a clever fox!",
-      "Max is proud of you!",
-      "You rock!"
-    ];
-    let compliment = compliments[Math.floor(Math.random() * compliments.length)];
-    setTimeout(() => {
-      let praise = document.createElement('div');
-      praise.className = "animated-text";
-      praise.style.color = "#44a047";
-      praise.innerHTML = compliment;
-      textArea.appendChild(praise);
-    }, 1400);
+  // Kompliment zusätzlich einblenden
+  let compliments = [
+    "Super memory skills!",
+    "You are a clever fox!",
+    "Max is proud of you!",
+    "You rock!"
+  ];
+  let compliment = compliments[Math.floor(Math.random() * compliments.length)];
+  setTimeout(() => {
+    let praise = document.createElement('div');
+    praise.className = "animated-text";
+    praise.style.color = "#44a047";
+    praise.style.textAlign = "center";
+    praise.style.marginTop = "18px";
+    praise.innerHTML = compliment;
+    textArea.appendChild(praise);
+  }, 1600);
+
+  // Sticker freischalten
+  if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
+    unlockSticker(s.successSticker);
+  }
+
+  // Button zentriert
+  setTimeout(() => {
+    const btn = document.createElement('button');
+    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+    btn.className = "centered-next-btn";
+    btn.onclick = () => {
+      document.querySelectorAll(".centered-next-btn, div[style*='fixed'], .animated-text").forEach(e => e.remove());
+      currentSession++;
+      renderSession(currentSession);
+    };
+    document.body.appendChild(btn);
+  }, 2200);
+}
+
 
     // Sticker (direkt am Board/Popup) – hier kannst du unlockSticker(s.successSticker) aufrufen!
     setTimeout(() => {
