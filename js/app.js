@@ -1218,6 +1218,7 @@ box.appendChild(btn);
       btn.classList.add("shake");
       setTimeout(() => btn.classList.remove("shake"), 600);
 }
+  }
 return; // Ende des animals-Blocks
   }
 
