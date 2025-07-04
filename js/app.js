@@ -1384,21 +1384,83 @@ if (s.type === "rhyme") {
 }
 
 
-  if (s.type === "story") {
+  // ==== Modul: STORY ====
+if (s.type === "story") {
+  // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
-  document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
 
-  // Überschrift
+  // 1) Überschrift
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = s.title || "Story Time!";
   heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // Video-Container
+  // Container für den animierten Text
+  const linesBox = document.createElement('div');
+  linesBox.className = "animated-lines";
+  textArea.appendChild(linesBox);
+
+  // Funktion: Story-Text Zeile für Zeile
+  function showStoryTextLines() {
+    if (!Array.isArray(s.story)) return;
+    let i = 0;
+    (function nextLine() {
+      if (i < s.story.length) {
+        const p = document.createElement('div');
+        p.className = "animated-text";
+        p.style.textAlign = "center";
+        p.innerText = s.story[i++];
+        linesBox.appendChild(p);
+        setTimeout(nextLine, 2300);
+      } else {
+        showImagesAndNext();
+      }
+    })();
+  }
+
+  // Funktion: Bilder & Next-Button am Ende
+  function showImagesAndNext() {
+    if (Array.isArray(s.images)) {
+      const imgBox = document.createElement('div');
+      imgBox.style.display = "flex";
+      imgBox.style.justifyContent = "center";
+      imgBox.style.gap = "22px";
+      imgBox.style.marginTop = "18px";
+      s.images.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.style.width = "120px";
+        img.style.height = "120px";
+        img.style.objectFit = "cover";
+        img.style.borderRadius = "18px";
+        img.style.boxShadow = "0 4px 18px #ffd54faa";
+        imgBox.appendChild(img);
+      });
+      textArea.appendChild(imgBox);
+    }
+    setTimeout(() => {
+      const btn = document.createElement('button');
+      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      btn.className = "centered-next-btn";
+      btn.onclick = () => {
+        if (idx >= sessions.length - 1) {
+          localStorage.setItem(`day${localDay}Completed`, "1");
+          window.location.href = "choose.html";
+        } else {
+          currentSession++;
+          renderSession(currentSession);
+        }
+      };
+      document.body.appendChild(btn);
+    }, 1200);
+  }
+
+  // 2) Video + Tap-to-Play Overlay (optional)
   if (s.video) {
     const video = document.createElement('video');
     video.src = `videos/${s.video}`;
@@ -1414,7 +1476,6 @@ if (s.type === "rhyme") {
     videoBox.className = "floating-video";
     videoBox.appendChild(video);
 
-    // Play-Overlay-Button
     const playBtn = document.createElement('button');
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
@@ -1424,16 +1485,15 @@ if (s.type === "rhyme") {
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
     `;
-    playBtn.onclick = () => {
+    videoBox.appendChild(playBtn);
+    document.body.appendChild(videoBox);
+
+    playBtn.addEventListener('click', () => {
       video.play();
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
       showStoryTextLines();
-    };
-    videoBox.appendChild(playBtn);
-
-    document.body.appendChild(videoBox);
-
+    });
     video.addEventListener('play', () => {
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
@@ -1446,68 +1506,14 @@ if (s.type === "rhyme") {
       showAvatarInVideoBox(videoBox, "luna");
     });
 
-    // Container für den animierten Text
-    const linesBox = document.createElement('div');
-    linesBox.className = "animated-lines";
-    textArea.appendChild(linesBox);
-
-    // Funktion: Story-Text Zeile für Zeile
-    function showStoryTextLines() {
-      if (!Array.isArray(s.story)) return;
-      let i = 0;
-      (function nextLine() {
-        if (i < s.story.length) {
-          const p = document.createElement('div');
-          p.className = "animated-text";
-          p.style.textAlign = "center";
-          p.innerText = s.story[i++];
-          linesBox.appendChild(p);
-          setTimeout(nextLine, 2300);
-        } else {
-          showImagesAndNext();
-        }
-      })();
-    }
-
-    // Funktion: Bilder & Next-Button am Ende
-    function showImagesAndNext() {
-      if (Array.isArray(s.images)) {
-        const imgBox = document.createElement('div');
-        imgBox.style.display = "flex";
-        imgBox.style.justifyContent = "center";
-        imgBox.style.gap = "22px";
-        imgBox.style.marginTop = "18px";
-        s.images.forEach(src => {
-          const img = document.createElement('img');
-          img.src = src;
-          img.style.width = "120px";
-          img.style.height = "120px";
-          img.style.objectFit = "cover";
-          img.style.borderRadius = "18px";
-          img.style.boxShadow = "0 4px 18px #ffd54faa";
-          imgBox.appendChild(img);
-        });
-        textArea.appendChild(imgBox);
-      }
-      setTimeout(() => {
-        const btn = document.createElement('button');
-        btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-        btn.className = "centered-next-btn";
-        btn.onclick = () => {
-          if (idx >= sessions.length - 1) {
-            localStorage.setItem(`day${localDay}Completed`, "1");
-            window.location.href = "choose.html";
-          } else {
-            currentSession++;
-            renderSession(currentSession);
-          }
-        };
-        document.body.appendChild(btn);
-      }, 1200);
-    }
-
-    return; // Ende des s.video-Blocks
+  } else {
+    // kein Video – direkt den Text anzeigen
+    showStoryTextLines();
   }
+
+  // Ende des STORY-Moduls – kein return nötig
+}
+
 
 } // Ende if (s.type === "story")
   
