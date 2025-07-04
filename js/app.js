@@ -1220,49 +1220,7 @@ document.body.appendChild(sticker);
     sticker.style.opacity = "0";
   }, 900);
 
-  // ✅ 5. Next-Button + Reward einfügen
-  setTimeout(() => {
-    const next = document.createElement("button");
-    next.className = "centered-next-btn";
-    next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-    next.onclick = () => {
-      document.querySelectorAll(".floating-video, .centered-next-btn, img[alt='Momo'], .glitter, div[style*='fixed']").forEach(e => e.remove());
-      currentSession++;
-      renderSession(currentSession);
-    };
-    document.body.appendChild(next);
-
-    const rewardBox = document.createElement("div");
-    rewardBox.style.position = "fixed";
-    rewardBox.style.left = "50%";
-    rewardBox.style.transform = "translateX(-50%)";
-    rewardBox.style.bottom = "150px";
-    rewardBox.style.display = "flex";
-    rewardBox.style.flexDirection = "column";
-    rewardBox.style.alignItems = "center";
-    rewardBox.style.zIndex = "1000";
-
-    const rewardText = document.createElement("div");
-    rewardText.textContent = "Your reward";
-    rewardText.style.fontSize = "1.17rem";
-    rewardText.style.fontWeight = "700";
-    rewardText.style.color = "#faaf08";
-    rewardText.style.marginBottom = "7px";
-    rewardText.style.textShadow = "0 1px 8px #fffde7";
-    rewardBox.appendChild(rewardText);
-
-    const rewardSticker = document.createElement("img");
-    rewardSticker.src = "images/stickers/star.png";
-    rewardSticker.style.width = "68px";
-	rewardSticker.className = "reward-animated";
-    rewardSticker.style.height = "68px";
-    rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
-    rewardSticker.style.borderRadius = "22px";
-    rewardSticker.style.background = "#fffbe6";
-    rewardBox.appendChild(rewardSticker);
-
-    document.body.appendChild(rewardBox);
-  }, 1600);
+  createRewardStar(); // Neues zentriertes Belohnungselement
 
   // ✅ 6. Sticker intern speichern
   unlockSticker(0); // ← Index bei Bedarf anpassen
