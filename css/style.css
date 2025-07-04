@@ -463,4 +463,32 @@ html, body {
   color: #ffa000;
   pointer-events: none;
 }
+@keyframes sticker-fly {
+  0% {
+    transform: translateX(-120px) translateY(0) rotate(0deg) scale(0.8);
+    opacity: 0.5;
+    filter: brightness(1.2);
+  }
+  50% {
+    transform: translateX(50vw) translateY(-40px) rotate(20deg) scale(1.1);
+    opacity: 1;
+    filter: brightness(1.6);
+  }
+  100% {
+    transform: translateX(90vw) translateY(-100px) rotate(45deg) scale(0.9);
+    opacity: 0;
+    filter: brightness(1);
+  }
+}
+
+.sticker-animate {
+  animation: sticker-fly 1.4s ease-out forwards;
+  z-index: 999;
+  position: absolute;
+  width: 80px;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
 

@@ -1138,14 +1138,9 @@ btn.appendChild(yay); // ← über dem Button platzieren
 
   // ✅ 4. Sticker fliegt rein
   const sticker = document.createElement("img");
-  sticker.src = "images/stickers/star.png";
-  sticker.style.position = "absolute";
-  sticker.style.left = "-100px";
-  sticker.style.top = "50%";
-  sticker.style.transform = "translateY(-50%)";
-  sticker.style.width = "80px";
-  sticker.style.transition = "left 0.8s ease-out";
-  document.body.appendChild(sticker);
+sticker.src = "images/stickers/star.png";
+sticker.className = "sticker-animate";
+document.body.appendChild(sticker);
 
   setTimeout(() => {
     const mid = window.innerWidth / 2 - 40;
