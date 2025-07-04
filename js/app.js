@@ -864,6 +864,7 @@ playBtn.innerHTML = `
 // ==== Modul: SCHATTENRÄTSEL ====
 // ==== Modul: SCHATTENRÄTSEL ====
 if (s.type === "shadow") {
+  console.log("▶️ renderSession: Shadow gestartet, video=", s.video);
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
