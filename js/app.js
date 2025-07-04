@@ -1122,7 +1122,10 @@ box.appendChild(btn);
       const ok = document.createElement("div");
       ok.className = "animated-text glitter";
       ok.style.textAlign = "center";
-      ok.innerText = s.onCorrect;
+      ok.innerHTML = `
+  <div style="font-size: 2rem; margin-bottom: 8px;">🎉</div>
+  <img src="${s.choices[i]}" style="width:100px;height:100px;border-radius:16px;box-shadow:0 4px 12px #ffd54f88;">
+`;
       textArea.appendChild(ok);
 
       // 6b) Sticker fliegt rein
