@@ -861,21 +861,24 @@ playBtn.innerHTML = `
 
 // ==== 5. NEUES MODUL: SCHATTENRÄTSEL ====
   // ==== Modul: SCHATTENRÄTSEL ====
+// ==== Modul: SCHATTENRÄTSEL ====
 if (s.type === "shadow") {
+  // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Überschrift
+  // 1) Überschrift
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = "Shadow Match!";
+  heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
+  // 2) Video-Erklärung (optional)
   if (s.video) {
-    // --- Video-Container ---
     const video = document.createElement('video');
     video.src = `videos/${s.video}`;
     video.setAttribute("controls", "true");
@@ -891,7 +894,6 @@ if (s.type === "shadow") {
     videoBox.appendChild(video);
     document.body.appendChild(videoBox);
 
-    // --- Play-Overlay ---
     const playBtn = document.createElement('button');
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
@@ -920,11 +922,10 @@ if (s.type === "shadow") {
       showAvatarInVideoBox(videoBox, "luna");
       setTimeout(renderShadowQuiz, 400);
     });
-
-  } else {
-    // Kein Video – direkt starten
-    renderShadowQuiz();
   }
+
+  // 3) Quiz starten (immer, sofort oder nach Video-Ende)
+  renderShadowQuiz();
 
   // ===== Funktion: Shadow-Quiz =====
   function renderShadowQuiz() {
@@ -974,8 +975,7 @@ if (s.type === "shadow") {
         sticker.className = "sticker-animate";
         document.body.appendChild(sticker);
         setTimeout(() => {
-          const mid = window.innerWidth / 2 - 40;
-          sticker.style.left = mid + "px";
+          sticker.style.left = (window.innerWidth / 2 - 40) + "px";
         }, 50);
         setTimeout(() => {
           sticker.style.transition = "all 0.6s ease-in";
@@ -988,7 +988,6 @@ if (s.type === "shadow") {
         if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
           unlockSticker(s.successSticker);
         }
-
       } else {
         btn.style.border = "2px solid #d32f2f";
         feedback.textContent = s.onWrong || "Try again!";
