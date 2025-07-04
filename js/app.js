@@ -1139,7 +1139,7 @@ box.appendChild(btn);
   yay.textContent = "🎉 Yay!";
   textArea.appendChild(yay);
 
-  // ✅ 4. Sticker-Animation wie gehabt
+  // ✅ 4. Sticker fliegt rein
   const sticker = document.createElement("img");
   sticker.src = "images/stickers/star.png";
   sticker.style.position = "absolute";
@@ -1205,33 +1205,10 @@ box.appendChild(btn);
     document.body.appendChild(rewardBox);
   }, 1600);
 
-  // ✅ 6. Sticker intern speichern (für Stickerboard)
-  unlockSticker(0); // ← evtl. Index anpassen!
+  // ✅ 6. Sticker intern speichern
+  unlockSticker(0); // ← Index bei Bedarf anpassen
 }
-
-
-  next.onclick = () => {
-    document.querySelectorAll(".floating-video, .centered-next-btn, img[alt='Momo'], .glitter, div[style*='fixed']").forEach(e => e.remove());
-    currentSession++;
-    renderSession(currentSession);
-  };
-}, 1600);
-
-
-      // 6c) Next-Button
-      const next = document.createElement("button");
-      next.className = "centered-next-btn";
-      next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      next.onclick = () => {
-        document.querySelectorAll(".floating-video, .centered-next-btn, img[alt='Momo'], .glitter").forEach(e => e.remove());
-        currentSession++;
-        renderSession(currentSession);
-      };
-      document.body.appendChild(next);
-
-      // 6d) Sticker für später sichern
-      unlockSticker( /* index für „star.png“ im Sticker-Array */ 0 );
-    } else {
+     } else {
       // 7) Falschmeldung zentriert
       const wrong = document.createElement("div");
       wrong.className = "animated-text wrong-msg";
