@@ -919,7 +919,7 @@ playBtn.innerHTML = `
       setTimeout(() => { renderShadowQuiz(); }, 400);
     });
 
-    return; // ✅ Nur wenn Video vorhanden!
+    return; // ✅ Wichtig: nichts weiter ausführen!
   } else {
     renderShadowQuiz(); // Kein Video – direkt starten
   }
@@ -964,7 +964,7 @@ playBtn.innerHTML = `
         feedback.textContent = s.onCorrect || "Correct! Sticker unlocked!";
         textArea.appendChild(feedback);
 
-        // ⭐️ Animierter Sticker (fliegt rein)
+        // ⭐️ Sticker fliegt rein
         const sticker = document.createElement("img");
         sticker.src = "images/stickers/star.png";
         sticker.className = "sticker-animate";
@@ -980,12 +980,11 @@ playBtn.innerHTML = `
           sticker.style.opacity = "0";
         }, 900);
 
-        // 💎 Belohnungsbox + Next-Button
+        // 🎁 Belohnung & Next-Button
         setTimeout(() => {
-          createRewardStar(); // zentrierte Belohnung mit Glitzer-Sticker & Text
+          createRewardStar(); // Funktion zeigt RewardBox + Next
         }, 1600);
 
-        // 🔓 Sticker speichern
         if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
           unlockSticker(s.successSticker);
         }
@@ -1000,7 +999,10 @@ playBtn.innerHTML = `
       }
     }
   }
+
+  return; // ✅ Jetzt korrekt & gültig
 }
+
 
   
 
