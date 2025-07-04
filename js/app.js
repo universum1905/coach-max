@@ -862,6 +862,7 @@ playBtn.innerHTML = `
 
 // ==== Modul: SCHATTENRÄTSEL ====
 if (s.type === "shadow") {
+	console.log("SHADOW-BLOCK wird ausgeführt:", s);
   // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
