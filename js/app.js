@@ -894,7 +894,7 @@ if (s.type === "shadow") {
     video.poster = "images/video-placeholder.png";
     video.className = "session-video";
     videoBox.appendChild(video);
-    textArea.appendChild(videoBox); 
+     
 	
     const playBtn = document.createElement('button');
     playBtn.className = "custom-play-btn";
@@ -906,6 +906,14 @@ if (s.type === "shadow") {
     video.addEventListener('ended', () => {
       showAvatarInVideoBox(videoBox, "luna");
       renderShadowQuiz();
+	  
+	  playBtn.addEventListener('click', () => {
+  video.play();
+  playBtn.style.display = "none";
+  // ⚡️ hier: Klicks auf das Video erlauben
+  video.style.pointerEvents = "auto";
+});
+	  
     });
 
     return; // Ende, Quiz startet erst nach Video-Ende
