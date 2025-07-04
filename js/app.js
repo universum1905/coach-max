@@ -863,90 +863,115 @@ playBtn.innerHTML = `
   // ==== Modul: SCHATTENRÄTSEL ====
 // ==== Modul: SCHATTENRÄTSEL ====
 // ==== Modul: SCHATTENRÄTSEL ====
+// ==== Modul: SCHATTENRÄTSEL ====
 if (s.type === "shadow") {
-  console.log("▶️ renderSession: Shadow gestartet, video=", s.video);
+  // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Überschrift
-  const heading = document.createElement('h2');
+  // 1) Überschrift
+  const heading = document.createElement("h2");
   heading.className = "session-heading";
   heading.textContent = "Shadow Match!";
   heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // Video + Play-Overlay (optional)
+  // 2) Video-Container (immer an die SessionArea hängen)
   if (s.video) {
     const videoBox = document.createElement("div");
     videoBox.className = "floating-video";
     textArea.appendChild(videoBox);
 
-    const video = document.createElement('video');
+    // 2a) Video-Element
+    const video = document.createElement("video");
     video.src = `videos/${s.video}`;
-    video.controls = true;
+    video.setAttribute("controls", "true");
     video.setAttribute("controlsList", "nodownload");
     video.autoplay = false;
     video.muted = false;
     video.playsInline = true;
     video.poster = "images/video-placeholder.png";
     video.className = "session-video";
+    // erst mal keine Klicks erlauben, bis Play gedrückt
+    video.style.pointerEvents = "none";
     videoBox.appendChild(video);
-     
-	
-    const playBtn = document.createElement('button');
+
+    // 2b) Play-Overlay-Button
+    const playBtn = document.createElement("button");
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
-    playBtn.innerHTML = `<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" fill="none"/><polygon points="22,16 46,30 22,44" fill="#383838"/></svg>`;
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
     videoBox.appendChild(playBtn);
 
-    playBtn.addEventListener('click', () => { video.play(); playBtn.style.display = "none"; });
-    video.addEventListener('ended', () => {
-      showAvatarInVideoBox(videoBox, "luna");
-      renderShadowQuiz();
-	  
-	  playBtn.addEventListener('click', () => {
-  video.play();
-  playBtn.style.display = "none";
-  // ⚡️ hier: Klicks auf das Video erlauben
-  video.style.pointerEvents = "auto";
-});
-	  
+    // 2c) Klick aufs Overlay startet Video & schaltet pointer-events frei
+    playBtn.addEventListener("click", () => {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
     });
 
-    return; // Ende, Quiz startet erst nach Video-Ende
+    // Wenn jemand via Native Controls spielt/pausiert
+    video.addEventListener("play", () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener("pause", () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+
+    // 2d) Nach Video-Ende: Avatar + Quiz
+    video.addEventListener("ended", () => {
+      showAvatarInVideoBox(videoBox, "luna");
+      renderShadowQuiz();
+    });
+
+    return; // Quiz erst nach Video-Ende
   }
 
-  // Kein Video → sofort Quiz starten
+  // 3) Kein Video-Fall: sofort Quiz starten
   renderShadowQuiz();
 
+  // ===== Funktion: Shadow-Quiz =====
   function renderShadowQuiz() {
-    const shadowImg = document.createElement('img');
+    // Schattenbild
+    const shadowImg = document.createElement("img");
     shadowImg.src = s.shadow;
     shadowImg.className = "shadow-image";
     shadowImg.style.width = "90px";
+    shadowImg.style.height = "90px";
     shadowImg.style.margin = "18px 0";
     textArea.appendChild(shadowImg);
 
-    const choices = document.createElement('div');
+    // Auswahl-Buttons
+    const choices = document.createElement("div");
     choices.className = "shadow-buttons";
     textArea.appendChild(choices);
 
     s.choices.forEach((imgSrc, i) => {
-      const btn = document.createElement('button');
-      btn.innerHTML = `<img src="${imgSrc}" style="width:60px;height:60px;">`;
-      btn.addEventListener('click', () => handleChoice(btn, i));
+      const btn = document.createElement("button");
+      btn.innerHTML = `<img src="${imgSrc}" alt="choice" style="width:60px;height:60px;">`;
+      btn.addEventListener("click", () => {
+        new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+        // … Feedback + Sticker-Animation wie gehabt …
+        if (i === s.correct && typeof unlockSticker === "function") {
+          unlockSticker(s.successSticker);
+        }
+      });
       choices.appendChild(btn);
     });
-
-    function handleChoice(btn, i) {
-      new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
-      // … Feedback + Sticker-Animation wie gehabt …
-    }
   }
 }
+
 
 
 
