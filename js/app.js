@@ -893,7 +893,8 @@ if (s.type === "shadow") {
     video.poster = "images/video-placeholder.png";
     video.className = "session-video";
     videoBox.appendChild(video);
-
+    textArea.appendChild(videoBox); 
+	
     const playBtn = document.createElement('button');
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
