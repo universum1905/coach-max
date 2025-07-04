@@ -1015,13 +1015,14 @@ if (s.type === "shadow") {
 // ==== neues Modul: ANIMALS ====
 // Innerhalb von renderSession(idx), ersetze den bisherigen animals-Block durch:
 
-  if (s.type === "animals") {
+  // ==== Modul: ANIMALS ====
+if (s.type === "animals") {
   // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
-  document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
 
   // 1) Überschrift
   const heading = document.createElement("h2");
@@ -1037,36 +1038,32 @@ if (s.type === "shadow") {
   video.autoplay = false;
   video.muted = false;
   video.className = "session-video";
+
   const videoBox = document.createElement("div");
   videoBox.className = "floating-video";
   videoBox.appendChild(video);
   document.body.appendChild(videoBox);
 
-  const playBtn = document.createElement('button');
-playBtn.className = "custom-play-btn";
-playBtn.title = "Play";
-playBtn.innerHTML = `
-  <svg viewBox="0 0 60 60">
-    <circle cx="30" cy="30" r="28" fill="none"/>
-    <polygon points="22,16 46,30 22,44" fill="#383838"/>
-  </svg>
-`;
+  const playBtn = document.createElement("button");
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+  `;
+  videoBox.appendChild(playBtn);
 
-  
-videoBox.appendChild(playBtn);
-
-
-  playBtn.onclick = () => {
+  playBtn.addEventListener("click", () => {
     video.play();
     playBtn.style.display = "none";
-  };
+  });
   video.addEventListener("play", () => playBtn.style.display = "none");
-
-  // 3) Nach Ende: Avatar zeigen & Sequenz starten
-  video.addEventListener('ended', () => {
-  showAvatarInVideoBox(videoBox, "momo");
-  startAnimalSequence();
-});
+  video.addEventListener("ended", () => {
+    showAvatarInVideoBox(videoBox, "momo");
+    startAnimalSequence();
+  });
 
   // --- NEU: Sound n-mal und danach Text/Choices ---
   function playRepeatedAudio(audioSrc, repeats, onComplete) {
@@ -1086,9 +1083,8 @@ videoBox.appendChild(playBtn);
 
   // 4) Tiergeräusch + Beschreibung + Auswahl
   function startAnimalSequence() {
-    // a) Tiergeräusch n-mal, dann Text+Choices!
+    // a) Geräusch wiederholen, dann Text+Choices
     playRepeatedAudio(`audio/${s.sound}`, s.repeats, () => {
-      // b) Textzeilen nach timings, dann showChoices
       s.text.forEach((line, i) => {
         textTimeouts.push(setTimeout(() => {
           const p = document.createElement("div");
@@ -1104,98 +1100,89 @@ videoBox.appendChild(playBtn);
 
   // 5) Auswahl-Buttons & Feedback
   function showChoices() {
-  // Call to Action einfügen
-  const cta = document.createElement("div");
-  cta.className = "animated-text";
-  cta.style.textAlign = "center";
-  cta.style.fontSize = "1.18rem";
-  cta.style.marginBottom = "16px";
-  cta.innerText = "Tap the right animal!";
-  textArea.appendChild(cta);
+    const cta = document.createElement("div");
+    cta.className = "animated-text";
+    cta.style.textAlign = "center";
+    cta.style.fontSize = "1.18rem";
+    cta.style.marginBottom = "16px";
+    cta.innerText = "Tap the right animal!";
+    textArea.appendChild(cta);
 
-  const box = document.createElement("div");
-  box.className = "animals-buttons";
-  box.style.display = "flex";
-  box.style.justifyContent = "center";
-  box.style.gap = "16px";
-  textArea.appendChild(box);
+    const box = document.createElement("div");
+    box.className = "animals-buttons";
+    box.style.display = "flex";
+    box.style.justifyContent = "center";
+    box.style.gap = "16px";
+    textArea.appendChild(box);
 
     s.choices.forEach((src, i) => {
       const btn = document.createElement("button");
-btn.className = "animated-text fade-in-up";
-btn.style.animationDelay = `${i * 0.2}s`;
-btn.style.animationDuration = "0.6s";
-btn.style.border = "none";
-btn.style.background = "none";
-btn.innerHTML = `<img src="${src}" style="width:72px;height:72px;border-radius:12px;">`;
-btn.onclick = () => handleChoice(btn, i);
-box.appendChild(btn);
+      btn.className = "animated-text fade-in-up";
+      btn.style.animationDelay = `${i * 0.2}s`;
+      btn.style.animationDuration = "0.6s";
+      btn.style.border = "none";
+      btn.style.background = "none";
+      btn.innerHTML = `<img src="${src}" style="width:72px;height:72px;border-radius:12px;">`;
+      btn.addEventListener("click", () => handleChoice(btn, i));
+      box.appendChild(btn);
     });
   }
 
   function handleChoice(btn, i) {
-    // remove vorheriges „Oops…“
     const prev = document.querySelector(".wrong-msg");
     if (prev) prev.remove();
 
-    // Feedback-Sound
     new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
     if (i === s.correct) {
-  // ✅ 1. Nur das geklickte Bild anzeigen
-  const allButtons = document.querySelectorAll(".animals-buttons button");
-  allButtons.forEach((b, index) => {
-    if (index !== i) b.remove(); // nur richtiges Bild bleibt
-  });
+      // Nur richtige Auswahl stehen lassen
+      document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
+        if (idx !== i) b.remove();
+      });
+      // Visuelles Highlight
+      const img = btn.querySelector("img");
+      img.style.boxShadow = "0 0 12px 4px #ffd54f";
+      img.style.transform = "translateY(-18px) scale(1.1)";
+      img.style.transition = "transform 0.4s ease";
 
-  // ✅ 2. Bild hervorheben
-  const img = btn.querySelector("img");
-img.style.boxShadow = "0 0 12px 4px #ffd54f";
-img.style.transform = "translateY(-18px) scale(1.1)";
-img.style.transition = "transform 0.4s ease";
+      // „Yay!“-Label
+      const yay = document.createElement("div");
+      yay.className = "yay-over-image";
+      yay.textContent = "🎉 Yay!";
+      btn.appendChild(yay);
 
-  // ✅ 3. Kleines „Yay!“ darunter (kindlich, zentriert)
-  const yay = document.createElement("div");
-yay.className = "yay-over-image";
-yay.textContent = "🎉 Yay!";
-btn.appendChild(yay); // ← über dem Button platzieren
+      // Sticker-Animation
+      const sticker = document.createElement("img");
+      sticker.src = "images/stickers/star.png";
+      sticker.className = "sticker-animate";
+      document.body.appendChild(sticker);
+      setTimeout(() => {
+        sticker.style.left = (window.innerWidth / 2 - 40) + "px";
+      }, 50);
+      setTimeout(() => {
+        sticker.style.transition = "all 0.6s ease-in";
+        sticker.style.left = (window.innerWidth - 100) + "px";
+        sticker.style.top = "10px";
+        sticker.style.opacity = "0";
+      }, 900);
 
-  // ✅ 4. Sticker fliegt rein
-  const sticker = document.createElement("img");
-sticker.src = "images/stickers/star.png";
-sticker.className = "sticker-animate";
-document.body.appendChild(sticker);
+      createRewardStar();
+      if (typeof unlockSticker === "function") unlockSticker(0);
 
-  setTimeout(() => {
-    const mid = window.innerWidth / 2 - 40;
-    sticker.style.left = mid + "px";
-  }, 50);
-
-  setTimeout(() => {
-    sticker.style.transition = "all 0.6s ease-in";
-    sticker.style.left = (window.innerWidth - 100) + "px";
-    sticker.style.top = "10px";
-    sticker.style.opacity = "0";
-  }, 900);
-
-  createRewardStar(); // Neues zentriertes Belohnungselement
-
-  // ✅ 6. Sticker intern speichern
-  unlockSticker(0); // ← Index bei Bedarf anpassen
-  
-     } else {
-      // 7) Falschmeldung zentriert
+    } else {
       const wrong = document.createElement("div");
       wrong.className = "animated-text wrong-msg";
       wrong.style.textAlign = "center";
-      wrong.innerText = s.onWrong;
+      wrong.innerText = s.onWrong || "Try again!";
       textArea.appendChild(wrong);
       btn.classList.add("shake");
       setTimeout(() => btn.classList.remove("shake"), 600);
+    }
+  }
+
+  // Ende des ANIMALS-Blocks – kein return nötig
 }
-  }
-return; // Ende des animals-Blocks
-  }
+
 
   
 
