@@ -889,7 +889,6 @@ playBtn.innerHTML = `
     videoBox.appendChild(video);
     document.body.appendChild(videoBox);
 
-    // Play-Overlay
     const playBtn = document.createElement('button');
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
@@ -916,17 +915,17 @@ playBtn.innerHTML = `
     });
     video.addEventListener('ended', () => {
       showAvatarInVideoBox(videoBox, "luna");
-      setTimeout(() => { renderShadowQuiz(); }, 400);
+      setTimeout(() => renderShadowQuiz(), 400);
     });
 
-    
-  } else {
-    renderShadowQuiz(); // Kein Video – direkt starten
+    return; // ✅ Video vorhanden, danach nichts mehr ausführen
   }
 
-  // === Funktion: Shadow-Quiz anzeigen ===
+  // Kein Video – direkt starten
+  renderShadowQuiz();
+
+  // ===== Funktion: Shadow-Quiz =====
   function renderShadowQuiz() {
-    // Schattenbild
     const shadowImg = document.createElement('img');
     shadowImg.src = s.shadow;
     shadowImg.className = "shadow-image";
@@ -935,7 +934,6 @@ playBtn.innerHTML = `
     shadowImg.style.margin = "18px 0";
     textArea.appendChild(shadowImg);
 
-    // Antwort-Buttons
     const choices = document.createElement('div');
     choices.className = "shadow-buttons";
     textArea.appendChild(choices);
@@ -964,7 +962,6 @@ playBtn.innerHTML = `
         feedback.textContent = s.onCorrect || "Correct! Sticker unlocked!";
         textArea.appendChild(feedback);
 
-        // ⭐️ Sticker fliegt rein
         const sticker = document.createElement("img");
         sticker.src = "images/stickers/star.png";
         sticker.className = "sticker-animate";
@@ -979,16 +976,13 @@ playBtn.innerHTML = `
           sticker.style.top = "10px";
           sticker.style.opacity = "0";
         }, 900);
-
-        // 🎁 Belohnung & Next-Button
         setTimeout(() => {
-          createRewardStar(); // Funktion zeigt RewardBox + Next
+          createRewardStar();
         }, 1600);
 
         if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
           unlockSticker(s.successSticker);
         }
-
       } else {
         btn.style.border = "2px solid #d32f2f";
         feedback.textContent = s.onWrong || "Try again!";
@@ -999,9 +993,8 @@ playBtn.innerHTML = `
       }
     }
   }
-
-  
 }
+
 
 
   
