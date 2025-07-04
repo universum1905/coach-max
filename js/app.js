@@ -1118,80 +1118,97 @@ box.appendChild(btn);
     new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
     if (i === s.correct) {
-      // 6a) Erfolgstext
-      const ok = document.createElement("div");
-      ok.className = "animated-text glitter";
-      ok.style.textAlign = "center";
-      ok.innerHTML = `
-  <div style="font-size: 2rem; margin-bottom: 8px;">🎉</div>
-  <img src="${s.choices[i]}" style="width:100px;height:100px;border-radius:16px;box-shadow:0 4px 12px #ffd54f88;">
-`;
-      textArea.appendChild(ok);
+  // ✅ 1. Nur das geklickte Bild anzeigen
+  const allButtons = document.querySelectorAll(".animals-buttons button");
+  allButtons.forEach((b, index) => {
+    if (index !== i) b.remove(); // nur richtiges Bild bleibt
+  });
 
-      // 6b) Sticker fliegt rein
-      const sticker = document.createElement("img");
-      sticker.src = "images/stickers/star.png";
-      sticker.style.position = "absolute";
-      sticker.style.left = "-100px";
-      sticker.style.top = "50%";
-      sticker.style.transform = "translateY(-50%)";
-      sticker.style.width = "80px";
-      sticker.style.transition = "left 0.8s ease-out";
-      document.body.appendChild(sticker);
+  // ✅ 2. Bild hervorheben
+  const img = btn.querySelector("img");
+  img.style.boxShadow = "0 0 12px 4px #ffd54f";
+  img.style.transform = "scale(1.1)";
+  img.style.transition = "all 0.4s ease";
 
-      setTimeout(() => {
-        // zunächst zur Mitte
-        const mid = window.innerWidth / 2 - 40;
-        sticker.style.left = mid + "px";
-      }, 50);
+  // ✅ 3. Kleines „Yay!“ darunter (kindlich, zentriert)
+  const yay = document.createElement("div");
+  yay.className = "animated-text";
+  yay.style.textAlign = "center";
+  yay.style.marginTop = "12px";
+  yay.style.fontSize = "1.5rem";
+  yay.textContent = "🎉 Yay!";
+  textArea.appendChild(yay);
 
-      setTimeout(() => {
-        // dann nach oben rechts und ausblenden
-        sticker.style.transition = "all 0.6s ease-in";
-        sticker.style.left = (window.innerWidth - 100) + "px";
-        sticker.style.top = "10px";
-        sticker.style.opacity = "0";
-      }, 900);
+  // ✅ 4. Sticker-Animation wie gehabt
+  const sticker = document.createElement("img");
+  sticker.src = "images/stickers/star.png";
+  sticker.style.position = "absolute";
+  sticker.style.left = "-100px";
+  sticker.style.top = "50%";
+  sticker.style.transform = "translateY(-50%)";
+  sticker.style.width = "80px";
+  sticker.style.transition = "left 0.8s ease-out";
+  document.body.appendChild(sticker);
 
-      setTimeout(() => {
-  // Next-Button erzeugen
-  const next = document.createElement("button");
-  next.className = "centered-next-btn";
-  next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-  document.body.appendChild(next);
+  setTimeout(() => {
+    const mid = window.innerWidth / 2 - 40;
+    sticker.style.left = mid + "px";
+  }, 50);
 
-  // Container für Reward
-  const rewardBox = document.createElement("div");
-  rewardBox.style.position = "fixed";
-  rewardBox.style.left = "50%";
-  rewardBox.style.transform = "translateX(-50%)";
-  rewardBox.style.bottom = "150px"; // exakt über dem Next-Button
-  rewardBox.style.display = "flex";
-  rewardBox.style.flexDirection = "column";
-  rewardBox.style.alignItems = "center";
-  rewardBox.style.zIndex = "1000";
+  setTimeout(() => {
+    sticker.style.transition = "all 0.6s ease-in";
+    sticker.style.left = (window.innerWidth - 100) + "px";
+    sticker.style.top = "10px";
+    sticker.style.opacity = "0";
+  }, 900);
 
-  // "Your reward"-Text
-  const rewardText = document.createElement("div");
-  rewardText.textContent = "Your reward";
-  rewardText.style.fontSize = "1.17rem";
-  rewardText.style.fontWeight = "700";
-  rewardText.style.color = "#faaf08";
-  rewardText.style.marginBottom = "7px";
-  rewardText.style.textShadow = "0 1px 8px #fffde7";
-  rewardBox.appendChild(rewardText);
+  // ✅ 5. Next-Button + Reward einfügen
+  setTimeout(() => {
+    const next = document.createElement("button");
+    next.className = "centered-next-btn";
+    next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+    next.onclick = () => {
+      document.querySelectorAll(".floating-video, .centered-next-btn, img[alt='Momo'], .glitter, div[style*='fixed']").forEach(e => e.remove());
+      currentSession++;
+      renderSession(currentSession);
+    };
+    document.body.appendChild(next);
 
-  // Sticker-Bild
-  const rewardSticker = document.createElement("img");
-  rewardSticker.src = "images/stickers/star.png";
-  rewardSticker.style.width = "68px";
-  rewardSticker.style.height = "68px";
-  rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
-  rewardSticker.style.borderRadius = "22px";
-  rewardSticker.style.background = "#fffbe6";
-  rewardBox.appendChild(rewardSticker);
+    const rewardBox = document.createElement("div");
+    rewardBox.style.position = "fixed";
+    rewardBox.style.left = "50%";
+    rewardBox.style.transform = "translateX(-50%)";
+    rewardBox.style.bottom = "150px";
+    rewardBox.style.display = "flex";
+    rewardBox.style.flexDirection = "column";
+    rewardBox.style.alignItems = "center";
+    rewardBox.style.zIndex = "1000";
 
-  document.body.appendChild(rewardBox);
+    const rewardText = document.createElement("div");
+    rewardText.textContent = "Your reward";
+    rewardText.style.fontSize = "1.17rem";
+    rewardText.style.fontWeight = "700";
+    rewardText.style.color = "#faaf08";
+    rewardText.style.marginBottom = "7px";
+    rewardText.style.textShadow = "0 1px 8px #fffde7";
+    rewardBox.appendChild(rewardText);
+
+    const rewardSticker = document.createElement("img");
+    rewardSticker.src = "images/stickers/star.png";
+    rewardSticker.style.width = "68px";
+    rewardSticker.style.height = "68px";
+    rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
+    rewardSticker.style.borderRadius = "22px";
+    rewardSticker.style.background = "#fffbe6";
+    rewardBox.appendChild(rewardSticker);
+
+    document.body.appendChild(rewardBox);
+  }, 1600);
+
+  // ✅ 6. Sticker intern speichern (für Stickerboard)
+  unlockSticker(0); // ← evtl. Index anpassen!
+}
+
 
   next.onclick = () => {
     document.querySelectorAll(".floating-video, .centered-next-btn, img[alt='Momo'], .glitter, div[style*='fixed']").forEach(e => e.remove());
