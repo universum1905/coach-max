@@ -891,16 +891,17 @@ playBtn.innerHTML = `
 
     // Play-Overlay
     const playBtn = document.createElement('button');
-playBtn.className = "custom-play-btn";
-playBtn.title = "Play";
-playBtn.innerHTML = `
-  <svg viewBox="0 0 60 60">
-    <circle cx="30" cy="30" r="28" fill="none"/>
-    <polygon points="22,16 46,30 22,44" fill="#383838"/>
-  </svg>
-`;
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
 
-    playBtn.onclick = function () {
+    playBtn.onclick = () => {
       video.play();
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
@@ -914,22 +915,16 @@ playBtn.innerHTML = `
       video.style.pointerEvents = "none";
     });
     video.addEventListener('ended', () => {
-  showAvatarInVideoBox(videoBox, "luna");
-  setTimeout(() => { showGame(); }, 400);
-});
+      showAvatarInVideoBox(videoBox, "luna");
+      setTimeout(() => { renderShadowQuiz(); }, 400);
+    });
 
-    videoBox.appendChild(playBtn);
-
-    // Shadow-Quiz erst nach Video
-    function showGame() { renderShadowQuiz(); }
-     // Das eigentliche Shadow-Quiz startet erst nach Video!
-	 return;
+    return; // ✅ Nur wenn Video vorhanden!
   } else {
-    renderShadowQuiz(); // Kein Video, Shadow-Quiz sofort anzeigen
-  }
+    renderShadowQuiz(); // Kein Video – direkt starten
   }
 
-  // Die Shadow-Quiz-Logik als eigene Funktion:
+  // === Funktion: Shadow-Quiz anzeigen ===
   function renderShadowQuiz() {
     // Schattenbild
     const shadowImg = document.createElement('img');
@@ -940,7 +935,7 @@ playBtn.innerHTML = `
     shadowImg.style.margin = "18px 0";
     textArea.appendChild(shadowImg);
 
-    // Auswahlmöglichkeiten (horizontal)
+    // Antwort-Buttons
     const choices = document.createElement('div');
     choices.className = "shadow-buttons";
     textArea.appendChild(choices);
@@ -954,6 +949,7 @@ playBtn.innerHTML = `
 
     function handleChoice(btn, i) {
       new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+
       const prev = document.querySelector(".shadow-feedback");
       if (prev) prev.remove();
 
@@ -968,22 +964,15 @@ playBtn.innerHTML = `
         feedback.textContent = s.onCorrect || "Correct! Sticker unlocked!";
         textArea.appendChild(feedback);
 
-        // Stern-Animation wie animals/rhyme
+        // ⭐️ Animierter Sticker (fliegt rein)
         const sticker = document.createElement("img");
         sticker.src = "images/stickers/star.png";
-        sticker.style.position = "absolute";
-        sticker.style.left = "-100px";
-        sticker.style.top = "50%";
-        sticker.style.transform = "translateY(-50%)";
-        sticker.style.width = "80px";
-        sticker.style.transition = "left 0.8s ease-out";
+        sticker.className = "sticker-animate";
         document.body.appendChild(sticker);
-
         setTimeout(() => {
           const mid = window.innerWidth / 2 - 40;
           sticker.style.left = mid + "px";
         }, 50);
-
         setTimeout(() => {
           sticker.style.transition = "all 0.6s ease-in";
           sticker.style.left = (window.innerWidth - 100) + "px";
@@ -991,54 +980,15 @@ playBtn.innerHTML = `
           sticker.style.opacity = "0";
         }, 900);
 
+        // 💎 Belohnungsbox + Next-Button
         setTimeout(() => {
-          // Reward-Box
-          const rewardBox = document.createElement("div");
-          rewardBox.style.position = "fixed";
-          rewardBox.style.left = "50%";
-          rewardBox.style.transform = "translateX(-50%)";
-          rewardBox.style.bottom = "150px";
-          rewardBox.style.display = "flex";
-          rewardBox.style.flexDirection = "column";
-          rewardBox.style.alignItems = "center";
-          rewardBox.style.zIndex = "1000";
-
-          const rewardText = document.createElement("div");
-          rewardText.textContent = "Your reward";
-          rewardText.style.fontSize = "1.17rem";
-          rewardText.style.fontWeight = "700";
-          rewardText.style.color = "#faaf08";
-          rewardText.style.marginBottom = "7px";
-          rewardText.style.textShadow = "0 1px 8px #fffde7";
-          rewardBox.appendChild(rewardText);
-
-          const rewardSticker = document.createElement("img");
-          rewardSticker.src = "images/stickers/star.png";
-          rewardSticker.style.width = "68px";
-          rewardSticker.style.height = "68px";
-          rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
-          rewardSticker.style.borderRadius = "22px";
-          rewardSticker.style.background = "#fffbe6";
-          rewardBox.appendChild(rewardSticker);
-
-          document.body.appendChild(rewardBox);
-
-          setTimeout(() => {
-            const next = document.createElement("button");
-            next.className = "centered-next-btn";
-            next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-            next.onclick = () => {
-              document.querySelectorAll(".floating-video, .centered-next-btn, .glitter, div[style*='fixed']").forEach(e => e.remove());
-              currentSession++;
-              renderSession(currentSession);
-            };
-            document.body.appendChild(next);
-          }, 1000);
-
+          createRewardStar(); // zentrierte Belohnung mit Glitzer-Sticker & Text
         }, 1600);
 
-        // Sticker freischalten
-        if (typeof unlockSticker === "function" && s.successSticker !== undefined) unlockSticker(s.successSticker);
+        // 🔓 Sticker speichern
+        if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
+          unlockSticker(s.successSticker);
+        }
 
       } else {
         btn.style.border = "2px solid #d32f2f";
@@ -1050,7 +1000,10 @@ playBtn.innerHTML = `
       }
     }
   }
-  return;
+}
+renderShadowQuiz(); // Kein Video – direkt starten
+    return; // ⬅️ Damit danach kein weiteres Modul durchläuft!
+  }
 }
 
 
