@@ -1001,10 +1001,9 @@ playBtn.innerHTML = `
     }
   }
 }
-renderShadowQuiz(); // Kein Video – direkt starten
-    return; // ⬅️ Damit danach kein weiteres Modul durchläuft!
-  }
-}
+
+  
+
 
 
 
