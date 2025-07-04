@@ -1000,7 +1000,7 @@ playBtn.innerHTML = `
     }
   }
 
-  return; // ✅ Jetzt korrekt & gültig
+  
 }
 
 
