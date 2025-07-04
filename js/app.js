@@ -1823,6 +1823,7 @@ if (s.type === "pattern") {
 }
 
 // --- START DES BLOCKS app.js: chatgpt-quiz ---
+// --- START DES BLOCKS app.js: chatgpt-quiz ---
 if (s.type === "chatgpt-quiz") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -2053,6 +2054,7 @@ if (s.type === "chatgpt-quiz") {
   }
   return;
 }
+
 
 
 
