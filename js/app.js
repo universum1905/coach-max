@@ -1515,7 +1515,7 @@ if (s.type === "story") {
 }
 
 
-} // Ende if (s.type === "story")
+
   
 if (s.type === "pattern") {
   clearTimeouts();
