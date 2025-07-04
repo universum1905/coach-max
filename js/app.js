@@ -2014,7 +2014,7 @@ if (s.type === "chatgpt-quiz") {
 
 
 
-}
+
   
 
 
