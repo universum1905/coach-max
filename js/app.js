@@ -1032,6 +1032,8 @@ if (s.type === "animals") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
+  console.log("[ANIMALS] s=", s);
+
   // 1) Überschrift
   const heading = document.createElement("h2");
   heading.className = "session-heading";
@@ -1040,58 +1042,50 @@ if (s.type === "animals") {
   textArea.appendChild(heading);
 
   // 2) Video + Tap-to-Play Overlay
-  const video = document.createElement("video");
-  video.src = `videos/${s.video}`;
-  video.playsInline = true;
-  video.autoplay = false;
-  video.muted = false;
-  video.className = "session-video";
-  video.poster = "images/video-placeholder.png";
+  if (s.video) {
+    const video = document.createElement("video");
+    video.src = "videos/" + s.video;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
 
-  const videoBox = document.createElement("div");
-  videoBox.className = "floating-video";
-  videoBox.appendChild(video);
-  document.body.appendChild(videoBox);
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
 
-  const playBtn = document.createElement("button");
-  playBtn.className = "custom-play-btn";
-  playBtn.title = "Play";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-  `;
-  videoBox.appendChild(playBtn);
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
 
-  playBtn.addEventListener("click", () => {
-    video.play();
-    playBtn.style.display = "none";
-  });
-  video.addEventListener("play", () => playBtn.style.display = "none");
+    playBtn.addEventListener("click", () => {
+      video.play();
+      playBtn.style.display = "none";
+    });
+    video.addEventListener("play", () => playBtn.style.display = "none");
 
-  // ** NACH Video-Ende: Avatar-Bild anzeigen und dann Sequenz starten **
-  video.addEventListener("ended", () => {
-    // Video aus dem Container entfernen
-    video.remove();
-    // Avatar anzeigen (Momo, oder was du willst)
-    const avatar = document.createElement("img");
-    avatar.src = "images/momo.png";
-    avatar.alt = "Momo";
-    avatar.className = "session-avatar";
-    avatar.style.width = "120px";
-    avatar.style.height = "120px";
-    avatar.style.borderRadius = "22px";
-    avatar.style.boxShadow = "0 4px 18px #ffe082b5";
-    avatar.style.display = "block";
-    avatar.style.margin = "0 auto";
-    videoBox.appendChild(avatar);
+    video.addEventListener("ended", () => {
+      // Avatar bleibt nach Video sichtbar
+      showAvatarInVideoBox(videoBox, "momo");
+      startAnimalSequence();
+    });
 
-    // Jetzt Tiergeräusch, Text, Auswahl etc.
+    // Vor dem Klick bleibt Video-Box sichtbar und NICHT entfernt!
+  } else {
     startAnimalSequence();
-  });
+  }
 
-  // 3) Tiergeräusch + Beschreibung + Auswahl (wie gehabt)
   function playRepeatedAudio(audioSrc, repeats, onComplete) {
     let count = 0;
     function playNext() {
@@ -1108,16 +1102,17 @@ if (s.type === "animals") {
   }
 
   function startAnimalSequence() {
+    // a) Geräusch wiederholen, dann Text+Choices
     playRepeatedAudio(`audio/${s.sound}`, s.repeats, () => {
       s.text.forEach((line, i) => {
-        textTimeouts.push(setTimeout(() => {
+        setTimeout(() => {
           const p = document.createElement("div");
           p.className = "animated-text";
           p.style.textAlign = "center";
           p.innerText = line;
           textArea.appendChild(p);
           if (i === s.text.length - 1) showChoices();
-        }, s.timings[i] * 1000));
+        }, s.timings[i] * 1000);
       });
     });
   }
@@ -1189,7 +1184,7 @@ if (s.type === "animals") {
         sticker.style.opacity = "0";
       }, 900);
 
-      createRewardStar();
+      createRewardStar && createRewardStar();
       if (typeof unlockSticker === "function") unlockSticker(0);
 
     } else {
@@ -1202,8 +1197,8 @@ if (s.type === "animals") {
       setTimeout(() => btn.classList.remove("shake"), 600);
     }
   }
-  // Kein return, weitere Module folgen!
 }
+
 
 
 
