@@ -1272,21 +1272,24 @@ else if (s.type === "animals") {
 
     // RICHTIGE AUSWAHL
     if (i === s.correct) {
-		document.querySelectorAll('.animals-buttons').forEach(e => e.remove());
-      // Beispiel für Bild-Tier:
-      showUniversalReward(
-        s.choices[i],               // Das richtige Bild (z.B. "images/animals/dog.png")
-        s.onCorrect || "",          // Text aus JSON, z.B. "I am a dog 🐶"
-        () => {                     // Was passieren soll beim Next-Button
-          document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
-          if (typeof unlockSticker === "function") unlockSticker(0); // Optional: Sticker
-          currentSession++;
-          renderSession(currentSession);
-        },
-        0 // Index für Star-Sticker, kannst du auch flexibel machen
-      );
-      return; // Wichtig, damit der Rest nicht mehr ausgeführt wird!
-    }
+  // Antwort-Buttons entfernen
+  document.querySelectorAll('.animals-buttons').forEach(e => e.remove());
+
+  showUniversalReward(
+    s.choices[i],
+    s.onCorrect || "",
+    () => {
+      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+      if (typeof unlockSticker === "function") unlockSticker(0);
+      if (musicAudio) { musicAudio.pause(); musicAudio.currentTime = 0; }
+      currentSession++;
+      renderSession(currentSession);
+    },
+    0
+  );
+  return;
+}
+
     // Falsch-Logik
   }  // ENDE FUNCTION handleChoice
 }
@@ -1410,33 +1413,21 @@ else if (s.type === "rhyme") {
     feedback.style.marginTop = "17px";
 
     if (i === s.correct) {
-		document.querySelectorAll('.animals-buttons').forEach(e => e.remove());
-      btn.style.background = "#b2dfdb";
-      feedback.classList.add("glitter");
-      feedback.textContent = s.onCorrect || "Yes, that's a rhyme!";
-      textArea.appendChild(feedback);
+  // Antwort-Buttons entfernen
+  document.querySelectorAll('.animals-buttons').forEach(e => e.remove());
 
-      // Richtige Antwort als Bild oder Wort, Reward-Container zeigen:
-      showUniversalReward(
-        s.choices[s.correct], // Das Wort oder Bild aus choices
-        s.onCorrect,          // Feedback-Text aus JSON
-        () => {
-          // Next-Button klickt: zum nächsten Session
-          currentSession++;
-          renderSession(currentSession);
-        }
-      );
-      // Sticker speichern
+  showUniversalReward(
+    s.choices[i],
+    s.onCorrect || "",
+    () => {
+      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
       if (typeof unlockSticker === "function") unlockSticker(0);
-    } else {
-      btn.style.background = "#ffd6d6";
-      feedback.textContent = s.onWrong || "Try again!";
-      textArea.appendChild(feedback);
-      btn.classList.add("shake");
-      setTimeout(() => btn.classList.remove("shake"), 600);
-    }
-  }
-
+      if (musicAudio) { musicAudio.pause(); musicAudio.currentTime = 0; }
+      currentSession++;
+      renderSession(currentSession);
+    },
+    0
+  );
   return;
 }
 
