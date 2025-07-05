@@ -203,24 +203,33 @@ html, body {
 }
 .rhyme-buttons {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;        /* Untereinander */
+  justify-content: center;       /* Vertikal zentriert (bei Bedarf) */
+  align-items: center;           /* Horizontal zentriert */
   gap: 16px;
   margin-top: 18px;
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   margin-left: auto;
   margin-right: auto;
 }
+
 .rhyme-buttons button {
-  width: 100%;
+  width: 100%;                   /* Maximal breit im Container */
   min-width: 120px;
-  max-width: 360px;
+  max-width: 340px;
   align-self: center;
   padding: 1em 0.7em;
   font-size: 1.18rem;
-  /* weitere Styles wie gewünscht */
+  font-weight: 700;
+  border: none;
+  background: #fffbe6;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px #81d4fa55;
+  text-align: center;
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  margin: 0;                     /* Kein zusätzlicher Außenabstand */
 }
 
 
