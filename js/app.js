@@ -864,7 +864,7 @@ playBtn.innerHTML = `
 
 // ==== Modul: SCHATTENRÄTSEL ====
 else if (s.type === "shadow") {
-  console.log("ANIMALS BLOCK:", s, "s.video=", s.video);
+  console.log("shadow BLOCK:", s, "s.video=", s.video);
   if (!s.video) alert("Achtung! s.video ist leer!");
   console.log("SHADOW-BLOCK WIRD AUSGEFÜHRT!", s);
   clearTimeouts();
