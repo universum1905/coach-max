@@ -1057,6 +1057,7 @@ if (s.type === "animals") {
     const videoBox = document.createElement("div");
     videoBox.className = "floating-video";
     videoBox.appendChild(video);
+	console.log("VIDEOBOX IN DOM", videoBox, document.body.contains(videoBox));
     document.body.appendChild(videoBox);
 
     const playBtn = document.createElement("button");
@@ -1199,7 +1200,7 @@ if (s.type === "animals") {
     }
   }
 }
-
+console.log("VIDEO ELEMENTE: ", document.querySelectorAll("video"));
 
 
 
