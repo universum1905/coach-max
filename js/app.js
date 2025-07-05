@@ -1026,40 +1026,47 @@ else if (s.type === "shadow") {
   // ==== Modul: ANIMALS ====
 // ==== Modul: ANIMALS ====
 else if (s.type === "animals") {
-  console.log("ANIMALS-BLOCK WIRD AUSGEFÜHRT!", s, s.video);
+  // Musik, Fortschritt, Aufräumen
+  if (window.animalsMusic) { window.animalsMusic.pause(); window.animalsMusic = null; }
+  if (s.music) {
+    window.animalsMusic = new Audio("audio/" + s.music);
+    window.animalsMusic.loop = true;
+    window.animalsMusic.volume = 0.16;
+    window.animalsMusic.play();
+  }
+
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
-  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  console.log("[ANIMALS] s=", s);
-  console.log("Test VIDEO im DOM:", document.querySelectorAll("video"));
-
-  // 1) Überschrift
+  // Überschrift
   const heading = document.createElement("h2");
   heading.className = "session-heading";
   heading.textContent = "Guess the Animal!";
   heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // 2) Video + Tap-to-Play Overlay
+  // Video
+  let videoBox = null;
   if (s.video) {
     const video = document.createElement("video");
-video.src = `videos/${s.video}`;
-video.setAttribute("controls", "true");
-video.setAttribute("controlsList", "nodownload");
-video.autoplay = false;
-video.muted = false;
-video.playsInline = true;
-video.poster = "images/video-placeholder.png";
-video.className = "session-video";
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "relative";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
 
-const videoBox = document.createElement("div");
-videoBox.className = "floating-video";
-videoBox.appendChild(video);
-document.body.appendChild(videoBox);
-
+    // Play-Button
     const playBtn = document.createElement("button");
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
@@ -1076,14 +1083,10 @@ document.body.appendChild(videoBox);
       playBtn.style.display = "none";
     });
     video.addEventListener("play", () => playBtn.style.display = "none");
-
     video.addEventListener("ended", () => {
-      // Avatar bleibt nach Video sichtbar
       showAvatarInVideoBox(videoBox, "momo");
       startAnimalSequence();
     });
-
-    // Vor dem Klick bleibt Video-Box sichtbar und NICHT entfernt!
   } else {
     startAnimalSequence();
   }
@@ -1104,9 +1107,14 @@ document.body.appendChild(videoBox);
   }
 
   function startAnimalSequence() {
-    // a) Geräusch wiederholen, dann Text+Choices
+    // Avatar (nach Video-Ende sichtbar)
+    if (!s.video) showAvatarInVideoBox(null, "momo");
+
+    // Tiergeräusch n-mal abspielen
     playRepeatedAudio(`audio/${s.sound}`, s.repeats, () => {
-      s.text.forEach((line, i) => {
+      // Textzeilen anzeigen
+      let lastTimeout = 0;
+      (s.text || []).forEach((line, i) => {
         setTimeout(() => {
           const p = document.createElement("div");
           p.className = "animated-text";
@@ -1114,12 +1122,15 @@ document.body.appendChild(videoBox);
           p.innerText = line;
           textArea.appendChild(p);
           if (i === s.text.length - 1) showChoices();
-        }, s.timings[i] * 1000);
+        }, (s.timings && s.timings[i] ? s.timings[i] * 1000 : i * 900));
+        lastTimeout = (s.timings && s.timings[i] ? s.timings[i] * 1000 : i * 900);
       });
+      if (!s.text || !s.text.length) showChoices();
     });
   }
 
   function showChoices() {
+    // Call To Action
     const cta = document.createElement("div");
     cta.className = "animated-text";
     cta.style.textAlign = "center";
@@ -1128,11 +1139,13 @@ document.body.appendChild(videoBox);
     cta.innerText = "Tap the right animal!";
     textArea.appendChild(cta);
 
+    // Button-Box
     const box = document.createElement("div");
     box.className = "animals-buttons";
     box.style.display = "flex";
     box.style.justifyContent = "center";
     box.style.gap = "16px";
+    box.style.marginBottom = "14px";
     textArea.appendChild(box);
 
     s.choices.forEach((src, i) => {
@@ -1142,70 +1155,101 @@ document.body.appendChild(videoBox);
       btn.style.animationDuration = "0.6s";
       btn.style.border = "none";
       btn.style.background = "none";
+      btn.style.position = "relative";
       btn.innerHTML = `<img src="${src}" style="width:72px;height:72px;border-radius:12px;">`;
-      btn.addEventListener("click", () => handleChoice(btn, i));
+      btn.addEventListener("click", () => handleChoice(btn, i, src));
       box.appendChild(btn);
     });
   }
 
-  function handleChoice(btn, i) {
-  const prev = document.querySelector(".wrong-msg");
-  if (prev) prev.remove();
+  function handleChoice(btn, i, imgSrc) {
+    const prev = document.querySelector(".wrong-msg");
+    if (prev) prev.remove();
 
-  new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
-  if (i === s.correct) {
-    // Nur richtige Auswahl stehen lassen
-    document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
-      if (idx !== i) b.remove();
-    });
-    // Visuelles Highlight
-    const img = btn.querySelector("img");
-    img.style.boxShadow = "0 0 12px 4px #ffd54f";
-    img.style.transform = "translateY(-18px) scale(1.1)";
-    img.style.transition = "transform 0.4s ease";
+    if (i === s.correct) {
+      // RICHTIG: nur das richtige Tier bleibt
+      document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
+        if (idx !== i) b.remove();
+      });
 
-    // „Yay!“-Label
-    const yay = document.createElement("div");
-    yay.className = "yay-over-image";
-    yay.textContent = "🎉 Yay!";
-    btn.appendChild(yay);
+      // Reward-Container (direkt im Body, unter dem Video-Container)
+      let rewardBox = document.createElement("div");
+      rewardBox.className = "animals-reward-container";
+      rewardBox.style.display = "flex";
+      rewardBox.style.flexDirection = "column";
+      rewardBox.style.alignItems = "center";
+      rewardBox.style.justifyContent = "center";
+      rewardBox.style.position = "relative";
+      rewardBox.style.margin = "32px auto 0 auto";
+      rewardBox.style.zIndex = "1";
 
-    // Sticker-Animation (wie gehabt)
-    const sticker = document.createElement("img");
-    sticker.src = "images/stickers/star.png";
-    sticker.className = "sticker-animate";
-    document.body.appendChild(sticker);
-    setTimeout(() => {
-      sticker.style.left = (window.innerWidth / 2 - 40) + "px";
-    }, 50);
-    setTimeout(() => {
-      sticker.style.transition = "all 0.6s ease-in";
-      sticker.style.left = (window.innerWidth - 100) + "px";
-      sticker.style.top = "10px";
-      sticker.style.opacity = "0";
-    }, 900);
+      // Das richtige Tierbild groß
+      let animalImg = document.createElement("img");
+      animalImg.src = imgSrc;
+      animalImg.style.width = "106px";
+      animalImg.style.height = "106px";
+      animalImg.style.borderRadius = "16px";
+      animalImg.style.boxShadow = "0 4px 22px #ffd54faa";
+      animalImg.style.marginBottom = "8px";
+      animalImg.style.background = "#fffbe6";
+      rewardBox.appendChild(animalImg);
 
-    // Belohnungscontainer, Next-Button etc. (wie gehabt)
-    createRewardStar && createRewardStar();
-    if (typeof unlockSticker === "function") unlockSticker(0);
+      // Yay-Label und Reward-Text
+      let yay = document.createElement("div");
+      yay.className = "yay-animated";
+      yay.innerHTML = "🎉 Yay!<br><span style='font-size:1.15rem'>Your reward</span>";
+      yay.style.textAlign = "center";
+      yay.style.marginBottom = "6px";
+      rewardBox.appendChild(yay);
 
-  } else {
-    // Nur Fehlermeldung, kein Blockieren!
-    const wrong = document.createElement("div");
-    wrong.className = "animated-text wrong-msg";
-    wrong.style.textAlign = "center";
-    wrong.innerText = s.onWrong || "Try again!";
-    textArea.appendChild(wrong);
-    btn.classList.add("shake");
-    setTimeout(() => btn.classList.remove("shake"), 600);
-    // Keine Buttons deaktivieren, kein Overlay – der Nutzer kann weiter klicken!
+      // Pulsierender Stern
+      let star = document.createElement("img");
+      star.src = "images/stickers/star.png";
+      star.style.width = "78px";
+      star.style.height = "78px";
+      star.style.margin = "10px 0 8px 0";
+      star.className = "reward-animated";
+      rewardBox.appendChild(star);
+
+      document.body.appendChild(rewardBox);
+
+      // Musik aus (optional)
+      if (window.animalsMusic) { window.animalsMusic.pause(); }
+
+      // Next-Button (unterhalb Reward-Box)
+      setTimeout(() => {
+        const nextBtn = document.createElement("button");
+        nextBtn.className = "centered-next-btn";
+        nextBtn.style.marginTop = "28px";
+        nextBtn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+        nextBtn.onclick = () => {
+          rewardBox.remove();
+          document.querySelectorAll(".centered-next-btn").forEach(e => e.remove());
+          currentSession++;
+          renderSession(currentSession);
+        };
+        rewardBox.parentNode.insertBefore(nextBtn, rewardBox.nextSibling);
+      }, 900);
+
+      // Optional: Sticker oder weitere Belohnung
+      if (typeof unlockSticker === "function") unlockSticker(s.successSticker || 0);
+
+    } else {
+      // FALSCH: kurzes Feedback, alles bleibt aktiv
+      const wrong = document.createElement("div");
+      wrong.className = "animated-text wrong-msg";
+      wrong.style.textAlign = "center";
+      wrong.innerText = s.onWrong || "Try again!";
+      textArea.appendChild(wrong);
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 600);
+    }
   }
+  return;
 }
 
-
-return;
-}
 
 
 
