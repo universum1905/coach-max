@@ -1034,6 +1034,7 @@ if (s.type === "animals") {
   textArea.innerHTML = "";
 
   console.log("[ANIMALS] s=", s);
+  console.log("Test VIDEO im DOM:", document.querySelectorAll("video"));
 
   // 1) Überschrift
   const heading = document.createElement("h2");
@@ -1045,20 +1046,19 @@ if (s.type === "animals") {
   // 2) Video + Tap-to-Play Overlay
   if (s.video) {
     const video = document.createElement("video");
-    video.src = "videos/" + s.video;
-    video.setAttribute("controls", "true");
-    video.setAttribute("controlsList", "nodownload");
-    video.autoplay = false;
-    video.muted = false;
-    video.playsInline = true;
-    video.poster = "images/video-placeholder.png";
-    video.className = "session-video";
+video.src = `videos/${s.video}`;
+video.setAttribute("controls", "true");
+video.setAttribute("controlsList", "nodownload");
+video.autoplay = false;
+video.muted = false;
+video.playsInline = true;
+video.poster = "images/video-placeholder.png";
+video.className = "session-video";
 
-    const videoBox = document.createElement("div");
-    videoBox.className = "floating-video";
-    videoBox.appendChild(video);
-	console.log("VIDEOBOX IN DOM", videoBox, document.body.contains(videoBox));
-    document.body.appendChild(videoBox);
+const videoBox = document.createElement("div");
+videoBox.className = "floating-video";
+videoBox.appendChild(video);
+document.body.appendChild(videoBox);
 
     const playBtn = document.createElement("button");
     playBtn.className = "custom-play-btn";
