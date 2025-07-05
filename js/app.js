@@ -4,6 +4,7 @@ const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Pr
 let DEV_START_SESSION = 0; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 console.log("app.js startet!");
+fetch("days/day1.json").then(r => r.json()).then(data => console.log("JSON geladen:", data));
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
