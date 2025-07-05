@@ -1024,8 +1024,8 @@ if (s.type === "shadow") {
 // Innerhalb von renderSession(idx), ersetze den bisherigen animals-Block durch:
 
   // ==== Modul: ANIMALS ====
+// ==== Modul: ANIMALS ====
 if (s.type === "animals") {
-  // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -1046,6 +1046,7 @@ if (s.type === "animals") {
   video.autoplay = false;
   video.muted = false;
   video.className = "session-video";
+  video.poster = "images/video-placeholder.png";
 
   const videoBox = document.createElement("div");
   videoBox.className = "floating-video";
@@ -1068,12 +1069,29 @@ if (s.type === "animals") {
     playBtn.style.display = "none";
   });
   video.addEventListener("play", () => playBtn.style.display = "none");
+
+  // ** NACH Video-Ende: Avatar-Bild anzeigen und dann Sequenz starten **
   video.addEventListener("ended", () => {
-    showAvatarInVideoBox(videoBox, "momo");
+    // Video aus dem Container entfernen
+    video.remove();
+    // Avatar anzeigen (Momo, oder was du willst)
+    const avatar = document.createElement("img");
+    avatar.src = "images/momo.png";
+    avatar.alt = "Momo";
+    avatar.className = "session-avatar";
+    avatar.style.width = "120px";
+    avatar.style.height = "120px";
+    avatar.style.borderRadius = "22px";
+    avatar.style.boxShadow = "0 4px 18px #ffe082b5";
+    avatar.style.display = "block";
+    avatar.style.margin = "0 auto";
+    videoBox.appendChild(avatar);
+
+    // Jetzt Tiergeräusch, Text, Auswahl etc.
     startAnimalSequence();
   });
 
-  // --- NEU: Sound n-mal und danach Text/Choices ---
+  // 3) Tiergeräusch + Beschreibung + Auswahl (wie gehabt)
   function playRepeatedAudio(audioSrc, repeats, onComplete) {
     let count = 0;
     function playNext() {
@@ -1089,9 +1107,7 @@ if (s.type === "animals") {
     playNext();
   }
 
-  // 4) Tiergeräusch + Beschreibung + Auswahl
   function startAnimalSequence() {
-    // a) Geräusch wiederholen, dann Text+Choices
     playRepeatedAudio(`audio/${s.sound}`, s.repeats, () => {
       s.text.forEach((line, i) => {
         textTimeouts.push(setTimeout(() => {
@@ -1106,7 +1122,6 @@ if (s.type === "animals") {
     });
   }
 
-  // 5) Auswahl-Buttons & Feedback
   function showChoices() {
     const cta = document.createElement("div");
     cta.className = "animated-text";
@@ -1187,9 +1202,9 @@ if (s.type === "animals") {
       setTimeout(() => btn.classList.remove("shake"), 600);
     }
   }
-
-  // Ende des ANIMALS-Blocks – kein return nötig
+  // Kein return, weitere Module folgen!
 }
+
 
 
   
