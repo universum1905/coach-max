@@ -1410,6 +1410,7 @@ else if (s.type === "rhyme") {
     feedback.style.marginTop = "17px";
 
     if (i === s.correct) {
+		document.querySelectorAll('.animals-buttons').forEach(e => e.remove());
       btn.style.background = "#b2dfdb";
       feedback.classList.add("glitter");
       feedback.textContent = s.onCorrect || "Yes, that's a rhyme!";
