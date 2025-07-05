@@ -451,7 +451,7 @@ playBtn.innerHTML = `
   }
 
   // ===== 2. BREATHING =====
-  if (s.type === "breathing") {
+  else if (s.type === "breathing") {
     try { 
       breathingMusic.currentTime = 0; 
       breathingMusic.play(); 
@@ -567,7 +567,7 @@ document.body.appendChild(btn);
   }
 
   // ===== 3. COUNTING =====
-  if (s.type === "counting") {
+  else if (s.type === "counting") {
   clearTimeouts();
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
@@ -728,7 +728,7 @@ playBtn.innerHTML = `
 
 
 // ==== 4. NEUES MODUL: MEMORY ====
-   if (s.type === "memory") {
+   else if (s.type === "memory") {
   // Speicher die Session-TextArea
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
@@ -857,13 +857,13 @@ playBtn.innerHTML = `
       };
       textArea.appendChild(btn);
     }, 2200);
-  }
+  
   return; // Wichtig!
-
+}
 
 
 // ==== Modul: SCHATTENRÄTSEL ====
-if (s.type === "shadow") {
+else if (s.type === "shadow") {
   console.log("ANIMALS BLOCK:", s, "s.video=", s.video);
   if (!s.video) alert("Achtung! s.video ist leer!");
   console.log("SHADOW-BLOCK WIRD AUSGEFÜHRT!", s);
@@ -1007,7 +1007,7 @@ if (s.type === "shadow") {
     }
   }
 
-  
+  return;
 }
 
 
@@ -1025,7 +1025,7 @@ if (s.type === "shadow") {
 
   // ==== Modul: ANIMALS ====
 // ==== Modul: ANIMALS ====
-if (s.type === "animals") {
+else if (s.type === "animals") {
   console.log("ANIMALS-BLOCK WIRD AUSGEFÜHRT!", s, s.video);
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -1200,6 +1200,7 @@ document.body.appendChild(videoBox);
       setTimeout(() => btn.classList.remove("shake"), 600);
     }
   }
+return;
 }
 console.log("VIDEO ELEMENTE: ", document.querySelectorAll("video"));
 
@@ -1209,7 +1210,7 @@ console.log("VIDEO ELEMENTE: ", document.querySelectorAll("video"));
 
 
   // ==== Modul: RHYME ====
-if (s.type === "rhyme") {
+else if (s.type === "rhyme") {
   // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -1401,12 +1402,12 @@ if (s.type === "rhyme") {
     }
   }
 
-  // kein return – danach folgen andere Module
+  return;
 }
 
 
   // ==== Modul: STORY ====
-if (s.type === "story") {
+else if (s.type === "story") {
   // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -1532,14 +1533,14 @@ if (s.type === "story") {
     showStoryTextLines();
   }
 
-  // Ende des STORY-Moduls – kein return nötig
+  return;
 }
 
 
 
   
 // ==== Modul: PATTERN ====
-if (s.type === "pattern") {
+else if (s.type === "pattern") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -1793,14 +1794,14 @@ if (s.type === "pattern") {
     }
   }
 
-  // Ende des PATTERN-Moduls – kein return nötig
+  return;
 }
 
 
 // --- START DES BLOCKS app.js: chatgpt-quiz ---
 // --- START DES BLOCKS app.js: chatgpt-quiz ---
 // ==== Modul: CHATGPT-QUIZ ====
-if (s.type === "chatgpt-quiz") {
+else if (s.type === "chatgpt-quiz") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -2025,7 +2026,7 @@ if (s.type === "chatgpt-quiz") {
     document.body.appendChild(next);
   }
 
-  // (kein return – danach folgen andere Module)
+  return;
 }
 
 
