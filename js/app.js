@@ -1212,75 +1212,86 @@ else if (s.type === "animals") {
   }
 
   function showAnimalsReward(imgSrc) {
-    // Erst alles bisherige außer Videocontainer und Progress entfernen
-    document.querySelectorAll(".animals-buttons, .wrong-msg, .animated-text").forEach(e => e.remove());
+  // Alles bisherige außer Video/Progress entfernen
+  document.querySelectorAll(".animals-buttons, .wrong-msg, .animated-text").forEach(e => e.remove());
 
-    // Reward-Container
-    const reward = document.createElement("div");
-    reward.className = "animals-reward-container";
-    reward.style.position = "fixed";
-    reward.style.left = "50%";
-    reward.style.transform = "translateX(-50%)";
-    reward.style.top = "15vh"; // etwas höher als Mitte
-    reward.style.zIndex = "500";
-    reward.style.background = "#fffbe6";
-    reward.style.padding = "26px 30px 30px 30px";
-    reward.style.borderRadius = "30px";
-    reward.style.boxShadow = "0 10px 40px #b2ebf2, 0 4px 24px #ffd54f99";
-    reward.style.display = "flex";
-    reward.style.flexDirection = "column";
-    reward.style.alignItems = "center";
-    reward.style.minWidth = "260px";
+  // Reward-Container
+  const reward = document.createElement("div");
+  reward.className = "animals-reward-container";
+  reward.style.position = "fixed";
+  reward.style.left = "50%";
+  reward.style.transform = "translateX(-50%)";
+  reward.style.top = "15vh";
+  reward.style.zIndex = "500";
+  reward.style.background = "#fffbe6";
+  reward.style.padding = "26px 30px 30px 30px";
+  reward.style.borderRadius = "30px";
+  reward.style.boxShadow = "0 10px 40px #b2ebf2, 0 4px 24px #ffd54f99";
+  reward.style.display = "flex";
+  reward.style.flexDirection = "column";
+  reward.style.alignItems = "center";
+  reward.style.minWidth = "260px";
 
-    // Richtiges Tierbild
-    const animalImg = document.createElement("img");
-    animalImg.src = imgSrc;
-    animalImg.style.width = "90px";
-    animalImg.style.height = "90px";
-    animalImg.style.objectFit = "cover";
-    animalImg.style.borderRadius = "22px";
-    animalImg.style.marginBottom = "14px";
-    reward.appendChild(animalImg);
-
-    // Yay & Reward Text
-    const yay = document.createElement("div");
-    yay.textContent = "🎉 Yay! Your Reward";
-    yay.style.fontWeight = "bold";
-    yay.style.fontSize = "1.45rem";
-    yay.style.color = "#ffa000";
-    yay.style.textShadow = "0 1px 6px #fff9c4";
-    yay.style.marginBottom = "11px";
-    reward.appendChild(yay);
-
-    // Pulsierender Stern
-    const star = document.createElement("img");
-    star.src = "images/stickers/star.png";
-    star.style.width = "72px";
-    star.style.height = "72px";
-    star.style.borderRadius = "16px";
-    star.style.margin = "0 0 4px 0";
-    star.className = "reward-animated";
-    reward.appendChild(star);
-
-    // Reward-Container in DOM einfügen
-    document.body.appendChild(reward);
-
-    // Next-Button darunter
-    setTimeout(() => {
-      const btn = document.createElement("button");
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.style.marginTop = "20px";
-      btn.onclick = () => {
-        document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
-        if (musicAudio) musicAudio.pause();
-        currentSession++;
-        renderSession(currentSession);
-      };
-      // Button UNTER dem Container, mittig platzieren
-      reward.insertAdjacentElement('afterend', btn);
-    }, 800);
+  // <- NEU: onCorrect-Text oberhalb vom Bild!
+  if (s.onCorrect) {
+    const correctText = document.createElement("div");
+    correctText.className = "animals-correct-text";
+    correctText.style.fontSize = "1.25rem";
+    correctText.style.fontWeight = "600";
+    correctText.style.marginBottom = "14px";
+    correctText.style.color = "#43a047";
+    correctText.innerText = s.onCorrect;
+    reward.appendChild(correctText);
   }
+
+  // Richtiges Tierbild
+  const animalImg = document.createElement("img");
+  animalImg.src = imgSrc;
+  animalImg.style.width = "90px";
+  animalImg.style.height = "90px";
+  animalImg.style.objectFit = "cover";
+  animalImg.style.borderRadius = "22px";
+  animalImg.style.marginBottom = "14px";
+  reward.appendChild(animalImg);
+
+  // Yay & Reward Text
+  const yay = document.createElement("div");
+  yay.textContent = "🎉 Yay! Your Reward";
+  yay.style.fontWeight = "bold";
+  yay.style.fontSize = "1.45rem";
+  yay.style.color = "#ffa000";
+  yay.style.textShadow = "0 1px 6px #fff9c4";
+  yay.style.marginBottom = "11px";
+  reward.appendChild(yay);
+
+  // Pulsierender Stern
+  const star = document.createElement("img");
+  star.src = "images/stickers/star.png";
+  star.style.width = "72px";
+  star.style.height = "72px";
+  star.style.borderRadius = "16px";
+  star.style.margin = "0 0 4px 0";
+  star.className = "reward-animated";
+  reward.appendChild(star);
+
+  // Reward-Container in DOM einfügen
+  document.body.appendChild(reward);
+
+  // Next-Button darunter
+  setTimeout(() => {
+    const btn = document.createElement("button");
+    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+    btn.className = "centered-next-btn";
+    btn.style.marginTop = "20px";
+    btn.onclick = () => {
+      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+      if (musicAudio) musicAudio.pause();
+      currentSession++;
+      renderSession(currentSession);
+    };
+    reward.insertAdjacentElement('afterend', btn);
+  }, 800);
+}
   return;
 }
 
