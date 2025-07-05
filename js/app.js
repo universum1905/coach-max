@@ -393,6 +393,9 @@ function handleOrientation() {
   const isPortrait = window.matchMedia("(orientation: portrait)").matches;
   const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+  // Prüfen ob notice & mainContent überhaupt existieren!
+  if (!notice || !mainContent) return;
+
   if (!mobile) {
     notice.style.display = "none";
     mainContent.style.display = "";
@@ -406,6 +409,7 @@ function handleOrientation() {
     mainContent.style.display = "none";
   }
 }
+
 window.addEventListener("orientationchange", handleOrientation);
 window.addEventListener("resize", handleOrientation);
 
