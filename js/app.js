@@ -1026,12 +1026,12 @@ else if (s.type === "shadow") {
   // ==== Modul: ANIMALS ====
 // ==== Modul: ANIMALS ====
 else if (s.type === "animals") {
-  // --- Musik starten, falls definiert
+  // Hintergrundmusik (falls definiert)
   let animalsMusic;
   if (s.music) {
     animalsMusic = new Audio("audio/" + s.music);
     animalsMusic.loop = true;
-    animalsMusic.volume = 0.25;
+    animalsMusic.volume = 0.22;
     animalsMusic.play();
   }
 
@@ -1041,31 +1041,34 @@ else if (s.type === "animals") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // 1) Überschrift
+  // Überschrift
   const heading = document.createElement("h2");
   heading.className = "session-heading";
   heading.textContent = "Guess the Animal!";
   heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // 2) Video-Container unten rechts (immer gleich, rund, mit Play-Button)
-  let videoBox = document.createElement("div");
+  // --- Videobox unten rechts wie bei Counting ---
+  let videoBox = document.createElement('div');
   videoBox.className = "floating-video";
-  videoBox.style.zIndex = "101"; // immer im Vordergrund
+  videoBox.style.position = "fixed";
+  videoBox.style.right = "24px";
+  videoBox.style.bottom = "18px";
+  videoBox.style.zIndex = "120"; // bleibt immer im Vordergrund!
   document.body.appendChild(videoBox);
 
-  let video = document.createElement("video");
-  video.src = `videos/${s.video}`;
-  video.setAttribute("controls", "true");
-  video.setAttribute("controlsList", "nodownload");
-  video.autoplay = false;
-  video.muted = false;
-  video.playsInline = true;
-  video.poster = "images/video-placeholder.png";
-  video.className = "session-video";
-  videoBox.appendChild(video);
+  let videoElement = document.createElement('video');
+  videoElement.src = `videos/${s.video}`;
+  videoElement.setAttribute("controls", "true");
+  videoElement.setAttribute("controlsList", "nodownload");
+  videoElement.autoplay = false;
+  videoElement.muted = false;
+  videoElement.playsInline = true;
+  videoElement.poster = "images/video-placeholder.png";
+  videoElement.className = "session-video";
+  videoBox.appendChild(videoElement);
 
-  const playBtn = document.createElement("button");
+  const playBtn = document.createElement('button');
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
   playBtn.innerHTML = `
@@ -1076,16 +1079,23 @@ else if (s.type === "animals") {
   `;
   videoBox.appendChild(playBtn);
 
-  playBtn.addEventListener("click", () => {
-    video.play();
+  playBtn.onclick = function () {
+    videoElement.play();
     playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  };
+  videoElement.addEventListener('play', () => {
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
   });
-  video.addEventListener("play", () => playBtn.style.display = "none");
-  video.addEventListener("pause", () => playBtn.style.display = "");
-  video.addEventListener("ended", () => {
-    // Nach dem Video das Avatar zeigen (im selben Container)
-    videoBox.innerHTML = ""; // Video & Play-Button entfernen
-    const avatarImg = document.createElement("img");
+  videoElement.addEventListener('pause', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoElement.addEventListener('ended', () => {
+    // Avatar nach Video-Ende IMMER unten rechts im Video-Container!
+    videoBox.innerHTML = ""; // Alles aus Box entfernen
+    const avatarImg = document.createElement('img');
     avatarImg.src = "images/momo.png";
     avatarImg.alt = "Momo";
     avatarImg.className = "session-avatar";
@@ -1094,14 +1104,13 @@ else if (s.type === "animals") {
     avatarImg.style.borderRadius = "50%";
     videoBox.appendChild(avatarImg);
 
-    // Dann Tiergeräusch, dann Texte, dann Auswahl
     startAnimalSequence();
   });
 
-  // Wenn kein Video, direkt Avatar zeigen und starten
+  // Falls kein Video, direkt Avatar zeigen
   if (!s.video) {
     videoBox.innerHTML = "";
-    const avatarImg = document.createElement("img");
+    const avatarImg = document.createElement('img');
     avatarImg.src = "images/momo.png";
     avatarImg.alt = "Momo";
     avatarImg.className = "session-avatar";
@@ -1109,6 +1118,7 @@ else if (s.type === "animals") {
     avatarImg.style.height = "100%";
     avatarImg.style.borderRadius = "50%";
     videoBox.appendChild(avatarImg);
+
     startAnimalSequence();
   }
 
@@ -1129,7 +1139,6 @@ else if (s.type === "animals") {
 
   function startAnimalSequence() {
     playRepeatedAudio(`audio/${s.sound}`, s.repeats, () => {
-      // Textzeilen nacheinander
       (s.text || []).forEach((line, i) => {
         setTimeout(() => {
           const p = document.createElement("div");
@@ -1173,7 +1182,6 @@ else if (s.type === "animals") {
   }
 
   function handleChoice(btn, i, src) {
-    // Falsche Auswahl: Nur Feedback, nichts blockieren
     if (i !== s.correct) {
       const prev = document.querySelector(".wrong-msg");
       if (prev) prev.remove();
@@ -1188,13 +1196,12 @@ else if (s.type === "animals") {
       return;
     }
 
-    // Richtige Auswahl:
-    // 1. Nur richtige Auswahl bleibt
+    // Nur richtige Auswahl bleibt stehen
     document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
       if (idx !== i) b.remove();
     });
 
-    // 2. Reward-Container in der Mitte
+    // Reward-Container in der Mitte, Bild nur im Container!
     const reward = document.createElement("div");
     reward.className = "animals-reward-container";
     reward.style.display = "flex";
@@ -1210,7 +1217,7 @@ else if (s.type === "animals") {
     reward.style.position = "relative";
     reward.style.zIndex = "1";
 
-    // Tierbild im Container (nur hier!)
+    // Tierbild im Container
     const animalImg = document.createElement("img");
     animalImg.src = src;
     animalImg.style.width = "96px";
@@ -1240,7 +1247,7 @@ else if (s.type === "animals") {
 
     textArea.appendChild(reward);
 
-    // 3. Next-Button zentriert UNTER dem Reward-Container
+    // Next-Button wie bei Counting unterhalb des Containers
     setTimeout(() => {
       const btnNext = document.createElement("button");
       btnNext.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
@@ -1256,10 +1263,8 @@ else if (s.type === "animals") {
       textArea.appendChild(btnNext);
     }, 1200);
 
-    // 4. Sticker freischalten
+    // Sticker freischalten
     if (typeof unlockSticker === "function") unlockSticker(0);
-
-    // 5. Belohnungs-Sound
     new Audio("audio/yay.mp3").play();
   }
 
