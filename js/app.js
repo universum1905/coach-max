@@ -3,6 +3,8 @@
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
 let DEV_START_SESSION = 0; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
+console.log("app.js startet!");
+
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
   return parseInt(params.get("day")) || 1;
@@ -1434,8 +1436,6 @@ else if (s.type === "rhyme") {
     0
   );
   return;
-  
-
   }
 }
 }
