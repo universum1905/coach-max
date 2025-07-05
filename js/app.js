@@ -862,6 +862,7 @@ playBtn.innerHTML = `
 
 // ==== Modul: SCHATTENRÄTSEL ====
 if (s.type === "shadow") {
+  console.log("SHADOW-BLOCK WIRD AUSGEFÜHRT!", s);
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
