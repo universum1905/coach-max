@@ -1026,6 +1026,7 @@ if (s.type === "shadow") {
   // ==== Modul: ANIMALS ====
 // ==== Modul: ANIMALS ====
 if (s.type === "animals") {
+  console.log("ANIMALS-BLOCK WIRD AUSGEFÜHRT!");
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
