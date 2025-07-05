@@ -1430,7 +1430,8 @@ else if (s.type === "rhyme") {
   );
   return;
 }
-
+  }
+}
 
 
   // ==== Modul: STORY ====
@@ -2058,7 +2059,7 @@ else if (s.type === "chatgpt-quiz") {
 
 
 
-}
+
 
 
 
@@ -2196,4 +2197,6 @@ function startDay(dayNr) {
   }
  // Weiterleitung zum entsprechenden Tag (z.B. day1.html, day2.html, ...)
 window.location.href = `day.html?day=${dayNr}`;
+}
+
 }
