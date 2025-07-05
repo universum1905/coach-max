@@ -1045,8 +1045,7 @@ else if (s.type === "animals") {
 
   // 2) Video + Tap-to-Play Overlay
   if (s.video) {
-    alert("JETZT kommt Video!");
-	const video = document.createElement("video");
+    const video = document.createElement("video");
 video.src = `videos/${s.video}`;
 video.setAttribute("controls", "true");
 video.setAttribute("controlsList", "nodownload");
@@ -1203,10 +1202,6 @@ document.body.appendChild(videoBox);
 return;
 }
 
-
-
-
-  
 
 
   // ==== Modul: RHYME ====
