@@ -555,3 +555,24 @@ html, body {
   margin-bottom: 10px;
   animation: yay-bounce 1.6s infinite;
 }
+.floating-video {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 1100;
+  width: 180px;
+  max-width: 38vw;
+  min-width: 120px;
+  height: auto;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.session-video {
+  width: 100%;
+  border-radius: 18px;
+  box-shadow: 0 6px 28px #ffd54faa;
+  background: #fffbe6;
+  z-index: 1100;
+}
