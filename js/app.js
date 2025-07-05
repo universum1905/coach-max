@@ -877,7 +877,8 @@ if (s.type === "shadow") {
 
   // Video-Erklärung (optional)
   if (s.video) {
-    const video = document.createElement('video');
+    console.log("SHADOW-BLOCK: s.video = ", s.video);
+	const video = document.createElement('video');
     video.src = `videos/${s.video}`;
     video.setAttribute("controls", "true");
     video.setAttribute("controlsList", "nodownload");
