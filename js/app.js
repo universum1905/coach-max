@@ -862,12 +862,9 @@ playBtn.innerHTML = `
 
 // ==== Modul: SCHATTENRÄTSEL ====
 if (s.type === "shadow") {
-	console.log("SHADOW-BLOCK wird ausgeführt:", s);
-  // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
-
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
@@ -878,28 +875,26 @@ if (s.type === "shadow") {
   heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // 2) Video-Container (immer an die SessionArea hängen)
+  // 2) Video wie in Counting
+  let videoBox = null;
   if (s.video) {
-    const videoBox = document.createElement("div");
+    const videoElement = document.createElement('video');
+    videoElement.src = `videos/${s.video}`;
+    videoElement.setAttribute("controls", "true");
+    videoElement.setAttribute("controlsList", "nodownload");
+    videoElement.autoplay = false;
+    videoElement.muted = false;
+    videoElement.playsInline = true;
+    videoElement.poster = "images/video-placeholder.png";
+    videoElement.className = "session-video";
+
+    videoBox = document.createElement('div');
     videoBox.className = "floating-video";
-    textArea.appendChild(videoBox);
+    videoBox.appendChild(videoElement);
+    document.body.appendChild(videoBox);
 
-    // 2a) Video-Element
-    const video = document.createElement("video");
-    video.src = `videos/${s.video}`;
-    video.setAttribute("controls", "true");
-    video.setAttribute("controlsList", "nodownload");
-    video.autoplay = false;
-    video.muted = false;
-    video.playsInline = true;
-    video.poster = "images/video-placeholder.png";
-    video.className = "session-video";
-    // erst mal keine Klicks erlauben, bis Play gedrückt
-    video.style.pointerEvents = "none";
-    videoBox.appendChild(video);
-
-    // 2b) Play-Overlay-Button
-    const playBtn = document.createElement("button");
+    // Play-Overlay
+    const playBtn = document.createElement('button');
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
     playBtn.innerHTML = `
@@ -908,35 +903,31 @@ if (s.type === "shadow") {
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
     `;
-    videoBox.appendChild(playBtn);
 
-    // 2c) Klick aufs Overlay startet Video & schaltet pointer-events frei
-    playBtn.addEventListener("click", () => {
-      video.play();
+    playBtn.onclick = function() {
+      videoElement.play();
       playBtn.style.display = "none";
-      video.style.pointerEvents = "auto";
-    });
-
-    // Wenn jemand via Native Controls spielt/pausiert
-    video.addEventListener("play", () => {
+      videoElement.style.pointerEvents = "auto";
+    };
+    videoElement.addEventListener('play', () => {
       playBtn.style.display = "none";
-      video.style.pointerEvents = "auto";
+      videoElement.style.pointerEvents = "auto";
     });
-    video.addEventListener("pause", () => {
+    videoElement.addEventListener('pause', () => {
       playBtn.style.display = "";
-      video.style.pointerEvents = "none";
+      videoElement.style.pointerEvents = "none";
     });
-
-    // 2d) Nach Video-Ende: Avatar + Quiz
-    video.addEventListener("ended", () => {
+    videoElement.addEventListener('ended', () => {
       showAvatarInVideoBox(videoBox, "luna");
       renderShadowQuiz();
     });
 
-    return; // Quiz erst nach Video-Ende
+    videoBox.appendChild(playBtn);
+
+    return; // WICHTIG: Rest erst NACH Video-Ende!
   }
 
-  // 3) Kein Video-Fall: sofort Quiz starten
+  // Kein Video → sofort Quiz starten
   renderShadowQuiz();
 
   // ===== Funktion: Shadow-Quiz =====
