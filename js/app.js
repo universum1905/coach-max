@@ -1292,7 +1292,7 @@ else if (s.type === "animals") {
     0
   );
   return;
-  } else {
+  
 }
 
     // Falsch-Logik
@@ -1434,7 +1434,7 @@ else if (s.type === "rhyme") {
     0
   );
   return;
-  } else {
+  
 
   }
 }
