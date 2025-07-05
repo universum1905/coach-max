@@ -1149,56 +1149,112 @@ document.body.appendChild(videoBox);
   }
 
   function handleChoice(btn, i) {
-    const prev = document.querySelector(".wrong-msg");
-    if (prev) prev.remove();
+  const prev = document.querySelector(".wrong-msg");
+  if (prev) prev.remove();
 
-    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+  new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
-    if (i === s.correct) {
-      // Nur richtige Auswahl stehen lassen
-      document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
-        if (idx !== i) b.remove();
-      });
-      // Visuelles Highlight
-      const img = btn.querySelector("img");
-      img.style.boxShadow = "0 0 12px 4px #ffd54f";
-      img.style.transform = "translateY(-18px) scale(1.1)";
-      img.style.transition = "transform 0.4s ease";
+  if (i === s.correct) {
+    // Nur richtige Auswahl stehen lassen
+    document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
+      if (idx !== i) b.remove();
+    });
 
-      // „Yay!“-Label
-      const yay = document.createElement("div");
-      yay.className = "yay-over-image";
-      yay.textContent = "🎉 Yay!";
-      btn.appendChild(yay);
+    // Remove „Yay!“ label, falls noch vorhanden (Sicherheit)
+    const yayOld = btn.querySelector('.yay-over-image');
+    if (yayOld) yayOld.remove();
 
-      // Sticker-Animation
-      const sticker = document.createElement("img");
-      sticker.src = "images/stickers/star.png";
-      sticker.className = "sticker-animate";
-      document.body.appendChild(sticker);
-      setTimeout(() => {
-        sticker.style.left = (window.innerWidth / 2 - 40) + "px";
-      }, 50);
-      setTimeout(() => {
-        sticker.style.transition = "all 0.6s ease-in";
-        sticker.style.left = (window.innerWidth - 100) + "px";
-        sticker.style.top = "10px";
-        sticker.style.opacity = "0";
-      }, 900);
+    // Das Bild extrahieren
+    const imgSrc = btn.querySelector("img").src;
 
-      createRewardStar && createRewardStar();
-      if (typeof unlockSticker === "function") unlockSticker(0);
+    // Belohnungs-/Reward-Container erstellen
+    const rewardBox = document.createElement("div");
+    rewardBox.style.position = "fixed";
+    rewardBox.style.left = "50%";
+    rewardBox.style.transform = "translateX(-50%)";
+    rewardBox.style.bottom = "120px";
+    rewardBox.style.display = "flex";
+    rewardBox.style.flexDirection = "column";
+    rewardBox.style.alignItems = "center";
+    rewardBox.style.zIndex = "1000";
+    rewardBox.style.background = "#fffbe6";
+    rewardBox.style.borderRadius = "30px";
+    rewardBox.style.boxShadow = "0 4px 18px #ffd54faa";
+    rewardBox.style.padding = "28px 38px 32px 38px";
+    rewardBox.style.animation = "pop-in 0.38s";
 
-    } else {
-      const wrong = document.createElement("div");
-      wrong.className = "animated-text wrong-msg";
-      wrong.style.textAlign = "center";
-      wrong.innerText = s.onWrong || "Try again!";
-      textArea.appendChild(wrong);
-      btn.classList.add("shake");
-      setTimeout(() => btn.classList.remove("shake"), 600);
-    }
+    // Tierbild im Container, groß
+    const bigImg = document.createElement("img");
+    bigImg.src = imgSrc;
+    bigImg.style.width = "110px";
+    bigImg.style.height = "110px";
+    bigImg.style.objectFit = "cover";
+    bigImg.style.borderRadius = "22px";
+    bigImg.style.marginBottom = "12px";
+    rewardBox.appendChild(bigImg);
+
+    // Your Reward Text
+    const rewardText = document.createElement("div");
+    rewardText.textContent = "Your reward";
+    rewardText.style.fontSize = "1.26rem";
+    rewardText.style.fontWeight = "700";
+    rewardText.style.color = "#faaf08";
+    rewardText.style.marginBottom = "6px";
+    rewardBox.appendChild(rewardText);
+
+    // Sticker (Stern)
+    const rewardSticker = document.createElement("img");
+    rewardSticker.src = "images/stickers/star.png";
+    rewardSticker.style.width = "64px";
+    rewardSticker.style.height = "64px";
+    rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
+    rewardSticker.style.borderRadius = "20px";
+    rewardSticker.style.marginBottom = "7px";
+    rewardBox.appendChild(rewardSticker);
+
+    document.body.appendChild(rewardBox);
+
+    // Sticker-Animation (optional, bleibt wie gehabt)
+    const sticker = document.createElement("img");
+    sticker.src = "images/stickers/star.png";
+    sticker.className = "sticker-animate";
+    document.body.appendChild(sticker);
+    setTimeout(() => {
+      sticker.style.left = (window.innerWidth / 2 - 40) + "px";
+    }, 50);
+    setTimeout(() => {
+      sticker.style.transition = "all 0.6s ease-in";
+      sticker.style.left = (window.innerWidth - 100) + "px";
+      sticker.style.top = "10px";
+      sticker.style.opacity = "0";
+    }, 900);
+
+    // Next-Button (zentriert)
+    setTimeout(() => {
+      const nextBtn = document.createElement("button");
+      nextBtn.className = "centered-next-btn";
+      nextBtn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      nextBtn.onclick = () => {
+        document.querySelectorAll(".centered-next-btn, div[style*='fixed'], .sticker-animate").forEach(e => e.remove());
+        currentSession++;
+        renderSession(currentSession);
+      };
+      rewardBox.appendChild(nextBtn);
+    }, 1200);
+
+    // Sticker freischalten
+    if (typeof unlockSticker === "function") unlockSticker(0);
+
+  } else {
+    const wrong = document.createElement("div");
+    wrong.className = "animated-text wrong-msg";
+    wrong.style.textAlign = "center";
+    wrong.innerText = s.onWrong || "Try again!";
+    textArea.appendChild(wrong);
+    btn.classList.add("shake");
+    setTimeout(() => btn.classList.remove("shake"), 600);
   }
+}
 return;
 }
 
