@@ -508,4 +508,12 @@ html, body {
   animation: reward-glow 2s ease-in-out infinite;
   transition: transform 0.3s ease;
 }
-
+@keyframes reward-pulse {
+  0%   { transform: scale(1.04); box-shadow: 0 0 32px #fff9c4; }
+  100% { transform: scale(1.13); box-shadow: 0 0 42px 8px #ffe082; }
+}
+@keyframes reward-glow {
+  0% { filter: drop-shadow(0 0 0 #ffe082); }
+  50% { filter: drop-shadow(0 0 18px #ffe082); }
+  100% { filter: drop-shadow(0 0 0 #ffe082); }
+}
