@@ -517,3 +517,7 @@ html, body {
   50% { filter: drop-shadow(0 0 18px #ffe082); }
   100% { filter: drop-shadow(0 0 0 #ffe082); }
 }
+/* wird im JS gesetzt: */
+.reward-star-animals {
+  animation: reward-pulse 1.25s infinite alternate, reward-glow 2s infinite linear;
+}
