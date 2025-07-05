@@ -322,9 +322,9 @@ function showAvatarInVideoBox(videoBox, avatarName, avatarClass = "avatar") {
 
 // Session mit Video, Play-Overlay, animiertem Text und fixiertem Next-Button
 function renderSession(idx) {
+  const s = sessions[idx]; // <-- Das MUSS als allererstes kommen!
   console.log("=== renderSession", idx, "TYPE:", s.type, s);
   window.renderedSession = s; // Damit du im Browser jederzeit nachsehen kannst
-  const s = sessions[idx];
   console.log("Session-Objekt:", s);
   try { breathingMusic.pause(); breathingMusic.currentTime = 0; } catch(e) {}
   clearTimeouts();
