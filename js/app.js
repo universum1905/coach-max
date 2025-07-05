@@ -1045,7 +1045,8 @@ if (s.type === "animals") {
 
   // 2) Video + Tap-to-Play Overlay
   if (s.video) {
-    const video = document.createElement("video");
+    alert("JETZT kommt Video!");
+	const video = document.createElement("video");
 video.src = `videos/${s.video}`;
 video.setAttribute("controls", "true");
 video.setAttribute("controlsList", "nodownload");
