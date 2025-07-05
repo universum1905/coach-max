@@ -1154,19 +1154,24 @@ document.body.appendChild(videoBox);
 
   new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
-  // Nur richtige Auswahl stehen lassen
-  document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
-    if (idx !== i) b.remove();
-  });
-
   if (i === s.correct) {
-    // VISUELLES HIGHLIGHT für das Bild
+    // Nur richtige Auswahl stehen lassen
+    document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
+      if (idx !== i) b.remove();
+    });
+    // Visuelles Highlight
     const img = btn.querySelector("img");
-    img.style.boxShadow = "0 0 16px 6px #ffd54f";
-    img.style.transform = "translateY(-16px) scale(1.12)";
-    img.style.transition = "transform 0.4s cubic-bezier(.36,1.6,.24,1.01), box-shadow 0.4s";
+    img.style.boxShadow = "0 0 12px 4px #ffd54f";
+    img.style.transform = "translateY(-18px) scale(1.1)";
+    img.style.transition = "transform 0.4s ease";
 
-    // FLIEGENDER STERN-Effekt wie gewohnt
+    // „Yay!“-Label
+    const yay = document.createElement("div");
+    yay.className = "yay-over-image";
+    yay.textContent = "🎉 Yay!";
+    btn.appendChild(yay);
+
+    // Sticker-Animation (wie gehabt)
     const sticker = document.createElement("img");
     sticker.src = "images/stickers/star.png";
     sticker.className = "sticker-animate";
@@ -1175,85 +1180,18 @@ document.body.appendChild(videoBox);
       sticker.style.left = (window.innerWidth / 2 - 40) + "px";
     }, 50);
     setTimeout(() => {
-      sticker.style.transition = "all 0.6s cubic-bezier(.36,1.6,.24,1.01)";
+      sticker.style.transition = "all 0.6s ease-in";
       sticker.style.left = (window.innerWidth - 100) + "px";
       sticker.style.top = "10px";
       sticker.style.opacity = "0";
     }, 900);
 
-    // REWARD-CONTAINER
-    const rewardBox = document.createElement("div");
-    rewardBox.style.position = "fixed";
-    rewardBox.style.left = "50%";
-    rewardBox.style.transform = "translateX(-50%)";
-    rewardBox.style.bottom = "140px";
-    rewardBox.style.zIndex = "201";
-    rewardBox.style.display = "flex";
-    rewardBox.style.flexDirection = "column";
-    rewardBox.style.alignItems = "center";
-    rewardBox.style.background = "rgba(255,252,238,0.98)";
-    rewardBox.style.boxShadow = "0 4px 20px #ffe082a0";
-    rewardBox.style.borderRadius = "22px";
-    rewardBox.style.padding = "24px 28px 20px 28px";
-    rewardBox.style.marginTop = "0";
-    rewardBox.style.animation = "fade-in-scale 0.9s cubic-bezier(.32,1.5,.51,1.01)";
-    rewardBox.style.pointerEvents = "none"; // Kein Click im Container selbst
-
-    // Das korrekte Tierbild
-    const rewardImg = document.createElement("img");
-    rewardImg.src = btn.querySelector("img").src;
-    rewardImg.alt = "Reward Animal";
-    rewardImg.style.width = "80px";
-    rewardImg.style.height = "80px";
-    rewardImg.style.borderRadius = "16px";
-    rewardImg.style.boxShadow = "0 0 24px #ffd54f44";
-    rewardImg.style.marginBottom = "13px";
-    rewardBox.appendChild(rewardImg);
-
-    // Text
-    const rewardText = document.createElement("div");
-    rewardText.innerHTML = "🎉 Yay!<br>Your reward";
-    rewardText.style.fontWeight = "bold";
-    rewardText.style.fontSize = "1.25rem";
-    rewardText.style.color = "#faaf08";
-    rewardText.style.textAlign = "center";
-    rewardText.style.textShadow = "0 2px 8px #fffde7";
-    rewardBox.appendChild(rewardText);
-
-    // PULSIERENDER STERN im Container (wie bei Pattern/Rhyme)
-    const rewardStar = document.createElement("img");
-    rewardStar.src = "images/stickers/star.png";
-    rewardStar.style.width = "68px";
-    rewardStar.style.height = "68px";
-    rewardStar.style.margin = "14px 0 0";
-    rewardStar.style.boxShadow = "0 4px 18px #ffe082b5";
-    rewardStar.style.borderRadius = "22px";
-    rewardStar.style.background = "#fffbe6";
-    rewardStar.style.animation = "reward-pulse 1.25s infinite alternate, reward-glow 2s infinite linear";
-    rewardBox.appendChild(rewardStar);
-
-    document.body.appendChild(rewardBox);
-
-    // NEXT BUTTON unterhalb des Reward-Containers
-    setTimeout(() => {
-      const next = document.createElement("button");
-      next.className = "centered-next-btn";
-      next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      next.style.margin = "22px 0 0";
-      next.addEventListener("click", () => {
-        document.querySelectorAll(".centered-next-btn, .sticker-animate, div[style*='fixed']").forEach(e => e.remove());
-        currentSession++;
-        renderSession(currentSession);
-      });
-      // Direkt UNTER RewardBox platzieren
-      rewardBox.insertAdjacentElement("afterend", next);
-    }, 900);
-
-    // Sticker im Speicher freischalten
+    // Belohnungscontainer, Next-Button etc. (wie gehabt)
+    createRewardStar && createRewardStar();
     if (typeof unlockSticker === "function") unlockSticker(0);
 
   } else {
-    // Falsch: Feedback wie gehabt
+    // Nur Fehlermeldung, kein Blockieren!
     const wrong = document.createElement("div");
     wrong.className = "animated-text wrong-msg";
     wrong.style.textAlign = "center";
@@ -1261,8 +1199,10 @@ document.body.appendChild(videoBox);
     textArea.appendChild(wrong);
     btn.classList.add("shake");
     setTimeout(() => btn.classList.remove("shake"), 600);
+    // Keine Buttons deaktivieren, kein Overlay – der Nutzer kann weiter klicken!
   }
 }
+
 
 return;
 }
