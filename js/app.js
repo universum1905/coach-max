@@ -1026,7 +1026,7 @@ if (s.type === "shadow") {
   // ==== Modul: ANIMALS ====
 // ==== Modul: ANIMALS ====
 if (s.type === "animals") {
-  console.log("ANIMALS-BLOCK WIRD AUSGEFÜHRT!");
+  console.log("ANIMALS-BLOCK WIRD AUSGEFÜHRT!", s, s.video);
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -2054,6 +2054,7 @@ function finishDay() {
 
 
 window.onload = async () => {
+  document.getElementById('mainContent').style.display = '';
   try {
     console.log("Lade JSON von", jsonURL);
     const res = await fetch(jsonURL);
