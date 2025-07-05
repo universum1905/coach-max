@@ -1152,7 +1152,7 @@ document.body.appendChild(videoBox);
   const prev = document.querySelector(".wrong-msg");
   if (prev) prev.remove();
 
-  new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"`).play();
+  new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
   // Nur richtige Auswahl stehen lassen
   document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
