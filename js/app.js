@@ -893,7 +893,7 @@ if (s.type === "shadow") {
     videoBox = document.createElement('div');
     videoBox.className = "floating-video";
     videoBox.appendChild(videoElement);
-    document.body.appendChild(videoBox);
+    textArea.appendChild(videoBox);
 	setTimeout(() => { debugger; }, 200);
 
     // Play-Overlay
