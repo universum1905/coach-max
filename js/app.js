@@ -862,39 +862,33 @@ playBtn.innerHTML = `
 
 // ==== Modul: SCHATTENRÄTSEL ====
 if (s.type === "shadow") {
-  console.log("===> ENTER SHADOW BLOCK", s);
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
-  textArea.innerHTML = "";
 
-  // 1) Überschrift
-  const heading = document.createElement("h2");
+  // Überschrift
+  const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = "Shadow Match!";
-  heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // 2) Video wie in Counting
-  let videoBox = null;
+  // Video-Erklärung (optional)
   if (s.video) {
-	console.log("===> SHADOW VIDEO-BLOCK", s.video);  
-    const videoElement = document.createElement('video');
-    videoElement.src = `videos/${s.video}`;
-    videoElement.setAttribute("controls", "true");
-    videoElement.setAttribute("controlsList", "nodownload");
-    videoElement.autoplay = false;
-    videoElement.muted = false;
-    videoElement.playsInline = true;
-    videoElement.poster = "images/video-placeholder.png";
-    videoElement.className = "session-video";
-
-    videoBox = document.createElement('div');
+    const video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+    const videoBox = document.createElement("div");
     videoBox.className = "floating-video";
-    videoBox.appendChild(videoElement);
-    textArea.appendChild(videoBox);
-	setTimeout(() => { debugger; }, 200);
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
 
     // Play-Overlay
     const playBtn = document.createElement('button');
@@ -906,37 +900,35 @@ if (s.type === "shadow") {
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
     `;
-
-    playBtn.onclick = function() {
-      videoElement.play();
-      playBtn.style.display = "none";
-      videoElement.style.pointerEvents = "auto";
-    };
-    videoElement.addEventListener('play', () => {
-      playBtn.style.display = "none";
-      videoElement.style.pointerEvents = "auto";
-    });
-    videoElement.addEventListener('pause', () => {
-      playBtn.style.display = "";
-      videoElement.style.pointerEvents = "none";
-    });
-    videoElement.addEventListener('ended', () => {
-      showAvatarInVideoBox(videoBox, "luna");
-      renderShadowQuiz();
-    });
-
     videoBox.appendChild(playBtn);
 
-    return; console.log("===> RETURN SHADOW-VIDEO");  // WICHTIG: Rest erst NACH Video-Ende!
+    playBtn.onclick = () => {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      showAvatarInVideoBox(videoBox, "luna");
+      setTimeout(() => { renderShadowQuiz(); }, 400);
+    });
+
+    
+  } else {
+    renderShadowQuiz(); // Kein Video – direkt starten
   }
 
-  console.log("===> SHADOW NO VIDEO, SHOW QUIZ");   // Kein Video → sofort Quiz starten
-  renderShadowQuiz();
-
-  // ===== Funktion: Shadow-Quiz =====
+  // === Funktion: Shadow-Quiz anzeigen ===
   function renderShadowQuiz() {
     // Schattenbild
-    const shadowImg = document.createElement("img");
+    const shadowImg = document.createElement('img');
     shadowImg.src = s.shadow;
     shadowImg.className = "shadow-image";
     shadowImg.style.width = "90px";
@@ -944,24 +936,72 @@ if (s.type === "shadow") {
     shadowImg.style.margin = "18px 0";
     textArea.appendChild(shadowImg);
 
-    // Auswahl-Buttons
-    const choices = document.createElement("div");
+    // Antwort-Buttons
+    const choices = document.createElement('div');
     choices.className = "shadow-buttons";
     textArea.appendChild(choices);
 
-    s.choices.forEach((imgSrc, i) => {
-      const btn = document.createElement("button");
-      btn.innerHTML = `<img src="${imgSrc}" alt="choice" style="width:60px;height:60px;">`;
-      btn.addEventListener("click", () => {
-        new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
-        // … Feedback + Sticker-Animation wie gehabt …
-        if (i === s.correct && typeof unlockSticker === "function") {
-          unlockSticker(s.successSticker);
-        }
-      });
+    s.choices.forEach((img, i) => {
+      const btn = document.createElement('button');
+      btn.innerHTML = `<img src="${img}" alt="choice" style="width:60px;height:60px;">`;
+      btn.onclick = () => handleChoice(btn, i);
       choices.appendChild(btn);
     });
+
+    function handleChoice(btn, i) {
+      new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+
+      const prev = document.querySelector(".shadow-feedback");
+      if (prev) prev.remove();
+
+      const feedback = document.createElement("div");
+      feedback.className = "animated-text shadow-feedback";
+      feedback.style.textAlign = "center";
+      feedback.style.marginTop = "17px";
+
+      if (i === s.correct) {
+        btn.style.border = "2px solid #43a047";
+        feedback.classList.add("glitter");
+        feedback.textContent = s.onCorrect || "Correct! Sticker unlocked!";
+        textArea.appendChild(feedback);
+
+        // ⭐️ Sticker fliegt rein
+        const sticker = document.createElement("img");
+        sticker.src = "images/stickers/star.png";
+        sticker.className = "sticker-animate";
+        document.body.appendChild(sticker);
+        setTimeout(() => {
+          const mid = window.innerWidth / 2 - 40;
+          sticker.style.left = mid + "px";
+        }, 50);
+        setTimeout(() => {
+          sticker.style.transition = "all 0.6s ease-in";
+          sticker.style.left = (window.innerWidth - 100) + "px";
+          sticker.style.top = "10px";
+          sticker.style.opacity = "0";
+        }, 900);
+
+        // 🎁 Belohnung & Next-Button
+        setTimeout(() => {
+          createRewardStar(); // Funktion zeigt RewardBox + Next
+        }, 1600);
+
+        if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
+          unlockSticker(s.successSticker);
+        }
+
+      } else {
+        btn.style.border = "2px solid #d32f2f";
+        feedback.textContent = s.onWrong || "Try again!";
+        textArea.appendChild(feedback);
+        btn.classList.add("shake");
+        setTimeout(() => btn.classList.remove("shake"), 600);
+        setTimeout(() => { btn.style.border = "2px solid #ffd54f"; }, 900);
+      }
+    }
   }
+
+  
 }
 
 
