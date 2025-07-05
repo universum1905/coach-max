@@ -1202,7 +1202,7 @@ document.body.appendChild(videoBox);
   }
 return;
 }
-console.log("VIDEO ELEMENTE: ", document.querySelectorAll("video"));
+
 
 
 
