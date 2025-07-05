@@ -286,6 +286,105 @@ function clearTimeouts() {
   textTimeouts = [];
 }
 
+
+function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = null, stickerIdx = 0) {
+  document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+
+  const reward = document.createElement("div");
+  reward.className = "animals-reward-container";
+  reward.style.position = "fixed";
+  reward.style.left = "50%";
+  reward.style.transform = "translateX(-50%)";
+  reward.style.top = "15vh";
+  reward.style.zIndex = "500";
+  reward.style.background = "#fffbe6";
+  reward.style.padding = "26px 30px 30px 30px";
+  reward.style.borderRadius = "30px";
+  reward.style.boxShadow = "0 10px 40px #b2ebf2, 0 4px 24px #ffd54f99";
+  reward.style.display = "flex";
+  reward.style.flexDirection = "column";
+  reward.style.alignItems = "center";
+  reward.style.minWidth = "260px";
+
+  if (correctTextStr) {
+    const correctText = document.createElement("div");
+    correctText.className = "animals-correct-text";
+    correctText.innerText = correctTextStr;
+    correctText.style.marginBottom = "9px";
+    correctText.style.fontSize = "1.1rem";
+    correctText.style.color = "#444";
+    correctText.style.textAlign = "center";
+    reward.appendChild(correctText);
+  }
+
+  // Bild oder Wort
+  if (imgSrcOrText && typeof imgSrcOrText === "string" && imgSrcOrText.startsWith("images/")) {
+    const img = document.createElement("img");
+    img.src = imgSrcOrText;
+    img.style.width = "90px";
+    img.style.height = "90px";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "22px";
+    img.style.marginBottom = "14px";
+    reward.appendChild(img);
+  } else if (imgSrcOrText) {
+    const word = document.createElement("div");
+    word.textContent = imgSrcOrText;
+    word.style.fontSize = "2.1rem";
+    word.style.fontWeight = "bold";
+    word.style.color = "#44a047";
+    word.style.marginBottom = "16px";
+    reward.appendChild(word);
+  }
+
+  // Yay & Reward
+  const yay = document.createElement("div");
+  yay.textContent = "🎉 Yay! Your Reward";
+  yay.style.fontWeight = "bold";
+  yay.style.fontSize = "1.45rem";
+  yay.style.color = "#ffa000";
+  yay.style.textShadow = "0 1px 6px #fff9c4";
+  yay.style.marginBottom = "11px";
+  reward.appendChild(yay);
+
+  // Animierter Stern
+  const star = document.createElement("img");
+  star.src = "images/stickers/star.png";
+  star.style.width = "72px";
+  star.style.height = "72px";
+  star.style.borderRadius = "16px";
+  star.style.margin = "0 0 4px 0";
+  star.className = "reward-animated";
+  reward.appendChild(star);
+
+  document.body.appendChild(reward);
+
+  // Sticker speichern
+  if (typeof unlockSticker === "function" && typeof stickerIdx === "number") {
+    unlockSticker(stickerIdx);
+  }
+
+  // Next-Button
+  setTimeout(() => {
+    const btn = document.createElement("button");
+    btn.innerText = typeof currentSession !== "undefined" && sessions && currentSession < sessions.length - 1 ? "Next" : "Finish";
+    btn.className = "centered-next-btn";
+    btn.style.marginTop = "20px";
+    btn.onclick = () => {
+      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+      if (typeof nextAction === "function") {
+        nextAction();
+      } else {
+        currentSession++;
+        renderSession(currentSession);
+      }
+    };
+    reward.insertAdjacentElement('afterend', btn);
+  }, 800);
+}
+
+
+
 // Rotation Hinweis (Fortsetzung)
 function handleOrientation() {
   const notice = document.getElementById("rotationNotice");
@@ -309,6 +408,7 @@ function handleOrientation() {
 }
 window.addEventListener("orientationchange", handleOrientation);
 window.addEventListener("resize", handleOrientation);
+
 
 function showAvatarInVideoBox(videoBox, avatarName, avatarClass = "avatar") {
   if (!videoBox) return;
@@ -1170,129 +1270,21 @@ else if (s.type === "animals") {
 
     new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
-    if (i === s.correct) {
-      // Alles außer dem richtigen Button & Bild entfernen
-      document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
-        if (idx !== i) b.remove();
-      });
-
-      // Buttons und CTA-Text löschen
-      const cta = document.querySelector(".animated-text:not(.wrong-msg)");
-      if (cta) cta.remove();
-
-      // Remove all feedback
-      const allWrongs = document.querySelectorAll(".wrong-msg");
-      allWrongs.forEach(e => e.remove());
-
-      // Reward-Container einblenden
-      showAnimalsReward(imgSrc);
-
-      // Sticker freischalten
-      if (typeof unlockSticker === "function") unlockSticker(0);
-
-      // Musik ausblenden
-      if (musicAudio) {
-        setTimeout(() => { musicAudio.pause(); }, 1200);
-      }
-
-    } else {
-      // Falsche Auswahl: Feedback, aber KEIN Blockieren
-      const wrong = document.createElement("div");
-      wrong.className = "animated-text wrong-msg";
-      wrong.style.textAlign = "center";
-      wrong.innerText = s.onWrong || "Oops, that's not right!";
-      textArea.appendChild(wrong);
-      btn.classList.add("shake");
-      setTimeout(() => {
-        btn.classList.remove("shake");
-        // Feedback wieder entfernen
-        wrong.remove();
-      }, 800);
-    }
-  }
-
-  function showAnimalsReward(imgSrc) {
-  // Alles bisherige außer Video/Progress entfernen
-  document.querySelectorAll(".animals-buttons, .wrong-msg, .animated-text").forEach(e => e.remove());
-
-  // Reward-Container
-  const reward = document.createElement("div");
-  reward.className = "animals-reward-container";
-  reward.style.position = "fixed";
-  reward.style.left = "50%";
-  reward.style.transform = "translateX(-50%)";
-  reward.style.top = "15vh";
-  reward.style.zIndex = "500";
-  reward.style.background = "#fffbe6";
-  reward.style.padding = "26px 30px 30px 30px";
-  reward.style.borderRadius = "30px";
-  reward.style.boxShadow = "0 10px 40px #b2ebf2, 0 4px 24px #ffd54f99";
-  reward.style.display = "flex";
-  reward.style.flexDirection = "column";
-  reward.style.alignItems = "center";
-  reward.style.minWidth = "260px";
-
-  // <- NEU: onCorrect-Text oberhalb vom Bild!
-  if (s.onCorrect) {
-    const correctText = document.createElement("div");
-    correctText.className = "animals-correct-text";
-    correctText.style.fontSize = "1.25rem";
-    correctText.style.fontWeight = "600";
-    correctText.style.marginBottom = "14px";
-    correctText.style.color = "#43a047";
-    correctText.innerText = s.onCorrect;
-    reward.appendChild(correctText);
-  }
-
-  // Richtiges Tierbild
-  const animalImg = document.createElement("img");
-  animalImg.src = imgSrc;
-  animalImg.style.width = "90px";
-  animalImg.style.height = "90px";
-  animalImg.style.objectFit = "cover";
-  animalImg.style.borderRadius = "22px";
-  animalImg.style.marginBottom = "14px";
-  reward.appendChild(animalImg);
-
-  // Yay & Reward Text
-  const yay = document.createElement("div");
-  yay.textContent = "🎉 Yay! Your Reward";
-  yay.style.fontWeight = "bold";
-  yay.style.fontSize = "1.45rem";
-  yay.style.color = "#ffa000";
-  yay.style.textShadow = "0 1px 6px #fff9c4";
-  yay.style.marginBottom = "11px";
-  reward.appendChild(yay);
-
-  // Pulsierender Stern
-  const star = document.createElement("img");
-  star.src = "images/stickers/star.png";
-  star.style.width = "72px";
-  star.style.height = "72px";
-  star.style.borderRadius = "16px";
-  star.style.margin = "0 0 4px 0";
-  star.className = "reward-animated";
-  reward.appendChild(star);
-
-  // Reward-Container in DOM einfügen
-  document.body.appendChild(reward);
-
-  // Next-Button darunter
-  setTimeout(() => {
-    const btn = document.createElement("button");
-    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-    btn.className = "centered-next-btn";
-    btn.style.marginTop = "20px";
-    btn.onclick = () => {
+    // RICHTIGE AUSWAHL
+if (i === s.correct) {
+  // Beispiel für Bild-Tier:
+  showUniversalReward(
+    s.choices[i],               // Das richtige Bild (z.B. "images/animals/dog.png")
+    s.onCorrect || "",          // Text aus JSON, z.B. "I am a dog 🐶"
+    () => {                     // Was passieren soll beim Next-Button
       document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
-      if (musicAudio) musicAudio.pause();
+      if (typeof unlockSticker === "function") unlockSticker(0); // Optional: Sticker
       currentSession++;
       renderSession(currentSession);
-    };
-    reward.insertAdjacentElement('afterend', btn);
-  }, 800);
-}
-  return;
+    },
+    0 // Index für Star-Sticker, kannst du auch flexibel machen
+  );
+  return; // Wichtig, damit der Rest nicht mehr ausgeführt wird!
 }
 
 
@@ -1396,102 +1388,50 @@ else if (s.type === "rhyme") {
   }
 
   // 4) Auswahl verarbeiten
-  function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = null) {
-  document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+  function handleChoice(btn, i) {
+    // Feedback-Sound
+    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
-  const reward = document.createElement("div");
-  reward.className = "animals-reward-container";
-  reward.style.position = "fixed";
-  reward.style.left = "50%";
-  reward.style.transform = "translateX(-50%)";
-  reward.style.top = "15vh";
-  reward.style.zIndex = "500";
-  reward.style.background = "#fffbe6";
-  reward.style.padding = "26px 30px 30px 30px";
-  reward.style.borderRadius = "30px";
-  reward.style.boxShadow = "0 10px 40px #b2ebf2, 0 4px 24px #ffd54f99";
-  reward.style.display = "flex";
-  reward.style.flexDirection = "column";
-  reward.style.alignItems = "center";
-  reward.style.minWidth = "260px";
+    // vorheriges Feedback entfernen
+    const prev = document.querySelector(".rhyme-feedback");
+    if (prev) prev.remove();
 
-  // OnCorrect-Text oberhalb
-  if (correctTextStr) {
-    const correctText = document.createElement("div");
-    correctText.className = "animals-correct-text";
-    correctText.innerText = correctTextStr;
-    correctText.style.marginBottom = "9px";
-    correctText.style.fontSize = "1.1rem";
-    correctText.style.color = "#444";
-    correctText.style.textAlign = "center";
-    reward.appendChild(correctText);
+    // Feedback-Element
+    const feedback = document.createElement("div");
+    feedback.className = "animated-text rhyme-feedback";
+    feedback.style.textAlign = "center";
+    feedback.style.marginTop = "17px";
+
+    if (i === s.correct) {
+      btn.style.background = "#b2dfdb";
+      feedback.classList.add("glitter");
+      feedback.textContent = s.onCorrect || "Yes, that's a rhyme!";
+      textArea.appendChild(feedback);
+
+      // Richtige Antwort als Bild oder Wort, Reward-Container zeigen:
+      showUniversalReward(
+        s.choices[s.correct], // Das Wort oder Bild aus choices
+        s.onCorrect,          // Feedback-Text aus JSON
+        () => {
+          // Next-Button klickt: zum nächsten Session
+          currentSession++;
+          renderSession(currentSession);
+        }
+      );
+      // Sticker speichern
+      if (typeof unlockSticker === "function") unlockSticker(0);
+    } else {
+      btn.style.background = "#ffd6d6";
+      feedback.textContent = s.onWrong || "Try again!";
+      textArea.appendChild(feedback);
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 600);
+    }
   }
-
-  // === Bild ODER Wort ===
-  if (imgSrcOrText && typeof imgSrcOrText === "string" && imgSrcOrText.startsWith("images/")) {
-    // Bild anzeigen
-    const img = document.createElement("img");
-    img.src = imgSrcOrText;
-    img.style.width = "90px";
-    img.style.height = "90px";
-    img.style.objectFit = "cover";
-    img.style.borderRadius = "22px";
-    img.style.marginBottom = "14px";
-    reward.appendChild(img);
-  } else if (imgSrcOrText) {
-    // Wort anzeigen
-    const word = document.createElement("div");
-    word.textContent = imgSrcOrText;
-    word.style.fontSize = "2.1rem";
-    word.style.fontWeight = "bold";
-    word.style.color = "#44a047";
-    word.style.marginBottom = "16px";
-    reward.appendChild(word);
-  }
-
-  // Yay- und Reward-Text
-  const yay = document.createElement("div");
-  yay.textContent = "🎉 Yay! Your Reward";
-  yay.style.fontWeight = "bold";
-  yay.style.fontSize = "1.45rem";
-  yay.style.color = "#ffa000";
-  yay.style.textShadow = "0 1px 6px #fff9c4";
-  yay.style.marginBottom = "11px";
-  reward.appendChild(yay);
-
-  // Animierter Stern
-  const star = document.createElement("img");
-  star.src = "images/stickers/star.png";
-  star.style.width = "72px";
-  star.style.height = "72px";
-  star.style.borderRadius = "16px";
-  star.style.margin = "0 0 4px 0";
-  star.className = "reward-animated";
-  reward.appendChild(star);
-
-  document.body.appendChild(reward);
-
-  setTimeout(() => {
-    const btn = document.createElement("button");
-    btn.innerText = typeof currentSession !== "undefined" && sessions && currentSession < sessions.length - 1 ? "Next" : "Finish";
-    btn.className = "centered-next-btn";
-    btn.style.marginTop = "20px";
-    btn.onclick = () => {
-      if (typeof nextAction === "function") {
-        nextAction();
-      } else {
-        document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
-        currentSession++;
-        renderSession(currentSession);
-      }
-    };
-    reward.insertAdjacentElement('afterend', btn);
-  }, 800);
-}
-
 
   return;
 }
+
 
 
   // ==== Modul: STORY ====
