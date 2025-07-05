@@ -1272,6 +1272,7 @@ else if (s.type === "animals") {
 
     // RICHTIGE AUSWAHL
     if (i === s.correct) {
+		document.querySelectorAll('.animals-buttons').forEach(e => e.remove());
       // Beispiel für Bild-Tier:
       showUniversalReward(
         s.choices[i],               // Das richtige Bild (z.B. "images/animals/dog.png")
