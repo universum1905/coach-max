@@ -862,6 +862,8 @@ playBtn.innerHTML = `
 
 // ==== Modul: SCHATTENRÄTSEL ====
 if (s.type === "shadow") {
+  console.log("ANIMALS BLOCK:", s, "s.video=", s.video);
+  if (!s.video) alert("Achtung! s.video ist leer!");
   console.log("SHADOW-BLOCK WIRD AUSGEFÜHRT!", s);
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
