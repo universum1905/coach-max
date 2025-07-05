@@ -521,3 +521,12 @@ html, body {
 .reward-star-animals {
   animation: reward-pulse 1.25s infinite alternate, reward-glow 2s infinite linear;
 }
+.animals-reward-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent; /* kein Hintergrund, damit Video sichtbar bleibt */
+  margin: 32px auto 0 auto;
+  z-index: 1;
+}
