@@ -1026,20 +1026,21 @@ else if (s.type === "shadow") {
   // ==== Modul: ANIMALS ====
 // ==== Modul: ANIMALS ====
 else if (s.type === "animals") {
-  // Hintergrundmusik (falls definiert)
-  let animalsMusic;
-  if (s.music) {
-    animalsMusic = new Audio("audio/" + s.music);
-    animalsMusic.loop = true;
-    animalsMusic.volume = 0.22;
-    animalsMusic.play();
-  }
-
+  // Grund-Setup & Cleanup
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
-  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
+
+  // Hintergrundmusik (optional)
+  let musicAudio = null;
+  if (s.music) {
+    musicAudio = new Audio("audio/" + s.music);
+    musicAudio.loop = true;
+    musicAudio.volume = 0.17;
+    musicAudio.play();
+  }
 
   // Überschrift
   const heading = document.createElement("h2");
@@ -1048,77 +1049,49 @@ else if (s.type === "animals") {
   heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // --- Videobox unten rechts wie bei Counting ---
-  let videoBox = document.createElement('div');
-  videoBox.className = "floating-video";
-  videoBox.style.position = "fixed";
-  videoBox.style.right = "24px";
-  videoBox.style.bottom = "18px";
-  videoBox.style.zIndex = "120"; // bleibt immer im Vordergrund!
-  document.body.appendChild(videoBox);
+  // Video unten rechts, fixiert & immer im Vordergrund
+  let videoBox, video;
+  if (s.video) {
+    video = document.createElement("video");
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
 
-  let videoElement = document.createElement('video');
-  videoElement.src = `videos/${s.video}`;
-  videoElement.setAttribute("controls", "true");
-  videoElement.setAttribute("controlsList", "nodownload");
-  videoElement.autoplay = false;
-  videoElement.muted = false;
-  videoElement.playsInline = true;
-  videoElement.poster = "images/video-placeholder.png";
-  videoElement.className = "session-video";
-  videoBox.appendChild(videoElement);
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.zIndex = "1000"; // Höchster Wert, bleibt IMMER oben
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
 
-  const playBtn = document.createElement('button');
-  playBtn.className = "custom-play-btn";
-  playBtn.title = "Play";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-  `;
-  videoBox.appendChild(playBtn);
+    // Play-Button wie immer
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
 
-  playBtn.onclick = function () {
-    videoElement.play();
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  };
-  videoElement.addEventListener('play', () => {
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  });
-  videoElement.addEventListener('pause', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
-  videoElement.addEventListener('ended', () => {
-    // Avatar nach Video-Ende IMMER unten rechts im Video-Container!
-    videoBox.innerHTML = ""; // Alles aus Box entfernen
-    const avatarImg = document.createElement('img');
-    avatarImg.src = "images/momo.png";
-    avatarImg.alt = "Momo";
-    avatarImg.className = "session-avatar";
-    avatarImg.style.width = "100%";
-    avatarImg.style.height = "100%";
-    avatarImg.style.borderRadius = "50%";
-    videoBox.appendChild(avatarImg);
+    playBtn.addEventListener("click", () => {
+      video.play();
+      playBtn.style.display = "none";
+    });
+    video.addEventListener("play", () => playBtn.style.display = "none");
 
-    startAnimalSequence();
-  });
-
-  // Falls kein Video, direkt Avatar zeigen
-  if (!s.video) {
-    videoBox.innerHTML = "";
-    const avatarImg = document.createElement('img');
-    avatarImg.src = "images/momo.png";
-    avatarImg.alt = "Momo";
-    avatarImg.className = "session-avatar";
-    avatarImg.style.width = "100%";
-    avatarImg.style.height = "100%";
-    avatarImg.style.borderRadius = "50%";
-    videoBox.appendChild(avatarImg);
-
+    video.addEventListener("ended", () => {
+      // Avatar wird im Video-Container nach dem Video angezeigt
+      showAvatarInVideoBox(videoBox, "momo");
+      startAnimalSequence();
+    });
+  } else {
     startAnimalSequence();
   }
 
@@ -1138,21 +1111,28 @@ else if (s.type === "animals") {
   }
 
   function startAnimalSequence() {
+    // Tiergeräusch (wiederholt), dann Textzeilen, dann Buttons
     playRepeatedAudio(`audio/${s.sound}`, s.repeats, () => {
-      (s.text || []).forEach((line, i) => {
-        setTimeout(() => {
-          const p = document.createElement("div");
-          p.className = "animated-text";
-          p.style.textAlign = "center";
-          p.innerText = line;
-          textArea.appendChild(p);
-          if (i === s.text.length - 1) showChoices();
-        }, s.timings && s.timings[i] ? s.timings[i] * 1000 : i * 1200);
-      });
+      // Textzeilen mit Timings (optional)
+      if (Array.isArray(s.text)) {
+        s.text.forEach((line, i) => {
+          setTimeout(() => {
+            const p = document.createElement("div");
+            p.className = "animated-text";
+            p.style.textAlign = "center";
+            p.innerText = line;
+            textArea.appendChild(p);
+            if (i === s.text.length - 1) showChoices();
+          }, s.timings && s.timings[i] ? s.timings[i] * 1000 : i * 1200);
+        });
+      } else {
+        showChoices();
+      }
     });
   }
 
   function showChoices() {
+    // CTA-Text
     const cta = document.createElement("div");
     cta.className = "animated-text";
     cta.style.textAlign = "center";
@@ -1161,6 +1141,7 @@ else if (s.type === "animals") {
     cta.innerText = "Tap the right animal!";
     textArea.appendChild(cta);
 
+    // Button-Container
     const box = document.createElement("div");
     box.className = "animals-buttons";
     box.style.display = "flex";
@@ -1175,101 +1156,134 @@ else if (s.type === "animals") {
       btn.style.animationDuration = "0.6s";
       btn.style.border = "none";
       btn.style.background = "none";
+      btn.style.position = "relative";
       btn.innerHTML = `<img src="${src}" style="width:72px;height:72px;border-radius:12px;">`;
       btn.addEventListener("click", () => handleChoice(btn, i, src));
       box.appendChild(btn);
     });
   }
 
-  function handleChoice(btn, i, src) {
-    if (i !== s.correct) {
-      const prev = document.querySelector(".wrong-msg");
-      if (prev) prev.remove();
-      new Audio("audio/fail.mp3").play();
+  function handleChoice(btn, i, imgSrc) {
+    // Vorheriges Feedback entfernen
+    const prevWrong = document.querySelector(".wrong-msg");
+    if (prevWrong) prevWrong.remove();
+
+    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+
+    if (i === s.correct) {
+      // Alles außer dem richtigen Button & Bild entfernen
+      document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
+        if (idx !== i) b.remove();
+      });
+
+      // Buttons und CTA-Text löschen
+      const cta = document.querySelector(".animated-text:not(.wrong-msg)");
+      if (cta) cta.remove();
+
+      // Remove all feedback
+      const allWrongs = document.querySelectorAll(".wrong-msg");
+      allWrongs.forEach(e => e.remove());
+
+      // Reward-Container einblenden
+      showAnimalsReward(imgSrc);
+
+      // Sticker freischalten
+      if (typeof unlockSticker === "function") unlockSticker(0);
+
+      // Musik ausblenden
+      if (musicAudio) {
+        setTimeout(() => { musicAudio.pause(); }, 1200);
+      }
+
+    } else {
+      // Falsche Auswahl: Feedback, aber KEIN Blockieren
       const wrong = document.createElement("div");
       wrong.className = "animated-text wrong-msg";
       wrong.style.textAlign = "center";
-      wrong.innerText = s.onWrong || "Try again!";
+      wrong.innerText = s.onWrong || "Oops, that's not right!";
       textArea.appendChild(wrong);
       btn.classList.add("shake");
-      setTimeout(() => btn.classList.remove("shake"), 600);
-      return;
+      setTimeout(() => {
+        btn.classList.remove("shake");
+        // Feedback wieder entfernen
+        wrong.remove();
+      }, 800);
     }
+  }
 
-    // Nur richtige Auswahl bleibt stehen
-    document.querySelectorAll(".animals-buttons button").forEach((b, idx) => {
-      if (idx !== i) b.remove();
-    });
+  function showAnimalsReward(imgSrc) {
+    // Erst alles bisherige außer Videocontainer und Progress entfernen
+    document.querySelectorAll(".animals-buttons, .wrong-msg, .animated-text").forEach(e => e.remove());
 
-    // Reward-Container in der Mitte, Bild nur im Container!
+    // Reward-Container
     const reward = document.createElement("div");
     reward.className = "animals-reward-container";
+    reward.style.position = "fixed";
+    reward.style.left = "50%";
+    reward.style.transform = "translateX(-50%)";
+    reward.style.top = "15vh"; // etwas höher als Mitte
+    reward.style.zIndex = "500";
+    reward.style.background = "#fffbe6";
+    reward.style.padding = "26px 30px 30px 30px";
+    reward.style.borderRadius = "30px";
+    reward.style.boxShadow = "0 10px 40px #b2ebf2, 0 4px 24px #ffd54f99";
     reward.style.display = "flex";
     reward.style.flexDirection = "column";
     reward.style.alignItems = "center";
-    reward.style.justifyContent = "center";
-    reward.style.margin = "24px auto 0 auto";
-    reward.style.padding = "20px 24px 22px 24px";
-    reward.style.borderRadius = "36px";
-    reward.style.background = "#fffbe6";
-    reward.style.boxShadow = "0 4px 24px #ffd54faa";
-    reward.style.maxWidth = "340px";
-    reward.style.position = "relative";
-    reward.style.zIndex = "1";
+    reward.style.minWidth = "260px";
 
-    // Tierbild im Container
+    // Richtiges Tierbild
     const animalImg = document.createElement("img");
-    animalImg.src = src;
-    animalImg.style.width = "96px";
-    animalImg.style.height = "96px";
+    animalImg.src = imgSrc;
+    animalImg.style.width = "90px";
+    animalImg.style.height = "90px";
+    animalImg.style.objectFit = "cover";
     animalImg.style.borderRadius = "22px";
-    animalImg.style.boxShadow = "0 2px 14px #ffd54faa";
-    animalImg.style.marginBottom = "10px";
+    animalImg.style.marginBottom = "14px";
     reward.appendChild(animalImg);
 
-    // Text + Stern
-    const label = document.createElement("div");
-    label.className = "yay-animated";
-    label.style.textAlign = "center";
-    label.style.fontWeight = "bold";
-    label.style.fontSize = "1.27rem";
-    label.style.margin = "6px 0 14px 0";
-    label.innerHTML = "🎉 Yay!<br>Your Reward";
-    reward.appendChild(label);
+    // Yay & Reward Text
+    const yay = document.createElement("div");
+    yay.textContent = "🎉 Yay! Your Reward";
+    yay.style.fontWeight = "bold";
+    yay.style.fontSize = "1.45rem";
+    yay.style.color = "#ffa000";
+    yay.style.textShadow = "0 1px 6px #fff9c4";
+    yay.style.marginBottom = "11px";
+    reward.appendChild(yay);
 
+    // Pulsierender Stern
     const star = document.createElement("img");
     star.src = "images/stickers/star.png";
+    star.style.width = "72px";
+    star.style.height = "72px";
+    star.style.borderRadius = "16px";
+    star.style.margin = "0 0 4px 0";
     star.className = "reward-animated";
-    star.style.width = "74px";
-    star.style.height = "74px";
-    star.style.margin = "8px auto 0 auto";
     reward.appendChild(star);
 
-    textArea.appendChild(reward);
+    // Reward-Container in DOM einfügen
+    document.body.appendChild(reward);
 
-    // Next-Button wie bei Counting unterhalb des Containers
+    // Next-Button darunter
     setTimeout(() => {
-      const btnNext = document.createElement("button");
-      btnNext.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btnNext.className = "centered-next-btn";
-      btnNext.style.display = "block";
-      btnNext.style.margin = "18px auto 0 auto";
-      btnNext.onclick = () => {
-        if (animalsMusic) { animalsMusic.pause(); animalsMusic.currentTime = 0; }
-        document.querySelectorAll(".centered-next-btn, .animals-reward-container, .wrong-msg").forEach(e => e.remove());
+      const btn = document.createElement("button");
+      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      btn.className = "centered-next-btn";
+      btn.style.marginTop = "20px";
+      btn.onclick = () => {
+        document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+        if (musicAudio) musicAudio.pause();
         currentSession++;
         renderSession(currentSession);
       };
-      textArea.appendChild(btnNext);
-    }, 1200);
-
-    // Sticker freischalten
-    if (typeof unlockSticker === "function") unlockSticker(0);
-    new Audio("audio/yay.mp3").play();
+      // Button UNTER dem Container, mittig platzieren
+      reward.insertAdjacentElement('afterend', btn);
+    }, 800);
   }
-
   return;
 }
+
 
 
 
