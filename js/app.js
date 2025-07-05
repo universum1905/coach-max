@@ -2048,7 +2048,8 @@ window.onload = async () => {
     if (!res.ok) throw new Error("Fehler beim Laden des JSON: " + res.statusText);
     const data = await res.json();
     sessions = data.sessions;
-    currentDay = data.day || 1;
+    console.log("Sessions geladen:", sessions);
+	currentDay = data.day || 1;
 	
 	 // ======= HIER DEN TITEL SETZEN! =======
     document.title = `Coach Max – Day ${currentDay}`;
