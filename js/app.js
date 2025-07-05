@@ -1271,21 +1271,27 @@ else if (s.type === "animals") {
     new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
     // RICHTIGE AUSWAHL
-if (i === s.correct) {
-  // Beispiel für Bild-Tier:
-  showUniversalReward(
-    s.choices[i],               // Das richtige Bild (z.B. "images/animals/dog.png")
-    s.onCorrect || "",          // Text aus JSON, z.B. "I am a dog 🐶"
-    () => {                     // Was passieren soll beim Next-Button
-      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
-      if (typeof unlockSticker === "function") unlockSticker(0); // Optional: Sticker
-      currentSession++;
-      renderSession(currentSession);
-    },
-    0 // Index für Star-Sticker, kannst du auch flexibel machen
-  );
-  return; // Wichtig, damit der Rest nicht mehr ausgeführt wird!
+    if (i === s.correct) {
+      // Beispiel für Bild-Tier:
+      showUniversalReward(
+        s.choices[i],               // Das richtige Bild (z.B. "images/animals/dog.png")
+        s.onCorrect || "",          // Text aus JSON, z.B. "I am a dog 🐶"
+        () => {                     // Was passieren soll beim Next-Button
+          document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+          if (typeof unlockSticker === "function") unlockSticker(0); // Optional: Sticker
+          currentSession++;
+          renderSession(currentSession);
+        },
+        0 // Index für Star-Sticker, kannst du auch flexibel machen
+      );
+      return; // Wichtig, damit der Rest nicht mehr ausgeführt wird!
+    }
+    // Falsch-Logik
+  }  // ENDE FUNCTION handleChoice
 }
+
+
+
 
 
 
