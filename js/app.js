@@ -879,6 +879,7 @@ if (s.type === "shadow") {
   // 2) Video wie in Counting
   let videoBox = null;
   if (s.video) {
+	console.log("===> SHADOW VIDEO-BLOCK", s.video);  
     const videoElement = document.createElement('video');
     videoElement.src = `videos/${s.video}`;
     videoElement.setAttribute("controls", "true");
@@ -893,6 +894,7 @@ if (s.type === "shadow") {
     videoBox.className = "floating-video";
     videoBox.appendChild(videoElement);
     document.body.appendChild(videoBox);
+	setTimeout(() => { debugger; }, 200);
 
     // Play-Overlay
     const playBtn = document.createElement('button');
@@ -925,10 +927,10 @@ if (s.type === "shadow") {
 
     videoBox.appendChild(playBtn);
 
-    return; // WICHTIG: Rest erst NACH Video-Ende!
+    return; console.log("===> RETURN SHADOW-VIDEO");  // WICHTIG: Rest erst NACH Video-Ende!
   }
 
-  // Kein Video → sofort Quiz starten
+  console.log("===> SHADOW NO VIDEO, SHOW QUIZ");   // Kein Video → sofort Quiz starten
   renderShadowQuiz();
 
   // ===== Funktion: Shadow-Quiz =====
