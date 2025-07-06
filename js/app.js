@@ -835,11 +835,13 @@ playBtn.innerHTML = `
 
 // ==== 4. NEUES MODUL: MEMORY ====
    else if (s.type === "memory") {
-  // Clear and prepare session area
-  const textArea = document.getElementById('sessionTextArea');
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn, .memory-reward-container").forEach(el => el.remove());
+  const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // --- BACKGROUND MUSIC (optional, from JSON) ---
+  // --- BACKGROUND MUSIC (optional) ---
   let memoryMusic = null;
   if (s.music) {
     memoryMusic = new Audio("audio/" + s.music);
@@ -848,10 +850,10 @@ playBtn.innerHTML = `
     memoryMusic.play();
   }
 
-  // --- VIDEO (optional, from JSON) ---
+  // --- VIDEO (optional, Animals-Style) ---
   if (s.video) {
-    const video = document.createElement('video');
-    video.src = "videos/" + s.video;
+    const video = document.createElement("video");
+    video.src = `videos/${s.video}`;
     video.setAttribute("controls", "true");
     video.setAttribute("controlsList", "nodownload");
     video.autoplay = false;
@@ -859,12 +861,10 @@ playBtn.innerHTML = `
     video.playsInline = true;
     video.poster = "images/video-placeholder.png";
     video.className = "session-video";
-    video.style.display = "block";
-    video.style.margin = "0 auto 18px auto";
     textArea.appendChild(video);
 
-    // Play button overlay (optional)
-    const playBtn = document.createElement('button');
+    // Play button overlay (like animals)
+    const playBtn = document.createElement("button");
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
     playBtn.innerHTML = `
@@ -873,12 +873,7 @@ playBtn.innerHTML = `
         <polygon points="22,16 46,30 22,44" fill="#383838"/>
       </svg>
     `;
-    playBtn.style.position = "absolute";
-    playBtn.style.left = "50%";
-    playBtn.style.top = "50%";
-    playBtn.style.transform = "translate(-50%,-50%)";
-    playBtn.style.zIndex = "2";
-    video.parentNode && video.parentNode.appendChild(playBtn);
+    textArea.appendChild(playBtn);
 
     playBtn.addEventListener("click", () => {
       video.play();
@@ -887,6 +882,7 @@ playBtn.innerHTML = `
     video.addEventListener("play", () => playBtn.style.display = "none");
 
     video.addEventListener("ended", () => {
+      textArea.innerHTML = ""; // remove video+button after video end
       startMemoryGame();
     });
 
@@ -896,11 +892,13 @@ playBtn.innerHTML = `
   }
 
   function startMemoryGame() {
-    // --- Heading & Avatar ---
     textArea.innerHTML = "";
+
+    // --- Heading & Avatar ---
     const heading = document.createElement('h2');
     heading.className = "session-heading";
     heading.textContent = "Memory Game!";
+    heading.style.textAlign = "center";
     textArea.appendChild(heading);
 
     if (s.avatar) {
@@ -908,6 +906,8 @@ playBtn.innerHTML = `
       avatarImg.src = "images/" + s.avatar + ".png";
       avatarImg.alt = s.avatar;
       avatarImg.className = "intro-avatar-small";
+      avatarImg.style.display = "block";
+      avatarImg.style.margin = "0 auto 10px auto";
       textArea.appendChild(avatarImg);
     }
 
@@ -975,7 +975,6 @@ playBtn.innerHTML = `
     });
   }
 
-  // --- REWARD & CONTINUE ---
   function showMemoryReward() {
     createRewardStar();
 
