@@ -839,7 +839,7 @@ document.body.appendChild(btn);
     textArea.appendChild(yesBtn);
 
     yesBtn.onclick = function () {
-      // Remove question and button
+      new Audio("audio/yay.mp3").play();
       question.remove();
       yesBtn.remove();
 
