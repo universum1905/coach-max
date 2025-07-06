@@ -678,7 +678,7 @@ document.body.appendChild(btn);
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
 
-  // --- BACKGROUND MUSIC (optional from JSON) ---
+  // --- BACKGROUND MUSIC (optional from JSON) --
   let countingMusic = null;
   if (s.music) {
     countingMusic = new Audio("audio/" + s.music);
