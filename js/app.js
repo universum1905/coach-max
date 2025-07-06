@@ -852,8 +852,8 @@ textArea.appendChild(yesBtn);
 
       // Show reward star (wie bei animals)
       showUniversalReward(
-  "images/rewards/star.png",
-  "Yes!",
+  "Yes",   // ← das ist jetzt das richtige Wort (wie bei rhyme)
+  "",      // ← Kein Kompliment-Text nötig
   null,
   0
 );
