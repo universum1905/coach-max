@@ -856,24 +856,7 @@ textArea.appendChild(yesBtn);
   "Yes!",                    // Text darunter/ daneben
   () => {
 
-          // Nach Animation: Next-Button anzeigen
-          const nextBtn = document.createElement("button");
-nextBtn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-nextBtn.className = "centered-next-btn";
-nextBtn.onclick = () => {
-  // 1. ALLE Belohnungs-/Overlay-Elemente entfernen
-  document.querySelectorAll(".centered-next-btn, .reward-container, .animated-text, div[style*='fixed']").forEach(e => e.remove());
-  // 2. Nächste Session sofort laden
-  if (countingMusic) {
-    countingMusic.pause();
-    countingMusic.currentTime = 0;
-  }
-  lastSessionIdx = idx;
-  currentSession++;
-  renderSession(currentSession);
-};
-document.body.appendChild(nextBtn);
-;
+         
         },
         0 // Sticker-Index falls du ihn brauchst, sonst 0
       );
