@@ -826,17 +826,24 @@ document.body.appendChild(btn);
     textArea.appendChild(question);
 
     const yesBtn = document.createElement("button");
-    yesBtn.innerText = "Yes!";
-    yesBtn.className = "counting-yes-btn";
-    yesBtn.style.display = "block";
-    yesBtn.style.margin = "24px auto";
-    yesBtn.style.fontSize = "1.5rem";
-    yesBtn.style.padding = "12px 36px";
-    yesBtn.style.borderRadius = "24px";
-    yesBtn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
-    yesBtn.style.boxShadow = "0 2px 14px #ffd54f66";
-    yesBtn.style.fontWeight = "bold";
-    textArea.appendChild(yesBtn);
+yesBtn.innerText = "Yes!";
+yesBtn.className = "counting-yes-btn";
+yesBtn.style.display = "block";
+yesBtn.style.margin = "24px auto";
+yesBtn.style.fontSize = "1.5rem";
+yesBtn.style.padding = "12px 36px";
+yesBtn.style.borderRadius = "24px";
+yesBtn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
+yesBtn.style.boxShadow = "0 2px 22px #ffd54f99, 0 0 18px #fffde4";
+yesBtn.style.fontWeight = "bold";
+yesBtn.style.position = "relative";
+yesBtn.style.cursor = "pointer";
+yesBtn.style.overflow = "hidden";
+yesBtn.style.transition = "transform 0.2s";
+yesBtn.style.animation = "countYesPulse 1s infinite alternate";
+
+textArea.appendChild(yesBtn);
+
 
     yesBtn.onclick = function () {
       new Audio("audio/yay.mp3").play();
