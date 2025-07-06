@@ -1233,6 +1233,7 @@ else if (s.type === "animals") {
       }
     }
   });
+return;
 }
 
 
