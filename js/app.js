@@ -1839,39 +1839,50 @@ if (s.video) {
   // Antwort-Feedback
   let feedbackDiv = null;
   function handleAnswer(btn, i) {
-    if (feedbackDiv) feedbackDiv.remove();
-    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+  if (feedbackDiv) feedbackDiv.remove();
+  new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
-    feedbackDiv = document.createElement("div");
-    feedbackDiv.className = "animated-text";
-    feedbackDiv.style.textAlign = "center";
-    feedbackDiv.style.fontSize = "1.22rem";
-    feedbackDiv.style.fontWeight = "600";
-    feedbackDiv.style.margin = "18px 0 8px";
-    feedbackDiv.style.minHeight = "30px";
-    feedbackDiv.style.transition = "all 0.22s";
+  feedbackDiv = document.createElement("div");
+  feedbackDiv.className = "animated-text";
+  feedbackDiv.style.textAlign = "center";
+  feedbackDiv.style.fontSize = "1.22rem";
+  feedbackDiv.style.fontWeight = "600";
+  feedbackDiv.style.margin = "18px 0 8px";
+  feedbackDiv.style.minHeight = "30px";
+  feedbackDiv.style.transition = "all 0.22s";
 
-    if (i === s.correct) {
-  // Feedback anzeigen (optional, kannst du auch ganz weglassen!)
-  feedbackDiv.classList.add("glitter");
-  feedbackDiv.textContent = s.onCorrect || "Great job! You found the right number!";
+  if (i === s.correct) {
+    // ... wie im letzten Schritt beschrieben ...
+    feedbackDiv.classList.add("glitter");
+    feedbackDiv.textContent = s.onCorrect || "Great job! You found the right number!";
+    textArea.insertBefore(feedbackDiv, answersBox);
+
+    Array.from(answersBox.children).forEach((c, idx) => {
+      if (idx !== i) c.style.display = "none";
+    });
+
+    showUniversalReward(
+      s.answers[i],
+      s.onCorrect || "",
+      null,
+      s.successSticker || 0
+    );
+    return;
+  }
+  
+ 
+
+  // Falsch-Logik – rotes Feedback und Shake-Effekt
+  feedbackDiv.textContent = s.onWrong || "Oops, that's not right. Try again!";
+  feedbackDiv.style.color = "#d32f2f";
   textArea.insertBefore(feedbackDiv, answersBox);
 
-  // Antwort-Buttons ausblenden (außer dem richtigen)
-  Array.from(answersBox.children).forEach((c, idx) => {
-    if (idx !== i) c.style.display = "none";
-  });
-
-  // Universeller Reward-Container – wie bei Animals etc.
-  showUniversalReward(
-    s.answers[i],          // Zeigt die richtige Zahl, falls das ein Bild ist – sonst als Text
-    s.onCorrect || "",
-    null,                  // Callback, Next-Button kommt automatisch!
-    s.successSticker || 0  // Sticker-Index, falls gewünscht, sonst 0
-  );
-  return;
+  btn.classList.add("shake");
+  setTimeout(() => btn.classList.remove("shake"), 600);
+  setTimeout(() => {
+    if (feedbackDiv.parentNode) feedbackDiv.remove();
+  }, 1500);
 }
-  }
  }
 
 
