@@ -71,7 +71,7 @@
 	{
       "type": "animals",
       "video": "day2-test.mp4",
-      "sound": "lion.mp3",
+      "sound": "dog-bark.mp3",
       "repeats": 2,
       "title": "Guess the Animal!",
       "text": ["Listen carefully to the sound. Which animal is it?"],
