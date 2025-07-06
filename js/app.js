@@ -8,8 +8,16 @@ fetch("days/day1.json")
   .then(r => r.json())
   .then(data => {
     console.log("JSON geladen:", data);
-    document.body.innerHTML = "<h1>Ich bin da!</h1><pre>" + JSON.stringify(data, null, 2) + "</pre>";
+    // ---- HIER BEGINNT DER NEUE CODE ----
+    const sessions = data.sessions;
+    const firstSession = sessions[0];
+    document.body.innerHTML = `
+      <h1>${firstSession.title || "Session 1"}</h1>
+      <pre>${JSON.stringify(firstSession, null, 2)}</pre>
+    `;
+    // ---- HIER KANNST DU WEITER BAUEN ----
   });
+
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
   return parseInt(params.get("day")) || 1;
