@@ -4,9 +4,12 @@ const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Pr
 let DEV_START_SESSION = 0; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 console.log("app.js startet!");
-fetch("days/day1.json").then(r => r.json()).then(data => console.log("JSON geladen:", data));
-document.body.innerHTML = "<h1>Ich bin da!</h1><pre>" + JSON.stringify(data, null, 2) + "</pre>";
-});
+fetch("days/day1.json")
+  .then(r => r.json())
+  .then(data => {
+    console.log("JSON geladen:", data);
+    document.body.innerHTML = "<h1>Ich bin da!</h1><pre>" + JSON.stringify(data, null, 2) + "</pre>";
+  });
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
   return parseInt(params.get("day")) || 1;
