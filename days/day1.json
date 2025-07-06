@@ -42,28 +42,19 @@
         },
         
         {
-            "type": "memory",
-            "avatar": "benny",
-            "cards": [
-                {
-                    "img": "images/animals/cat.png",
-                    "pairId": 1
-                },
-                {
-                    "img": "images/animals/cat.png",
-                    "pairId": 1
-                },
-                {
-                    "img": "images/animals/lion.png",
-                    "pairId": 2
-                },
-                {
-                    "img": "images/animals/lion.png",
-                    "pairId": 2
-                }
-            ],
-            "successSticker": 1
-        },
+  "type": "memory",
+  "avatar": "benny",
+  "music": "focus-loop.mp3",          
+  "video": "day1-memory-intro.mp4",    
+  "cards": [
+    { "img": "images/animals/cat.png", "pairId": 1 },
+    { "img": "images/animals/cat.png", "pairId": 1 },
+    { "img": "images/animals/lion.png", "pairId": 2 },
+    { "img": "images/animals/lion.png", "pairId": 2 }
+  ],
+  "successSticker": 1                  
+},
+
         {
             "type": "counting",
             "avatar": "benny",
