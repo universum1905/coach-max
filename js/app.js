@@ -2072,10 +2072,9 @@ if (shadowMusic) {
   textArea.appendChild(msg);
 
   new Audio("audio/yay.mp3").play();
-  // --- UNIVERSAL REWARD ---
-  showUniversalReward(
-    "Quiz Complete!",              // Text darunter
-    () => { currentSession++; renderSession(currentSession); },
+showUniversalReward(
+  "Quiz Complete!",
+  () => { currentSession++; renderSession(currentSession); },
   s.successSticker || 0
 );
     
