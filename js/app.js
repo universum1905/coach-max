@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 0; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 2; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -1179,49 +1179,28 @@ if (s.video) {
       feedback.style.marginTop = "17px";
 
       if (i === s.correct) {
-        btn.style.border = "2px solid #43a047";
-        feedback.classList.add("glitter");
-        feedback.textContent = s.onCorrect || "Correct! Sticker unlocked!";
-        textArea.appendChild(feedback);
+  // Buttons ausblenden
+  Array.from(choices.children).forEach((c, idx) => {
+    if (idx !== i) c.style.display = "none";
+  });
 
-        // ⭐️ Sticker fliegt rein
-        const sticker = document.createElement("img");
-        sticker.src = "images/stickers/star.png";
-        sticker.className = "sticker-animate";
-        document.body.appendChild(sticker);
-        setTimeout(() => {
-          const mid = window.innerWidth / 2 - 40;
-          sticker.style.left = mid + "px";
-        }, 50);
-        setTimeout(() => {
-          sticker.style.transition = "all 0.6s ease-in";
-          sticker.style.left = (window.innerWidth - 100) + "px";
-          sticker.style.top = "10px";
-          sticker.style.opacity = "0";
-        }, 900);
+  // Optional: Feedback-Text als Animation
+  feedback.classList.add("glitter");
+  feedback.textContent = s.onCorrect || "Correct! Sticker unlocked!";
+  textArea.appendChild(feedback);
 
-        // 🎁 Belohnung & Next-Button
-        setTimeout(() => {
-          createRewardStar(); // Funktion zeigt RewardBox + Next
-        }, 1600);
-
-        if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
-          unlockSticker(s.successSticker);
-        }
-
-      } else {
-        btn.style.border = "2px solid #d32f2f";
-        feedback.textContent = s.onWrong || "Try again!";
-        textArea.appendChild(feedback);
-        btn.classList.add("shake");
-        setTimeout(() => btn.classList.remove("shake"), 600);
-        setTimeout(() => { btn.style.border = "2px solid #ffd54f"; }, 900);
-      }
-    }
-  }
-
+  // UNIVERSAL REWARD CONTAINER wie überall sonst:
+  showUniversalReward(
+    s.choices[i],               // Das richtige Bild
+    s.onCorrect || "",          // Richtiger Text (optional)
+    null,                       // Callback (Next wird universell erzeugt)
+    s.successSticker || 0       // Sticker-Index, falls definiert
+  );
   return;
 }
+	}
+  }
+ }
 
 
   
