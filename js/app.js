@@ -852,9 +852,11 @@ textArea.appendChild(yesBtn);
 
       // Show reward star (wie bei animals)
       showUniversalReward(
-  "images/rewards/star.png", // Bildpfad für Stern
-  "Yes!",                    // Text darunter/ daneben
-  () => {
+  "images/rewards/star.png",
+  "Yes!",
+  null,
+  0
+);
 
          
         },
