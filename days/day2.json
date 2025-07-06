@@ -82,6 +82,37 @@
       "onWrong": "Oops! Try again!",
       "avatar": "momo",
       "successSticker": 0
+    },
+	{
+      "type": "ai-emoji-madness",
+      "video": "day3-emoji-intro.mp4",
+      "music": "party-loop.mp3",
+      "title": "Emoji Madness!",
+      "introText": [
+        "Welcome to Emoji Madness! 🎉",
+        "Can you guess what story these emojis tell?",
+        "Get ready for a crazy, colorful adventure with Coach Max! 🤩"
+      ],
+      "emojiStory": ["🐵🍌😱🏃‍♂️🌳😂"],
+      "question": "What is happening in this emoji story?",
+      "choices": [
+        "The monkey found a banana and runs to the tree!",
+        "The banana is flying to the moon!",
+        "The monkey is dancing with a frog!"
+      ],
+      "correct": 0,
+      "onCorrect": "Yay! You cracked the emoji code! 🎉",
+      "onWrong": "Try again! Look at the emojis closely!",
+      "successSticker": 2,
+      "bonus": {
+        "title": "MAGIC EMOJI BUTTON!",
+        "bonusText": [
+          "🎁 Bonus time! Tap the magic emoji for a special surprise!",
+          "You unlocked a secret party! 🎈🎊"
+        ],
+        "rewardSticker": 4
+      }
     }
   ]
 }
+ 
