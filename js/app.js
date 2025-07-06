@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 2; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 3; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -2064,67 +2064,27 @@ if (shadowMusic) {
   }
 
   function showFinalReward() {
-    Array.from(textArea.children).forEach((child, i) => {
-      if (i > 0) child.remove();
-    });
+  // Belass ruhig das Text-Feedback
+  const msg = document.createElement("div");
+  msg.className = "animated-text glitter fade-in-up";
+  msg.style.textAlign = "center";
+  msg.textContent = "Awesome! You finished the quiz!";
+  textArea.appendChild(msg);
 
-    const msg = document.createElement("div");
-    msg.className = "animated-text glitter fade-in-up";
-    msg.style.textAlign = "center";
-    msg.textContent = "Awesome! You finished the quiz!";
-    textArea.appendChild(msg);
-
-    const rewardBox = document.createElement("div");
-    rewardBox.style.position = "fixed";
-    rewardBox.style.left = "50%";
-    rewardBox.style.transform = "translateX(-50%)";
-    rewardBox.style.bottom = "150px";
-    rewardBox.style.display = "flex";
-    rewardBox.style.flexDirection = "column";
-    rewardBox.style.alignItems = "center";
-    rewardBox.style.zIndex = "1000";
-
-    const rewardText = document.createElement("div");
-    rewardText.textContent = "Your reward";
-    rewardText.style.fontSize = "1.17rem";
-    rewardText.style.fontWeight = "700";
-    rewardText.style.color = "#faaf08";
-    rewardText.style.marginBottom = "7px";
-    rewardText.style.textShadow = "0 1px 8px #fffde7";
-    rewardBox.appendChild(rewardText);
-
-    const rewardSticker = document.createElement("img");
-    rewardSticker.src = "images/stickers/star.png";
-    rewardSticker.style.width = "68px";
-    rewardSticker.style.height = "68px";
-    rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
-    rewardSticker.style.borderRadius = "22px";
-    rewardSticker.style.background = "#fffbe6";
-    rewardBox.appendChild(rewardSticker);
-
-    document.body.appendChild(rewardBox);
-
-    if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
-      unlockSticker(s.successSticker);
-    }
-
-    const next = document.createElement("button");
-    next.className = "centered-next-btn";
-    next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-    next.addEventListener("click", () => {
-      document.querySelectorAll(".floating-video, .centered-next-btn, .quiz-feedback, div[style*='fixed']").forEach(e => e.remove());
+  // --- UNIVERSAL REWARD ---
+  showUniversalReward(
+    "images/rewards/star.png",      // Bildpfad für Stern (oder falls ein anderes Reward)
+    "Quiz Complete!",              // Text darunter
+    () => {
+      // Optional: weitere Aktionen nach Next
       currentSession++;
       renderSession(currentSession);
-    });
-    document.body.appendChild(next);
-  }
-
-  return;
-} else {
-	
-	return;
-  }
+    },
+    s.successSticker || 0          // Sticker-Index aus JSON, fallback 0
+  );
 }
+ }
+
 
 
 
