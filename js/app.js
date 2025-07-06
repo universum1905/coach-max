@@ -2083,41 +2083,48 @@ if (shadowMusic) {
  }
 
 
- else if (s.type === "ai-emoji-madness") {
+ else // ==== AI-EMOJI-MADNESS ====
+// In renderSession(idx) einfügen
+if (s.type === "ai-emoji-madness") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
-  document.querySelectorAll(".floating-video, .centered-next-btn, .glitter, div[style*='fixed']").forEach(el => el.remove());
+  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-box, .glitter").forEach(el => el.remove());
   document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
 
-  // Hintergrundmusik vorbereiten & starten
-  let bgMusic = new Audio("audio/focus-loop.mp3");
-  bgMusic.loop = true;
-  bgMusic.volume = 0.22;
+  // Hintergrundmusik
+  let music;
+  if (s.music) {
+    music = new Audio("audio/" + s.music);
+    music.loop = true;
+    music.volume = 0.19;
+    music.play();
+  }
 
   // Überschrift
   const heading = document.createElement("h2");
   heading.className = "session-heading";
-  heading.textContent = s.title || "Emoji Madness!";
+  heading.textContent = s.title || "";
   heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // Video (unten rechts, wie gewohnt)
-  let video, videoBox;
+  // Video unten rechts (mit Play-Button)
+  let videoBox, video, playBtn;
   if (s.video) {
     video = document.createElement("video");
-    video.src = `videos/${s.video}`;
+    video.src = "videos/" + s.video;
     video.playsInline = true;
     video.autoplay = false;
     video.muted = false;
     video.className = "session-video";
+    video.poster = "images/video-placeholder.png";
+
     videoBox = document.createElement("div");
     videoBox.className = "floating-video";
     videoBox.appendChild(video);
     document.body.appendChild(videoBox);
 
-    // Play-Overlay-Button
-    const playBtn = document.createElement('button');
+    playBtn = document.createElement("button");
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
     playBtn.innerHTML = `
@@ -2131,196 +2138,193 @@ if (shadowMusic) {
     playBtn.onclick = () => {
       video.play();
       playBtn.style.display = "none";
-      try { bgMusic.currentTime = 0; bgMusic.play(); } catch(e) {}
+      // Emojis & Frage anzeigen, wenn Video läuft
+      showEmojiAndQuestion();
     };
-    video.addEventListener("play", () => {
-      playBtn.style.display = "none";
-      try { bgMusic.currentTime = 0; bgMusic.play(); } catch(e) {}
-    });
+    video.addEventListener("play", () => playBtn.style.display = "none");
 
-    // Nach Video-Ende: Avatar anzeigen & Quiz starten
-    video.addEventListener('ended', () => {
-      showAvatarInVideoBox(videoBox, "momo");  // Oder "benny" je nach Session
-      setTimeout(showEmojiQuiz, 500);
+    // Avatar nach Video-Ende zeigen
+    video.addEventListener("ended", () => {
+      showAvatarInVideoBox(videoBox, "momo");
     });
   } else {
-    try { bgMusic.currentTime = 0; bgMusic.play(); } catch(e) {}
-    showEmojiQuiz();
+    // Falls kein Video, gleich starten
+    showEmojiAndQuestion();
   }
 
-  // Quizfrage und Auswahl-Buttons anzeigen
-  function showEmojiQuiz() {
-    // Quiz-Emojis als große Zeile
-    const quizDiv = document.createElement("div");
-    quizDiv.style.fontSize = "2.3rem";
-    quizDiv.style.textAlign = "center";
-    quizDiv.style.margin = "18px auto 12px auto";
-    quizDiv.innerText = s.quiz || "🍕🐵🚀 = ?";
-    textArea.appendChild(quizDiv);
+  // Zeigt die Emoji-Reihe & Frage (zentriert und mobilfreundlich)
+  function showEmojiAndQuestion() {
+    // Emojis
+    const emojiRow = document.createElement("div");
+    emojiRow.style.fontSize = "2.6rem";
+    emojiRow.style.textAlign = "center";
+    emojiRow.style.margin = "18px auto 10px auto";
+    emojiRow.style.letterSpacing = "0.14em";
+    emojiRow.style.padding = "0 10vw"; // Links/Rechts Abstand für Handy
+    emojiRow.style.wordBreak = "break-word";
+    emojiRow.innerText = Array.isArray(s.emojis) ? s.emojis.join(" ") : "";
+    textArea.appendChild(emojiRow);
 
     // Frage
     const questionDiv = document.createElement("div");
     questionDiv.className = "animated-text";
     questionDiv.style.textAlign = "center";
-    questionDiv.style.fontSize = "1.19rem";
-    questionDiv.style.margin = "10px auto 16px auto";
-    questionDiv.textContent = s.question || "Which word fits these emojis?";
+    questionDiv.style.fontSize = "1.22rem";
+    questionDiv.style.margin = "10px auto 18px auto";
+    questionDiv.textContent = s.question || "";
     textArea.appendChild(questionDiv);
 
-    // Buttons
+    // Nach Video-Ende oder sofort: Antwortmöglichkeiten anzeigen
+    if (video) {
+      video.addEventListener("ended", showChoices);
+    } else {
+      showChoices();
+    }
+  }
+
+  // Antwortmöglichkeiten zentriert anzeigen
+  function showChoices() {
+    // Verhindert doppeltes Anzeigen
+    if (document.querySelector(".emoji-choices")) return;
+
     const box = document.createElement("div");
-    box.className = "emoji-quiz-buttons";
+    box.className = "emoji-choices";
     box.style.display = "flex";
     box.style.flexDirection = "column";
     box.style.alignItems = "center";
-    box.style.gap = "14px";
-    box.style.margin = "0 auto 10px auto";
+    box.style.gap = "18px";
+    box.style.margin = "20px auto 0 auto";
     box.style.width = "100%";
     textArea.appendChild(box);
 
-    s.answers.forEach((ans, i) => {
+    // Choices als große Buttons
+    s.choices.forEach((val, i) => {
       const btn = document.createElement("button");
       btn.style.border = "none";
       btn.style.background = "#fffbe6";
-      btn.style.fontSize = "1.44rem";
+      btn.style.fontSize = "2.1rem";
       btn.style.fontWeight = "700";
-      btn.style.padding = "0.7em 1.7em";
-      btn.style.borderRadius = "16px";
-      btn.style.boxShadow = "0 2px 10px #81d4fa88";
+      btn.style.padding = "0.62em 1.4em";
+      btn.style.borderRadius = "19px";
+      btn.style.boxShadow = "0 2px 10px #ffe08288";
       btn.style.cursor = "pointer";
-      btn.style.width = "90%";
-      btn.style.maxWidth = "320px";
-      btn.textContent = ans;
-      btn.onclick = () => handleChoice(btn, i, box, questionDiv);
+      btn.style.width = "90vw";
+      btn.style.maxWidth = "340px";
+      btn.style.display = "flex";
+      btn.style.justifyContent = "center";
+      btn.style.alignItems = "center";
+      btn.style.letterSpacing = "0.13em";
+      btn.textContent = val;
+      btn.onclick = () => handleChoice(btn, i, box);
       box.appendChild(btn);
     });
   }
 
-  function handleChoice(btn, i, box, questionDiv) {
-    // Feedback Sound
-    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
-
-    // Entferne alten Feedback-Text und evtl. Ooops-Text
-    document.querySelectorAll(".emoji-feedback, .oops-text").forEach(el => el.remove());
-
+  // Antwort-Handling
+  function handleChoice(btn, i, box) {
+    // Bei richtig: Buttons entfernen, Feedback + Reward anzeigen
     if (i === s.correct) {
-      // Richtige Antwort!
-      btn.style.background = "#b2dfdb";
+      // Erfolgssound
+      new Audio("audio/yay.mp3").play();
 
-      // Falsche Buttons ausblenden
+      // Alle Buttons bis auf den richtigen ausblenden
       Array.from(box.children).forEach(b => { if (b !== btn) b.style.display = "none"; });
+      btn.style.background = "#b2dfdb";
+      btn.style.pointerEvents = "none";
 
-      // Stern-Animation + Reward-Box
-      const sticker = document.createElement("img");
-      sticker.src = "images/stickers/star.png";
-      sticker.style.position = "absolute";
-      sticker.style.left = "-100px";
-      sticker.style.top = "52%";
-      sticker.style.transform = "translateY(-50%)";
-      sticker.style.width = "80px";
-      sticker.style.transition = "left 0.8s ease-out";
-      document.body.appendChild(sticker);
+      // Feedback-Text
+      const feedback = document.createElement("div");
+      feedback.className = "animated-text glitter";
+      feedback.style.textAlign = "center";
+      feedback.style.fontSize = "1.1rem";
+      feedback.style.margin = "18px auto 6px auto";
+      feedback.textContent = s.onCorrect || "Great!";
+      textArea.insertBefore(feedback, box);
 
-      setTimeout(() => {
-        const mid = window.innerWidth / 2 - 40;
-        sticker.style.left = mid + "px";
-      }, 50);
-
-      setTimeout(() => {
-        sticker.style.transition = "all 0.6s ease-in";
-        sticker.style.left = (window.innerWidth - 100) + "px";
-        sticker.style.top = "10px";
-        sticker.style.opacity = "0";
-      }, 900);
-
-      setTimeout(() => {
-        // UNIVERSAL REWARD CONTAINER
-        const rewardBox = document.createElement("div");
-        rewardBox.style.position = "fixed";
-        rewardBox.style.left = "50%";
-        rewardBox.style.transform = "translateX(-50%)";
-        rewardBox.style.bottom = "150px";
-        rewardBox.style.display = "flex";
-        rewardBox.style.flexDirection = "column";
-        rewardBox.style.alignItems = "center";
-        rewardBox.style.zIndex = "1000";
-
-        // Großer Feedback-Text oben
-        const feedback2 = document.createElement("div");
-        feedback2.textContent = s.onCorrect || "Super! You got it!";
-        feedback2.style.fontSize = "1.22rem";
-        feedback2.style.fontWeight = "700";
-        feedback2.style.color = "#43a047";
-        feedback2.style.marginBottom = "6px";
-        rewardBox.appendChild(feedback2);
-
-        // "Your reward"
-        const rewardText = document.createElement("div");
-        rewardText.textContent = "Your reward";
-        rewardText.style.fontSize = "1.17rem";
-        rewardText.style.fontWeight = "700";
-        rewardText.style.color = "#faaf08";
-        rewardText.style.marginBottom = "7px";
-        rewardText.style.textShadow = "0 1px 8px #fffde7";
-        rewardBox.appendChild(rewardText);
-
-        // Sticker-Bild
-        const rewardSticker = document.createElement("img");
-        rewardSticker.src = "images/stickers/star.png";
-        rewardSticker.style.width = "68px";
-        rewardSticker.style.height = "68px";
-        rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
-        rewardSticker.style.borderRadius = "22px";
-        rewardSticker.style.background = "#fffbe6";
-        rewardBox.appendChild(rewardSticker);
-
-        document.body.appendChild(rewardBox);
-
-        // Next-Button nach kurzer Zeit
-        setTimeout(() => {
-          const next = document.createElement("button");
-          next.className = "centered-next-btn";
-          next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-          next.onclick = () => {
-            try { bgMusic.pause(); bgMusic.currentTime = 0; } catch(e) {}
-            document.querySelectorAll(".floating-video, .centered-next-btn, .glitter, div[style*='fixed']").forEach(e => e.remove());
-            currentSession++;
-            renderSession(currentSession);
-          };
-          document.body.appendChild(next);
-        }, 1000);
-
-      }, 1600);
-
-      // Sticker im Speicher freischalten
-      unlockSticker && unlockSticker(s.successSticker || 0);
-
+      // Stern-Reward universal
+      showRewardBox(() => {
+        // Musik aus, Video ausblenden, Next-Button
+        if (music) { music.pause(); music.currentTime = 0; }
+        if (videoBox) videoBox.remove();
+        const next = document.createElement("button");
+        next.className = "centered-next-btn";
+        next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+        next.onclick = () => {
+          document.querySelectorAll(".floating-video, .centered-next-btn, .reward-box, .glitter").forEach(e => e.remove());
+          currentSession++;
+          renderSession(currentSession);
+        };
+        document.body.appendChild(next);
+      }, s.successSticker);
     } else {
-      // Ooops-Feedback
-      const oops = document.createElement("div");
-      oops.className = "animated-text oops-text";
-      oops.style.textAlign = "center";
-      oops.style.color = "#d32f2f";
-      oops.style.marginTop = "13px";
-      oops.style.fontWeight = "700";
-      oops.textContent = s.onWrong || "Oops... Try again!";
-      textArea.appendChild(oops);
-      btn.classList.add("shake");
-      setTimeout(() => {
-        btn.classList.remove("shake");
-        oops.remove();
-      }, 900);
-      // Buttons bleiben aktiv!
+      // Falschsound
+      new Audio("audio/fail.mp3").play();
+      // Oops-Text (maximal EINMAL anzeigen)
+      if (!document.querySelector(".wrong-msg")) {
+        const wrong = document.createElement("div");
+        wrong.className = "animated-text wrong-msg";
+        wrong.style.textAlign = "center";
+        wrong.style.color = "#d32f2f";
+        wrong.style.margin = "12px auto 2px auto";
+        wrong.textContent = s.onWrong || "Try again!";
+        textArea.insertBefore(wrong, box);
+        btn.classList.add("shake");
+        setTimeout(() => { btn.classList.remove("shake"); wrong.remove(); }, 900);
+      }
     }
   }
 
-  // Musik pausieren, wenn Next geklickt oder Session verlassen wird
-  window.addEventListener("beforeunload", function() {
-    try { bgMusic.pause(); bgMusic.currentTime = 0; } catch(e) {}
-  });
+  // Universal Reward-Box wie bei animals/rhymes
+  function showRewardBox(onReady, stickerIdx) {
+    setTimeout(() => {
+      const rewardBox = document.createElement("div");
+      rewardBox.className = "reward-box";
+      rewardBox.style.position = "fixed";
+      rewardBox.style.left = "50%";
+      rewardBox.style.transform = "translateX(-50%)";
+      rewardBox.style.bottom = "120px";
+      rewardBox.style.display = "flex";
+      rewardBox.style.flexDirection = "column";
+      rewardBox.style.alignItems = "center";
+      rewardBox.style.zIndex = "1000";
+      rewardBox.style.background = "#fffbe6";
+      rewardBox.style.borderRadius = "22px";
+      rewardBox.style.boxShadow = "0 4px 18px #ffe082b5";
+      rewardBox.style.padding = "20px 28px 18px 28px";
+      rewardBox.style.minWidth = "210px";
 
-  return;
+      // "Your reward"
+      const rewardText = document.createElement("div");
+      rewardText.textContent = "Your reward";
+      rewardText.style.fontSize = "1.17rem";
+      rewardText.style.fontWeight = "700";
+      rewardText.style.color = "#faaf08";
+      rewardText.style.marginBottom = "9px";
+      rewardText.style.textShadow = "0 1px 8px #fffde7";
+      rewardBox.appendChild(rewardText);
+
+      // Sticker-Bild
+      const rewardSticker = document.createElement("img");
+      rewardSticker.src = stickerImages[stickerIdx] || "images/stickers/star.png";
+      rewardSticker.style.width = "68px";
+      rewardSticker.style.height = "68px";
+      rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
+      rewardSticker.style.borderRadius = "22px";
+      rewardSticker.style.background = "#fffbe6";
+      rewardBox.appendChild(rewardSticker);
+
+      document.body.appendChild(rewardBox);
+
+      // Sticker speichern
+      unlockSticker && unlockSticker(stickerIdx);
+
+      if (onReady) setTimeout(onReady, 900);
+    }, 900);
+  }
+
+  return; // Session endet hier!
 }
+
 
 }
 
