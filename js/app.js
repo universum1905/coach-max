@@ -2075,13 +2075,10 @@ if (shadowMusic) {
   // --- UNIVERSAL REWARD ---
   showUniversalReward(
     "Quiz Complete!",              // Text darunter
-    () => {
-      // Optional: weitere Aktionen nach Next
-      currentSession++;
-      renderSession(currentSession);
-    },
-    s.successSticker || 0          // Sticker-Index aus JSON, fallback 0
-  );
+    () => { currentSession++; renderSession(currentSession); },
+  s.successSticker || 0
+);
+    
 }
  }
 }
