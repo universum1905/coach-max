@@ -58,6 +58,7 @@
         {
             "type": "counting",
             "avatar": "benny",
+			"music": "focus-loop.mp3",
             "video": "day1-counting.mp4",
             "countingTimings": [
                 {
