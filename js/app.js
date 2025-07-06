@@ -678,31 +678,43 @@ document.body.appendChild(btn);
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
 
-  // Überschrift
+  // --- BACKGROUND MUSIC (optional from JSON) ---
+  let countingMusic = null;
+  if (s.music) {
+    countingMusic = new Audio("audio/" + s.music);
+    countingMusic.loop = true;
+    countingMusic.volume = 0.18;
+    countingMusic.play();
+  }
+
+  // --- Heading ---
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = s.title || "Counting Time!";
   textArea.appendChild(heading);
   textArea.style.textAlign = "center";
-  // Animierte Zeilen (oben)
+
+  // --- Animated lines (if provided) ---
   const linesBox = document.createElement('div');
   linesBox.className = "animated-lines";
-  textArea.appendChild(linesBox);
   linesBox.style.alignItems = "center";
+  textArea.appendChild(linesBox);
+
   if (Array.isArray(s.text)) {
     s.text.forEach((line, idx) => {
       setTimeout(() => {
         const p = document.createElement('div');
-p.className = "animated-text";
-p.style.textAlign = "center"; // <-- das ist entscheidend!
-p.innerText = line.line || line;
-linesBox.appendChild(p);
+        p.className = "animated-text";
+        p.style.textAlign = "center";
+        p.innerText = line.line || line;
+        linesBox.appendChild(p);
       }, idx * 900);
     });
   }
 
   let videoBox = null;
-  // Video-Bereich (unten rechts, wie bei Intro)
+
+  // --- VIDEO (optional, animals-style: floating bottom right) ---
   if (s.video) {
     videoElement = document.createElement('video');
     videoElement.src = `videos/${s.video}`;
@@ -716,19 +728,24 @@ linesBox.appendChild(p);
 
     videoBox = document.createElement('div');
     videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "22px";
+    videoBox.style.bottom = "22px";
+    videoBox.style.zIndex = "1000";
     videoBox.appendChild(videoElement);
     document.body.appendChild(videoBox);
 
-    // Play-Overlay
+    // --- Play-Button Overlay ---
     const playBtn = document.createElement('button');
-playBtn.className = "custom-play-btn";
-playBtn.title = "Play";
-playBtn.innerHTML = `
-  <svg viewBox="0 0 60 60">
-    <circle cx="30" cy="30" r="28" fill="none"/>
-    <polygon points="22,16 46,30 22,44" fill="#383838"/>
-  </svg>
-`;
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
 
     playBtn.onclick = function () {
       videoElement.play();
@@ -743,14 +760,8 @@ playBtn.innerHTML = `
       playBtn.style.display = "";
       videoElement.style.pointerEvents = "none";
     });
-    videoElement.addEventListener('ended', () => {
-  if (s.avatar) showAvatarInVideoBox(videoBox, s.avatar);
-  showNextBtn();
-});
 
-    videoBox.appendChild(playBtn);
-
-    // Zähl-Overlay, wenn countingTimings definiert
+    // --- Counting Overlay (optional) ---
     if (Array.isArray(s.countingTimings) && s.countingTimings.length > 0) {
       const overlay = document.createElement('div');
       overlay.id = "countingOverlay";
@@ -772,10 +783,10 @@ playBtn.innerHTML = `
           const timeout = setTimeout(() => {
             overlay.style.display = "";
             overlay.innerHTML = `
-  <div class="count-overlay" style="display: flex; align-items: center; justify-content: center;">
-    <img src="${step.image}" style="width:48px;height:48px;margin-right:18px;">
-    <span style="font-size:2.3rem;font-weight:bold;">${step.number}</span>
-  </div>
+              <div class="count-overlay" style="display: flex; align-items: center; justify-content: center;">
+                <img src="${step.image}" style="width:48px;height:48px;margin-right:18px;">
+                <span style="font-size:2.3rem;font-weight:bold;">${step.number}</span>
+              </div>
             `;
             setTimeout(() => {
               overlay.style.display = "none";
@@ -789,12 +800,16 @@ playBtn.innerHTML = `
       videoElement.addEventListener('pause', clearCountingOverlays);
     }
 
-    // Next-Button nach Video-Ende (kommt nach Avatar)
+    // --- Next-Button after Video-End & Musik-Stop ---
     function showNextBtn() {
       const btn = document.createElement('button');
       btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
       btn.className = "centered-next-btn";
       btn.onclick = () => {
+        if (countingMusic) {
+          countingMusic.pause();
+          countingMusic.currentTime = 0;
+        }
         lastSessionIdx = idx;
         currentSession++;
         renderSession(currentSession);
@@ -802,8 +817,17 @@ playBtn.innerHTML = `
       document.body.appendChild(btn);
     }
 
+    videoElement.addEventListener('ended', () => {
+      if (countingMusic) {
+        countingMusic.pause();
+        countingMusic.currentTime = 0;
+      }
+      if (s.avatar) showAvatarInVideoBox(videoBox, s.avatar);
+      showNextBtn();
+    });
+
   } else {
-    // Fallback: Kein Video, Avatar sofort anzeigen
+    // --- No video: Show avatar (optional), Next button, Musik-Stop im Next ---
     if (s.avatar) {
       document.querySelectorAll('.avatar').forEach(el => el.remove());
       const avatarImg = document.createElement('img');
@@ -813,11 +837,14 @@ playBtn.innerHTML = `
       textArea.appendChild(avatarImg);
     }
 
-    // Next-Button sofort
     const btn = document.createElement('button');
     btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
     btn.className = "centered-next-btn";
     btn.onclick = () => {
+      if (countingMusic) {
+        countingMusic.pause();
+        countingMusic.currentTime = 0;
+      }
       lastSessionIdx = idx;
       currentSession++;
       renderSession(currentSession);
@@ -826,6 +853,7 @@ playBtn.innerHTML = `
   }
   return;
 }
+
 
 
 
