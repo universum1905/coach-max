@@ -1365,38 +1365,50 @@ if (s.video) {
   }
 
   function handleChoice(btn, i, imgSrc) {
-    // Vorheriges Feedback entfernen
-    const prevWrong = document.querySelector(".wrong-msg");
-    if (prevWrong) prevWrong.remove();
+  // Remove previous wrong feedback
+  const prevWrong = document.querySelector(".wrong-msg");
+  if (prevWrong) prevWrong.remove();
 
-    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+  new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
-    // RICHTIGE AUSWAHL
-    if (i === s.correct) {
-  // Antwort-Buttons entfernen
-  document.querySelectorAll('.animals-buttons').forEach(e => e.remove());
+  // Correct answer
+  if (i === s.correct) {
+    document.querySelectorAll('.animals-buttons').forEach(e => e.remove());
+    showUniversalReward(
+      s.choices[i],            // Image from choices (correct)
+      s.onCorrect || "",       // onCorrect text from JSON
+      () => {
+        document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+        if (typeof unlockSticker === "function") unlockSticker(0);
+        if (musicAudio) { musicAudio.pause(); musicAudio.currentTime = 0; }
+        currentSession++;
+        renderSession(currentSession);
+      },
+      0
+    );
+    return; // ← Das verhindert, dass die Falsch-Logik darunter ausgeführt wird!
+  }
 
-  showUniversalReward(
-    s.choices[i],
-    s.onCorrect || "",
-    () => {
-      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
-      if (typeof unlockSticker === "function") unlockSticker(0);
-      if (musicAudio) { musicAudio.pause(); musicAudio.currentTime = 0; }
-      currentSession++;
-      renderSession(currentSession);
-    },
-    0
-  );
-  return;
-  
+  // Wrong answer logic (NO return needed here)
+  const wrongMsg = document.createElement("div");
+  wrongMsg.className = "wrong-msg animated-text";
+  wrongMsg.style.color = "#d32f2f";
+  wrongMsg.style.fontWeight = "bold";
+  wrongMsg.style.textAlign = "center";
+  wrongMsg.style.marginTop = "16px";
+  wrongMsg.textContent = s.onWrong || "Oops, that’s not right. Try again!";
+  textArea.appendChild(wrongMsg);
+
+  btn.classList.add("shake");
+  setTimeout(() => btn.classList.remove("shake"), 600);
+
+  setTimeout(() => {
+    if (wrongMsg.parentNode) wrongMsg.remove();
+  }, 1600);
+  // Funktion endet hier automatisch nach Ausführen der Falsch-Logik
 }
 
-    // Falsch-Logik
-  }  // ENDE FUNCTION handleChoice
-}
-
-
+ }
 
 
 
