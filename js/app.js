@@ -2187,4 +2187,3 @@ function startDay(dayNr) {
 window.location.href = `day.html?day=${dayNr}`;
 }
 
-}
