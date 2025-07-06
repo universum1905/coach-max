@@ -800,59 +800,77 @@ document.body.appendChild(btn);
       videoElement.addEventListener('pause', clearCountingOverlays);
     }
 
-    // --- Next-Button after Video-End & Musik-Stop ---
-    function showNextBtn() {
-      const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        if (countingMusic) {
-          countingMusic.pause();
-          countingMusic.currentTime = 0;
-        }
-        lastSessionIdx = idx;
-        currentSession++;
-        renderSession(currentSession);
-      };
-      document.body.appendChild(btn);
-    }
-
+    // --- Nach Video: Frage, Yes-Button, Reward, Next ---
     videoElement.addEventListener('ended', () => {
       if (countingMusic) {
         countingMusic.pause();
         countingMusic.currentTime = 0;
       }
-      if (s.avatar) showAvatarInVideoBox(videoBox, s.avatar);
-      showNextBtn();
+      if (videoBox) videoBox.remove();
+      showQuestionAndReward();
     });
 
   } else {
-    // --- No video: Show avatar (optional), Next button, Musik-Stop im Next ---
-    if (s.avatar) {
-      document.querySelectorAll('.avatar').forEach(el => el.remove());
-      const avatarImg = document.createElement('img');
-      avatarImg.src = "images/" + s.avatar + ".png";
-      avatarImg.alt = s.avatar;
-      avatarImg.className = "avatar";
-      textArea.appendChild(avatarImg);
-    }
-
-    const btn = document.createElement('button');
-    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-    btn.className = "centered-next-btn";
-    btn.onclick = () => {
-      if (countingMusic) {
-        countingMusic.pause();
-        countingMusic.currentTime = 0;
-      }
-      lastSessionIdx = idx;
-      currentSession++;
-      renderSession(currentSession);
-    };
-    document.body.appendChild(btn);
+    // --- Kein Video: Frage direkt anzeigen (optional) ---
+    showQuestionAndReward();
   }
+
+  function showQuestionAndReward() {
+    textArea.innerHTML = "";
+    const question = document.createElement("div");
+    question.className = "counting-question";
+    question.style.textAlign = "center";
+    question.style.fontSize = "1.5rem";
+    question.style.margin = "26px 0 16px 0";
+    question.textContent = "Did you count with me?";
+    textArea.appendChild(question);
+
+    const yesBtn = document.createElement("button");
+    yesBtn.innerText = "Yes!";
+    yesBtn.className = "counting-yes-btn";
+    yesBtn.style.display = "block";
+    yesBtn.style.margin = "24px auto";
+    yesBtn.style.fontSize = "1.5rem";
+    yesBtn.style.padding = "12px 36px";
+    yesBtn.style.borderRadius = "24px";
+    yesBtn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
+    yesBtn.style.boxShadow = "0 2px 14px #ffd54f66";
+    yesBtn.style.fontWeight = "bold";
+    textArea.appendChild(yesBtn);
+
+    yesBtn.onclick = function () {
+      // Remove question and button
+      question.remove();
+      yesBtn.remove();
+
+      // Show reward star (wie bei animals)
+      showUniversalReward(
+        "images/rewards/star.png", // oder Pfad zu deinem Reward-Sticker
+        "Great job counting!",     // Erfolgs-Kompliment (englisch)
+        () => {
+          // Nach Animation: Next-Button anzeigen
+          const nextBtn = document.createElement("button");
+          nextBtn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+          nextBtn.className = "centered-next-btn";
+          nextBtn.onclick = () => {
+            if (countingMusic) {
+              countingMusic.pause();
+              countingMusic.currentTime = 0;
+            }
+            lastSessionIdx = idx;
+            currentSession++;
+            renderSession(currentSession);
+          };
+          document.body.appendChild(nextBtn);
+        },
+        0 // Sticker-Index falls du ihn brauchst, sonst 0
+      );
+    }
+  }
+
   return;
 }
+
 
 
 
