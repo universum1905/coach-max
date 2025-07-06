@@ -835,137 +835,190 @@ playBtn.innerHTML = `
 
 // ==== 4. NEUES MODUL: MEMORY ====
    else if (s.type === "memory") {
-  // Speicher die Session-TextArea
+  // Clear and prepare session area
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
-  
-  // Überschrift, Avatar
-  const heading = document.createElement('h2');
-  heading.className = "session-heading";
-  heading.textContent = "Memory Game!";
-  textArea.appendChild(heading);
 
-  if (s.avatar) {
-    const avatarImg = document.createElement('img');
-    avatarImg.src = "images/" + s.avatar + ".png";
-    avatarImg.alt = s.avatar;
-    avatarImg.className = "intro-avatar-small";
-    textArea.appendChild(avatarImg);
+  // --- BACKGROUND MUSIC (optional, from JSON) ---
+  let memoryMusic = null;
+  if (s.music) {
+    memoryMusic = new Audio("audio/" + s.music);
+    memoryMusic.loop = true;
+    memoryMusic.volume = 0.18;
+    memoryMusic.play();
   }
 
-  // Spielfeld
-  const board = document.createElement('div');
-  board.style.display = "grid";
-  board.style.gridTemplateColumns = "repeat(4, 58px)";
-  board.style.gap = "16px";
-  board.style.margin = "22px 0";
-  board.style.justifyContent = "center";
-  textArea.appendChild(board);
+  // --- VIDEO (optional, from JSON) ---
+  if (s.video) {
+    const video = document.createElement('video');
+    video.src = "videos/" + s.video;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+    video.style.display = "block";
+    video.style.margin = "0 auto 18px auto";
+    textArea.appendChild(video);
 
-  // Karten mischen
-  const shuffled = s.cards.slice().sort(() => Math.random() - 0.5);
-  let opened = [], matched = [];
-  shuffled.forEach((card, idx) => {
-    const btn = document.createElement('button');
-    btn.style.width = "58px";
-    btn.style.height = "58px";
-    btn.style.borderRadius = "16px";
-    btn.style.background = "#fffbe6";
-    btn.style.border = "2px solid #b2dfdb";
-    btn.style.boxShadow = "0 2px 8px #81d4fa88";
-    btn.style.fontSize = "2.1rem";
-    btn.style.cursor = "pointer";
-    btn.dataset.pair = card.pairId;
-    btn.dataset.idx = idx;
-    btn.innerHTML = `<span style="font-size:2.5rem;">❓</span>`; // Verdeckt
+    // Play button overlay (optional)
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    playBtn.style.position = "absolute";
+    playBtn.style.left = "50%";
+    playBtn.style.top = "50%";
+    playBtn.style.transform = "translate(-50%,-50%)";
+    playBtn.style.zIndex = "2";
+    video.parentNode && video.parentNode.appendChild(playBtn);
 
-    btn.onclick = function () {
-      if (btn.classList.contains("matched") || btn === opened[0]) return;
-      btn.innerHTML = `<img src="${card.img}" alt="card" style="width:48px;height:48px;">`;
-      opened.push(btn);
+    playBtn.addEventListener("click", () => {
+      video.play();
+      playBtn.style.display = "none";
+    });
+    video.addEventListener("play", () => playBtn.style.display = "none");
 
-      if (opened.length === 2) {
-        if (opened[0].dataset.pair === opened[1].dataset.pair) {
-          // Richtig!
-          opened[0].classList.add("matched");
-          opened[1].classList.add("matched");
-          matched.push(opened[0], opened[1]);
-          opened = [];
-          if (matched.length === shuffled.length) {
-            setTimeout(() => {
-              showMemoryReward();
-            }, 600);
-          }
-        } else {
-          // Falsch: kurz anzeigen, dann wieder verdecken
-          setTimeout(() => {
-            opened[0].innerHTML = `<span style="font-size:2.5rem;">❓</span>`;
-            opened[1].innerHTML = `<span style="font-size:2.5rem;">❓</span>`;
-            opened = [];
-          }, 800);
-        }
-      }
-    };
-    board.appendChild(btn);
-  });
+    video.addEventListener("ended", () => {
+      startMemoryGame();
+    });
 
-  // Belohnung/Sticker/Glitzer nach Abschluss
-  function showMemoryReward() {
-  createRewardStar(); // 🎉 Neues Belohnungs-Widget anzeigen
-
-  // Kompliment zusätzlich einblenden
-  let compliments = [
-    "Super memory skills!",
-    "You are a clever fox!",
-    "Max is proud of you!",
-    "You rock!"
-  ];
-  let compliment = compliments[Math.floor(Math.random() * compliments.length)];
-  setTimeout(() => {
-    let praise = document.createElement('div');
-    praise.className = "animated-text";
-    praise.style.color = "#44a047";
-    praise.style.textAlign = "center";
-    praise.style.marginTop = "18px";
-    praise.innerHTML = compliment;
-    textArea.appendChild(praise);
-  }, 1600);
-
-  // Sticker freischalten
-  if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
-    unlockSticker(s.successSticker);
+    return; // Don't show game before video ended!
+  } else {
+    startMemoryGame();
   }
 
-  // Button zentriert
-  setTimeout(() => {
-    const btn = document.createElement('button');
-    btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-    btn.className = "centered-next-btn";
-    btn.onclick = () => {
-      document.querySelectorAll(".centered-next-btn, div[style*='fixed'], .animated-text").forEach(e => e.remove());
-      currentSession++;
-      renderSession(currentSession);
-    };
-    document.body.appendChild(btn);
-  }, 2200);
-}
+  function startMemoryGame() {
+    // --- Heading & Avatar ---
+    textArea.innerHTML = "";
+    const heading = document.createElement('h2');
+    heading.className = "session-heading";
+    heading.textContent = "Memory Game!";
+    textArea.appendChild(heading);
 
+    if (s.avatar) {
+      const avatarImg = document.createElement('img');
+      avatarImg.src = "images/" + s.avatar + ".png";
+      avatarImg.alt = s.avatar;
+      avatarImg.className = "intro-avatar-small";
+      textArea.appendChild(avatarImg);
+    }
 
-    // Sticker (direkt am Board/Popup) – hier kannst du unlockSticker(s.successSticker) aufrufen!
-    setTimeout(() => {
-      if (typeof unlockSticker === "function" && s.successSticker !== undefined) unlockSticker(s.successSticker);
+    // --- Game Board ---
+    const board = document.createElement('div');
+    board.style.display = "grid";
+    board.style.gridTemplateColumns = "repeat(4, 58px)";
+    board.style.gap = "16px";
+    board.style.margin = "22px 0";
+    board.style.justifyContent = "center";
+    textArea.appendChild(board);
+
+    // Shuffle cards
+    const shuffled = s.cards.slice().sort(() => Math.random() - 0.5);
+    let opened = [], matched = [];
+    shuffled.forEach((card, idx) => {
       const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      btn.style.width = "58px";
+      btn.style.height = "58px";
+      btn.style.borderRadius = "16px";
+      btn.style.background = "#fffbe6";
+      btn.style.border = "2px solid #b2dfdb";
+      btn.style.boxShadow = "0 2px 8px #81d4fa88";
+      btn.style.fontSize = "2.1rem";
+      btn.style.cursor = "pointer";
+      btn.dataset.pair = card.pairId;
+      btn.dataset.idx = idx;
+      btn.innerHTML = `<span style="font-size:2.5rem;">❓</span>`; // Hidden
+
+      btn.onclick = function () {
+        if (btn.classList.contains("matched") || btn === opened[0]) return;
+        btn.innerHTML = `<img src="${card.img}" alt="card" style="width:48px;height:48px;">`;
+        opened.push(btn);
+
+        if (opened.length === 2) {
+          if (opened[0].dataset.pair === opened[1].dataset.pair) {
+            // Correct!
+            opened[0].classList.add("matched");
+            opened[1].classList.add("matched");
+            matched.push(opened[0], opened[1]);
+            opened = [];
+            if (matched.length === shuffled.length) {
+              // --- PLAY YAY SOUND! ---
+              new Audio("audio/yay.mp3").play();
+              // --- STOP BACKGROUND MUSIC ---
+              if (memoryMusic) {
+                memoryMusic.pause();
+                memoryMusic.currentTime = 0;
+              }
+              setTimeout(() => {
+                showMemoryReward();
+              }, 600);
+            }
+          } else {
+            // Wrong: briefly show, then hide again
+            setTimeout(() => {
+              opened[0].innerHTML = `<span style="font-size:2.5rem;">❓</span>`;
+              opened[1].innerHTML = `<span style="font-size:2.5rem;">❓</span>`;
+              opened = [];
+            }, 800);
+          }
+        }
+      };
+      board.appendChild(btn);
+    });
+  }
+
+  // --- REWARD & CONTINUE ---
+  function showMemoryReward() {
+    createRewardStar();
+
+    // Compliment
+    let compliments = [
+      "Super memory skills!",
+      "You are a clever fox!",
+      "Max is proud of you!",
+      "You rock!"
+    ];
+    let compliment = compliments[Math.floor(Math.random() * compliments.length)];
+    setTimeout(() => {
+      let praise = document.createElement('div');
+      praise.className = "animated-text";
+      praise.style.color = "#44a047";
+      praise.style.textAlign = "center";
+      praise.style.marginTop = "18px";
+      praise.innerHTML = compliment;
+      textArea.appendChild(praise);
+    }, 1600);
+
+    // Unlock sticker
+    if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
+      unlockSticker(s.successSticker);
+    }
+
+    // Next/Finish Button
+    setTimeout(() => {
+      const btn = document.createElement('button');
+      btn.innerText = currentSession < sessions.length - 1 ? "Next" : "Finish";
       btn.className = "centered-next-btn";
       btn.onclick = () => {
+        document.querySelectorAll(".centered-next-btn, div[style*='fixed'], .animated-text").forEach(e => e.remove());
         currentSession++;
         renderSession(currentSession);
       };
-      textArea.appendChild(btn);
+      document.body.appendChild(btn);
     }, 2200);
-  
-  return; // Wichtig!
+  }
+
+  return;
 }
+
 
 
 // ==== Modul: SCHATTENRÄTSEL ====
