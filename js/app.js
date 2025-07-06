@@ -557,7 +557,7 @@ playBtn.innerHTML = `
   }
 
   // ===== 2. BREATHING =====
-  else if (s.type === "breathing") {
+   else if (s.type === "breathing") {
     try { 
       breathingMusic.currentTime = 0; 
       breathingMusic.play(); 
@@ -969,7 +969,7 @@ playBtn.innerHTML = `
 
 
 // ==== Modul: SCHATTENRÄTSEL ====
-else if (s.type === "shadow") {
+ else if (s.type === "shadow") {
   console.log("shadow BLOCK:", s, "s.video=", s.video);
   if (!s.video) alert("Achtung! s.video ist leer!");
   console.log("SHADOW-BLOCK WIRD AUSGEFÜHRT!", s);
@@ -1117,21 +1117,9 @@ else if (s.type === "shadow") {
 }
 
 
-
-
-
-  
-
-
-
-
-// ganz unten in renderSession(), direkt nach allen anderen `if (s.type === "...")`-Blöcken:
-// ==== neues Modul: ANIMALS ====
-// Innerhalb von renderSession(idx), ersetze den bisherigen animals-Block durch:
-
   
 // ==== Modul: ANIMALS ====
-else if (s.type === "animals") {
+ else if (s.type === "animals") {
   // Grund-Setup & Cleanup
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -1312,7 +1300,7 @@ else if (s.type === "animals") {
 
 
   // ==== Modul: RHYME ====
-else if (s.type === "rhyme") {
+  else if (s.type === "rhyme") {
   // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -1441,7 +1429,7 @@ else if (s.type === "rhyme") {
 }
 
   // ==== Modul: STORY ====
-else if (s.type === "story") {
+ else if (s.type === "story") {
   // 0) Aufräumen & Fortschritt
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -1574,7 +1562,7 @@ else if (s.type === "story") {
 
   
 // ==== Modul: PATTERN ====
-else if (s.type === "pattern") {
+ else if (s.type === "pattern") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -1832,10 +1820,9 @@ else if (s.type === "pattern") {
 }
 
 
-// --- START DES BLOCKS app.js: chatgpt-quiz ---
-// --- START DES BLOCKS app.js: chatgpt-quiz ---
+
 // ==== Modul: CHATGPT-QUIZ ====
-else if (s.type === "chatgpt-quiz") {
+ else if (s.type === "chatgpt-quiz") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -2061,6 +2048,10 @@ else if (s.type === "chatgpt-quiz") {
   }
 
   return;
+} else {
+	
+	return;
+  }
 }
 
 
@@ -2069,15 +2060,6 @@ else if (s.type === "chatgpt-quiz") {
 
 
 
-
-
-  
-
-
-
-
-
-   
 
 // Hilfsfunktion am Ende deiner Datei (oder im Kopf)
 function finishDay() {
