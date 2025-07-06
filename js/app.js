@@ -3,53 +3,7 @@
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
 let DEV_START_SESSION = 0; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
-console.log("app.js startet!");
-fetch("days/day1.json")
-  .then(r => r.json())
-  .then(data => {
-    console.log("JSON geladen:", data);
-    // ---- HIER BEGINNT DER NEUE CODE ----
-    const sessions = data.sessions;
-    let currentSession = 0;
 
-function renderSession(idx) {
-  const s = sessions[idx];
-  let textHTML = '';
-  if (Array.isArray(s.text)) {
-    textHTML = '<ul>';
-    s.text.forEach(lineObj => {
-      textHTML += `<li>${lineObj.line}</li>`;
-    });
-    textHTML += '</ul>';
-  } else if (typeof s.text === 'string') {
-    textHTML = `<p>${s.text}</p>`;
-  }
-
-  // Button nur, wenn es noch eine nächste Session gibt
-  let btnHTML = '';
-  if (idx < sessions.length - 1) {
-    btnHTML = `<button id="nextBtn">Next</button>`;
-  }
-
-  document.body.innerHTML = `
-    <h1>${s.title || "Session " + (idx+1)}</h1>
-    ${textHTML}
-    ${btnHTML}
-  `;
-
-  // Button-Event registrieren
-  if (idx < sessions.length - 1) {
-    document.getElementById('nextBtn').onclick = () => {
-      renderSession(idx + 1);
-    }
-  }
-}
-
-// Beim Laden: erste Session anzeigen
-renderSession(0);
-
-    // ---- HIER KANNST DU WEITER BAUEN ----
-  });
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
@@ -1175,7 +1129,7 @@ else if (s.type === "shadow") {
 // ==== neues Modul: ANIMALS ====
 // Innerhalb von renderSession(idx), ersetze den bisherigen animals-Block durch:
 
-  // ==== Modul: ANIMALS ====
+  
 // ==== Modul: ANIMALS ====
 else if (s.type === "animals") {
   // Grund-Setup & Cleanup
