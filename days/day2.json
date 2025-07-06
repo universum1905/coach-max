@@ -76,7 +76,7 @@
       "title": "Guess the Animal!",
       "text": ["Listen carefully to the sound. Which animal is it?"],
       "timings": [0],
-      "choices": ["images/lion.png", "images/elephant.png", "images/monkey.png"],
+      "choices": ["images/animals/lion.png", "images/animals/elephant.png", "images/animals/monkey.png"],
       "correct": 0,
       "onCorrect": "Awesome! That’s a lion!",
       "onWrong": "Oops! Try again!",
