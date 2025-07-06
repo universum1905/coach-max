@@ -10,22 +10,44 @@ fetch("days/day1.json")
     console.log("JSON geladen:", data);
     // ---- HIER BEGINNT DER NEUE CODE ----
     const sessions = data.sessions;
-    const firstSession = sessions[0];
-   let textHTML = '';
-if (Array.isArray(firstSession.text)) {
-  textHTML = '<ul>';
-  firstSession.text.forEach(lineObj => {
-    textHTML += `<li>${lineObj.line}</li>`;
-  });
-  textHTML += '</ul>';
-} else if (typeof firstSession.text === 'string') {
-  textHTML = `<p>${firstSession.text}</p>`;
+    let currentSession = 0;
+
+function renderSession(idx) {
+  const s = sessions[idx];
+  let textHTML = '';
+  if (Array.isArray(s.text)) {
+    textHTML = '<ul>';
+    s.text.forEach(lineObj => {
+      textHTML += `<li>${lineObj.line}</li>`;
+    });
+    textHTML += '</ul>';
+  } else if (typeof s.text === 'string') {
+    textHTML = `<p>${s.text}</p>`;
+  }
+
+  // Button nur, wenn es noch eine nächste Session gibt
+  let btnHTML = '';
+  if (idx < sessions.length - 1) {
+    btnHTML = `<button id="nextBtn">Next</button>`;
+  }
+
+  document.body.innerHTML = `
+    <h1>${s.title || "Session " + (idx+1)}</h1>
+    ${textHTML}
+    ${btnHTML}
+  `;
+
+  // Button-Event registrieren
+  if (idx < sessions.length - 1) {
+    document.getElementById('nextBtn').onclick = () => {
+      renderSession(idx + 1);
+    }
+  }
 }
 
-document.body.innerHTML = `
-  <h1>${firstSession.title || "Session 1"}</h1>
-  ${textHTML}
-`;
+// Beim Laden: erste Session anzeigen
+renderSession(0);
+
     // ---- HIER KANNST DU WEITER BAUEN ----
   });
 
