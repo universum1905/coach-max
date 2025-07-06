@@ -1513,39 +1513,45 @@ if (s.video) {
 
   // 4) Auswahl verarbeiten
   function handleChoice(btn, i) {
-    // Feedback-Sound
-    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+  // Feedback-Sound
+  new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
-    // vorheriges Feedback entfernen
-    const prev = document.querySelector(".rhyme-feedback");
-    if (prev) prev.remove();
+  // vorheriges Feedback entfernen
+  const prev = document.querySelector(".rhyme-feedback");
+  if (prev) prev.remove();
 
-    // Feedback-Element
-    const feedback = document.createElement("div");
-    feedback.className = "animated-text rhyme-feedback";
-    feedback.style.textAlign = "center";
-    feedback.style.marginTop = "17px";
+  // Feedback-Element
+  const feedback = document.createElement("div");
+  feedback.className = "animated-text rhyme-feedback";
+  feedback.style.textAlign = "center";
+  feedback.style.marginTop = "17px";
 
-    if (i === s.correct) {
-  // Antwort-Buttons entfernen
-  document.querySelectorAll('.animals-buttons').forEach(e => e.remove());
+  if (i === s.correct) {
+    // Antwort-Buttons entfernen
+    document.querySelectorAll('.rhyme-buttons').forEach(e => e.remove());
 
-  showUniversalReward(
-    s.choices[i],
-    s.onCorrect || "",
-    () => {
-      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
-      if (typeof unlockSticker === "function") unlockSticker(0);
-      if (musicAudio) { musicAudio.pause(); musicAudio.currentTime = 0; }
-      currentSession++;
-      renderSession(currentSession);
-    },
-    0
-  );
-  return;
+    showUniversalReward(
+      s.choices[i],
+      s.onCorrect || "",
+      null, // oder null statt Callback, damit Next nur einmal kommt
+      0
+    );
+    return;
   }
+
+  // FALSCH-Logik (Feedback anzeigen)
+  feedback.style.color = "#d32f2f";
+  feedback.style.fontWeight = "bold";
+  feedback.textContent = s.onWrong || "Oops, that's not right. Try again!";
+  textArea.appendChild(feedback);
+
+  btn.classList.add("shake");
+  setTimeout(() => btn.classList.remove("shake"), 600);
+  setTimeout(() => {
+    if (feedback.parentNode) feedback.remove();
+  }, 1600);
 }
-}
+  }
 
   // ==== Modul: STORY ====
  else if (s.type === "story") {
