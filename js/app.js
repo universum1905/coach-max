@@ -2072,10 +2072,11 @@ if (shadowMusic) {
   textArea.appendChild(msg);
 
   new Audio("audio/yay.mp3").play();
-showUniversalReward(
-  "Quiz Complete!",
-  () => { currentSession++; renderSession(currentSession); },
-  s.successSticker || 0
+  showUniversalReward(
+  "Quiz Complete!",                    // Bildpfad ODER Text
+  "",                        // Text darunter (hier leer)
+  () => { currentSession++; renderSession(currentSession); },  // Callback-Funktion
+  0                         // Sticker-Index
 );
     
 }
