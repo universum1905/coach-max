@@ -1852,97 +1852,27 @@ if (s.video) {
     feedbackDiv.style.transition = "all 0.22s";
 
     if (i === s.correct) {
-      feedbackDiv.classList.add("glitter");
-      feedbackDiv.textContent = s.onCorrect || "Great job! You found the right number!";
-      textArea.insertBefore(feedbackDiv, answersBox);
+  // Feedback anzeigen (optional, kannst du auch ganz weglassen!)
+  feedbackDiv.classList.add("glitter");
+  feedbackDiv.textContent = s.onCorrect || "Great job! You found the right number!";
+  textArea.insertBefore(feedbackDiv, answersBox);
 
-      Array.from(answersBox.children).forEach((c, idx) => {
-        if (idx !== i) c.style.display = "none";
-      });
+  // Antwort-Buttons ausblenden (außer dem richtigen)
+  Array.from(answersBox.children).forEach((c, idx) => {
+    if (idx !== i) c.style.display = "none";
+  });
 
-      // Stern-Animation
-      const sticker = document.createElement("img");
-      sticker.src = "images/stickers/star.png";
-      sticker.style.position = "absolute";
-      sticker.style.left = "-100px";
-      sticker.style.top = "50%";
-      sticker.style.transform = "translateY(-50%)";
-      sticker.style.width = "80px";
-      sticker.style.transition = "left 0.8s cubic-bezier(.32,1.4,.51,1.01)";
-      document.body.appendChild(sticker);
-
-      setTimeout(() => {
-        sticker.style.left = (window.innerWidth / 2 - 40) + "px";
-      }, 50);
-
-      setTimeout(() => {
-        sticker.style.transition = "all 0.6s ease-in";
-        sticker.style.left = (window.innerWidth - 100) + "px";
-        sticker.style.top = "10px";
-        sticker.style.opacity = "0";
-      }, 900);
-
-      setTimeout(() => {
-        const rewardBox = document.createElement("div");
-        rewardBox.style.position = "fixed";
-        rewardBox.style.left = "50%";
-        rewardBox.style.transform = "translateX(-50%)";
-        rewardBox.style.bottom = "150px";
-        rewardBox.style.display = "flex";
-        rewardBox.style.flexDirection = "column";
-        rewardBox.style.alignItems = "center";
-        rewardBox.style.zIndex = "1000";
-
-        const rewardText = document.createElement("div");
-        rewardText.textContent = "Your reward";
-        rewardText.style.fontSize = "1.17rem";
-        rewardText.style.fontWeight = "700";
-        rewardText.style.color = "#faaf08";
-        rewardText.style.marginBottom = "7px";
-        rewardBox.appendChild(rewardText);
-
-        const rewardSticker = document.createElement("img");
-        rewardSticker.src = "images/stickers/star.png";
-        rewardSticker.style.width = "68px";
-        rewardSticker.style.height = "68px";
-        rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
-        rewardSticker.style.borderRadius = "22px";
-        rewardSticker.style.background = "#fffbe6";
-        rewardBox.appendChild(rewardSticker);
-
-        document.body.appendChild(rewardBox);
-
-        // Next-Button
-        const next = document.createElement("button");
-        next.className = "centered-next-btn";
-        next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-        next.addEventListener("click", () => {
-          if (patternMusic) {
-            patternMusic.pause();
-            patternMusic.currentTime = 0;
-          }
-          document.querySelectorAll(".floating-video, .centered-next-btn, .glitter, div[style*='fixed']").forEach(e => e.remove());
-          currentSession++;
-          renderSession(currentSession);
-        });
-        document.body.appendChild(next);
-
-        if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
-          unlockSticker(s.successSticker);
-        }
-      }, 1600);
-
-    } else {
-      btn.style.background = "#ffd6d6";
-      feedbackDiv.textContent = s.onWrong || "Try again! Look at the pattern closely.";
-      textArea.insertBefore(feedbackDiv, answersBox);
-      btn.classList.add("shake");
-      setTimeout(() => btn.classList.remove("shake"), 600);
-    }
-  }
-
+  // Universeller Reward-Container – wie bei Animals etc.
+  showUniversalReward(
+    s.answers[i],          // Zeigt die richtige Zahl, falls das ein Bild ist – sonst als Text
+    s.onCorrect || "",
+    null,                  // Callback, Next-Button kommt automatisch!
+    s.successSticker || 0  // Sticker-Index, falls gewünscht, sonst 0
+  );
   return;
 }
+  }
+ }
 
 
 
