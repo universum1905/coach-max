@@ -3,7 +3,7 @@
   "sessions": [
     {
       "type": "intro",
-      "video": "day2-intro.mp4",
+      "video": "day1-test.mp4",
       "title": "Welcome to Day 2!",
       "text": [
         { "line": "Today is full of new challenges. Are you ready?", "duration": 2 },
