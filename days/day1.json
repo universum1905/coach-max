@@ -45,7 +45,7 @@
   "type": "memory",
   "avatar": "benny",
   "music": "focus-loop.mp3",          
-  "video": "day1-memory-intro.mp4",    
+  "video": "day1-test.mp4",    
   "cards": [
     { "img": "images/animals/cat.png", "pairId": 1 },
     { "img": "images/animals/cat.png", "pairId": 1 },
