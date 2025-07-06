@@ -10,6 +10,22 @@ html, body {
   font-family: 'Comic Neue', 'Baloo 2', Arial, sans-serif;
 }
 
+@keyframes countYesPulse {
+  0% {
+    transform: scale(1) rotate(-2deg) ;
+    box-shadow: 0 2px 22px #ffd54f99, 0 0 18px #fffde4;
+  }
+  60% {
+    transform: scale(1.07) rotate(2deg);
+    box-shadow: 0 4px 32px #fffde466, 0 0 36px #ffe082;
+  }
+  100% {
+    transform: scale(1.12) rotate(-3deg);
+    box-shadow: 0 6px 40px #ffd54faa, 0 0 44px #fffde4;
+  }
+}
+
+
 /* Hauptbereich für Sessions */
 .session-text-area {
   display: flex;
