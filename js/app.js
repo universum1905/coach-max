@@ -851,45 +851,57 @@ playBtn.innerHTML = `
   }
 
   // --- VIDEO (optional, Animals-Style) ---
-  if (s.video) {
-    const video = document.createElement("video");
-    video.src = `videos/${s.video}`;
-    video.setAttribute("controls", "true");
-    video.setAttribute("controlsList", "nodownload");
-    video.autoplay = false;
-    video.muted = false;
-    video.playsInline = true;
-    video.poster = "images/video-placeholder.png";
-    video.className = "session-video";
-    textArea.appendChild(video);
+  // --- VIDEO (optional, Animals-Style) ---
+if (s.video) {
+  const video = document.createElement("video");
+  video.src = `videos/${s.video}`;
+  video.setAttribute("controls", "true");
+  video.setAttribute("controlsList", "nodownload");
+  video.autoplay = false;
+  video.muted = false;
+  video.playsInline = true;
+  video.poster = "images/video-placeholder.png";
+  video.className = "session-video";
 
-    // Play button overlay (like animals)
-    const playBtn = document.createElement("button");
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-    `;
-    textArea.appendChild(playBtn);
+  // Floating Video-Box (unten rechts, wie bei animals)
+  const videoBox = document.createElement("div");
+  videoBox.className = "floating-video";
+  videoBox.style.position = "fixed";
+  videoBox.style.bottom = "22px";
+  videoBox.style.right = "22px";
+  videoBox.style.zIndex = "1000";
+  videoBox.appendChild(video);
+  document.body.appendChild(videoBox);
 
-    playBtn.addEventListener("click", () => {
-      video.play();
-      playBtn.style.display = "none";
-    });
-    video.addEventListener("play", () => playBtn.style.display = "none");
+  // Play button overlay (wie bei animals)
+  const playBtn = document.createElement("button");
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+  `;
+  videoBox.appendChild(playBtn);
 
-    video.addEventListener("ended", () => {
-      textArea.innerHTML = ""; // remove video+button after video end
-      startMemoryGame();
-    });
+  playBtn.addEventListener("click", () => {
+    video.play();
+    playBtn.style.display = "none";
+  });
+  video.addEventListener("play", () => playBtn.style.display = "none");
 
-    return; // Don't show game before video ended!
-  } else {
+  video.addEventListener("ended", () => {
+    // Video-Box entfernen nach Ende
+    videoBox.remove();
     startMemoryGame();
-  }
+  });
+
+  return; // Don't show game before video ended!
+} else {
+  startMemoryGame();
+}
+
 
   function startMemoryGame() {
     textArea.innerHTML = "";
