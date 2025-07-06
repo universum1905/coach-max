@@ -11,10 +11,21 @@ fetch("days/day1.json")
     // ---- HIER BEGINNT DER NEUE CODE ----
     const sessions = data.sessions;
     const firstSession = sessions[0];
-    document.body.innerHTML = `
-      <h1>${firstSession.title || "Session 1"}</h1>
-      <pre>${JSON.stringify(firstSession, null, 2)}</pre>
-    `;
+   let textHTML = '';
+if (Array.isArray(firstSession.text)) {
+  textHTML = '<ul>';
+  firstSession.text.forEach(lineObj => {
+    textHTML += `<li>${lineObj.line}</li>`;
+  });
+  textHTML += '</ul>';
+} else if (typeof firstSession.text === 'string') {
+  textHTML = `<p>${firstSession.text}</p>`;
+}
+
+document.body.innerHTML = `
+  <h1>${firstSession.title || "Session 1"}</h1>
+  ${textHTML}
+`;
     // ---- HIER KANNST DU WEITER BAUEN ----
   });
 
