@@ -1178,64 +1178,174 @@ else if (s.type === "shadow") {
   // ==== Modul: ANIMALS ====
 // ==== Modul: ANIMALS ====
 else if (s.type === "animals") {
-  // Heading
-  let textHTML = `<h2>${s.title || "Guess the Animal!"}</h2>`;
+  // Grund-Setup & Cleanup
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
 
-  // Clues (Text lines)
-  if (Array.isArray(s.text)) {
-    textHTML += '<ul>';
-    s.text.forEach(lineObj => {
-      if (typeof lineObj === "string") {
-        textHTML += `<li>${lineObj}</li>`;
-      } else if (typeof lineObj === "object" && lineObj.line) {
-        textHTML += `<li>${lineObj.line}</li>`;
-      }
-    });
-    textHTML += '</ul>';
+  // Hintergrundmusik (optional)
+  let musicAudio = null;
+  if (s.music) {
+    musicAudio = new Audio("audio/" + s.music);
+    musicAudio.loop = true;
+    musicAudio.volume = 0.17;
+    musicAudio.play();
   }
 
-  // Video (optional)
-  let videoHTML = '';
+  // Überschrift
+  const heading = document.createElement("h2");
+  heading.className = "session-heading";
+  heading.textContent = "Guess the Animal!";
+  heading.style.textAlign = "center";
+  textArea.appendChild(heading);
+
+  // Video unten rechts, fixiert & immer im Vordergrund
+  let videoBox, video;
   if (s.video) {
-    videoHTML = `
-      <video src="videos/${s.video}" controls style="width:220px;display:block;margin:20px auto 10px auto;border-radius:14px;box-shadow:0 0 14px #ffd54faa"></video>
+    video = document.createElement("video");
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.zIndex = "1000"; // Höchster Wert, bleibt IMMER oben
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    // Play-Button wie immer
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
     `;
-  }
+    videoBox.appendChild(playBtn);
 
-  // Choice buttons
-  let btnHTML = '';
-  if (Array.isArray(s.choices)) {
-    btnHTML = '<div style="display:flex;gap:14px;justify-content:center;margin:18px 0;">';
-    s.choices.forEach((src, i) => {
-      btnHTML += `<button class="animal-btn" data-idx="${i}" style="padding:0;border:none;background:none;">
-                    <img src="${src}" style="width:92px;height:92px;border-radius:14px;box-shadow:0 2px 14px #b2ebf2;">
-                  </button>`;
+    playBtn.addEventListener("click", () => {
+      video.play();
+      playBtn.style.display = "none";
     });
-    btnHTML += '</div>';
+    video.addEventListener("play", () => playBtn.style.display = "none");
+
+    video.addEventListener("ended", () => {
+      // Avatar wird im Video-Container nach dem Video angezeigt
+      showAvatarInVideoBox(videoBox, "momo");
+      startAnimalSequence();
+    });
+  } else {
+    startAnimalSequence();
   }
 
-  document.body.innerHTML = `
-    ${textHTML}
-    ${videoHTML}
-    ${btnHTML}
-  `;
-
-  // Event listeners for buttons
-  document.querySelectorAll('.animal-btn').forEach(btn => {
-    btn.onclick = function() {
-      const i = Number(this.dataset.idx);
-      if (i === s.correct) {
-        alert(s.onCorrect || "Yay, that's correct!");
-        // Go to next session or show a reward, etc.
-        if (idx < sessions.length - 1) renderSession(idx + 1);
-      } else {
-        alert(s.onWrong || "Oops, try again!");
+  function playRepeatedAudio(audioSrc, repeats, onComplete) {
+    let count = 0;
+    function playNext() {
+      if (count < repeats) {
+        const audio = new Audio(audioSrc);
+        audio.onended = playNext;
+        audio.play();
+        count++;
+      } else if (typeof onComplete === 'function') {
+        onComplete();
       }
     }
-  });
-return;
+    playNext();
+  }
+
+  function startAnimalSequence() {
+    // Tiergeräusch (wiederholt), dann Textzeilen, dann Buttons
+    playRepeatedAudio(`audio/${s.sound}`, s.repeats, () => {
+      // Textzeilen mit Timings (optional)
+      if (Array.isArray(s.text)) {
+        s.text.forEach((line, i) => {
+          setTimeout(() => {
+            const p = document.createElement("div");
+            p.className = "animated-text";
+            p.style.textAlign = "center";
+            p.innerText = line;
+            textArea.appendChild(p);
+            if (i === s.text.length - 1) showChoices();
+          }, s.timings && s.timings[i] ? s.timings[i] * 1000 : i * 1200);
+        });
+      } else {
+        showChoices();
+      }
+    });
+  }
+
+  function showChoices() {
+    // CTA-Text
+    const cta = document.createElement("div");
+    cta.className = "animated-text";
+    cta.style.textAlign = "center";
+    cta.style.fontSize = "1.18rem";
+    cta.style.marginBottom = "16px";
+    cta.innerText = "Tap the right animal!";
+    textArea.appendChild(cta);
+
+    // Button-Container
+    const box = document.createElement("div");
+    box.className = "animals-buttons";
+    box.style.display = "flex";
+    box.style.justifyContent = "center";
+    box.style.gap = "16px";
+    textArea.appendChild(box);
+
+    s.choices.forEach((src, i) => {
+      const btn = document.createElement("button");
+      btn.className = "animated-text fade-in-up";
+      btn.style.animationDelay = `${i * 0.2}s`;
+      btn.style.animationDuration = "0.6s";
+      btn.style.border = "none";
+      btn.style.background = "none";
+      btn.style.position = "relative";
+      btn.innerHTML = `<img src="${src}" style="width:72px;height:72px;border-radius:12px;">`;
+      btn.addEventListener("click", () => handleChoice(btn, i, src));
+      box.appendChild(btn);
+    });
+  }
+
+  function handleChoice(btn, i, imgSrc) {
+    // Vorheriges Feedback entfernen
+    const prevWrong = document.querySelector(".wrong-msg");
+    if (prevWrong) prevWrong.remove();
+
+    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+
+    // RICHTIGE AUSWAHL
+    if (i === s.correct) {
+  // Antwort-Buttons entfernen
+  document.querySelectorAll('.animals-buttons').forEach(e => e.remove());
+
+  showUniversalReward(
+    s.choices[i],
+    s.onCorrect || "",
+    () => {
+      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+      if (typeof unlockSticker === "function") unlockSticker(0);
+      if (musicAudio) { musicAudio.pause(); musicAudio.currentTime = 0; }
+      currentSession++;
+      renderSession(currentSession);
+    },
+    0
+  );
+  return;
+  
 }
 
+    // Falsch-Logik
+  }  // ENDE FUNCTION handleChoice
+}
 
 
 
