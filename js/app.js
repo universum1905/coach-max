@@ -1197,8 +1197,20 @@ if (s.video) {
     s.successSticker || 0       // Sticker-Index, falls definiert
   );
   return;
+} else {
+    // ---- HIER DIESEN CODE EINBAUEN: ----
+    btn.style.border = "2px solid #d32f2f";
+    feedback.textContent = s.onWrong || "Oops, that's not right. Try again!";
+    feedback.style.color = "#d32f2f";
+    textArea.appendChild(feedback);
+    btn.classList.add("shake");
+    setTimeout(() => btn.classList.remove("shake"), 600);
+    setTimeout(() => {
+      if (feedback.parentNode) feedback.remove();
+      btn.style.border = "2px solid #ffd54f";
+    }, 1500);
+  }
 }
-	}
   }
  }
 
