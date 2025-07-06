@@ -2071,9 +2071,9 @@ if (shadowMusic) {
   msg.textContent = "Awesome! You finished the quiz!";
   textArea.appendChild(msg);
 
+  new Audio("audio/yay.mp3").play();
   // --- UNIVERSAL REWARD ---
   showUniversalReward(
-    "images/rewards/star.png",      // Bildpfad für Stern (oder falls ein anderes Reward)
     "Quiz Complete!",              // Text darunter
     () => {
       // Optional: weitere Aktionen nach Next
