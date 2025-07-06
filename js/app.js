@@ -1085,6 +1085,15 @@ if (s.video) {
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
   document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
+  
+  // --- BACKGROUND MUSIC (optional from JSON) ---
+let shadowMusic = null;
+if (s.music) {
+  shadowMusic = new Audio("audio/" + s.music);
+  shadowMusic.loop = true;
+  shadowMusic.volume = 0.18;
+  shadowMusic.play();
+}
 
   // Überschrift
   const heading = document.createElement('h2');
@@ -1183,11 +1192,16 @@ if (s.video) {
   Array.from(choices.children).forEach((c, idx) => {
     if (idx !== i) c.style.display = "none";
   });
-
+  
   // Optional: Feedback-Text als Animation
   feedback.classList.add("glitter");
   feedback.textContent = s.onCorrect || "Correct! Sticker unlocked!";
   textArea.appendChild(feedback);
+
+if (shadowMusic) {
+    shadowMusic.pause();
+    shadowMusic.currentTime = 0;
+  }
 
   // UNIVERSAL REWARD CONTAINER wie überall sonst:
   showUniversalReward(
@@ -1224,6 +1238,7 @@ if (s.video) {
   document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
+  
 
   // Hintergrundmusik (optional)
   let musicAudio = null;
