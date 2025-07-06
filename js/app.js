@@ -861,13 +861,13 @@ textArea.appendChild(yesBtn);
          
         },
         0 // Sticker-Index falls du ihn brauchst, sonst 0
-      );
+      ;
     
   
 
   return;
 }
-
+  }
 
 
 
