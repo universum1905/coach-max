@@ -852,9 +852,10 @@ textArea.appendChild(yesBtn);
 
       // Show reward star (wie bei animals)
       showUniversalReward(
-        "images/rewards/star.png", // oder Pfad zu deinem Reward-Sticker
-        "Great job counting!",     // Erfolgs-Kompliment (englisch)
-        () => {
+  "images/rewards/star.png", // Bildpfad für Stern
+  "Yes!",                    // Text darunter/ daneben
+  ... // callback, sticker-Index etc.
+);
           // Nach Animation: Next-Button anzeigen
           const nextBtn = document.createElement("button");
           nextBtn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
