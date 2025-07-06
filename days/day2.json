@@ -115,7 +115,19 @@
         ],
         "rewardSticker": 4
       }
-    }
+    },
+	{
+  "type": "ai-emoji-madness",
+  "video": "day5-emoji-madness.mp4",
+  "title": "Emoji Madness!",
+  "emojis": ["🐵", "🍌", "🚀", "?" ],
+  "question": "What comes next in this crazy emoji story?",
+  "choices": ["🌕", "🐱", "🌈"],
+  "correct": 0,
+  "onCorrect": "Amazing! You guessed it – the monkey goes to the moon! 🚀🌕",
+  "onWrong": "Oops! Try again. Which emoji fits best?",
+  "successSticker": 2
+}
   ]
 }
  
