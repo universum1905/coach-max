@@ -714,7 +714,7 @@ document.body.appendChild(btn);
     });
   }
 
-  let videoBox = null;
+  let videoBox, video;
 
   // --- VIDEO (optional, animals-style: floating bottom right) ---
   if (s.video) {
