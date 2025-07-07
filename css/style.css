@@ -248,7 +248,15 @@ html, body {
   cursor: pointer;
   margin: 0;                     /* Kein zusätzlicher Außenabstand */
 }
-
+@media (max-width: 600px) {
+  .rhyme-buttons {
+    max-width: 100vw;
+    padding: 0 3vw;
+  }
+  .rhyme-buttons button {
+    max-width: 96vw;
+  }
+}
 
 
 
