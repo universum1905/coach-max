@@ -2223,6 +2223,12 @@ else if (s.type === "color-find") {
   playSessionVideoIfNeeded(s, showFindTask);
 
   function showFindTask() {
+	  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.style.textAlign = "center";
+  heading.style.marginTop = "6px";
+  heading.innerText = s.title || "Find the Color!";
+  textArea.appendChild(heading);
     if (s.avatar) showAvatarInVideoBox(null, s.avatar);
 
     // Großer, farbiger Kreis
@@ -2567,7 +2573,7 @@ else if (s.type === "color-memory") {
     };
     textArea.appendChild(againBtn);
 
-    // Sequenz einmal initial zeigen (wie ein Slide)
+    // Sequenz einmal initial zeigen
     showSequence();
 
     function showSequence() {
@@ -2640,7 +2646,20 @@ else if (s.type === "color-memory") {
           } else {
             new Audio("audio/fail.mp3").play();
             btn.classList.add("shake");
+
+            // Oops... try again Feedback
+            const err = document.createElement("div");
+            err.className = "animated-text";
+            err.style.color = "#d32f2f";
+            err.style.textAlign = "center";
+            err.style.marginTop = "10px";
+            err.innerText = "Oops... try again!";
+            textArea.appendChild(err);
+
             setTimeout(() => btn.classList.remove("shake"), 700);
+            setTimeout(() => {
+              if (err.parentNode) err.remove();
+            }, 1500);
           }
         };
         box.appendChild(btn);
@@ -2648,6 +2667,7 @@ else if (s.type === "color-memory") {
     }, 3500);
   }
 }
+
 
 
 
