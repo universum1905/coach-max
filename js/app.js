@@ -2292,6 +2292,32 @@ else if (s.type === "color-sequence") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
+  // Video (optional)
+  if (s.video) {
+    const video = document.createElement("video");
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.className = "session-video";
+    video.style.marginBottom = "16px";
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    // Play-Button
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.innerHTML = `<svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>`;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = () => { video.play(); playBtn.style.display = "none"; };
+    video.addEventListener('play', () => playBtn.style.display = "none");
+    video.addEventListener('ended', () => playBtn.style.display = "");
+
   // Frage
   const q = document.createElement("div");
   q.className = "animated-text";
