@@ -2083,16 +2083,16 @@ if (shadowMusic) {
  }
 
 
- else // ==== AI-EMOJI-MADNESS ====
+ // ==== AI-EMOJI-MADNESS ====
 // In renderSession(idx) einfügen
-if (s.type === "ai-emoji-madness") {
+else if (s.type === "ai-emoji-madness") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
-  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-box, .glitter").forEach(el => el.remove());
+  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-box, .glitter, .animals-reward-container").forEach(el => el.remove());
   document.getElementById("sessionTextArea").innerHTML = "";
   const textArea = document.getElementById("sessionTextArea");
 
-  // Hintergrundmusik
+  // Hintergrundmusik (optional)
   let music;
   if (s.music) {
     music = new Audio("audio/" + s.music);
@@ -2138,29 +2138,24 @@ if (s.type === "ai-emoji-madness") {
     playBtn.onclick = () => {
       video.play();
       playBtn.style.display = "none";
-      // Emojis & Frage anzeigen, wenn Video läuft
       showEmojiAndQuestion();
     };
     video.addEventListener("play", () => playBtn.style.display = "none");
-
-    // Avatar nach Video-Ende zeigen
     video.addEventListener("ended", () => {
       showAvatarInVideoBox(videoBox, "momo");
     });
   } else {
-    // Falls kein Video, gleich starten
     showEmojiAndQuestion();
   }
 
-  // Zeigt die Emoji-Reihe & Frage (zentriert und mobilfreundlich)
+  // Zeigt die Emoji-Reihe & Frage
   function showEmojiAndQuestion() {
-    // Emojis
     const emojiRow = document.createElement("div");
     emojiRow.style.fontSize = "2.6rem";
     emojiRow.style.textAlign = "center";
     emojiRow.style.margin = "18px auto 10px auto";
     emojiRow.style.letterSpacing = "0.14em";
-    emojiRow.style.padding = "0 10vw"; // Links/Rechts Abstand für Handy
+    emojiRow.style.padding = "0 10vw";
     emojiRow.style.wordBreak = "break-word";
     emojiRow.innerText = Array.isArray(s.emojis) ? s.emojis.join(" ") : "";
     textArea.appendChild(emojiRow);
@@ -2174,9 +2169,8 @@ if (s.type === "ai-emoji-madness") {
     questionDiv.textContent = s.question || "";
     textArea.appendChild(questionDiv);
 
-    // Nach Video-Ende oder sofort: Antwortmöglichkeiten anzeigen
     if (video) {
-      video.addEventListener("ended", showChoices);
+      video.addEventListener("ended", showChoices, { once: true });
     } else {
       showChoices();
     }
@@ -2184,9 +2178,7 @@ if (s.type === "ai-emoji-madness") {
 
   // Antwortmöglichkeiten zentriert anzeigen
   function showChoices() {
-    // Verhindert doppeltes Anzeigen
     if (document.querySelector(".emoji-choices")) return;
-
     const box = document.createElement("div");
     box.className = "emoji-choices";
     box.style.display = "flex";
@@ -2222,12 +2214,9 @@ if (s.type === "ai-emoji-madness") {
 
   // Antwort-Handling
   function handleChoice(btn, i, box) {
-    // Bei richtig: Buttons entfernen, Feedback + Reward anzeigen
+    // Bei richtig: Buttons entfernen, Feedback + universeller Reward anzeigen
     if (i === s.correct) {
-      // Erfolgssound
       new Audio("audio/yay.mp3").play();
-
-      // Alle Buttons bis auf den richtigen ausblenden
       Array.from(box.children).forEach(b => { if (b !== btn) b.style.display = "none"; });
       btn.style.background = "#b2dfdb";
       btn.style.pointerEvents = "none";
@@ -2241,25 +2230,20 @@ if (s.type === "ai-emoji-madness") {
       feedback.textContent = s.onCorrect || "Great!";
       textArea.insertBefore(feedback, box);
 
-      // Stern-Reward universal
-      showRewardBox(() => {
-        // Musik aus, Video ausblenden, Next-Button
-        if (music) { music.pause(); music.currentTime = 0; }
-        if (videoBox) videoBox.remove();
-        const next = document.createElement("button");
-        next.className = "centered-next-btn";
-        next.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
-        next.onclick = () => {
-          document.querySelectorAll(".floating-video, .centered-next-btn, .reward-box, .glitter").forEach(e => e.remove());
+      // --- UNIVERSAL REWARD ---
+      showUniversalReward(
+        s.choices[i], // Das richtige Emoji/Text als Bild/Text (wird automatisch erkannt)
+        s.onCorrect || "",
+        () => {
+          if (music) { music.pause(); music.currentTime = 0; }
+          if (videoBox) videoBox.remove();
           currentSession++;
           renderSession(currentSession);
-        };
-        document.body.appendChild(next);
-      }, s.successSticker);
+        },
+        s.successSticker || 0
+      );
     } else {
-      // Falschsound
       new Audio("audio/fail.mp3").play();
-      // Oops-Text (maximal EINMAL anzeigen)
       if (!document.querySelector(".wrong-msg")) {
         const wrong = document.createElement("div");
         wrong.className = "animated-text wrong-msg";
@@ -2274,56 +2258,9 @@ if (s.type === "ai-emoji-madness") {
     }
   }
 
-  // Universal Reward-Box wie bei animals/rhymes
-  function showRewardBox(onReady, stickerIdx) {
-    setTimeout(() => {
-      const rewardBox = document.createElement("div");
-      rewardBox.className = "reward-box";
-      rewardBox.style.position = "fixed";
-      rewardBox.style.left = "50%";
-      rewardBox.style.transform = "translateX(-50%)";
-      rewardBox.style.bottom = "120px";
-      rewardBox.style.display = "flex";
-      rewardBox.style.flexDirection = "column";
-      rewardBox.style.alignItems = "center";
-      rewardBox.style.zIndex = "1000";
-      rewardBox.style.background = "#fffbe6";
-      rewardBox.style.borderRadius = "22px";
-      rewardBox.style.boxShadow = "0 4px 18px #ffe082b5";
-      rewardBox.style.padding = "20px 28px 18px 28px";
-      rewardBox.style.minWidth = "210px";
-
-      // "Your reward"
-      const rewardText = document.createElement("div");
-      rewardText.textContent = "Your reward";
-      rewardText.style.fontSize = "1.17rem";
-      rewardText.style.fontWeight = "700";
-      rewardText.style.color = "#faaf08";
-      rewardText.style.marginBottom = "9px";
-      rewardText.style.textShadow = "0 1px 8px #fffde7";
-      rewardBox.appendChild(rewardText);
-
-      // Sticker-Bild
-      const rewardSticker = document.createElement("img");
-      rewardSticker.src = stickerImages[stickerIdx] || "images/stickers/star.png";
-      rewardSticker.style.width = "68px";
-      rewardSticker.style.height = "68px";
-      rewardSticker.style.boxShadow = "0 4px 18px #ffe082b5";
-      rewardSticker.style.borderRadius = "22px";
-      rewardSticker.style.background = "#fffbe6";
-      rewardBox.appendChild(rewardSticker);
-
-      document.body.appendChild(rewardBox);
-
-      // Sticker speichern
-      unlockSticker && unlockSticker(stickerIdx);
-
-      if (onReady) setTimeout(onReady, 900);
-    }, 900);
-  }
-
   return; // Session endet hier!
 }
+
 
 
 }
