@@ -99,6 +99,41 @@
   "onCorrect": "Amazing! You guessed it – the monkey goes to the moon! 🚀🌕",
   "onWrong": "Oops! Try again. Which emoji fits best?",
   "successSticker": 2
+},
+{
+  "type": "color-find",
+  "avatar": "momo",
+  "video": "day3-color-find.mp4",
+  "question": "Kannst du etwas Grünes in deinem Zimmer finden? Dann drücke auf den Button!",
+  "color": "Grün",
+  "onDone": "Super, du hast Grün gefunden! Hier ist dein Sticker!",
+  "successSticker": 0
+},
+{
+  "type": "color-sequence",
+  "question": "Ziehe die Farben in die richtige Regenbogen-Reihenfolge!",
+  "colors": ["Gelb", "Grün", "Rot", "Blau"],
+  "solution": [2,0,1,3],
+  "onCorrect": "Perfekt sortiert! Hier ist dein Regenbogen-Sticker.",
+  "successSticker": 3
+},
+{
+  "type": "color-detective",
+  "avatar": "luna",
+  "video": "day3-color-detective.mp4",
+  "question": "Finde etwas Blaues in deiner Nähe und drücke auf das blaue Quadrat!",
+  "choices": ["#ff0000", "#0000ff", "#00ff00"],
+  "correct": 1,
+  "onCorrect": "Genial – du bist ein echter Farbdetektiv!",
+  "successSticker": 4
+},
+{
+  "type": "color-memory",
+  "sequence": ["Rot", "Gelb", "Blau"],
+  "choices": ["Rot-Gelb-Blau", "Blau-Gelb-Rot", "Rot-Blau-Gelb"],
+  "correct": 0,
+  "onCorrect": "Stark gemerkt! Du bist ein Farbenprofi!",
+  "successSticker": 1
 }
   ]
 }
