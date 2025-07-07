@@ -98,7 +98,7 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
 
   // Animierter Sticker (KORREKTER STICKER, dynamisch nach Index!)
   const stickerImg = document.createElement("img");
-  stickerImg.src = stickerImages[stickerIdx] || stickerImages[0]; // <-- Das ist die Änderung!
+  stickerImg.src = stickerImages[typeof stickerIdx === "number" ? stickerIdx : 0] || "images/stickers/star.png"; // <-- Das ist die Änderung!
   stickerImg.style.width = "72px";
   stickerImg.style.height = "72px";
   stickerImg.style.borderRadius = "16px";
