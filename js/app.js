@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 2; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -898,57 +898,9 @@ textArea.appendChild(yesBtn);
     memoryMusic.play();
   }
 
+  
   // --- VIDEO (optional, Animals-Style) ---
-  // --- VIDEO (optional, Animals-Style) ---
-if (s.video) {
-  const video = document.createElement("video");
-  video.src = `videos/${s.video}`;
-  video.setAttribute("controls", "true");
-  video.setAttribute("controlsList", "nodownload");
-  video.autoplay = false;
-  video.muted = false;
-  video.playsInline = true;
-  video.poster = "images/video-placeholder.png";
-  video.className = "session-video";
-
-  // Floating Video-Box (unten rechts, wie bei animals)
-  const videoBox = document.createElement("div");
-  videoBox.className = "floating-video";
-  videoBox.style.position = "fixed";
-  videoBox.style.bottom = "22px";
-  videoBox.style.right = "22px";
-  videoBox.style.zIndex = "1000";
-  videoBox.appendChild(video);
-  document.body.appendChild(videoBox);
-
-  // Play button overlay (wie bei animals)
-  const playBtn = document.createElement("button");
-  playBtn.className = "custom-play-btn";
-  playBtn.title = "Play";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-  `;
-  videoBox.appendChild(playBtn);
-
-  playBtn.addEventListener("click", () => {
-    video.play();
-    playBtn.style.display = "none";
-  });
-  video.addEventListener("play", () => playBtn.style.display = "none");
-
-  video.addEventListener("ended", () => {
-    // Video-Box entfernen nach Ende
-    videoBox.remove();
-    startMemoryGame();
-  });
-
-  return; // Don't show game before video ended!
-} else {
-  startMemoryGame();
-}
+playSessionVideoIfNeeded(s, startMemoryGame);
 
 
   function startMemoryGame() {
