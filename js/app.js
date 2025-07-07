@@ -717,8 +717,106 @@ document.body.appendChild(btn);
   let videoBox = null;
 
   // --- VIDEO (optional, animals-style: floating bottom right) ---
-  
-playSessionVideoIfNeeded(s, showQuestionAndReward);
+  if (s.video) {
+    videoElement = document.createElement('video');
+    videoElement.src = `videos/${s.video}`;
+    videoElement.setAttribute("controls", "true");
+    videoElement.setAttribute("controlsList", "nodownload");
+    videoElement.autoplay = false;
+    videoElement.muted = false;
+    videoElement.playsInline = true;
+    videoElement.poster = "images/video-placeholder.png";
+    videoElement.className = "session-video";
+
+    videoBox = document.createElement('div');
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "22px";
+    videoBox.style.bottom = "22px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(videoElement);
+    document.body.appendChild(videoBox);
+
+    // --- Play-Button Overlay ---
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = function () {
+      videoElement.play();
+      playBtn.style.display = "none";
+      videoElement.style.pointerEvents = "auto";
+    };
+    videoElement.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      videoElement.style.pointerEvents = "auto";
+    });
+    videoElement.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      videoElement.style.pointerEvents = "none";
+    });
+
+    // --- Counting Overlay (optional) ---
+    if (Array.isArray(s.countingTimings) && s.countingTimings.length > 0) {
+      const overlay = document.createElement('div');
+      overlay.id = "countingOverlay";
+      overlay.style.display = "none";
+      document.body.appendChild(overlay);
+
+      let timeoutHandles = [];
+
+      function clearCountingOverlays() {
+        overlay.style.display = "none";
+        overlay.innerHTML = "";
+        timeoutHandles.forEach(handle => clearTimeout(handle));
+        timeoutHandles = [];
+      }
+
+      videoElement.addEventListener('play', () => {
+        clearCountingOverlays();
+        s.countingTimings.forEach((step, idx) => {
+          const timeout = setTimeout(() => {
+            overlay.style.display = "";
+            overlay.innerHTML = `
+              <div class="count-overlay" style="display: flex; align-items: center; justify-content: center;">
+                <img src="${step.image}" style="width:48px;height:48px;margin-right:18px;">
+                <span style="font-size:2.3rem;font-weight:bold;">${step.number}</span>
+              </div>
+            `;
+            setTimeout(() => {
+              overlay.style.display = "none";
+            }, 2800);
+          }, (step.time || idx * 4) * 1000);
+          timeoutHandles.push(timeout);
+        });
+      });
+
+      videoElement.addEventListener('ended', clearCountingOverlays);
+      videoElement.addEventListener('pause', clearCountingOverlays);
+    }
+
+    // --- Nach Video: Frage, Yes-Button, Reward, Next ---
+    videoElement.addEventListener('ended', () => {
+      if (countingMusic) {
+        countingMusic.pause();
+        countingMusic.currentTime = 0;
+      }
+      if (videoBox) videoBox.remove();
+      showQuestionAndReward();
+    });
+
+  } else {
+    // --- Kein Video: Frage direkt anzeigen (optional) ---
+    showQuestionAndReward();
+  }
+
 
 
 
@@ -2490,7 +2588,7 @@ else if (s.type === "color-memory") {
 
 
 
-}
+
 
 
 // Hilfsfunktion am Ende deiner Datei (oder im Kopf)
