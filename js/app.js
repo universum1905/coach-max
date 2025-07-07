@@ -2588,7 +2588,7 @@ else if (s.type === "color-memory") {
 
 
 
-
+}
 
 
 // Hilfsfunktion am Ende deiner Datei (oder im Kopf)
