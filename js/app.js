@@ -1429,13 +1429,14 @@ if (shadowMusic) {
 
     // Buttons-Container
     const box = document.createElement("div");
-    box.className = "rhyme-buttons";
-    box.style.display = "flex";
-    box.style.justifyContent = "center";
-    box.style.gap = "16px";
-    box.style.padding = "0 24px";
-    box.style.maxWidth = "440px";
-    textArea.appendChild(box);
+box.className = "rhyme-buttons";
+box.style.display = "flex";
+box.style.flexDirection = "column";
+box.style.alignItems = "center";
+box.style.width = "100%";
+box.style.maxWidth = "440px";
+box.style.margin = "0 auto";
+box.style.padding = "0 12px";
 
     // Wahlmöglichkeiten
     s.choices.forEach((word, i) => {
