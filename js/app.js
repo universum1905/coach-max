@@ -2211,6 +2211,13 @@ else if (s.type === "color-find") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.style.textAlign = "center";
+  heading.style.marginTop = "6px";
+  heading.innerText = s.title || "Find the Color!";
+  textArea.appendChild(heading);
+
   // Hintergrundmusik (optional aus JSON)
   let sessionMusic = null;
   if (s.music) {
@@ -2223,13 +2230,7 @@ else if (s.type === "color-find") {
   playSessionVideoIfNeeded(s, showFindTask);
 
   function showFindTask() {
-	  const heading = document.createElement('h2');
-  heading.className = "session-heading";
-  heading.style.textAlign = "center";
-  heading.style.marginTop = "6px";
-  heading.innerText = s.title || "Find the Color!";
-  textArea.appendChild(heading);
-    if (s.avatar) showAvatarInVideoBox(null, s.avatar);
+	  if (s.avatar) showAvatarInVideoBox(null, s.avatar);
 
     // Großer, farbiger Kreis
     const colorCircle = document.createElement("div");
@@ -2287,6 +2288,13 @@ else if (s.type === "color-sequence") {
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
+
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.style.textAlign = "center";
+  heading.style.marginTop = "6px";
+  heading.innerText = s.title || "Rainbow Sequence!";
+  textArea.appendChild(heading);
 
   let sessionMusic = null;
   if (s.music) {
@@ -2463,6 +2471,13 @@ else if (s.type === "color-detective") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
+   const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.style.textAlign = "center";
+  heading.style.marginTop = "6px";
+  heading.innerText = s.title || "Color Detective!";
+  textArea.appendChild(heading);
+
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
@@ -2541,6 +2556,13 @@ else if (s.type === "color-memory") {
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
+
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.style.textAlign = "center";
+  heading.style.marginTop = "6px";
+  heading.innerText = s.title || "Memory Game!";
+  textArea.appendChild(heading);
 
   let sessionMusic = null;
   if (s.music) {
