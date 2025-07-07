@@ -134,6 +134,48 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
 }
 
 
+function playSessionVideoIfNeeded(s, afterVideoCallback) {
+  document.querySelectorAll(".floating-video").forEach(el => el.remove());
+  if (s.video) {
+    const video = document.createElement("video");
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.className = "session-video";
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.appendChild(video);
+
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = () => { video.play(); playBtn.style.display = "none"; };
+    video.addEventListener('play', () => playBtn.style.display = "none");
+    video.addEventListener('ended', () => {
+      setTimeout(() => {
+        videoBox.remove();
+        afterVideoCallback();
+      }, 300);
+    });
+
+    document.body.appendChild(videoBox);
+  } else {
+    afterVideoCallback();
+  }
+}
+
+
+
 
 // Musik & Sound
 const welcomeMusic = document.getElementById("welcomeMusic");
@@ -380,6 +422,11 @@ function showAvatarInVideoBox(videoBox, avatarName, avatarClass = "avatar") {
   avatarImg.className = avatarClass;
   videoBox.appendChild(avatarImg);
 }
+
+
+
+
+
 
 // Session mit Video, Play-Overlay, animiertem Text und fixiertem Next-Button
 function renderSession(idx) {
@@ -670,105 +717,10 @@ document.body.appendChild(btn);
   let videoBox = null;
 
   // --- VIDEO (optional, animals-style: floating bottom right) ---
-  if (s.video) {
-    videoElement = document.createElement('video');
-    videoElement.src = `videos/${s.video}`;
-    videoElement.setAttribute("controls", "true");
-    videoElement.setAttribute("controlsList", "nodownload");
-    videoElement.autoplay = false;
-    videoElement.muted = false;
-    videoElement.playsInline = true;
-    videoElement.poster = "images/video-placeholder.png";
-    videoElement.className = "session-video";
+  
+playSessionVideoIfNeeded(s, showQuestionAndReward);
 
-    videoBox = document.createElement('div');
-    videoBox.className = "floating-video";
-    videoBox.style.position = "fixed";
-    videoBox.style.right = "22px";
-    videoBox.style.bottom = "22px";
-    videoBox.style.zIndex = "1000";
-    videoBox.appendChild(videoElement);
-    document.body.appendChild(videoBox);
 
-    // --- Play-Button Overlay ---
-    const playBtn = document.createElement('button');
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-    `;
-    videoBox.appendChild(playBtn);
-
-    playBtn.onclick = function () {
-      videoElement.play();
-      playBtn.style.display = "none";
-      videoElement.style.pointerEvents = "auto";
-    };
-    videoElement.addEventListener('play', () => {
-      playBtn.style.display = "none";
-      videoElement.style.pointerEvents = "auto";
-    });
-    videoElement.addEventListener('pause', () => {
-      playBtn.style.display = "";
-      videoElement.style.pointerEvents = "none";
-    });
-
-    // --- Counting Overlay (optional) ---
-    if (Array.isArray(s.countingTimings) && s.countingTimings.length > 0) {
-      const overlay = document.createElement('div');
-      overlay.id = "countingOverlay";
-      overlay.style.display = "none";
-      document.body.appendChild(overlay);
-
-      let timeoutHandles = [];
-
-      function clearCountingOverlays() {
-        overlay.style.display = "none";
-        overlay.innerHTML = "";
-        timeoutHandles.forEach(handle => clearTimeout(handle));
-        timeoutHandles = [];
-      }
-
-      videoElement.addEventListener('play', () => {
-        clearCountingOverlays();
-        s.countingTimings.forEach((step, idx) => {
-          const timeout = setTimeout(() => {
-            overlay.style.display = "";
-            overlay.innerHTML = `
-              <div class="count-overlay" style="display: flex; align-items: center; justify-content: center;">
-                <img src="${step.image}" style="width:48px;height:48px;margin-right:18px;">
-                <span style="font-size:2.3rem;font-weight:bold;">${step.number}</span>
-              </div>
-            `;
-            setTimeout(() => {
-              overlay.style.display = "none";
-            }, 2800);
-          }, (step.time || idx * 4) * 1000);
-          timeoutHandles.push(timeout);
-        });
-      });
-
-      videoElement.addEventListener('ended', clearCountingOverlays);
-      videoElement.addEventListener('pause', clearCountingOverlays);
-    }
-
-    // --- Nach Video: Frage, Yes-Button, Reward, Next ---
-    videoElement.addEventListener('ended', () => {
-      if (countingMusic) {
-        countingMusic.pause();
-        countingMusic.currentTime = 0;
-      }
-      if (videoBox) videoBox.remove();
-      showQuestionAndReward();
-    });
-
-  } else {
-    // --- Kein Video: Frage direkt anzeigen (optional) ---
-    showQuestionAndReward();
-  }
 
   function showQuestionAndReward() {
     textArea.innerHTML = "";
