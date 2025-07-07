@@ -2250,17 +2250,22 @@ else if (s.type === "color-find") {
     btn.className = "centered-next-btn";
     btn.style.margin = "30px auto 0 auto";
     btn.onclick = () => {
-      new Audio("audio/yay.mp3").play();
-      if (sessionMusic) {
-        sessionMusic.pause();
-        sessionMusic.currentTime = 0;
-      }
-      showUniversalReward(
-        s.color,
-        s.onDone || "Well done!",
-        () => { currentSession++; renderSession(currentSession); },
-        s.successSticker || 0
-      );
+      // --- HIER kommt der verbesserte Sound-Ablauf ---
+      const yay = new Audio("audio/yay.mp3");
+      yay.play();
+
+      setTimeout(() => {
+        if (sessionMusic) {
+          sessionMusic.pause();
+          sessionMusic.currentTime = 0;
+        }
+        showUniversalReward(
+          s.color,
+          s.onDone || "Well done!",
+          () => { currentSession++; renderSession(currentSession); },
+          s.successSticker || 0
+        );
+      }, 700); // Warte, bis "yay" fertig ist
     };
     textArea.appendChild(btn);
   }
@@ -2277,7 +2282,6 @@ else if (s.type === "color-sequence") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Hintergrundmusik (optional)
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
@@ -2325,7 +2329,6 @@ else if (s.type === "color-sequence") {
     textArea.innerHTML = "";
 
     if (!showOnlyButtons) {
-      // Beispiel 7 Sekunden anzeigen
       const ex = showExampleRainbow();
       textArea.appendChild(ex);
 
@@ -2336,7 +2339,6 @@ else if (s.type === "color-sequence") {
       return;
     }
 
-    // Wiederhol-Button, schön bunt & zentriert
     const againBtn = document.createElement("button");
     againBtn.innerText = "Show the rainbow example again";
     againBtn.className = "rainbow-btn-animated";
@@ -2362,7 +2364,6 @@ else if (s.type === "color-sequence") {
     };
     textArea.appendChild(againBtn);
 
-    // Frage
     const q = document.createElement("div");
     q.className = "animated-text";
     q.innerText = s.question || "Put the colors in the correct order!";
@@ -2370,7 +2371,6 @@ else if (s.type === "color-sequence") {
     q.style.textAlign = "center";
     textArea.appendChild(q);
 
-    // Die Buttons (als große Kreise, zentriert)
     const order = [];
     const box = document.createElement("div");
     box.style.display = "flex";
@@ -2404,16 +2404,20 @@ else if (s.type === "color-sequence") {
         }
         if (order.length === s.colors.length) {
           if (JSON.stringify(order) === JSON.stringify(s.solution)) {
-            if (sessionMusic) {
-              sessionMusic.pause();
-              sessionMusic.currentTime = 0;
-            }
-            showUniversalReward(
-              "🌈",
-              s.onCorrect || "Great order!",
-              () => { currentSession++; renderSession(currentSession); },
-              s.successSticker || 0
-            );
+            const yay = new Audio("audio/yay.mp3");
+            yay.play();
+            setTimeout(() => {
+              if (sessionMusic) {
+                sessionMusic.pause();
+                sessionMusic.currentTime = 0;
+              }
+              showUniversalReward(
+                "🌈",
+                s.onCorrect || "Great order!",
+                () => { currentSession++; renderSession(currentSession); },
+                s.successSticker || 0
+              );
+            }, 700);
           } else {
             new Audio("audio/fail.mp3").play();
             const err = document.createElement("div");
@@ -2445,6 +2449,7 @@ else if (s.type === "color-sequence") {
 
 
 
+
 else if (s.type === "color-detective") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -2452,7 +2457,6 @@ else if (s.type === "color-detective") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Hintergrundmusik
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
@@ -2466,7 +2470,6 @@ else if (s.type === "color-detective") {
   function showDetectiveTask() {
     if (s.avatar) showAvatarInVideoBox(null, s.avatar);
 
-    // Frage
     const q = document.createElement("div");
     q.className = "animated-text";
     q.style.textAlign = "center";
@@ -2475,7 +2478,6 @@ else if (s.type === "color-detective") {
     q.style.marginTop = "14px";
     textArea.appendChild(q);
 
-    // Kreise weiter unten, mittig
     const box = document.createElement("div");
     box.style.display = "flex";
     box.style.justifyContent = "center";
@@ -2497,17 +2499,20 @@ else if (s.type === "color-detective") {
       btn.style.boxShadow = "0 2px 14px #ffd54f44";
       btn.onclick = () => {
         if (i === s.correct) {
-          new Audio("audio/yay.mp3").play();
-          if (sessionMusic) {
-            sessionMusic.pause();
-            sessionMusic.currentTime = 0;
-          }
-          showUniversalReward(
-            "🔎",
-            s.onCorrect || "Well done!",
-            () => { currentSession++; renderSession(currentSession); },
-            s.successSticker || 0
-          );
+          const yay = new Audio("audio/yay.mp3");
+          yay.play();
+          setTimeout(() => {
+            if (sessionMusic) {
+              sessionMusic.pause();
+              sessionMusic.currentTime = 0;
+            }
+            showUniversalReward(
+              "🔎",
+              s.onCorrect || "Well done!",
+              () => { currentSession++; renderSession(currentSession); },
+              s.successSticker || 0
+            );
+          }, 700);
         } else {
           new Audio("audio/fail.mp3").play();
           btn.classList.add("shake");
@@ -2523,6 +2528,7 @@ else if (s.type === "color-detective") {
 
 
 
+
 else if (s.type === "color-memory") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -2530,7 +2536,6 @@ else if (s.type === "color-memory") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Hintergrundmusik
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
@@ -2566,7 +2571,6 @@ else if (s.type === "color-memory") {
     showSequence();
 
     function showSequence() {
-      // Sequenz als bunte Kreise
       const seqBox = document.createElement("div");
       seqBox.style.display = "flex";
       seqBox.style.justifyContent = "center";
@@ -2589,10 +2593,9 @@ else if (s.type === "color-memory") {
 
       setTimeout(() => {
         seqBox.remove();
-      }, 3000); // 3 Sekunden sichtbar
+      }, 3000);
     }
 
-    // Frage & Buttons (immer mittig, nach unten)
     setTimeout(() => {
       const q = document.createElement("div");
       q.className = "animated-text";
@@ -2620,17 +2623,20 @@ else if (s.type === "color-memory") {
         btn.style.margin = "0 auto";
         btn.onclick = () => {
           if (i === s.correct) {
-            new Audio("audio/yay.mp3").play();
-            if (sessionMusic) {
-              sessionMusic.pause();
-              sessionMusic.currentTime = 0;
-            }
-            showUniversalReward(
-              "🧠",
-              s.onCorrect || "Well remembered!",
-              () => { currentSession++; renderSession(currentSession); },
-              s.successSticker || 0
-            );
+            const yay = new Audio("audio/yay.mp3");
+            yay.play();
+            setTimeout(() => {
+              if (sessionMusic) {
+                sessionMusic.pause();
+                sessionMusic.currentTime = 0;
+              }
+              showUniversalReward(
+                "🧠",
+                s.onCorrect || "Well remembered!",
+                () => { currentSession++; renderSession(currentSession); },
+                s.successSticker || 0
+              );
+            }, 700);
           } else {
             new Audio("audio/fail.mp3").play();
             btn.classList.add("shake");
@@ -2639,9 +2645,10 @@ else if (s.type === "color-memory") {
         };
         box.appendChild(btn);
       });
-    }, 3500); // Buttons erscheinen nach der Sequenz
+    }, 3500);
   }
 }
+
 
 
 
