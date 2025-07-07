@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 4; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 5; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -2246,14 +2246,83 @@ else if (s.type === "color-sequence") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
+  // --- Hintergrundmusik (falls im JSON angegeben) ---
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.20;
+    sessionMusic.play();
+  }
+
   playSessionVideoIfNeeded(s, showSequenceTask);
 
+  function showExample() {
+    const exBox = document.createElement("div");
+    exBox.className = "color-sequence-example";
+    exBox.style.display = "flex";
+    exBox.style.gap = "14px";
+    exBox.style.justifyContent = "center";
+    exBox.style.margin = "22px auto 12px";
+    if (s.exampleText) {
+      const exLabel = document.createElement("div");
+      exLabel.innerText = s.exampleText;
+      exLabel.style.fontWeight = "bold";
+      exLabel.style.fontSize = "1.14rem";
+      exLabel.style.textAlign = "center";
+      exLabel.style.marginBottom = "7px";
+      exBox.appendChild(exLabel);
+    }
+    if (Array.isArray(s.example)) {
+      s.example.forEach(color => {
+        const ball = document.createElement("div");
+        ball.style.width = "44px";
+        ball.style.height = "44px";
+        ball.style.borderRadius = "50%";
+        ball.style.background = color.toLowerCase();
+        ball.style.border = "2px solid #ffd54f";
+        ball.title = color;
+        ball.style.display = "inline-block";
+        ball.style.lineHeight = "44px";
+        ball.style.textAlign = "center";
+        ball.style.fontWeight = "bold";
+        ball.style.fontSize = "1.01rem";
+        ball.style.color = "#222";
+        ball.innerText = color[0]; // Optional: erster Buchstabe der Farbe
+        exBox.appendChild(ball);
+      });
+    }
+    return exBox;
+  }
+
   function showSequenceTask() {
+    textArea.innerHTML = "";
+
+    // Beispiel zuerst anzeigen
+    const ex = showExample();
+    textArea.appendChild(ex);
+
+    // Button: "Show example again"
+    const showAgainBtn = document.createElement("button");
+    showAgainBtn.innerText = "Show example again";
+    showAgainBtn.style.margin = "10px auto 20px auto";
+    showAgainBtn.style.display = "block";
+    showAgainBtn.style.fontSize = "1.1rem";
+    showAgainBtn.onclick = () => {
+      const old = document.querySelector(".color-sequence-example");
+      if (old) old.remove();
+      textArea.insertBefore(showExample(), textArea.firstChild);
+    };
+    textArea.appendChild(showAgainBtn);
+
+    // Frage
     const q = document.createElement("div");
     q.className = "animated-text";
     q.innerText = s.question || "Put the colors in the correct order!";
+    q.style.marginTop = "6px";
     textArea.appendChild(q);
 
+    // Die Buttons zum Tippen der Reihenfolge
     const order = [];
     const box = document.createElement("div");
     box.style.display = "flex";
@@ -2278,6 +2347,11 @@ else if (s.type === "color-sequence") {
         }
         if (order.length === s.colors.length) {
           if (JSON.stringify(order) === JSON.stringify(s.solution)) {
+            // MUSIK STOPPEN BEIM ERFOLG!
+            if (sessionMusic) {
+              sessionMusic.pause();
+              sessionMusic.currentTime = 0;
+            }
             showUniversalReward(
               "🌈",
               s.onCorrect || "Great order!",
@@ -2289,9 +2363,18 @@ else if (s.type === "color-sequence") {
             const err = document.createElement("div");
             err.className = "animated-text";
             err.style.color = "#d32f2f";
-            err.innerText = "Try again!";
+            err.innerText = s.onWrong || "Try again!";
             textArea.appendChild(err);
-            setTimeout(() => { location.reload(); }, 1400);
+
+            // Reset
+            setTimeout(() => {
+              box.querySelectorAll("button").forEach((b, idx) => {
+                b.disabled = false;
+                b.style.opacity = "1";
+              });
+              order.length = 0;
+              err.remove();
+            }, 1400);
           }
         }
       };
@@ -2299,6 +2382,8 @@ else if (s.type === "color-sequence") {
     });
   }
 }
+
+
 
 
 

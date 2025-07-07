@@ -112,10 +112,14 @@
 {
   "type": "color-sequence",
   "video": "day2-test.mp4",
+  "music": "focus-loop.mp3",
+  "example": ["Red", "Yellow", "Green", "Blue"],
+  "exampleText": "This is a rainbow: Red, Yellow, Green, Blue.",
   "question": "Tap the colors in the correct rainbow order!",
   "colors": ["Yellow", "Green", "Red", "Blue"],
   "solution": [2, 0, 1, 3],
   "onCorrect": "Awesome! You ordered the rainbow perfectly. Here’s your rainbow sticker!",
+  "onWrong": "That's not quite right. Look at the example and try again!",
   "successSticker": 3
 },
 {
