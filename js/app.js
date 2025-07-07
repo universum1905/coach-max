@@ -2307,37 +2307,58 @@ else if (s.type === "color-sequence") {
   playSessionVideoIfNeeded(s, () => showSequenceTask(false));
 
   function showExampleRainbow() {
-    const exBox = document.createElement("div");
-    exBox.className = "color-sequence-example";
-    exBox.style.display = "flex";
-    exBox.style.gap = "18px";
-    exBox.style.justifyContent = "center";
-    exBox.style.margin = "34px auto 12px";
-    if (s.exampleText) {
-      const exLabel = document.createElement("div");
-      exLabel.innerText = s.exampleText;
-      exLabel.style.fontWeight = "bold";
-      exLabel.style.fontSize = "1.13rem";
-      exLabel.style.textAlign = "center";
-      exLabel.style.marginBottom = "10px";
-      exBox.appendChild(exLabel);
-    }
-    if (Array.isArray(s.example)) {
-      s.example.forEach(color => {
-        const ball = document.createElement("div");
-        ball.style.width = "60px";
-        ball.style.height = "60px";
-        ball.style.borderRadius = "50%";
-        ball.style.background = color.toLowerCase();
-        ball.style.border = "3px solid #ffd54f";
-        ball.title = color;
-        ball.style.display = "inline-block";
-        ball.style.margin = "0 6px";
-        exBox.appendChild(ball);
-      });
-    }
-    return exBox;
+  // Eltern-Container
+  const exWrap = document.createElement("div");
+  exWrap.className = "color-sequence-example";
+  exWrap.style.display = "flex";
+  exWrap.style.flexDirection = "column";
+  exWrap.style.alignItems = "center";
+  exWrap.style.justifyContent = "center";
+  exWrap.style.width = "100%";
+  exWrap.style.margin = "18px auto 10px auto";
+
+  // Beispiel-Text oben, immer zentriert
+  if (s.exampleText) {
+    const exLabel = document.createElement("div");
+    exLabel.innerText = s.exampleText;
+    exLabel.style.fontWeight = "bold";
+    exLabel.style.fontSize = "1.13rem";
+    exLabel.style.textAlign = "center";
+    exLabel.style.marginBottom = "10px";
+    exLabel.style.width = "100%";
+    exWrap.appendChild(exLabel);
   }
+
+  // Die Kreise darunter in einer flex-wrap-Row (immer zentriert und umbrechend)
+  const ballsRow = document.createElement("div");
+  ballsRow.style.display = "flex";
+  ballsRow.style.justifyContent = "center";
+  ballsRow.style.flexWrap = "wrap";
+  ballsRow.style.gap = "13px";
+  ballsRow.style.width = "100%";
+  ballsRow.style.maxWidth = "330px"; // Maximalbreite für Mobile (bei Bedarf anpassen)
+  ballsRow.style.margin = "0 auto";
+  ballsRow.style.paddingBottom = "3px";
+  
+  if (Array.isArray(s.example)) {
+    s.example.forEach(color => {
+      const ball = document.createElement("div");
+      ball.style.width = "42px";
+      ball.style.height = "42px";
+      ball.style.borderRadius = "50%";
+      ball.style.background = color.toLowerCase();
+      ball.style.border = "2.5px solid #ffd54f";
+      ball.title = color;
+      ball.style.display = "inline-block";
+      ball.style.margin = "0";
+      ballsRow.appendChild(ball);
+    });
+  }
+  exWrap.appendChild(ballsRow);
+
+  return exWrap;
+}
+
 
   function showSequenceTask(showOnlyButtons = false) {
     textArea.innerHTML = "";
