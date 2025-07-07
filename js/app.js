@@ -728,10 +728,13 @@ document.body.appendChild(btn);
     videoElement.poster = "images/video-placeholder.png";
     videoElement.className = "session-video";
 
-    videoBox = document.createElement("div");
+    videoBox = document.createElement('div');
     videoBox.className = "floating-video";
-    videoBox.style.zIndex = "1000"; // Höchster Wert, bleibt IMMER oben
-    videoBox.appendChild(video);
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "22px";
+    videoBox.style.bottom = "45px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(videoElement);
     document.body.appendChild(videoBox);
 
     // --- Play-Button Overlay ---
