@@ -2550,7 +2550,7 @@ else if (s.type === "color-detective") {
 
 
 
-else if (s.type === "color-memory") {
+else (s.type === "color-memory") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
