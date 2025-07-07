@@ -986,15 +986,28 @@ playSessionVideoIfNeeded(s, startMemoryGame);
       board.appendChild(btn);
     });
   }
+function showMemoryReward() {
+  // Compliment-Array
+  let compliments = [
+    "Super memory skills!",
+    "You are a clever fox!",
+    "Max is proud of you!",
+    "You rock!"
+  ];
+  let compliment = compliments[Math.floor(Math.random() * compliments.length)];
 
   showUniversalReward(
-  "images/stickers/star.png", // oder ein passender Bild- oder Textwert
-  "Great memory!",
-  null,
-  0 // Index für deinen Sticker
-);
-
-  return;
+    "images/stickers/star.png", // Oder ein anderer Sticker je nach Erfolg
+    compliment,
+    () => {
+      // Weiter zur nächsten Session:
+      currentSession++;
+      renderSession(currentSession);
+    },
+    s.successSticker !== undefined ? s.successSticker : 0
+  );
+}
+  
 }
 
 
