@@ -2211,21 +2211,50 @@ else if (s.type === "color-find") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
+  // Hintergrundmusik (optional aus JSON)
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.20;
+    sessionMusic.play();
+  }
+
   playSessionVideoIfNeeded(s, showFindTask);
 
   function showFindTask() {
     if (s.avatar) showAvatarInVideoBox(null, s.avatar);
 
+    // Großer, farbiger Kreis
+    const colorCircle = document.createElement("div");
+    colorCircle.style.width = "110px";
+    colorCircle.style.height = "110px";
+    colorCircle.style.margin = "24px auto 14px auto";
+    colorCircle.style.borderRadius = "50%";
+    colorCircle.style.background = s.color ? s.color.toLowerCase() : "#4caf50";
+    colorCircle.style.border = "5px solid #ffd54f";
+    colorCircle.style.boxShadow = "0 2px 32px #ffd54faa, 0 0 32px #aeea00aa";
+    textArea.appendChild(colorCircle);
+
+    // Frage
     const q = document.createElement("div");
     q.className = "animated-text";
+    q.style.textAlign = "center";
+    q.style.fontSize = "1.22rem";
     q.innerText = s.question || "Find something in this color!";
     textArea.appendChild(q);
 
+    // Button
     const btn = document.createElement("button");
     btn.innerText = `I found something ${s.color || "in this color"}!`;
     btn.className = "centered-next-btn";
+    btn.style.margin = "30px auto 0 auto";
     btn.onclick = () => {
       new Audio("audio/yay.mp3").play();
+      if (sessionMusic) {
+        sessionMusic.pause();
+        sessionMusic.currentTime = 0;
+      }
       showUniversalReward(
         s.color,
         s.onDone || "Well done!",
@@ -2239,6 +2268,8 @@ else if (s.type === "color-find") {
 
 
 
+
+
 else if (s.type === "color-sequence") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -2246,7 +2277,7 @@ else if (s.type === "color-sequence") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Hintergrundmusik
+  // Hintergrundmusik (optional)
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
@@ -2257,51 +2288,44 @@ else if (s.type === "color-sequence") {
 
   playSessionVideoIfNeeded(s, () => showSequenceTask(false));
 
-  // Beispiel-Regenbogen-Visualisierung
   function showExampleRainbow() {
     const exBox = document.createElement("div");
     exBox.className = "color-sequence-example";
     exBox.style.display = "flex";
-    exBox.style.gap = "14px";
+    exBox.style.gap = "18px";
     exBox.style.justifyContent = "center";
-    exBox.style.margin = "22px auto 12px";
+    exBox.style.margin = "34px auto 12px";
     if (s.exampleText) {
       const exLabel = document.createElement("div");
       exLabel.innerText = s.exampleText;
       exLabel.style.fontWeight = "bold";
-      exLabel.style.fontSize = "1.14rem";
+      exLabel.style.fontSize = "1.13rem";
       exLabel.style.textAlign = "center";
-      exLabel.style.marginBottom = "7px";
+      exLabel.style.marginBottom = "10px";
       exBox.appendChild(exLabel);
     }
     if (Array.isArray(s.example)) {
       s.example.forEach(color => {
         const ball = document.createElement("div");
-        ball.style.width = "44px";
-        ball.style.height = "44px";
+        ball.style.width = "60px";
+        ball.style.height = "60px";
         ball.style.borderRadius = "50%";
         ball.style.background = color.toLowerCase();
-        ball.style.border = "2px solid #ffd54f";
+        ball.style.border = "3px solid #ffd54f";
         ball.title = color;
         ball.style.display = "inline-block";
-        ball.style.lineHeight = "44px";
-        ball.style.textAlign = "center";
-        ball.style.fontWeight = "bold";
-        ball.style.fontSize = "1.01rem";
-        ball.style.color = "#222";
-        ball.innerText = color[0];
+        ball.style.margin = "0 6px";
         exBox.appendChild(ball);
       });
     }
     return exBox;
   }
 
-  // Hauptfunktion: Zeigt zuerst Beispiel, dann Buttons (oder umgekehrt, je nach showOnlyButtons)
   function showSequenceTask(showOnlyButtons = false) {
     textArea.innerHTML = "";
 
     if (!showOnlyButtons) {
-      // Beispiel anzeigen und nach 7 Sekunden Buttons einblenden
+      // Beispiel 7 Sekunden anzeigen
       const ex = showExampleRainbow();
       textArea.appendChild(ex);
 
@@ -2312,25 +2336,23 @@ else if (s.type === "color-sequence") {
       return;
     }
 
-    // Wiederhol-Button (schön gestaltet, bunt)
+    // Wiederhol-Button, schön bunt & zentriert
     const againBtn = document.createElement("button");
     againBtn.innerText = "Show the rainbow example again";
     againBtn.className = "rainbow-btn-animated";
     againBtn.style.display = "block";
-    againBtn.style.margin = "12px auto 18px auto";
+    againBtn.style.margin = "16px auto 22px auto";
     againBtn.style.padding = "1em 2em";
-    againBtn.style.fontSize = "1.18rem";
+    againBtn.style.fontSize = "1.14rem";
     againBtn.style.fontWeight = "bold";
     againBtn.style.border = "none";
     againBtn.style.borderRadius = "22px";
     againBtn.style.background = "linear-gradient(90deg, #ffeb3b, #81d4fa, #ff80ab, #aed581, #fff176, #ffd54f)";
-    againBtn.style.boxShadow = "0 2px 18px #ffd54f55";
+    againBtn.style.boxShadow = "0 2px 16px #ffd54f55";
     againBtn.style.cursor = "pointer";
-    againBtn.style.animation = "rainbowPulse 1.5s infinite alternate";
-
+    againBtn.style.animation = "rainbowPulse 1.3s infinite alternate";
     againBtn.onclick = () => {
       textArea.innerHTML = "";
-      // Zeige das Beispiel wieder 7 Sekunden, dann wieder Buttons
       const ex = showExampleRainbow();
       textArea.appendChild(ex);
       setTimeout(() => {
@@ -2345,25 +2367,35 @@ else if (s.type === "color-sequence") {
     q.className = "animated-text";
     q.innerText = s.question || "Put the colors in the correct order!";
     q.style.marginTop = "6px";
+    q.style.textAlign = "center";
     textArea.appendChild(q);
 
-    // Die Buttons zum Tippen der Reihenfolge
+    // Die Buttons (als große Kreise, zentriert)
     const order = [];
     const box = document.createElement("div");
     box.style.display = "flex";
-    box.style.gap = "12px";
-    box.style.marginTop = "18px";
+    box.style.justifyContent = "center";
+    box.style.flexWrap = "wrap";
+    box.style.gap = "18px";
+    box.style.margin = "28px auto 0 auto";
     textArea.appendChild(box);
 
     s.colors.forEach((col, i) => {
       const btn = document.createElement("button");
-      btn.innerText = col;
-      btn.style.background = "#fffbe6";
-      btn.style.border = "2px solid #ffd54f";
-      btn.style.borderRadius = "16px";
-      btn.style.padding = "0.7em 1.4em";
-      btn.style.fontSize = "1.1rem";
+      btn.style.width = "68px";
+      btn.style.height = "68px";
+      btn.style.borderRadius = "50%";
+      btn.style.background = col.toLowerCase();
+      btn.style.border = "4px solid #ffd54f";
+      btn.style.margin = "0 6px";
+      btn.style.display = "flex";
+      btn.style.alignItems = "center";
+      btn.style.justifyContent = "center";
       btn.style.fontWeight = "bold";
+      btn.style.fontSize = "1.07rem";
+      btn.style.boxShadow = "0 2px 12px #ffd54f33";
+      btn.style.transition = "opacity 0.2s";
+      btn.innerText = col;
       btn.onclick = () => {
         if (!order.includes(i)) {
           order.push(i);
@@ -2388,8 +2420,8 @@ else if (s.type === "color-sequence") {
             err.className = "animated-text";
             err.style.color = "#d32f2f";
             err.innerText = s.onWrong || "Oops... try again!";
+            err.style.textAlign = "center";
             textArea.appendChild(err);
-
             setTimeout(() => {
               box.querySelectorAll("button").forEach((b, idx) => {
                 b.disabled = false;
@@ -2404,12 +2436,9 @@ else if (s.type === "color-sequence") {
       box.appendChild(btn);
     });
   }
-
-  // Rainbow-Pulse-Animation ins CSS einbauen (wenn noch nicht geschehen)
-  // Beispiel für style.css:
-  // .rainbow-btn-animated { animation: rainbowPulse 1.4s infinite alternate; }
-  // @keyframes rainbowPulse { 0% { filter: brightness(1); } 100% { filter: brightness(1.14) drop-shadow(0 0 16px #ffd54f88); } }
 }
+
+
 
 
 
@@ -2423,32 +2452,56 @@ else if (s.type === "color-detective") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
+  // Hintergrundmusik
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.20;
+    sessionMusic.play();
+  }
+
   playSessionVideoIfNeeded(s, showDetectiveTask);
 
   function showDetectiveTask() {
     if (s.avatar) showAvatarInVideoBox(null, s.avatar);
 
+    // Frage
     const q = document.createElement("div");
     q.className = "animated-text";
+    q.style.textAlign = "center";
+    q.style.fontSize = "1.18rem";
     q.innerText = s.question || "Find the right color!";
+    q.style.marginTop = "14px";
     textArea.appendChild(q);
 
+    // Kreise weiter unten, mittig
     const box = document.createElement("div");
     box.style.display = "flex";
-    box.style.gap = "18px";
-    box.style.marginTop = "16px";
+    box.style.justifyContent = "center";
+    box.style.gap = "30px";
+    box.style.marginTop = "48px";
     textArea.appendChild(box);
 
     s.choices.forEach((col, i) => {
       const btn = document.createElement("button");
-      btn.style.width = "70px";
-      btn.style.height = "70px";
+      btn.style.width = "74px";
+      btn.style.height = "74px";
+      btn.style.borderRadius = "50%";
       btn.style.background = col;
-      btn.style.border = "2px solid #ffd54f";
-      btn.style.borderRadius = "20px";
+      btn.style.border = "5px solid #ffd54f";
+      btn.style.margin = "0 8px";
+      btn.style.display = "flex";
+      btn.style.alignItems = "center";
+      btn.style.justifyContent = "center";
+      btn.style.boxShadow = "0 2px 14px #ffd54f44";
       btn.onclick = () => {
         if (i === s.correct) {
           new Audio("audio/yay.mp3").play();
+          if (sessionMusic) {
+            sessionMusic.pause();
+            sessionMusic.currentTime = 0;
+          }
           showUniversalReward(
             "🔎",
             s.onCorrect || "Well done!",
@@ -2468,6 +2521,8 @@ else if (s.type === "color-detective") {
 
 
 
+
+
 else if (s.type === "color-memory") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -2475,44 +2530,82 @@ else if (s.type === "color-memory") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
+  // Hintergrundmusik
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.20;
+    sessionMusic.play();
+  }
+
   playSessionVideoIfNeeded(s, showMemoryTask);
 
   function showMemoryTask() {
-    const seqBox = document.createElement("div");
-    seqBox.style.display = "flex";
-    seqBox.style.justifyContent = "center";
-    seqBox.style.gap = "16px";
-    seqBox.style.fontSize = "2rem";
-    seqBox.style.marginTop = "18px";
-    textArea.appendChild(seqBox);
+    // "Show sequence again"-Button (oben, schön, bunt)
+    const againBtn = document.createElement("button");
+    againBtn.innerText = "Show sequence again";
+    againBtn.className = "rainbow-btn-animated";
+    againBtn.style.display = "block";
+    againBtn.style.margin = "18px auto 20px auto";
+    againBtn.style.padding = "1em 2em";
+    againBtn.style.fontSize = "1.09rem";
+    againBtn.style.fontWeight = "bold";
+    againBtn.style.border = "none";
+    againBtn.style.borderRadius = "22px";
+    againBtn.style.background = "linear-gradient(90deg, #ffeb3b, #81d4fa, #ff80ab, #aed581, #fff176, #ffd54f)";
+    againBtn.style.boxShadow = "0 2px 14px #ffd54f55";
+    againBtn.style.cursor = "pointer";
+    againBtn.style.animation = "rainbowPulse 1.1s infinite alternate";
+    againBtn.onclick = () => {
+      showSequence();
+    };
+    textArea.appendChild(againBtn);
 
-    let idxSeq = 0;
-    function showNext() {
-      if (idxSeq < s.sequence.length) {
-        const span = document.createElement("span");
-        span.innerText = s.sequence[idxSeq];
-        span.style.color = s.sequence[idxSeq].toLowerCase();
-        seqBox.appendChild(span);
-        idxSeq++;
-        setTimeout(showNext, 850);
-      } else {
-        setTimeout(showMemoryChoices, 650);
-      }
+    // Sequenz einmal initial zeigen (wie ein Slide)
+    showSequence();
+
+    function showSequence() {
+      // Sequenz als bunte Kreise
+      const seqBox = document.createElement("div");
+      seqBox.style.display = "flex";
+      seqBox.style.justifyContent = "center";
+      seqBox.style.gap = "18px";
+      seqBox.style.fontSize = "2rem";
+      seqBox.style.margin = "16px auto 20px auto";
+      s.sequence.forEach(color => {
+        const ball = document.createElement("div");
+        ball.style.width = "50px";
+        ball.style.height = "50px";
+        ball.style.borderRadius = "50%";
+        ball.style.background = color.toLowerCase();
+        ball.style.border = "3px solid #ffd54f";
+        ball.title = color;
+        ball.style.display = "inline-block";
+        ball.style.margin = "0 6px";
+        seqBox.appendChild(ball);
+      });
+      textArea.appendChild(seqBox);
+
+      setTimeout(() => {
+        seqBox.remove();
+      }, 3000); // 3 Sekunden sichtbar
     }
-    showNext();
 
-    function showMemoryChoices() {
-      seqBox.remove();
+    // Frage & Buttons (immer mittig, nach unten)
+    setTimeout(() => {
       const q = document.createElement("div");
       q.className = "animated-text";
       q.innerText = "Which order was correct?";
+      q.style.textAlign = "center";
       textArea.appendChild(q);
 
       const box = document.createElement("div");
       box.style.display = "flex";
       box.style.flexDirection = "column";
+      box.style.alignItems = "center";
       box.style.gap = "14px";
-      box.style.marginTop = "12px";
+      box.style.marginTop = "20px";
       textArea.appendChild(box);
 
       s.choices.forEach((order, i) => {
@@ -2523,9 +2616,15 @@ else if (s.type === "color-memory") {
         btn.style.borderRadius = "16px";
         btn.style.padding = "0.9em 1.5em";
         btn.style.fontSize = "1.11rem";
+        btn.style.width = "220px";
+        btn.style.margin = "0 auto";
         btn.onclick = () => {
           if (i === s.correct) {
             new Audio("audio/yay.mp3").play();
+            if (sessionMusic) {
+              sessionMusic.pause();
+              sessionMusic.currentTime = 0;
+            }
             showUniversalReward(
               "🧠",
               s.onCorrect || "Well remembered!",
@@ -2540,9 +2639,11 @@ else if (s.type === "color-memory") {
         };
         box.appendChild(btn);
       });
-    }
+    }, 3500); // Buttons erscheinen nach der Sequenz
   }
 }
+
+
 
 
 
