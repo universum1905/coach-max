@@ -1418,42 +1418,46 @@ if (shadowMusic) {
 
   // 3) Frage & Buttons anzeigen
   function showQuestionAndChoices() {
-    // Frage
-    const questionDiv = document.createElement("div");
-    questionDiv.className = "animated-text";
-    questionDiv.style.textAlign = "center";
-    questionDiv.style.fontSize = "1.19rem";
-    questionDiv.style.margin = "18px auto 12px";
-    questionDiv.textContent = s.question;
-    textArea.appendChild(questionDiv);
+  // Frage
+  const questionDiv = document.createElement("div");
+  questionDiv.className = "animated-text";
+  questionDiv.style.textAlign = "center";
+  questionDiv.style.fontSize = "1.19rem";
+  questionDiv.style.margin = "18px auto 12px";
+  questionDiv.textContent = s.question;
+  textArea.appendChild(questionDiv);
 
-    // Buttons-Container
-    const box = document.createElement("div");
-box.className = "rhyme-buttons";
-box.style.display = "flex";
-box.style.flexDirection = "column";
-box.style.alignItems = "center";
-box.style.width = "100%";
-box.style.maxWidth = "440px";
-box.style.margin = "0 auto";
-box.style.padding = "0 12px";
+  // Buttons-Container
+  const box = document.createElement("div");
+  box.className = "rhyme-buttons";
+  box.style.display = "flex";
+  box.style.flexDirection = "column";
+  box.style.alignItems = "center";
+  box.style.width = "100%";
+  box.style.maxWidth = "440px";
+  box.style.margin = "0 auto";
+  box.style.padding = "0 12px";
 
-    // Wahlmöglichkeiten
-    s.choices.forEach((word, i) => {
-      const btn = document.createElement("button");
-      btn.style.border = "none";
-      btn.style.background = "#fffbe6";
-      btn.style.fontSize = "1.44rem";
-      btn.style.fontWeight = "700";
-      btn.style.padding = "0.9em 1.7em";
-      btn.style.borderRadius = "16px";
-      btn.style.boxShadow = "0 2px 10px #81d4fa88";
-      btn.style.cursor = "pointer";
-      btn.textContent = word;
-      btn.addEventListener("click", () => handleChoice(btn, i));
-      box.appendChild(btn);
-    });
-  }
+  // Wahlmöglichkeiten
+  s.choices.forEach((word, i) => {
+    const btn = document.createElement("button");
+    btn.style.border = "none";
+    btn.style.background = "#fffbe6";
+    btn.style.fontSize = "1.44rem";
+    btn.style.fontWeight = "700";
+    btn.style.padding = "0.9em 1.7em";
+    btn.style.borderRadius = "16px";
+    btn.style.boxShadow = "0 2px 10px #81d4fa88";
+    btn.style.cursor = "pointer";
+    btn.textContent = word;
+    btn.addEventListener("click", () => handleChoice(btn, i));
+    box.appendChild(btn);
+  });
+
+  // **Hier der entscheidende Befehl!**
+  textArea.appendChild(box);
+}
+
 
   // 4) Auswahl verarbeiten
   function handleChoice(btn, i) {
