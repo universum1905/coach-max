@@ -2471,7 +2471,8 @@ else if (s.type === "color-detective") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-   const heading = document.createElement('h2');
+  // === Überschrift schon VOR dem Video ===
+  const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.style.textAlign = "center";
   heading.style.marginTop = "6px";
@@ -2491,6 +2492,7 @@ else if (s.type === "color-detective") {
   function showDetectiveTask() {
     if (s.avatar) showAvatarInVideoBox(null, s.avatar);
 
+    // Frage
     const q = document.createElement("div");
     q.className = "animated-text";
     q.style.textAlign = "center";
@@ -2499,6 +2501,7 @@ else if (s.type === "color-detective") {
     q.style.marginTop = "14px";
     textArea.appendChild(q);
 
+    // Kreise weiter unten, mittig
     const box = document.createElement("div");
     box.style.display = "flex";
     box.style.justifyContent = "center";
@@ -2537,13 +2540,27 @@ else if (s.type === "color-detective") {
         } else {
           new Audio("audio/fail.mp3").play();
           btn.classList.add("shake");
+
+          // Oops... try again Feedback
+          const err = document.createElement("div");
+          err.className = "animated-text";
+          err.style.color = "#d32f2f";
+          err.style.textAlign = "center";
+          err.style.marginTop = "10px";
+          err.innerText = "Oops... try again!";
+          textArea.appendChild(err);
+
           setTimeout(() => btn.classList.remove("shake"), 700);
+          setTimeout(() => {
+            if (err.parentNode) err.remove();
+          }, 1500);
         }
       };
       box.appendChild(btn);
     });
   }
 }
+
 
 
 
