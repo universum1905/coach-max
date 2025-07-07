@@ -2246,7 +2246,7 @@ else if (s.type === "color-sequence") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // --- Hintergrundmusik (falls im JSON angegeben) ---
+  // Hintergrundmusik
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
@@ -2255,9 +2255,10 @@ else if (s.type === "color-sequence") {
     sessionMusic.play();
   }
 
-  playSessionVideoIfNeeded(s, showSequenceTask);
+  playSessionVideoIfNeeded(s, () => showSequenceTask(false));
 
-  function showExample() {
+  // Beispiel-Regenbogen-Visualisierung
+  function showExampleRainbow() {
     const exBox = document.createElement("div");
     exBox.className = "color-sequence-example";
     exBox.style.display = "flex";
@@ -2288,32 +2289,56 @@ else if (s.type === "color-sequence") {
         ball.style.fontWeight = "bold";
         ball.style.fontSize = "1.01rem";
         ball.style.color = "#222";
-        ball.innerText = color[0]; // Optional: erster Buchstabe der Farbe
+        ball.innerText = color[0];
         exBox.appendChild(ball);
       });
     }
     return exBox;
   }
 
-  function showSequenceTask() {
+  // Hauptfunktion: Zeigt zuerst Beispiel, dann Buttons (oder umgekehrt, je nach showOnlyButtons)
+  function showSequenceTask(showOnlyButtons = false) {
     textArea.innerHTML = "";
 
-    // Beispiel zuerst anzeigen
-    const ex = showExample();
-    textArea.appendChild(ex);
+    if (!showOnlyButtons) {
+      // Beispiel anzeigen und nach 7 Sekunden Buttons einblenden
+      const ex = showExampleRainbow();
+      textArea.appendChild(ex);
 
-    // Button: "Show example again"
-    const showAgainBtn = document.createElement("button");
-    showAgainBtn.innerText = "Show example again";
-    showAgainBtn.style.margin = "10px auto 20px auto";
-    showAgainBtn.style.display = "block";
-    showAgainBtn.style.fontSize = "1.1rem";
-    showAgainBtn.onclick = () => {
-      const old = document.querySelector(".color-sequence-example");
-      if (old) old.remove();
-      textArea.insertBefore(showExample(), textArea.firstChild);
+      setTimeout(() => {
+        textArea.innerHTML = "";
+        showSequenceTask(true);
+      }, 7000);
+      return;
+    }
+
+    // Wiederhol-Button (schön gestaltet, bunt)
+    const againBtn = document.createElement("button");
+    againBtn.innerText = "Show the rainbow example again";
+    againBtn.className = "rainbow-btn-animated";
+    againBtn.style.display = "block";
+    againBtn.style.margin = "12px auto 18px auto";
+    againBtn.style.padding = "1em 2em";
+    againBtn.style.fontSize = "1.18rem";
+    againBtn.style.fontWeight = "bold";
+    againBtn.style.border = "none";
+    againBtn.style.borderRadius = "22px";
+    againBtn.style.background = "linear-gradient(90deg, #ffeb3b, #81d4fa, #ff80ab, #aed581, #fff176, #ffd54f)";
+    againBtn.style.boxShadow = "0 2px 18px #ffd54f55";
+    againBtn.style.cursor = "pointer";
+    againBtn.style.animation = "rainbowPulse 1.5s infinite alternate";
+
+    againBtn.onclick = () => {
+      textArea.innerHTML = "";
+      // Zeige das Beispiel wieder 7 Sekunden, dann wieder Buttons
+      const ex = showExampleRainbow();
+      textArea.appendChild(ex);
+      setTimeout(() => {
+        textArea.innerHTML = "";
+        showSequenceTask(true);
+      }, 7000);
     };
-    textArea.appendChild(showAgainBtn);
+    textArea.appendChild(againBtn);
 
     // Frage
     const q = document.createElement("div");
@@ -2347,7 +2372,6 @@ else if (s.type === "color-sequence") {
         }
         if (order.length === s.colors.length) {
           if (JSON.stringify(order) === JSON.stringify(s.solution)) {
-            // MUSIK STOPPEN BEIM ERFOLG!
             if (sessionMusic) {
               sessionMusic.pause();
               sessionMusic.currentTime = 0;
@@ -2363,10 +2387,9 @@ else if (s.type === "color-sequence") {
             const err = document.createElement("div");
             err.className = "animated-text";
             err.style.color = "#d32f2f";
-            err.innerText = s.onWrong || "Try again!";
+            err.innerText = s.onWrong || "Oops... try again!";
             textArea.appendChild(err);
 
-            // Reset
             setTimeout(() => {
               box.querySelectorAll("button").forEach((b, idx) => {
                 b.disabled = false;
@@ -2381,7 +2404,13 @@ else if (s.type === "color-sequence") {
       box.appendChild(btn);
     });
   }
+
+  // Rainbow-Pulse-Animation ins CSS einbauen (wenn noch nicht geschehen)
+  // Beispiel für style.css:
+  // .rainbow-btn-animated { animation: rainbowPulse 1.4s infinite alternate; }
+  // @keyframes rainbowPulse { 0% { filter: brightness(1); } 100% { filter: brightness(1.14) drop-shadow(0 0 16px #ffd54f88); } }
 }
+
 
 
 
