@@ -732,7 +732,7 @@ document.body.appendChild(btn);
     videoBox.className = "floating-video";
     videoBox.style.position = "fixed";
     videoBox.style.right = "22px";
-    videoBox.style.bottom = "45px";
+    videoBox.style.bottom = "65px";
     videoBox.style.zIndex = "1000";
     videoBox.appendChild(videoElement);
     document.body.appendChild(videoBox);
