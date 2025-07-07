@@ -987,45 +987,12 @@ playSessionVideoIfNeeded(s, startMemoryGame);
     });
   }
 
-  function showMemoryReward() {
-    createRewardStar();
-
-    // Compliment
-    let compliments = [
-      "Super memory skills!",
-      "You are a clever fox!",
-      "Max is proud of you!",
-      "You rock!"
-    ];
-    let compliment = compliments[Math.floor(Math.random() * compliments.length)];
-    setTimeout(() => {
-      let praise = document.createElement('div');
-      praise.className = "animated-text";
-      praise.style.color = "#44a047";
-      praise.style.textAlign = "center";
-      praise.style.marginTop = "18px";
-      praise.innerHTML = compliment;
-      textArea.appendChild(praise);
-    }, 1600);
-
-    // Unlock sticker
-    if (typeof unlockSticker === "function" && s.successSticker !== undefined) {
-      unlockSticker(s.successSticker);
-    }
-
-    // Next/Finish Button
-    setTimeout(() => {
-      const btn = document.createElement('button');
-      btn.innerText = currentSession < sessions.length - 1 ? "Next" : "Finish";
-      btn.className = "centered-next-btn";
-      btn.onclick = () => {
-        document.querySelectorAll(".centered-next-btn, div[style*='fixed'], .animated-text").forEach(e => e.remove());
-        currentSession++;
-        renderSession(currentSession);
-      };
-      document.body.appendChild(btn);
-    }, 2200);
-  }
+  showUniversalReward(
+  "images/stickers/star.png", // oder ein passender Bild- oder Textwert
+  "Great memory!",
+  null,
+  0 // Index für deinen Sticker
+);
 
   return;
 }
