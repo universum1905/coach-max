@@ -2211,58 +2211,24 @@ else if (s.type === "color-find") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Video (optional)
-  if (s.video) {
-    const video = document.createElement("video");
-    video.src = `videos/${s.video}`;
-    video.setAttribute("controls", "true");
-    video.setAttribute("controlsList", "nodownload");
-    video.className = "session-video";
-    video.style.marginBottom = "16px";
-    const videoBox = document.createElement("div");
-    videoBox.className = "floating-video";
-    videoBox.appendChild(video);
-    document.body.appendChild(videoBox);
-
-    // Play-Button
-    const playBtn = document.createElement("button");
-    playBtn.className = "custom-play-btn";
-    playBtn.innerHTML = `<svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>`;
-    videoBox.appendChild(playBtn);
-
-    playBtn.onclick = () => { video.play(); playBtn.style.display = "none"; };
-    video.addEventListener('play', () => playBtn.style.display = "none");
-    video.addEventListener('ended', () => playBtn.style.display = "");
-
-    // Starte Frage nach Video-Ende
-    video.addEventListener('ended', showFindTask);
-  } else {
-    showFindTask();
-  }
+  playSessionVideoIfNeeded(s, showFindTask);
 
   function showFindTask() {
-    // Avatar
     if (s.avatar) showAvatarInVideoBox(null, s.avatar);
 
-    // Frage
     const q = document.createElement("div");
     q.className = "animated-text";
-    q.style.fontSize = "1.2rem";
-    q.innerText = s.question || "Finde etwas in dieser Farbe!";
+    q.innerText = s.question || "Find something in this color!";
     textArea.appendChild(q);
 
-    // Button
     const btn = document.createElement("button");
-    btn.innerText = `Ich habe etwas ${s.color || "in dieser Farbe"} gefunden!`;
+    btn.innerText = `I found something ${s.color || "in this color"}!`;
     btn.className = "centered-next-btn";
     btn.onclick = () => {
       new Audio("audio/yay.mp3").play();
       showUniversalReward(
         s.color,
-        s.onDone || "Super gemacht!",
+        s.onDone || "Well done!",
         () => { currentSession++; renderSession(currentSession); },
         s.successSticker || 0
       );
@@ -2272,6 +2238,7 @@ else if (s.type === "color-find") {
 }
 
 
+
 else if (s.type === "color-sequence") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -2279,84 +2246,60 @@ else if (s.type === "color-sequence") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Video (optional)
-  if (s.video) {
-    const video = document.createElement("video");
-    video.src = `videos/${s.video}`;
-    video.setAttribute("controls", "true");
-    video.setAttribute("controlsList", "nodownload");
-    video.className = "session-video";
-    video.style.marginBottom = "16px";
-    const videoBox = document.createElement("div");
-    videoBox.className = "floating-video";
-    videoBox.appendChild(video);
-    document.body.appendChild(videoBox);
+  playSessionVideoIfNeeded(s, showSequenceTask);
 
-    // Play-Button
-    const playBtn = document.createElement("button");
-    playBtn.className = "custom-play-btn";
-    playBtn.innerHTML = `<svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>`;
-    videoBox.appendChild(playBtn);
+  function showSequenceTask() {
+    const q = document.createElement("div");
+    q.className = "animated-text";
+    q.innerText = s.question || "Put the colors in the correct order!";
+    textArea.appendChild(q);
 
-    playBtn.onclick = () => { video.play(); playBtn.style.display = "none"; };
-    video.addEventListener('play', () => playBtn.style.display = "none");
-    video.addEventListener('ended', () => playBtn.style.display = "");
+    const order = [];
+    const box = document.createElement("div");
+    box.style.display = "flex";
+    box.style.gap = "12px";
+    box.style.marginTop = "18px";
+    textArea.appendChild(box);
 
-  // Frage
-  const q = document.createElement("div");
-  q.className = "animated-text";
-  q.innerText = s.question || "Bringe die Farben in die richtige Reihenfolge!";
-  textArea.appendChild(q);
-
-  // Button-Reihenfolge statt Drag&Drop
-  const order = [];
-  const box = document.createElement("div");
-  box.style.display = "flex";
-  box.style.gap = "12px";
-  box.style.marginTop = "18px";
-  textArea.appendChild(box);
-
-  s.colors.forEach((col, i) => {
-    const btn = document.createElement("button");
-    btn.innerText = col;
-    btn.style.background = "#fffbe6";
-    btn.style.border = "2px solid #ffd54f";
-    btn.style.borderRadius = "16px";
-    btn.style.padding = "0.7em 1.4em";
-    btn.style.fontSize = "1.1rem";
-    btn.style.fontWeight = "bold";
-    btn.onclick = () => {
-      if (!order.includes(i)) {
-        order.push(i);
-        btn.style.opacity = "0.5";
-        btn.disabled = true;
-      }
-      // Wenn alle gedrückt:
-      if (order.length === s.colors.length) {
-        if (JSON.stringify(order) === JSON.stringify(s.solution)) {
-          showUniversalReward(
-            "🌈",
-            s.onCorrect || "Super sortiert!",
-            () => { currentSession++; renderSession(currentSession); },
-            s.successSticker || 0
-          );
-        } else {
-          new Audio("audio/fail.mp3").play();
-          const err = document.createElement("div");
-          err.className = "animated-text";
-          err.style.color = "#d32f2f";
-          err.innerText = "Das war nicht ganz richtig! Versuch es nochmal.";
-          textArea.appendChild(err);
-          setTimeout(() => { location.reload(); }, 1400);
+    s.colors.forEach((col, i) => {
+      const btn = document.createElement("button");
+      btn.innerText = col;
+      btn.style.background = "#fffbe6";
+      btn.style.border = "2px solid #ffd54f";
+      btn.style.borderRadius = "16px";
+      btn.style.padding = "0.7em 1.4em";
+      btn.style.fontSize = "1.1rem";
+      btn.style.fontWeight = "bold";
+      btn.onclick = () => {
+        if (!order.includes(i)) {
+          order.push(i);
+          btn.style.opacity = "0.5";
+          btn.disabled = true;
         }
-      }
-    };
-    box.appendChild(btn);
-  });
+        if (order.length === s.colors.length) {
+          if (JSON.stringify(order) === JSON.stringify(s.solution)) {
+            showUniversalReward(
+              "🌈",
+              s.onCorrect || "Great order!",
+              () => { currentSession++; renderSession(currentSession); },
+              s.successSticker || 0
+            );
+          } else {
+            new Audio("audio/fail.mp3").play();
+            const err = document.createElement("div");
+            err.className = "animated-text";
+            err.style.color = "#d32f2f";
+            err.innerText = "Try again!";
+            textArea.appendChild(err);
+            setTimeout(() => { location.reload(); }, 1400);
+          }
+        }
+      };
+      box.appendChild(btn);
+    });
+  }
 }
+
 
 
 else if (s.type === "color-detective") {
@@ -2366,45 +2309,16 @@ else if (s.type === "color-detective") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Video (optional)
-  if (s.video) {
-    const video = document.createElement("video");
-    video.src = `videos/${s.video}`;
-    video.setAttribute("controls", "true");
-    video.setAttribute("controlsList", "nodownload");
-    video.className = "session-video";
-    video.style.marginBottom = "16px";
-    const videoBox = document.createElement("div");
-    videoBox.className = "floating-video";
-    videoBox.appendChild(video);
-    document.body.appendChild(videoBox);
-
-    const playBtn = document.createElement("button");
-    playBtn.className = "custom-play-btn";
-    playBtn.innerHTML = `<svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>`;
-    videoBox.appendChild(playBtn);
-
-    playBtn.onclick = () => { video.play(); playBtn.style.display = "none"; };
-    video.addEventListener('play', () => playBtn.style.display = "none");
-    video.addEventListener('ended', showDetectiveTask);
-  } else {
-    showDetectiveTask();
-  }
+  playSessionVideoIfNeeded(s, showDetectiveTask);
 
   function showDetectiveTask() {
-    // Avatar
     if (s.avatar) showAvatarInVideoBox(null, s.avatar);
 
-    // Frage
     const q = document.createElement("div");
     q.className = "animated-text";
-    q.innerText = s.question || "Finde die richtige Farbe!";
+    q.innerText = s.question || "Find the right color!";
     textArea.appendChild(q);
 
-    // Auswahlfelder
     const box = document.createElement("div");
     box.style.display = "flex";
     box.style.gap = "18px";
@@ -2423,7 +2337,7 @@ else if (s.type === "color-detective") {
           new Audio("audio/yay.mp3").play();
           showUniversalReward(
             "🔎",
-            s.onCorrect || "Richtig erkannt!",
+            s.onCorrect || "Well done!",
             () => { currentSession++; renderSession(currentSession); },
             s.successSticker || 0
           );
@@ -2437,6 +2351,7 @@ else if (s.type === "color-detective") {
     });
   }
 }
+
 
 
 else if (s.type === "color-memory") {
@@ -2446,76 +2361,74 @@ else if (s.type === "color-memory") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Zeige Sequenz (eine nach der anderen, z. B. als große bunte Wörter)
-  const seqBox = document.createElement("div");
-  seqBox.style.display = "flex";
-  seqBox.style.justifyContent = "center";
-  seqBox.style.gap = "16px";
-  seqBox.style.fontSize = "2rem";
-  seqBox.style.marginTop = "18px";
-  textArea.appendChild(seqBox);
+  playSessionVideoIfNeeded(s, showMemoryTask);
 
-  let idxSeq = 0;
-  function showNext() {
-    if (idxSeq < s.sequence.length) {
-      const span = document.createElement("span");
-      span.innerText = s.sequence[idxSeq];
-      // Option: Setze auch Farbe als Stil
-      span.style.color = s.sequence[idxSeq].toLowerCase();
-      seqBox.appendChild(span);
-      idxSeq++;
-      setTimeout(showNext, 850);
-    } else {
-      setTimeout(showMemoryChoices, 650);
+  function showMemoryTask() {
+    const seqBox = document.createElement("div");
+    seqBox.style.display = "flex";
+    seqBox.style.justifyContent = "center";
+    seqBox.style.gap = "16px";
+    seqBox.style.fontSize = "2rem";
+    seqBox.style.marginTop = "18px";
+    textArea.appendChild(seqBox);
+
+    let idxSeq = 0;
+    function showNext() {
+      if (idxSeq < s.sequence.length) {
+        const span = document.createElement("span");
+        span.innerText = s.sequence[idxSeq];
+        span.style.color = s.sequence[idxSeq].toLowerCase();
+        seqBox.appendChild(span);
+        idxSeq++;
+        setTimeout(showNext, 850);
+      } else {
+        setTimeout(showMemoryChoices, 650);
+      }
+    }
+    showNext();
+
+    function showMemoryChoices() {
+      seqBox.remove();
+      const q = document.createElement("div");
+      q.className = "animated-text";
+      q.innerText = "Which order was correct?";
+      textArea.appendChild(q);
+
+      const box = document.createElement("div");
+      box.style.display = "flex";
+      box.style.flexDirection = "column";
+      box.style.gap = "14px";
+      box.style.marginTop = "12px";
+      textArea.appendChild(box);
+
+      s.choices.forEach((order, i) => {
+        const btn = document.createElement("button");
+        btn.innerText = order;
+        btn.style.background = "#fffbe6";
+        btn.style.border = "2px solid #ffd54f";
+        btn.style.borderRadius = "16px";
+        btn.style.padding = "0.9em 1.5em";
+        btn.style.fontSize = "1.11rem";
+        btn.onclick = () => {
+          if (i === s.correct) {
+            new Audio("audio/yay.mp3").play();
+            showUniversalReward(
+              "🧠",
+              s.onCorrect || "Well remembered!",
+              () => { currentSession++; renderSession(currentSession); },
+              s.successSticker || 0
+            );
+          } else {
+            new Audio("audio/fail.mp3").play();
+            btn.classList.add("shake");
+            setTimeout(() => btn.classList.remove("shake"), 700);
+          }
+        };
+        box.appendChild(btn);
+      });
     }
   }
-  showNext();
-
-  function showMemoryChoices() {
-    // Entferne Sequenz
-    seqBox.remove();
-    // Zeige Auswahl
-    const q = document.createElement("div");
-    q.className = "animated-text";
-    q.innerText = "Welche Reihenfolge war richtig?";
-    textArea.appendChild(q);
-
-    const box = document.createElement("div");
-    box.style.display = "flex";
-    box.style.flexDirection = "column";
-    box.style.gap = "14px";
-    box.style.marginTop = "12px";
-    textArea.appendChild(box);
-
-    s.choices.forEach((order, i) => {
-      const btn = document.createElement("button");
-      btn.innerText = order;
-      btn.style.background = "#fffbe6";
-      btn.style.border = "2px solid #ffd54f";
-      btn.style.borderRadius = "16px";
-      btn.style.padding = "0.9em 1.5em";
-      btn.style.fontSize = "1.11rem";
-      btn.onclick = () => {
-        if (i === s.correct) {
-          new Audio("audio/yay.mp3").play();
-          showUniversalReward(
-            "🧠",
-            s.onCorrect || "Richtig gemerkt!",
-            () => { currentSession++; renderSession(currentSession); },
-            s.successSticker || 0
-          );
-        } else {
-          new Audio("audio/fail.mp3").play();
-          btn.classList.add("shake");
-          setTimeout(() => btn.classList.remove("shake"), 700);
-        }
-      };
-      box.appendChild(btn);
-    });
-  }
 }
-
-
 
 
 
