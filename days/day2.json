@@ -104,35 +104,37 @@
   "type": "color-find",
   "avatar": "momo",
   "video": "day2-test.mp4",
-  "question": "Kannst du etwas Grünes in deinem Zimmer finden? Dann drücke auf den Button!",
-  "color": "Grün",
-  "onDone": "Super, du hast Grün gefunden! Hier ist dein Sticker!",
+  "question": "Can you find something green in your room? When you’ve found it, tap the button!",
+  "color": "green",
+  "onDone": "Great job, you found something green! Here’s your sticker!",
   "successSticker": 0
 },
 {
   "type": "color-sequence",
-  "question": "Ziehe die Farben in die richtige Regenbogen-Reihenfolge!",
-  "colors": ["Gelb", "Grün", "Rot", "Blau"],
-  "solution": [2,0,1,3],
-  "onCorrect": "Perfekt sortiert! Hier ist dein Regenbogen-Sticker.",
+  "video": "day2-test.mp4",
+  "question": "Tap the colors in the correct rainbow order!",
+  "colors": ["Yellow", "Green", "Red", "Blue"],
+  "solution": [2, 0, 1, 3],
+  "onCorrect": "Awesome! You ordered the rainbow perfectly. Here’s your rainbow sticker!",
   "successSticker": 3
 },
 {
   "type": "color-detective",
   "avatar": "luna",
-  "video": "day3-color-detective.mp4",
-  "question": "Finde etwas Blaues in deiner Nähe und drücke auf das blaue Quadrat!",
+  "video": "day2-test.mp4",
+  "question": "Look around and find something blue. Then tap the blue square!",
   "choices": ["#ff0000", "#0000ff", "#00ff00"],
   "correct": 1,
-  "onCorrect": "Genial – du bist ein echter Farbdetektiv!",
+  "onCorrect": "Well done – you’re a real color detective!",
   "successSticker": 4
 },
 {
   "type": "color-memory",
-  "sequence": ["Rot", "Gelb", "Blau"],
-  "choices": ["Rot-Gelb-Blau", "Blau-Gelb-Rot", "Rot-Blau-Gelb"],
+  "video": "day2-test.mp4",
+  "sequence": ["Red", "Yellow", "Blue"],
+  "choices": ["Red-Yellow-Blue", "Blue-Yellow-Red", "Red-Blue-Yellow"],
   "correct": 0,
-  "onCorrect": "Stark gemerkt! Du bist ein Farbenprofi!",
+  "onCorrect": "Great memory! You remembered all the colors in order!",
   "successSticker": 1
 }
   ]
