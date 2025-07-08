@@ -46,21 +46,20 @@
     }
 
     @media screen and (orientation: portrait) {
-  #orientationOverlay { display: none; }
-  #mainContent       { display: block; }
-}
-@media screen and (orientation: landscape) {
-  #orientationOverlay { display: flex; }
-  #mainContent       { display: none; }
-}
-
+      #orientationOverlay { display: none; }
+      #mainContent       { display: block; }
+    }
+    @media screen and (orientation: landscape) {
+      #orientationOverlay { display: flex; }
+      #mainContent       { display: none; }
+    }
   </style>
 </head>
 <body class="text-black">
 
   <!-- Orientation Notice -->
   <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
-    <img src="images/rotate-phone.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <img src="images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
     <div class="text-6xl mb-4 animate-wiggle">🔄</div>
     <p class="text-2xl font-bold mb-2">Please rotate your device</p>
     <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
@@ -76,7 +75,7 @@
       <div id="bennyBox">
         <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden shadow">
           <img id="bennyImage" src="images/benny.png" alt="Benny" class="w-full h-full object-cover cursor-pointer" onclick="playAvatarVideo('benny')">
-          <video id="bennyVideo" src="videos/benny.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('benny')"></video>
+          <video id="bennyVideo" class="coachmax-video" src="videos/benny.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('benny')"></video>
         </div>
         <h2 class="text-xl font-semibold">Benny 🐶</h2>
         <p id="hint-benny" class="audioHint">🔊 Tap to unmute video</p>
@@ -87,7 +86,7 @@
       <div id="lunaBox">
         <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden shadow">
           <img id="lunaImage" src="images/luna.png" alt="Luna" class="w-full h-full object-cover cursor-pointer" onclick="playAvatarVideo('luna')">
-          <video id="lunaVideo" src="videos/luna.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('luna')"></video>
+          <video id="lunaVideo" class="coachmax-video" src="videos/luna.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('luna')"></video>
         </div>
         <h2 class="text-xl font-semibold">Luna 🐱</h2>
         <p id="hint-luna" class="audioHint">🔊 Tap to unmute video</p>
@@ -98,7 +97,7 @@
       <div id="momoBox">
         <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden shadow">
           <img id="momoImage" src="images/momo.png" alt="Momo" class="w-full h-full object-cover cursor-pointer" onclick="playAvatarVideo('momo')">
-          <video id="momoVideo" src="videos/momo.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('momo')"></video>
+          <video id="momoVideo" class="coachmax-video" src="videos/momo.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('momo')"></video>
         </div>
         <h2 class="text-xl font-semibold">Momo 🐵</h2>
         <p id="hint-momo" class="audioHint">🔊 Tap to unmute video</p>
@@ -109,7 +108,7 @@
     <!-- PARENTS VIDEO SECTION -->
     <div id="parentVideoSection" class="w-full max-w-lg mx-auto flex flex-col items-center bg-white/80 rounded-xl shadow-lg p-4 mb-6">
       <h2 class="text-base font-semibold text-blue-700 mb-2">For parents: Please watch before starting</h2>
-      <video id="parentIntroVideo" src="videos/parent-intro.mp4" controls playsinline class="w-full rounded-xl shadow mb-2" style="background:#eee"></video>
+      <video id="parentIntroVideo" class="coachmax-video" src="videos/parent-intro.mp4" controls playsinline class="w-full rounded-xl shadow mb-2" style="background:#eee"></video>
       <div id="parentVideoHint" class="text-sm text-gray-600 mb-1">Once the video has finished, you can start the adventure!</div>
     </div>
 
@@ -123,8 +122,9 @@
   </div>
 
   <script>
-    // Avatar Video Functions (wie gehabt)
+    // Avatar Video Functions (stop other videos on play)
     function playAvatarVideo(name) {
+      stopAllVideosExcept(`${name}Video`);
       const img = document.getElementById(`${name}Image`);
       const video = document.getElementById(`${name}Video`);
       const hint = document.getElementById(`hint-${name}`);
@@ -147,8 +147,32 @@
       hint.classList.remove('hidden');
     }
 
-    // Elternvideo Gate Logic (nur für Button!)
+    // Verhindere gleichzeitiges Abspielen ALLER Videos (inkl. Elternvideo)
+    function stopAllVideosExcept(exceptId) {
+      document.querySelectorAll('.coachmax-video').forEach(v => {
+        if (v.id !== exceptId) {
+          v.pause();
+          v.currentTime = 0;
+          // Nur für Avatare: das Bild wieder anzeigen
+          if (v.id.endsWith('Video') && v.id !== 'parentIntroVideo') {
+            v.classList.add('hidden');
+            const idPrefix = v.id.replace('Video', 'Image');
+            const img = document.getElementById(idPrefix);
+            if (img) img.classList.remove('hidden');
+            // Hint zeigen
+            const hint = document.getElementById('hint-' + idPrefix.replace('Image', ''));
+            if (hint) hint.classList.remove('hidden');
+          }
+        }
+      });
+    }
+
+    // Elternvideo: beim Start stoppe alle anderen Videos!
     const parentVideo = document.getElementById('parentIntroVideo');
+    parentVideo.addEventListener('play', function() {
+      stopAllVideosExcept('parentIntroVideo');
+    });
+
     const letsStartBtn = document.getElementById('letsStartBtn');
     const parentVideoHint = document.getElementById('parentVideoHint');
 
@@ -157,6 +181,16 @@
       letsStartBtn.classList.add('animate-bounce');
       parentVideoHint.textContent = "Ready! You can now start the adventure 🚀";
     };
+
+    // Sicherheit: Wenn andere Videos manuell gestartet werden, stoppe Elternvideo
+    ['bennyVideo', 'lunaVideo', 'momoVideo'].forEach(vidId => {
+      const vid = document.getElementById(vidId);
+      if (vid) {
+        vid.addEventListener('play', function() {
+          stopAllVideosExcept(vidId);
+        });
+      }
+    });
   </script>
 
 </body>
