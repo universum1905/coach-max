@@ -65,14 +65,7 @@
     <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
   </div>
 
-  <!-- PARENTS VIDEO GATE -->
-  <div id="parentVideoGate" class="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-white/90 rounded-xl shadow-xl max-w-lg mx-auto mt-8">
-    <h2 class="text-xl font-bold mb-4 text-blue-700">For parents: Please watch before starting</h2>
-    <video id="parentIntroVideo" src="videos/parent-intro.mp4" controls playsinline class="w-full max-w-md rounded-xl shadow mb-4" style="background:#eee"></video>
-    <button id="letsStartBtn" onclick="showMainContent()" class="bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700 mt-4" style="display:none;">🎬 Let’s Start!</button>
-  </div>
-
-  <!-- Main Content (hidden initially) -->
+   <!-- Main Content (hidden initially) -->
   <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4 text-center" style="display:none;">
     <h1 class="text-3xl font-bold mb-6">Welcome to Coach Max!</h1>
     <p class="mb-8 max-w-lg mx-auto">Every day, you’ll learn something new with our fun animal coaches. Click on each friend to meet them!</p>
@@ -111,6 +104,13 @@
         <button onclick="playAvatarVideo('momo')" class="mt-2 bg-yellow-500 text-white px-4 py-1 rounded-full">Meet Momo</button>
       </div>
     </div>
+	
+	 <!-- PARENTS VIDEO GATE -->
+  <div id="parentVideoGate" class="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-white/90 rounded-xl shadow-xl max-w-lg mx-auto mt-8">
+    <h2 class="text-xl font-bold mb-4 text-blue-700">For parents: Please watch before starting</h2>
+    <video id="parentIntroVideo" src="videos/parent-intro.mp4" controls playsinline class="w-full max-w-md rounded-xl shadow mb-4" style="background:#eee"></video>
+    <button id="letsStartBtn" onclick="showMainContent()" class="bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700 mt-4" style="display:none;">🎬 Let’s Start!</button>
+  </div>
 
     <!-- Start Button (hidden here, shown only after video gate) -->
     <button onclick="window.location.href='choose.html'" class="bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700">🎬 Let’s Start!</button>
@@ -156,6 +156,17 @@
       document.getElementById('mainContent').style.display = '';
       window.scrollTo(0,0);
     }
+	
+	// Elternvideo Gate Logic
+const parentVideo = document.getElementById('parentIntroVideo');
+const letsStartBtn = document.getElementById('letsStartBtn');
+const parentVideoHint = document.getElementById('parentVideoHint');
+
+parentVideo.onended = function() {
+  letsStartBtn.disabled = false;
+  letsStartBtn.classList.add('animate-bounce');
+  parentVideoHint.textContent = "Ready! You can now start the adventure 🚀";
+};
   </script>
 
 </body>
