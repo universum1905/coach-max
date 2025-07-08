@@ -973,13 +973,23 @@ textArea.appendChild(yesBtn);
   // --- Game Board & Logic wie gehabt ---
   function startMemoryGame() {
     // Game-Board nach Video-Ende (oder sofort, falls kein Video)
+    const boardWrapper = document.createElement('div');
+    boardWrapper.style.display = "flex";
+    boardWrapper.style.justifyContent = "center";
+    boardWrapper.style.alignItems = "center";
+    boardWrapper.style.width = "100%";
+    boardWrapper.style.margin = "22px 0";
+
     const board = document.createElement('div');
     board.style.display = "grid";
-    board.style.gridTemplateColumns = "repeat(4, 58px)";
+    // Wähle die Anzahl der Spalten DYNAMISCH oder z.B. 4 (für 4, 8, 12, ... Karten)
+    const totalCards = s.cards.length;
+    const columns = totalCards <= 6 ? 2 : (totalCards <= 12 ? 4 : 6); // Passe hier je nach Wunsch an
+    board.style.gridTemplateColumns = `repeat(${columns}, 58px)`;
     board.style.gap = "16px";
-    board.style.margin = "22px 0";
-    board.style.justifyContent = "center";
-    textArea.appendChild(board);
+    boardWrapper.appendChild(board);
+    textArea.appendChild(boardWrapper);
+
 
     // Shuffle cards
     const shuffled = s.cards.slice().sort(() => Math.random() - 0.5);
