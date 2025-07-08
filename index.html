@@ -45,12 +45,26 @@
       opacity: 0;
     }
 
-    
+    @media screen and (orientation: portrait) {
+  #orientationOverlay { display: none; }
+  #mainContent       { display: block; }
+}
+@media screen and (orientation: landscape) {
+  #orientationOverlay { display: flex; }
+  #mainContent       { display: none; }
+}
+
   </style>
 </head>
 <body class="text-black">
 
-  
+  <!-- Orientation Notice -->
+  <div id="orientationOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center text-center p-6 bg-yellow-100 text-black">
+    <img src="images/landscape-mode-child-cartoon.png" alt="Rotate" class="w-40 h-auto mb-4 rounded-xl shadow-md" />
+    <div class="text-6xl mb-4 animate-wiggle">🔄</div>
+    <p class="text-2xl font-bold mb-2">Please rotate your device</p>
+    <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
+  </div>
 
   <!-- Main Content -->
   <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4 text-center">
