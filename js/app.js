@@ -903,32 +903,77 @@ textArea.appendChild(yesBtn);
     memoryMusic.play();
   }
 
-  
+  // === NEU: Heading & Avatar SOFORT anzeigen ===
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = "Memory Game!";
+  heading.style.textAlign = "center";
+  textArea.appendChild(heading);
+
+  if (s.avatar) {
+    const avatarImg = document.createElement('img');
+    avatarImg.src = "images/" + s.avatar + ".png";
+    avatarImg.alt = s.avatar;
+    avatarImg.className = "intro-avatar-small";
+    avatarImg.style.display = "block";
+    avatarImg.style.margin = "0 auto 10px auto";
+    textArea.appendChild(avatarImg);
+  }
+
   // --- VIDEO (optional, Animals-Style) ---
-playSessionVideoIfNeeded(s, startMemoryGame);
+  // NUR das Video anzeigen – noch NICHT das Spielfeld!
+  if (s.video) {
+    const video = document.createElement("video");
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
 
+    // Floating Video-Box (unten rechts)
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.bottom = "22px";
+    videoBox.style.right = "22px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
 
+    // Play-Button Overlay
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.addEventListener("click", () => {
+      video.play();
+      playBtn.style.display = "none";
+    });
+    video.addEventListener("play", () => playBtn.style.display = "none");
+
+    video.addEventListener("ended", () => {
+      videoBox.remove();
+      startMemoryGame();
+    });
+
+    return; // Spielfeld wird erst NACH Video angezeigt!
+  } else {
+    startMemoryGame(); // Kein Video – direkt starten
+  }
+
+  // --- Game Board & Logic wie gehabt ---
   function startMemoryGame() {
-    textArea.innerHTML = "";
-
-    // --- Heading & Avatar ---
-    const heading = document.createElement('h2');
-    heading.className = "session-heading";
-    heading.textContent = "Memory Game!";
-    heading.style.textAlign = "center";
-    textArea.appendChild(heading);
-
-    if (s.avatar) {
-      const avatarImg = document.createElement('img');
-      avatarImg.src = "images/" + s.avatar + ".png";
-      avatarImg.alt = s.avatar;
-      avatarImg.className = "intro-avatar-small";
-      avatarImg.style.display = "block";
-      avatarImg.style.margin = "0 auto 10px auto";
-      textArea.appendChild(avatarImg);
-    }
-
-    // --- Game Board ---
+    // Game-Board nach Video-Ende (oder sofort, falls kein Video)
     const board = document.createElement('div');
     board.style.display = "grid";
     board.style.gridTemplateColumns = "repeat(4, 58px)";
@@ -991,29 +1036,28 @@ playSessionVideoIfNeeded(s, startMemoryGame);
       board.appendChild(btn);
     });
   }
-function showMemoryReward() {
-  // Compliment-Array
-  let compliments = [
-    "Super memory skills!",
-    "You are a clever fox!",
-    "Max is proud of you!",
-    "You rock!"
-  ];
-  let compliment = compliments[Math.floor(Math.random() * compliments.length)];
 
-  showUniversalReward(
-    "images/stickers/star.png", // Oder ein anderer Sticker je nach Erfolg
-    compliment,
-    () => {
-      // Weiter zur nächsten Session:
-      currentSession++;
-      renderSession(currentSession);
-    },
-    s.successSticker !== undefined ? s.successSticker : 0
-  );
+  function showMemoryReward() {
+    let compliments = [
+      "Super memory skills!",
+      "You are a clever fox!",
+      "Max is proud of you!",
+      "You rock!"
+    ];
+    let compliment = compliments[Math.floor(Math.random() * compliments.length)];
+
+    showUniversalReward(
+      "images/stickers/star.png", // Oder ein anderer Sticker je nach Erfolg
+      compliment,
+      () => {
+        currentSession++;
+        renderSession(currentSession);
+      },
+      s.successSticker !== undefined ? s.successSticker : 0
+    );
+  }
 }
-  
-}
+
 
 
 
