@@ -1476,8 +1476,9 @@ if (shadowMusic) {
     });
     video.addEventListener("play", () => playBtn.style.display = "none");
     video.addEventListener("ended", () => {
-      showAvatarInVideoBox(videoBox, "benny");
-      setTimeout(showQuestionAndChoices, 300);
+    // Avatar dynamisch aus JSON!
+    showAvatarInVideoBox(videoBox, s.avatar || "benny"); // Fallback = Benny
+    setTimeout(showQuestionAndChoices, 300);
     });
   } else {
     showQuestionAndChoices();
