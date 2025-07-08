@@ -984,7 +984,16 @@ textArea.appendChild(yesBtn);
     board.style.display = "grid";
     // Wähle die Anzahl der Spalten DYNAMISCH oder z.B. 4 (für 4, 8, 12, ... Karten)
     const totalCards = s.cards.length;
-    const columns = totalCards <= 6 ? 2 : (totalCards <= 12 ? 4 : 6); // Passe hier je nach Wunsch an
+    let columns = 2;
+    if (totalCards === 4) columns = 2;
+    else if (totalCards === 6) columns = 3;
+    else if (totalCards === 8) columns = 4;
+    else if (totalCards === 12) columns = 4;
+    else if (totalCards === 16) columns = 4;
+    else if (totalCards === 20) columns = 5;
+    else if (totalCards === 24) columns = 6;
+    else columns = Math.ceil(Math.sqrt(totalCards));
+
     board.style.gridTemplateColumns = `repeat(${columns}, 58px)`;
     board.style.gap = "16px";
     boardWrapper.appendChild(board);
