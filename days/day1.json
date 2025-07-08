@@ -136,6 +136,7 @@
         {
   "type": "animals",
   "video": "day1-test.mp4",
+  "music": "focus-loop.mp3",
   "sound": "dog-bark.mp3",
   "repeats": 3,
   "text": [
