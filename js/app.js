@@ -936,12 +936,11 @@ textArea.appendChild(yesBtn);
     // Floating Video-Box (unten rechts)
     const videoBox = document.createElement("div");
     videoBox.className = "floating-video";
-    videoBox.style.position = "fixed";
-    videoBox.style.bottom = "22px";
-    videoBox.style.right = "22px";
-    videoBox.style.zIndex = "1000";
+    videoBox.style.margin = "0 auto 18px auto";
+    videoBox.style.display = "flex";
+    videoBox.style.justifyContent = "center";
     videoBox.appendChild(video);
-    document.body.appendChild(videoBox);
+    textArea.appendChild(videoBox);
 
     // Play-Button Overlay
     const playBtn = document.createElement("button");
