@@ -24,44 +24,119 @@
   </div>
   
   <p class="text-gray-600 mb-2">Tap a day to start your adventure. New days unlock every morning at 6:00 AM!</p>
-  <div id="day-list" class="grid grid-cols-2 gap-4 w-full max-w-md"></div> 
+  <div id="dayList" class="flex flex-wrap justify-center gap-4 w-full max-w-md"></div>
+  <div id="unlockOverlay" style="display:none; position:fixed; z-index:50; inset:0; background:rgba(0,0,0,0.65); align-items:center; justify-content:center;">
+  <div id="unlockModal" class="rounded-3xl bg-white p-8 max-w-xs mx-auto flex flex-col items-center text-center shadow-xl animate-bounce-in">
+    <div id="unlockModalIcon" class="text-6xl mb-2 animate-shine">🔒</div>
+    <div id="unlockModalMsg" class="font-bold text-lg mb-2">Please come back tomorrow!</div>
+    <button id="unlockOverlayBtn" class="mt-4 bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full font-bold shadow-lg text-lg">OK</button>
+  </div>
+</div>
   <script>
-    const TOTAL_DAYS = 100;
-    const container = document.getElementById('day-list');
-    const now = new Date();
+const totalDays = 100;
+const dayList = document.getElementById("dayList");
 
-    for (let i = 1; i <= TOTAL_DAYS; i++) {
-      const unlockTime = localStorage.getItem(`day${i}UnlockTime`);
-      const isUnlocked = !unlockTime || now.getTime() >= parseInt(unlockTime);
-      const isCompleted = localStorage.getItem(`day${i}Completed`) === 'true';
+function isPremiumUser() {
+  return localStorage.getItem("isPremiumUser") === "true";
+}
 
-      const btn = document.createElement('a');
-      btn.className = `rounded-xl p-4 font-bold text-xl flex items-center justify-center shadow transition duration-300 ${
-        isUnlocked
-          ? isCompleted
-            ? 'bg-green-400 text-white hover:bg-green-500'
-            : 'bg-blue-400 text-white hover:bg-blue-500'
-          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-      }`;
-      btn.textContent = `Day ${i}`;
+function isDayUnlocked(dayNumber) {
+  if (dayNumber === 1) return true;
+  const prevCompleted = localStorage.getItem(`day${dayNumber - 1}Completed`);
+  const unlockTime = localStorage.getItem(`day${dayNumber}UnlockTime`);
+  const now = Date.now();
+  if (dayNumber > 7 && !isPremiumUser()) return false;
+  if (!prevCompleted) return false;
+  if (unlockTime && now < +unlockTime) return false;
+  return true;
+}
 
-      if (isUnlocked) {
-        btn.href = `day.html?day=${i}`;
+function showUnlockOverlay(msg, emoji = "🔒", showPaywall = false) {
+  document.getElementById("unlockOverlay").style.display = "flex";
+  document.getElementById("unlockModalIcon").innerText = emoji;
+  document.getElementById("unlockModalMsg").innerHTML = msg;
+  const btn = document.getElementById("unlockOverlayBtn");
+  btn.innerText = showPaywall ? "Go Premium" : "OK";
+  btn.onclick = function() {
+    document.getElementById("unlockOverlay").style.display = "none";
+    if (showPaywall) showPaywallModal();
+  };
+}
+
+function showPaywallModal() {
+  showUnlockOverlay(`
+    <div class="text-pink-500 text-2xl mb-2">✨ Coach Max Premium ✨</div>
+    <div class="mb-3">Unlock all days for <b>just $9/month</b>!</div>
+    <img src="images/stickers/star.png" alt="Star" class="w-16 mx-auto mb-2 animate-bounce">
+    <div class="text-base mb-2">Exclusive stickers & new adventures every day!<br>Cancel anytime.</div>
+  `, "⭐", false);
+  // Hier später echtes Kauf-Handling einbauen!
+  setTimeout(() => unlockPremium(), 1500); // Für Demo: Auto-freischalten
+}
+
+function unlockPremium() {
+  localStorage.setItem("isPremiumUser", "true");
+  location.reload();
+}
+function removePremium() {
+  localStorage.removeItem("isPremiumUser");
+  location.reload();
+}
+
+// --- Tag Buttons erzeugen ---
+for (let i = 1; i <= totalDays; i++) {
+  const unlockTime = localStorage.getItem(`day${i}UnlockTime`);
+  const isUnlocked = isDayUnlocked(i);
+  const isCompleted = localStorage.getItem(`day${i}Completed`) === 'true';
+
+  const btn = document.createElement('button');
+  btn.className = `rounded-2xl px-6 py-4 font-bold text-xl flex items-center justify-center shadow transition duration-300 ${
+    isUnlocked
+      ? isCompleted
+        ? 'bg-green-400 text-white hover:bg-green-500'
+        : 'bg-blue-400 text-white hover:bg-blue-500'
+      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+  }`;
+  btn.textContent = `Day ${i}`;
+
+  if (isUnlocked) {
+    btn.onclick = () => location.href = `day.html?day=${i}`;
+    btn.classList.add("animate-pulse");
+  } else {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      if (i > 7 && !isPremiumUser()) {
+        showUnlockOverlay("This day is only available with Premium!<br><span class='text-pink-500 font-bold'>Unlock all adventures for $9/month.</span>", "💎", true);
+      } else {
+        const unlockTime = localStorage.getItem(`day${i}UnlockTime`);
+        let timeMsg = "";
+        if (unlockTime) {
+          const dt = new Date(+unlockTime);
+          timeMsg = `<br><b>Next day unlocks at ${dt.toLocaleDateString()} ${dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</b>`;
+        }
+        showUnlockOverlay("Please come back tomorrow!" + timeMsg, "⏳");
       }
+    };
+  }
+  dayList.appendChild(btn);
+}
 
-      container.appendChild(btn);
-    }
+// --- New Day Unlocked Popup (dein bisheriger Code bleibt) ---
+if (sessionStorage.getItem('dayUnlockedMessage') === 'true') {
+  const popup = document.createElement('div');
+  popup.textContent = '🎉 New Day Unlocked!';
+  popup.className = 'fixed top-8 left-1/2 transform -translate-x-1/2 bg-yellow-300 text-black px-4 py-2 rounded-xl shadow-xl z-50 animate-bounce';
+  document.body.appendChild(popup);
+  setTimeout(() => {
+    popup.remove();
+    sessionStorage.removeItem('dayUnlockedMessage');
+  }, 3000);
+}
+</script>
 
-    if (sessionStorage.getItem('dayUnlockedMessage') === 'true') {
-      const popup = document.createElement('div');
-      popup.textContent = '🎉 New Day Unlocked!';
-      popup.className = 'fixed top-8 left-1/2 transform -translate-x-1/2 bg-yellow-300 text-black px-4 py-2 rounded-xl shadow-xl z-50 animate-bounce';
-      document.body.appendChild(popup);
-      setTimeout(() => {
-        popup.remove();
-        sessionStorage.removeItem('dayUnlockedMessage');
-      }, 3000);
-    }
-  </script>
+  <div class="fixed bottom-2 right-2 z-50">
+  <button onclick="unlockPremium()" class="bg-yellow-400 hover:bg-yellow-500 rounded-full px-4 py-2 font-bold shadow">DEV: Unlock Premium</button>
+  <button onclick="removePremium()" class="bg-gray-300 hover:bg-gray-400 rounded-full px-4 py-2 font-bold shadow ml-2">DEV: Lock Premium</button>
+</div>
 </body>
 </html>
