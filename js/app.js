@@ -532,9 +532,12 @@ playBtn.innerHTML = `
       videoElement.style.pointerEvents = "none";
     });
     videoElement.addEventListener('ended', () => {
-      playBtn.style.display = "";
-      videoElement.style.pointerEvents = "none";
-    });
+  playBtn.style.display = "";
+  videoElement.style.pointerEvents = "none";
+  // Avatar nach Video anzeigen:
+  const avatarName = s.avatar || "luna"; // fallback auf Luna
+  showAvatarInVideoBox(videoBox, avatarName, "avatar");
+});
     videoBox.appendChild(playBtn);
 
     linesBox.hasAnimated = false;
