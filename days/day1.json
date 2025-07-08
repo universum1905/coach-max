@@ -43,9 +43,9 @@
         
         {
   "type": "memory",
-  "avatar": "benny",
+  "avatar": "momo",
   "music": "focus-loop.mp3",          
-  "video": "day1-test.mp4",    
+  "video": "day1-memory.mp4",    
   "cards": [
     { "img": "images/animals/cat.png", "pairId": 1 },
     { "img": "images/animals/cat.png", "pairId": 1 },
@@ -136,7 +136,7 @@
         {
   "type": "animals",
   "avatar": "momo",
-  "video": "day1-test.mp4",
+  "video": "day1-animals.mp4",
   "music": "focus-loop.mp3",
   "sound": "dog-bark.mp3",
   "repeats": 3,
@@ -159,6 +159,7 @@
 ,
         {
   "type": "rhyme",
+  "avatar": "luna",
   "question": "What rhymes with dog?",
   "choices": ["fog", "cat", "ball"],
   "correct": 0,
@@ -170,6 +171,7 @@
         
         {
   "type": "story",
+  "avatar": "luna",
   "video": "day1-story.mp4",
   "title": "Luna's Big Adventure",
   "story": [
