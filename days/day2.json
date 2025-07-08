@@ -21,7 +21,7 @@
       "correct": 0,
       "onCorrect": "Great job! You found the right number!",
       "onWrong": "Try again! Look at the pattern closely.",
-      "successSticker": 1 
+      "successSticker": 0 
     },
     {
   "type": "shadow",
