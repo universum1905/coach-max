@@ -65,51 +65,59 @@
     <p class="text-lg">So you can enjoy the activity in full screen 😊</p>
   </div>
 
-  <!-- Main Content -->
-  <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+  <!-- PARENTS VIDEO GATE -->
+  <div id="parentVideoGate" class="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-white/90 rounded-xl shadow-xl max-w-lg mx-auto mt-8">
+    <h2 class="text-xl font-bold mb-4 text-blue-700">For parents: Please watch before starting</h2>
+    <video id="parentIntroVideo" src="videos/parent-intro.mp4" controls playsinline class="w-full max-w-md rounded-xl shadow mb-4" style="background:#eee"></video>
+    <button id="letsStartBtn" onclick="showMainContent()" class="bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700 mt-4" style="display:none;">🎬 Let’s Start!</button>
+  </div>
+
+  <!-- Main Content (hidden initially) -->
+  <div id="mainContent" class="flex flex-col items-center justify-center min-h-screen p-4 text-center" style="display:none;">
     <h1 class="text-3xl font-bold mb-6">Welcome to Coach Max!</h1>
     <p class="mb-8 max-w-lg mx-auto">Every day, you’ll learn something new with our fun animal coaches. Click on each friend to meet them!</p>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-  <!-- Benny -->
-  <div id="bennyBox">
-    <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden shadow">
-      <img id="bennyImage" src="images/benny.png" alt="Benny" class="w-full h-full object-cover cursor-pointer" onclick="playAvatarVideo('benny')">
-      <video id="bennyVideo" src="videos/benny.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('benny')"></video>
-    </div>
-    <h2 class="text-xl font-semibold">Benny 🐶</h2>
-    <p id="hint-benny" class="audioHint">🔊 Tap to unmute video</p>
-    <button onclick="playAvatarVideo('benny')" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded-full">Meet Benny</button>
-  </div>
+      <!-- Benny -->
+      <div id="bennyBox">
+        <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden shadow">
+          <img id="bennyImage" src="images/benny.png" alt="Benny" class="w-full h-full object-cover cursor-pointer" onclick="playAvatarVideo('benny')">
+          <video id="bennyVideo" src="videos/benny.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('benny')"></video>
+        </div>
+        <h2 class="text-xl font-semibold">Benny 🐶</h2>
+        <p id="hint-benny" class="audioHint">🔊 Tap to unmute video</p>
+        <button onclick="playAvatarVideo('benny')" class="mt-2 bg-blue-500 text-white px-4 py-1 rounded-full">Meet Benny</button>
+      </div>
 
       <!-- Luna -->
-  <div id="lunaBox">
-    <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden shadow">
-      <img id="lunaImage" src="images/luna.png" alt="Luna" class="w-full h-full object-cover cursor-pointer" onclick="playAvatarVideo('luna')">
-      <video id="lunaVideo" src="videos/luna.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('luna')"></video>
-    </div>
-    <h2 class="text-xl font-semibold">Luna 🐱</h2>
-    <p id="hint-luna" class="audioHint">🔊 Tap to unmute video</p>
-    <button onclick="playAvatarVideo('luna')" class="mt-2 bg-pink-500 text-white px-4 py-1 rounded-full">Meet Luna</button>
-  </div>
+      <div id="lunaBox">
+        <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden shadow">
+          <img id="lunaImage" src="images/luna.png" alt="Luna" class="w-full h-full object-cover cursor-pointer" onclick="playAvatarVideo('luna')">
+          <video id="lunaVideo" src="videos/luna.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('luna')"></video>
+        </div>
+        <h2 class="text-xl font-semibold">Luna 🐱</h2>
+        <p id="hint-luna" class="audioHint">🔊 Tap to unmute video</p>
+        <button onclick="playAvatarVideo('luna')" class="mt-2 bg-pink-500 text-white px-4 py-1 rounded-full">Meet Luna</button>
+      </div>
 
       <!-- Momo -->
-  <div id="momoBox">
-    <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden shadow">
-      <img id="momoImage" src="images/momo.png" alt="Momo" class="w-full h-full object-cover cursor-pointer" onclick="playAvatarVideo('momo')">
-      <video id="momoVideo" src="videos/momo.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('momo')"></video>
+      <div id="momoBox">
+        <div class="relative w-32 h-32 mx-auto rounded-full overflow-hidden shadow">
+          <img id="momoImage" src="images/momo.png" alt="Momo" class="w-full h-full object-cover cursor-pointer" onclick="playAvatarVideo('momo')">
+          <video id="momoVideo" src="videos/momo.mp4" class="hidden w-full h-full object-cover" playsinline controls onended="resetAvatar('momo')"></video>
+        </div>
+        <h2 class="text-xl font-semibold">Momo 🐵</h2>
+        <p id="hint-momo" class="audioHint">🔊 Tap to unmute video</p>
+        <button onclick="playAvatarVideo('momo')" class="mt-2 bg-yellow-500 text-white px-4 py-1 rounded-full">Meet Momo</button>
+      </div>
     </div>
-    <h2 class="text-xl font-semibold">Momo 🐵</h2>
-    <p id="hint-momo" class="audioHint">🔊 Tap to unmute video</p>
-    <button onclick="playAvatarVideo('momo')" class="mt-2 bg-yellow-500 text-white px-4 py-1 rounded-full">Meet Momo</button>
-  </div>
-</div>
 
-    <!-- Start Button -->
+    <!-- Start Button (hidden here, shown only after video gate) -->
     <button onclick="window.location.href='choose.html'" class="bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700">🎬 Let’s Start!</button>
   </div>
 
   <script>
+    // Avatar Video Functions (deine bisherigen)
     function playAvatarVideo(name) {
       const img = document.getElementById(`${name}Image`);
       const video = document.getElementById(`${name}Video`);
@@ -132,7 +140,24 @@
       video.currentTime = 0;
       hint.classList.remove('hidden');
     }
+
+    // Elternvideo Gate Logic
+    const parentVideo = document.getElementById('parentIntroVideo');
+    const letsStartBtn = document.getElementById('letsStartBtn');
+
+    parentVideo.onended = function() {
+      letsStartBtn.style.display = '';
+      letsStartBtn.classList.add('animate-bounce');
+    };
+
+    // Button: Zeigt den Main Content und versteckt das Gate
+    function showMainContent() {
+      document.getElementById('parentVideoGate').style.display = 'none';
+      document.getElementById('mainContent').style.display = '';
+      window.scrollTo(0,0);
+    }
   </script>
 
 </body>
+
 </html>
