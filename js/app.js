@@ -625,10 +625,12 @@ playBtn.innerHTML = `
       videoElement.style.pointerEvents = "none";
     });
     videoElement.addEventListener('ended', () => {
-      playBtn.style.display = "";
-      videoElement.style.pointerEvents = "none";
-      startBreathingSteps();
-    });
+  playBtn.style.display = "";
+  videoElement.style.pointerEvents = "none";
+  // Avatar nach Video anzeigen:
+  const avatarName = s.avatar || "luna"; // oder Default
+  showAvatarInVideoBox(videoBox, avatarName, "avatar");
+});
     videoBox.appendChild(playBtn);
 
     let breathingStarted = false;
