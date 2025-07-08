@@ -34,7 +34,7 @@
     "images/animals/bear.png"
   ],
   "correct": 1,
-  "successSticker": 2
+  "successSticker": 0
 },
 
 {
@@ -66,7 +66,7 @@
       "onWrong": "Not quite, try again!"
     }
   ],
-  "successSticker": 1
+  "successSticker": 2
 }
 ,
 	
@@ -108,7 +108,7 @@
   "question": "Can you find something green in your room? When you’ve found it, tap the button!",
   "color": "green",
   "onDone": "Great job, you found something green! Here’s your sticker!",
-  "successSticker": 0
+  "successSticker": 2
 },
 {
   "type": "color-sequence",
