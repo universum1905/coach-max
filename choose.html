@@ -66,13 +66,13 @@ function showUnlockOverlay(msg, emoji = "🔒", showPaywall = false) {
 function showPaywallModal() {
   showUnlockOverlay(`
     <div class="text-pink-500 text-2xl mb-2">✨ Coach Max Premium ✨</div>
-    <div class="mb-3">Unlock all days for <b>just $9/month</b>!</div>
+    <div class="mb-3">Unlock all days for <b>just $9.99/month</b>!</div>
     <img src="images/stickers/star.png" alt="Star" class="w-16 mx-auto mb-2 animate-bounce">
     <div class="text-base mb-2">Exclusive stickers & new adventures every day!<br>Cancel anytime.</div>
+    <button onclick="window.open('https://coaching-max.lemonsqueezy.com/buy/600fbb48-8189-41ea-adbd-32a3eed96cca', '_blank')" class="bg-pink-500 text-white mt-4 px-6 py-3 rounded-full text-lg font-bold shadow animate-bounce">Go Premium</button>
   `, "⭐", false);
-  // Hier später echtes Kauf-Handling einbauen!
-  setTimeout(() => unlockPremium(), 1500); // Für Demo: Auto-freischalten
 }
+
 
 function unlockPremium() {
   localStorage.setItem("isPremiumUser", "true");
@@ -106,7 +106,7 @@ for (let i = 1; i <= totalDays; i++) {
     btn.onclick = (e) => {
       e.preventDefault();
       if (i > 7 && !isPremiumUser()) {
-        showUnlockOverlay("This day is only available with Premium!<br><span class='text-pink-500 font-bold'>Unlock all adventures for $9/month.</span>", "💎", true);
+        showUnlockOverlay("This day is only available with Premium!<br><span class='text-pink-500 font-bold'>Unlock all adventures for $9.99/month.</span>", "💎", true);
       } else {
         const unlockTime = localStorage.getItem(`day${i}UnlockTime`);
         let timeMsg = "";
