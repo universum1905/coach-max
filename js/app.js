@@ -2886,6 +2886,20 @@ function unlockSticker(idx) {
     localStorage.setItem('unlockedStickers', JSON.stringify(unlocked));
   }
  }
+ 
+ // Puzzle-Teile freischalten & speichern
+function unlockPuzzlePiece(puzzleId, pieceIdx) {
+  // puzzleId: Zahl/String (z.B. "1" für Woche 1)
+  // pieceIdx: Index des Teilchens (0-basiert)
+  const key = `puzzle${puzzleId}Pieces`;
+  let unlocked = JSON.parse(localStorage.getItem(key) || "[]");
+  if (!unlocked.includes(pieceIdx)) {
+    unlocked.push(pieceIdx);
+    localStorage.setItem(key, JSON.stringify(unlocked));
+  }
+}
+
+ 
 // Anzahl der verfügbaren Tage
 const TOTAL_DAYS = 100;
 
