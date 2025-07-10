@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 0; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 5; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -113,6 +113,16 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
   if (typeof unlockSticker === "function" && typeof stickerIdx === "number") {
     unlockSticker(stickerIdx);
   }
+
+// Nach dem Aufruf von unlockSticker...
+// Puzzle-Reward (wenn die Session successPuzzle hat)
+if (typeof sessions === "object" && sessions[currentSession] && sessions[currentSession].successPuzzle) {
+  const s = sessions[currentSession];
+  const puzzleId = s.puzzleId || 1; // Fallback auf Puzzle 1
+  const pieces = Array.isArray(s.successPuzzle) ? s.successPuzzle : [s.successPuzzle];
+  pieces.forEach(pieceIdx => unlockPuzzlePiece(puzzleId, pieceIdx));
+}
+
 
   // Next-Button
   setTimeout(() => {
