@@ -126,6 +126,10 @@ if (typeof sessions === "object" && sessions[currentSession] && sessions[current
 
   // Next-Button
   setTimeout(() => {
+	 try {
+    const rewardAudio = new Audio("audio/yay.mp3");
+    rewardAudio.play();
+  } catch (e) {} 
     const btn = document.createElement("button");
     btn.innerText = typeof currentSession !== "undefined" && sessions && currentSession < sessions.length - 1 ? "Next" : "Finish";
     btn.className = "centered-next-btn";
@@ -1640,7 +1644,7 @@ if (shadowMusic) {
     }
     setTimeout(() => {
       const btn = document.createElement('button');
-      btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+      btn.innerText = idx < sessions.length - 1 ? "Next" : "See your Reward";
       btn.className = "centered-next-btn";
       btn.onclick = () => {
       showUniversalReward(
