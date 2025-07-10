@@ -184,9 +184,9 @@
     "images/story1-scene1.png",
     "images/story1-scene2.png"
   ],
-  "onFinish": "Great listening! See you tomorrow for another adventure!"
-  "successPuzzle": [0],    // <--- NEU: Gibt das zu vergebende Puzzle-Stück an
-  "puzzleId": 1            // <--- NEU: Optional, falls du mehrere Puzzle pro Woche/Monat willst 
+  "onFinish": "Great listening! See you tomorrow for another adventure!",
+  "successPuzzle": [0],    
+  "puzzleId": 1             
 }
 ]
 }
