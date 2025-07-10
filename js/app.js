@@ -1643,14 +1643,21 @@ if (shadowMusic) {
       btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
       btn.className = "centered-next-btn";
       btn.onclick = () => {
-        if (idx >= sessions.length - 1) {
-          localStorage.setItem(`day${localDay}Completed`, "1");
-          window.location.href = "choose.html";
-        } else {
-          currentSession++;
-          renderSession(currentSession);
-        }
-      };
+      showUniversalReward(
+      "images/stickers/star.png",       // Bild, optional
+      s.onFinish || "Great job!",       // Text, optional
+      () => {                           // Callback nach Reward
+      if (idx >= sessions.length - 1) {
+        localStorage.setItem(`day${localDay}Completed`, "1");
+        window.location.href = "choose.html";
+      } else {
+        currentSession++;
+        renderSession(currentSession);
+      }
+    }
+  );
+};
+
       document.body.appendChild(btn);
     }, 1200);
   }
