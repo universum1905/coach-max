@@ -106,20 +106,21 @@
             "onWrong": "Oops, that’s not right. Try again!"
         },
         {
-            "type": "rhyme",
-            "avatar": "luna",
-            "question": "What rhymes with dog?",
-            "choices": [
-                "fog",
-                "cat",
-                "ball"
-            ],
-            "correct": 0,
-            "music": "focus-loop.mp3",
-            "video": "day1-rhyme.mp4",
-            "onCorrect": "Great! Fog rhymes with dog.",
-            "onWrong": "Try again!"
-        },
+  "type": "rhyme",
+  "title": "Find the Rhyme!",
+  "video": "day1-test.mp4",
+  "music": "focus-loop.mp3",
+  "minDuration": 60,
+  "pauseAfterCorrect": 1700,
+  "question": "What rhymes with dog?",
+  "choices": ["fog", "cat", "ball"],
+  "correct": 0,
+  "onCorrect": "Great! Fog rhymes with dog.",
+  "onWrong": "Try again!",
+  "successSticker": 4,
+  "rewardType": "star"
+},
+
         {
             "type": "story",
             "avatar": "luna",
