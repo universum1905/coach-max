@@ -1658,28 +1658,29 @@ else if (s.type === "memory") {
               }
             }, pauseBetweenPairs);
             // Komplett fertig
-            if (matched.length + 2 === shuffled.length) {
-              setTimeout(() => {
-                if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-                // Zeitsteuerung aktiv
-                const elapsed = (Date.now() - sessionStart) / 1000;
-                if (elapsed >= minDuration) {
-                  showUniversalRewardFromSession(s);
-                } else {
-                  const waitTime = Math.ceil(minDuration - elapsed);
-                  const waitMsg = document.createElement("div");
-                  waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
-                  waitMsg.style.textAlign = "center";
-                  waitMsg.style.fontSize = "1.1rem";
-                  waitMsg.style.marginTop = "15px";
-                  mainWrap.appendChild(waitMsg);
-                  setTimeout(() => {
-                    waitMsg.remove();
-                    showUniversalRewardFromSession(s);
-                  }, waitTime * 1000);
-                }
-              }, pauseBetweenPairs + 600);
-            }
+            if (matched.length === shuffled.length) {
+  setTimeout(() => {
+    if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    // Zeitsteuerung aktiv
+    const elapsed = (Date.now() - sessionStart) / 1000;
+    if (elapsed >= minDuration) {
+      showUniversalRewardFromSession(s);
+    } else {
+      const waitTime = Math.ceil(minDuration - elapsed);
+      const waitMsg = document.createElement("div");
+      waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
+      waitMsg.style.textAlign = "center";
+      waitMsg.style.fontSize = "1.1rem";
+      waitMsg.style.marginTop = "15px";
+      mainWrap.appendChild(waitMsg);
+      setTimeout(() => {
+        waitMsg.remove();
+        showUniversalRewardFromSession(s);
+      }, waitTime * 1000);
+    }
+  }, pauseBetweenPairs + 600);
+}
+
           } else {
             // Wrong: kurz zeigen, dann verstecken
             new Audio("audio/fail.mp3").play();
