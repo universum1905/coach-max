@@ -39,7 +39,7 @@
       "question": "What comes next?",
       "answers": ["🐭", "🐶", "🐰"],
       "correct": 1,
-      "onCorrect": "You got it! Cat is correct.",
+      "onCorrect": "You got it! Dog is correct.",
       "onWrong": "Try again!"
     }
   ],

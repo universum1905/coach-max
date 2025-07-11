@@ -3562,7 +3562,7 @@ else if (s.type === "pattern") {
   taskIdx++;
   if (taskIdx < tasks.length) {
     // Nächste Frage laden, OHNE Reward!
-    showLoadingOverlay("Next question loading...", 1200, showShadowTask); // oder showPatternQuestion etc.
+    showLoadingOverlay("Next question loading...", 1200, showPatternQuestion);
   } else {
     // Session vorbei – erst jetzt Reward & ggf. Zeitsteuerung
     if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
@@ -3577,6 +3577,7 @@ else if (s.type === "pattern") {
     }
   }
 }, pauseAfterCorrect);
+
 
     } else {
       feedback.style.color = "#d32f2f";
