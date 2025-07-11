@@ -3799,7 +3799,7 @@ else if (s.type === "chatgpt-quiz") {
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // Fester Wrapper für Zentrierung
+  // Wrapper für Mitte
   const mainWrap = document.createElement('div');
   mainWrap.style.display = "flex";
   mainWrap.style.flexDirection = "column";
@@ -3809,7 +3809,7 @@ else if (s.type === "chatgpt-quiz") {
   mainWrap.style.width = "100%";
   textArea.appendChild(mainWrap);
 
-  // Musik abspielen (aus JSON)
+  // Musik
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
@@ -3825,7 +3825,7 @@ else if (s.type === "chatgpt-quiz") {
     });
   }
 
-  // Video unten rechts (wie immer)
+  // Video unten rechts (optional)
   let videoBox, video;
   if (s.video) {
     video = document.createElement('video');
@@ -3880,17 +3880,18 @@ else if (s.type === "chatgpt-quiz") {
     showQuiz();
   }
 
-  // Zeitsteuerung (minDuration aus JSON, Default 60s)
+  // Zeitsteuerung
   const sessionStart = Date.now();
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
-  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1600; // Millisekunden
+  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1600;
 
   let currentQ = 0;
 
   function showQuiz() {
     mainWrap.innerHTML = "";
     const qObj = s.questions[currentQ];
-    // Frage anzeigen
+
+    // Frage
     const question = document.createElement('div');
     question.textContent = qObj.q;
     question.className = "animated-text";
@@ -3924,11 +3925,11 @@ else if (s.type === "chatgpt-quiz") {
       btn.style.transition = "all 0.2s";
       btn.classList.add("bounce-glow");
       btn.textContent = ans;
-      btn.onclick = () => handleAnswer(btn, i);
+      btn.onclick = () => handleAnswer(btn, i, btn, answersBox, qObj.correct);
       answersBox.appendChild(btn);
     });
 
-    // Animation-Style nur einmal einbinden
+    // Animation-Style (einmalig)
     if (!document.getElementById("quiz-btn-bounce-style")) {
       const style = document.createElement('style');
       style.id = "quiz-btn-bounce-style";
@@ -3945,7 +3946,7 @@ else if (s.type === "chatgpt-quiz") {
       document.head.appendChild(style);
     }
 
-    // Fortschrittsleiste (optional)
+    // Fortschritt
     const progress = document.createElement("div");
     progress.style.width = "100%";
     progress.style.margin = "15px 0 0 0";
@@ -3963,40 +3964,40 @@ else if (s.type === "chatgpt-quiz") {
     mainWrap.appendChild(progress);
   }
 
-  function handleAnswer(btn, i) {
+  function handleAnswer(btn, i, thisBtn, answersBox, correctIdx) {
     const qObj = s.questions[currentQ];
-    const correct = (i === qObj.correct);
+    const correct = (i === correctIdx);
 
-    // ----- SOUNDAUSWAHL UNIVERSAL -----
+    // Sounds:
     let correctSound = qObj.correctSound || s.correctSound || "yay.mp3";
     let wrongSound   = qObj.wrongSound   || s.wrongSound   || "fail.mp3";
-    new Audio("audio/" + (correct ? correctSound : wrongSound)).play();
-    // -----------------------------------
-
-    // Buttons blockieren
-    Array.from(btn.parentNode.children).forEach((b, idx) => {
-      b.disabled = true;
-      if (b !== btn) b.style.opacity = "0.5";
-    });
-    btn.style.background = correct ? "#b2dfdb" : "#ffcdd2";
-    btn.style.transform = "scale(1.09)";
-    setTimeout(() => btn.style.transform = "scale(1)", 150);
-
-    // Feedback-Element
-    let feedback = mainWrap.querySelector(".quiz-feedback");
-    if (!feedback) {
-      feedback = document.createElement("div");
-      feedback.className = "animated-text quiz-feedback";
-      feedback.style.textAlign = "center";
-      feedback.style.marginTop = "13px";
-      feedback.style.fontWeight = "bold";
-      feedback.style.fontSize = "1.12rem";
-      mainWrap.appendChild(feedback);
-    }
-    feedback.textContent = correct ? (qObj.onCorrect || "Great!") : (qObj.onWrong || "Oops, try again!");
-    feedback.style.color = correct ? "#388e3c" : "#d32f2f";
 
     if (correct) {
+      new Audio("audio/" + correctSound).play();
+
+      // Buttons sperren
+      Array.from(answersBox.children).forEach((b, idx) => {
+        b.disabled = true;
+        if (b !== btn) b.style.opacity = "0.5";
+      });
+      btn.style.background = "#b2dfdb";
+      btn.style.transform = "scale(1.09)";
+      setTimeout(() => btn.style.transform = "scale(1)", 150);
+
+      // Feedback
+      let feedback = mainWrap.querySelector(".quiz-feedback");
+      if (!feedback) {
+        feedback = document.createElement("div");
+        feedback.className = "animated-text quiz-feedback";
+        feedback.style.textAlign = "center";
+        feedback.style.marginTop = "13px";
+        feedback.style.fontWeight = "bold";
+        feedback.style.fontSize = "1.12rem";
+        mainWrap.appendChild(feedback);
+      }
+      feedback.textContent = qObj.onCorrect || "Great!";
+      feedback.style.color = "#388e3c";
+
       setTimeout(() => {
         currentQ++;
         if (currentQ < s.questions.length) {
@@ -4022,17 +4023,39 @@ else if (s.type === "chatgpt-quiz") {
           }
         }
       }, pauseBetweenQuestions);
+
     } else {
+      // FALSCH: Nur diesen Button kurz sperren & Effekte
+      new Audio("audio/" + wrongSound).play();
+      btn.disabled = true;
+      btn.style.background = "#ffcdd2";
+      btn.style.transform = "scale(1.08)";
+      setTimeout(() => {
+        btn.style.background = "#fffbe6";
+        btn.style.transform = "scale(1)";
+        btn.disabled = false;
+      }, 950);
+
+      // Feedback
+      let feedback = mainWrap.querySelector(".quiz-feedback");
+      if (!feedback) {
+        feedback = document.createElement("div");
+        feedback.className = "animated-text quiz-feedback";
+        feedback.style.textAlign = "center";
+        feedback.style.marginTop = "13px";
+        feedback.style.fontWeight = "bold";
+        feedback.style.fontSize = "1.12rem";
+        mainWrap.appendChild(feedback);
+      }
+      feedback.textContent = qObj.onWrong || "Oops, try again!";
+      feedback.style.color = "#d32f2f";
+
       btn.classList.add("shake");
       setTimeout(() => btn.classList.remove("shake"), 600);
-      setTimeout(() => {
-        if (feedback.parentNode) feedback.remove();
-      }, 1200);
+      // Feedback bleibt sichtbar, bis richtig geantwortet wird!
     }
   }
 }
-
-
 
  // ==== AI-EMOJI-MADNESS ====
 // In renderSession(idx) einfügen
