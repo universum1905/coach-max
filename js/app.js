@@ -1011,14 +1011,23 @@ else if (s.type === "counting") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // 1. Überschrift
+  // Musik abspielen (aus JSON)
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.17;
+    sessionMusic.play();
+  }
+
+  // Überschrift
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = s.title || "Counting Time!";
   heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // 2. Video wie gehabt
+  // Video wie gehabt
   let videoBox, video;
   if (s.video) {
     video = document.createElement('video');
@@ -1074,58 +1083,70 @@ else if (s.type === "counting") {
     showCountingGame();
   }
 
-  // 3. Zähl-Game (Drag & Drop)
+  // Das eigentliche Game
   function showCountingGame() {
     textArea.innerHTML = ""; // vorherigen Text löschen
+
     const instr = document.createElement('div');
-    instr.textContent = "Drag the right number to the animal!";
+    instr.textContent = "Which number matches the animals?";
     instr.style.fontSize = "1.2rem";
     instr.style.margin = "0 0 14px 0";
     textArea.appendChild(instr);
 
-    // Für Mobilfreundlichkeit: vertikales Flex-Layout
     const gameBox = document.createElement('div');
     gameBox.style.display = "flex";
     gameBox.style.flexDirection = "column";
     gameBox.style.alignItems = "center";
     gameBox.style.justifyContent = "center";
-    gameBox.style.gap = "22px";
+    gameBox.style.gap = "32px";
     gameBox.style.width = "100%";
     textArea.appendChild(gameBox);
 
-    // Für jede Aufgabe ein eigenes Drag & Drop-Set
     let currentItem = 0;
     function showItem(idx) {
-      gameBox.innerHTML = ""; // vorherige Aufgabe entfernen
+      gameBox.innerHTML = "";
 
       const item = s.items[idx];
-      const animalImg = document.createElement('img');
-      animalImg.src = item.image;
-      animalImg.alt = item.label || "Animal";
-      animalImg.style.width = "100px";
-      animalImg.style.height = "100px";
-      animalImg.style.objectFit = "contain";
-      animalImg.style.marginBottom = "8px";
-      animalImg.style.borderRadius = "18px";
-      animalImg.style.boxShadow = "0 2px 14px #ffd54f88";
-      animalImg.draggable = false;
+      // Mehrere Tiere nebeneinander, mobilfreundlich
+      const animalBox = document.createElement('div');
+      animalBox.style.display = "flex";
+      animalBox.style.gap = "10px";
+      animalBox.style.justifyContent = "center";
+      animalBox.style.marginBottom = "12px";
+      animalBox.style.flexWrap = "wrap";
+      for (let k = 0; k < item.number; k++) {
+        const img = document.createElement('img');
+        img.src = item.image;
+        img.alt = item.label || "Animal";
+        img.style.width = "48px";
+        img.style.height = "48px";
+        img.style.objectFit = "contain";
+        img.style.borderRadius = "14px";
+        img.style.boxShadow = "0 2px 14px #ffd54f88";
+        img.draggable = false;
+        animalBox.appendChild(img);
+      }
 
+      // Drop-Zone (gleiches Style wie Zahl-Kacheln!)
       const dropZone = document.createElement('div');
       dropZone.className = "drop-zone";
-      dropZone.style.width = "130px";
-      dropZone.style.height = "38px";
-      dropZone.style.margin = "0 auto 16px auto";
-      dropZone.style.background = "#fffbe6";
-      dropZone.style.border = "2.5px dashed #ffd54f";
-      dropZone.style.borderRadius = "14px";
+      dropZone.style.width = "58px";
+      dropZone.style.height = "58px";
+      dropZone.style.background = "#e3f2fd";
+      dropZone.style.borderRadius = "13px";
       dropZone.style.display = "flex";
       dropZone.style.alignItems = "center";
       dropZone.style.justifyContent = "center";
-      dropZone.style.fontSize = "1.7rem";
-      dropZone.style.color = "#aaa";
-      dropZone.innerText = "Drop number here";
+      dropZone.style.fontWeight = "bold";
+      dropZone.style.fontSize = "2rem";
+      dropZone.style.boxShadow = "0 2px 10px #81d4fa88";
+      dropZone.style.cursor = "pointer";
+      dropZone.style.margin = "0 auto 16px auto";
+      dropZone.style.border = "3px dashed #ffd54f";
+      dropZone.style.transition = "all 0.19s";
+      dropZone.innerText = "?";
 
-      // Numbers to drag (1–5), gemischt
+      // Zahl-Kacheln (draggable, quadratisch)
       const numbers = [item.number];
       while (numbers.length < 3) {
         let n = Math.floor(Math.random() * 5) + 1;
@@ -1133,7 +1154,6 @@ else if (s.type === "counting") {
       }
       numbers.sort(() => Math.random() - 0.5);
 
-      // Number-Buttons (draggable/touch)
       const numBox = document.createElement('div');
       numBox.style.display = "flex";
       numBox.style.gap = "18px";
@@ -1143,8 +1163,8 @@ else if (s.type === "counting") {
         const btn = document.createElement('div');
         btn.className = "draggable-number";
         btn.textContent = num;
-        btn.style.width = "56px";
-        btn.style.height = "56px";
+        btn.style.width = "58px";
+        btn.style.height = "58px";
         btn.style.background = "#e3f2fd";
         btn.style.borderRadius = "13px";
         btn.style.display = "flex";
@@ -1154,73 +1174,92 @@ else if (s.type === "counting") {
         btn.style.fontSize = "2rem";
         btn.style.boxShadow = "0 2px 10px #81d4fa88";
         btn.style.cursor = "grab";
+        btn.style.border = "3px solid #ffd54f";
         btn.setAttribute("draggable", "true");
-        btn.ontouchstart = (e) => { btn.dataset.dragging = "true"; };
-        btn.ontouchend = (e) => { btn.dataset.dragging = "false"; };
-        btn.ondragstart = (e) => { e.dataTransfer.setData("text/plain", num); btn.style.opacity = "0.4"; };
+
+        // Drag & Drop Events (Desktop)
+        btn.ondragstart = (e) => {
+          e.dataTransfer.setData("text/plain", num);
+          setTimeout(() => btn.style.opacity = "0.3", 1);
+        };
         btn.ondragend = (e) => { btn.style.opacity = "1"; };
+
+        // Touch-Handling (Mobile)
+        btn.ontouchstart = (e) => {
+          btn.dataset.dragging = "true";
+          btn.style.opacity = "0.5";
+        };
+        btn.ontouchend = (e) => {
+          btn.dataset.dragging = "false";
+          btn.style.opacity = "1";
+        };
         btn.addEventListener("touchmove", (e) => {
           e.preventDefault();
           let touch = e.targetTouches[0];
           btn.style.position = "fixed";
-          btn.style.left = (touch.clientX - 28) + "px";
-          btn.style.top = (touch.clientY - 28) + "px";
+          btn.style.left = (touch.clientX - 29) + "px";
+          btn.style.top = (touch.clientY - 29) + "px";
         });
         btn.addEventListener("touchend", (e) => {
           btn.style.position = "";
           btn.style.left = "";
           btn.style.top = "";
         });
+
         numBox.appendChild(btn);
       });
 
-      // Drop-Zone Drag/Drop Events
-      dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.background = "#ffe082"; };
-      dropZone.ondragleave = (e) => { dropZone.style.background = "#fffbe6"; };
+      // Nur in die Drop-Zone möglich!
+      dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.background = "#ffd54f"; };
+      dropZone.ondragleave = (e) => { dropZone.style.background = "#e3f2fd"; };
       dropZone.ondrop = (e) => {
         e.preventDefault();
-        dropZone.style.background = "#fffbe6";
+        dropZone.style.background = "#e3f2fd";
         let val = parseInt(e.dataTransfer.getData("text/plain"));
         handleDrop(val);
       };
-      // Touch (vereinfachte Variante)
+
+      // Touch-Drop (nur in die Zone, mobil!)
       dropZone.ontouchstart = (e) => e.preventDefault();
       dropZone.ontouchend = (e) => {
         let dragging = document.querySelector(".draggable-number[data-dragging='true']");
         if (dragging) {
           handleDrop(parseInt(dragging.textContent));
+          dragging.dataset.dragging = "false";
         }
       };
 
-      // Erfolg/Fehler auswerten
       function handleDrop(val) {
         if (val === item.number) {
-          dropZone.innerText = `✔️ ${val}`;
+          new Audio("audio/yay.mp3").play();
+          dropZone.innerText = `✔️`;
           dropZone.style.background = "#c8e6c9";
           dropZone.style.color = "#388e3c";
-          animalImg.style.filter = "drop-shadow(0 0 22px #ffeb3b)";
+          animalBox.querySelectorAll('img').forEach(img => img.style.filter = "drop-shadow(0 0 18px #ffeb3b)");
           setTimeout(() => {
             if (currentItem < s.items.length - 1) {
               currentItem++;
               showItem(currentItem);
             } else {
+              if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
               showUniversalRewardFromSession(s);
             }
-          }, 850);
+          }, 900);
         } else {
+          new Audio("audio/fail.mp3").play();
           dropZone.innerText = `❌`;
           dropZone.style.background = "#ffcdd2";
           dropZone.style.color = "#d32f2f";
           setTimeout(() => {
-            dropZone.innerText = "Drop number here";
-            dropZone.style.background = "#fffbe6";
-            dropZone.style.color = "#aaa";
+            dropZone.innerText = "?";
+            dropZone.style.background = "#e3f2fd";
+            dropZone.style.color = "#222";
           }, 900);
         }
       }
 
-      // Anordnung
-      gameBox.appendChild(animalImg);
+      // Reihenfolge im GameBox
+      gameBox.appendChild(animalBox);
       gameBox.appendChild(dropZone);
       gameBox.appendChild(numBox);
     }
@@ -1229,6 +1268,7 @@ else if (s.type === "counting") {
     showItem(0);
   }
 }
+
 
 
 
