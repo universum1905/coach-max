@@ -113,7 +113,7 @@
     {
       "q": "Which animal says 'moo'?",
       "choices": ["dog", "cow", "cat"],
-      "correct": 1,
+      "correct": 1
       },
     {
       "q": "What is the color of the sky on a clear day?",
