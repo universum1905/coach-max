@@ -1105,14 +1105,15 @@ else if (s.type === "counting") {
   // Zeitsteuerung (minDuration aus JSON, Default 60s)
   const sessionStart = Date.now();
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1800; // Millisekunden (1.8s Standard)
 
   // Das eigentliche Counting-Game
   function showCountingGame() {
     mainWrap.innerHTML = "";
 
-    // *** Hier deine PROMPT-TEXT-Instruktion! ***
+    // Instruktion klar für Kids!
     const instr = document.createElement('div');
-    instr.textContent = "Count the animals and pick the right number.";
+    instr.textContent = "Tap the right number below, then tap the question box to check your answer!";
     instr.style.fontSize = "1.15rem";
     instr.style.margin = "0 0 17px 0";
     instr.style.textAlign = "center";
@@ -1177,7 +1178,7 @@ else if (s.type === "counting") {
       // Zahlen-Kacheln darunter (zentriert, gleiches Style)
       const numbers = [item.number];
       while (numbers.length < 3) {
-        let n = Math.floor(Math.random() * 5) + 1;
+        let n = Math.floor(Math.random() * 7) + 1;
         if (!numbers.includes(n)) numbers.push(n);
       }
       numbers.sort(() => Math.random() - 0.5);
@@ -1226,31 +1227,42 @@ else if (s.type === "counting") {
           dropZone.style.background = "#c8e6c9";
           dropZone.style.color = "#388e3c";
           animalBox.querySelectorAll('img').forEach(img => img.style.filter = "drop-shadow(0 0 18px #ffeb3b)");
-          setTimeout(() => {
-            if (currentItem < s.items.length - 1) {
+          // Freundlicher Übergang zur nächsten Frage:
+          if (currentItem < s.items.length - 1) {
+            const nextMsg = document.createElement("div");
+            nextMsg.textContent = "Awesome! Here comes the next one...";
+            nextMsg.style.textAlign = "center";
+            nextMsg.style.color = "#43a047";
+            nextMsg.style.fontSize = "1.12rem";
+            nextMsg.style.fontWeight = "bold";
+            nextMsg.style.margin = "12px 0 2px 0";
+            mainWrap.appendChild(nextMsg);
+
+            setTimeout(() => {
+              nextMsg.remove();
               currentItem++;
               showItem(currentItem);
+            }, pauseBetweenQuestions);
+          } else {
+            if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+            // Zeitsteuerung aktiv
+            const elapsed = (Date.now() - sessionStart) / 1000;
+            if (elapsed >= minDuration) {
+              showUniversalRewardFromSession(s);
             } else {
-              if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-              // Zeitsteuerung aktiv
-              const elapsed = (Date.now() - sessionStart) / 1000;
-              if (elapsed >= minDuration) {
+              const waitTime = Math.ceil(minDuration - elapsed);
+              const waitMsg = document.createElement("div");
+              waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
+              waitMsg.style.textAlign = "center";
+              waitMsg.style.fontSize = "1.1rem";
+              waitMsg.style.marginTop = "15px";
+              mainWrap.appendChild(waitMsg);
+              setTimeout(() => {
+                waitMsg.remove();
                 showUniversalRewardFromSession(s);
-              } else {
-                const waitTime = Math.ceil(minDuration - elapsed);
-                const waitMsg = document.createElement("div");
-                waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
-                waitMsg.style.textAlign = "center";
-                waitMsg.style.fontSize = "1.1rem";
-                waitMsg.style.marginTop = "15px";
-                mainWrap.appendChild(waitMsg);
-                setTimeout(() => {
-                  waitMsg.remove();
-                  showUniversalRewardFromSession(s);
-                }, waitTime * 1000);
-              }
+              }, waitTime * 1000);
             }
-          }, 900);
+          }
         } else {
           new Audio("audio/fail.mp3").play();
           dropZone.innerText = `❌`;
@@ -1272,6 +1284,9 @@ else if (s.type === "counting") {
     showItem(0);
   }
 }
+
+
+
 
 // ==== 4. NEUES MODUL: MEMORY ====
    else if (s.type === "memory") {
