@@ -1012,23 +1012,22 @@ else if (s.type === "counting") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // --- Immer Überschrift oben ---
+  // Überschrift bleibt immer oben
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = s.title || "Counting Time!";
   heading.style.textAlign = "center";
   heading.style.margin = "18px 0 8px 0";
   heading.style.fontSize = "2.2rem";
-  heading.style.letterSpacing = "0.04em";
   textArea.appendChild(heading);
 
-  // --- Fester Wrapper für mittige Zentrierung ---
+  // Fester Wrapper für Zentrierung
   const mainWrap = document.createElement('div');
   mainWrap.style.display = "flex";
   mainWrap.style.flexDirection = "column";
   mainWrap.style.justifyContent = "center";
   mainWrap.style.alignItems = "center";
-  mainWrap.style.minHeight = "55vh";   // genug Platz, immer mittig
+  mainWrap.style.minHeight = "55vh";
   mainWrap.style.width = "100%";
   textArea.appendChild(mainWrap);
 
@@ -1048,7 +1047,7 @@ else if (s.type === "counting") {
     });
   }
 
-  // Video (unten rechts, wie immer)
+  // Video unten rechts (wie immer)
   let videoBox, video;
   if (s.video) {
     video = document.createElement('video');
@@ -1103,26 +1102,30 @@ else if (s.type === "counting") {
     showCountingGame();
   }
 
-  // --- Eigentliches Counting Game ---
+  // Zeitsteuerung (minDuration aus JSON, Default 60s)
+  const sessionStart = Date.now();
+  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+
+  // Das eigentliche Counting-Game
   function showCountingGame() {
     mainWrap.innerHTML = "";
 
-    // --- Instruktion immer mittig ---
+    // *** Hier deine PROMPT-TEXT-Instruktion! ***
     const instr = document.createElement('div');
-    instr.textContent = "Tap a number below, dann auf das Fragezeichen!";
-    instr.style.fontSize = "1.13rem";
+    instr.textContent = "Count the animals and pick the right number.";
+    instr.style.fontSize = "1.15rem";
     instr.style.margin = "0 0 17px 0";
     instr.style.textAlign = "center";
-    instr.style.color = "#555";
+    instr.style.color = "#444";
     mainWrap.appendChild(instr);
 
-    // --- Spielfeld-Wrapper für alles weitere ---
+    // Spielfeld (zentriert, mobilfreundlich)
     const gameBox = document.createElement('div');
     gameBox.style.display = "flex";
     gameBox.style.flexDirection = "column";
     gameBox.style.alignItems = "center";
     gameBox.style.justifyContent = "center";
-    gameBox.style.gap = "24px";
+    gameBox.style.gap = "22px";
     gameBox.style.width = "100%";
     mainWrap.appendChild(gameBox);
 
@@ -1132,7 +1135,7 @@ else if (s.type === "counting") {
 
       const item = s.items[idx];
 
-      // --- Tiere nebeneinander (zentriert, mobilfreundlich) ---
+      // Tiere nebeneinander (zentriert, mobilfreundlich)
       const animalBox = document.createElement('div');
       animalBox.style.display = "flex";
       animalBox.style.gap = "8px";
@@ -1152,7 +1155,7 @@ else if (s.type === "counting") {
         animalBox.appendChild(img);
       }
 
-      // --- Drop-Zone als Quadrat (zentriert) ---
+      // Drop-Zone als Quadrat (zentriert)
       const dropZone = document.createElement('div');
       dropZone.className = "drop-zone";
       dropZone.style.width = "54px";
@@ -1163,15 +1166,15 @@ else if (s.type === "counting") {
       dropZone.style.alignItems = "center";
       dropZone.style.justifyContent = "center";
       dropZone.style.fontWeight = "bold";
-      dropZone.style.fontSize = "1.75rem";
+      dropZone.style.fontSize = "1.7rem";
       dropZone.style.boxShadow = "0 2px 10px #81d4fa88";
       dropZone.style.cursor = "pointer";
-      dropZone.style.margin = "0 auto 14px auto";
+      dropZone.style.margin = "0 auto 12px auto";
       dropZone.style.border = "3px dashed #ffd54f";
       dropZone.style.transition = "all 0.19s";
       dropZone.innerText = "?";
 
-      // --- Zahlen-Kacheln darunter (zentriert, gleiches Style) ---
+      // Zahlen-Kacheln darunter (zentriert, gleiches Style)
       const numbers = [item.number];
       while (numbers.length < 3) {
         let n = Math.floor(Math.random() * 5) + 1;
@@ -1197,7 +1200,7 @@ else if (s.type === "counting") {
         btn.style.alignItems = "center";
         btn.style.justifyContent = "center";
         btn.style.fontWeight = "bold";
-        btn.style.fontSize = "1.65rem";
+        btn.style.fontSize = "1.58rem";
         btn.style.boxShadow = "0 2px 10px #81d4fa88";
         btn.style.cursor = "pointer";
         btn.style.border = "3px solid #ffd54f";
@@ -1210,7 +1213,7 @@ else if (s.type === "counting") {
         numBox.appendChild(btn);
       });
 
-      // --- Fragezeichen-Box klickbar für Antwortauswertung ---
+      // Fragezeichen-Box klickbar für Antwortauswertung
       dropZone.onclick = () => {
         if (selectedNumber === null) {
           dropZone.style.background = "#ffcdd2";
@@ -1229,7 +1232,23 @@ else if (s.type === "counting") {
               showItem(currentItem);
             } else {
               if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-              showUniversalRewardFromSession(s);
+              // Zeitsteuerung aktiv
+              const elapsed = (Date.now() - sessionStart) / 1000;
+              if (elapsed >= minDuration) {
+                showUniversalRewardFromSession(s);
+              } else {
+                const waitTime = Math.ceil(minDuration - elapsed);
+                const waitMsg = document.createElement("div");
+                waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
+                waitMsg.style.textAlign = "center";
+                waitMsg.style.fontSize = "1.1rem";
+                waitMsg.style.marginTop = "15px";
+                mainWrap.appendChild(waitMsg);
+                setTimeout(() => {
+                  waitMsg.remove();
+                  showUniversalRewardFromSession(s);
+                }, waitTime * 1000);
+              }
             }
           }, 900);
         } else {
@@ -1245,7 +1264,7 @@ else if (s.type === "counting") {
         }
       };
 
-      // --- Reihenfolge für perfekte Zentrierung ---
+      // Reihenfolge für perfekte Zentrierung
       gameBox.appendChild(animalBox);
       gameBox.appendChild(dropZone);
       gameBox.appendChild(numBox);
@@ -1253,8 +1272,6 @@ else if (s.type === "counting") {
     showItem(0);
   }
 }
-
-
 
 // ==== 4. NEUES MODUL: MEMORY ====
    else if (s.type === "memory") {
