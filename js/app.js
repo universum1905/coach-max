@@ -1008,8 +1008,29 @@ else if (s.type === "counting") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(el => el.remove());
+
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
+
+  // --- Immer Überschrift oben ---
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Counting Time!";
+  heading.style.textAlign = "center";
+  heading.style.margin = "18px 0 8px 0";
+  heading.style.fontSize = "2.2rem";
+  heading.style.letterSpacing = "0.04em";
+  textArea.appendChild(heading);
+
+  // --- Fester Wrapper für mittige Zentrierung ---
+  const mainWrap = document.createElement('div');
+  mainWrap.style.display = "flex";
+  mainWrap.style.flexDirection = "column";
+  mainWrap.style.justifyContent = "center";
+  mainWrap.style.alignItems = "center";
+  mainWrap.style.minHeight = "55vh";   // genug Platz, immer mittig
+  mainWrap.style.width = "100%";
+  textArea.appendChild(mainWrap);
 
   // Musik abspielen (aus JSON)
   let sessionMusic = null;
@@ -1018,16 +1039,16 @@ else if (s.type === "counting") {
     sessionMusic.loop = true;
     sessionMusic.volume = 0.17;
     sessionMusic.play();
+    document.addEventListener("visibilitychange", function musicPauseHandler() {
+      if (document.hidden && sessionMusic) sessionMusic.pause();
+      else if (!document.hidden && sessionMusic) sessionMusic.play();
+    });
+    window.addEventListener("pagehide", function() {
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    });
   }
 
-  // Überschrift
-  const heading = document.createElement('h2');
-  heading.className = "session-heading";
-  heading.textContent = s.title || "Counting Time!";
-  heading.style.textAlign = "center";
-  textArea.appendChild(heading);
-
-  // Video wie gehabt
+  // Video (unten rechts, wie immer)
   let videoBox, video;
   if (s.video) {
     video = document.createElement('video');
@@ -1043,13 +1064,12 @@ else if (s.type === "counting") {
     videoBox = document.createElement("div");
     videoBox.className = "floating-video";
     videoBox.style.position = "fixed";
-    videoBox.style.right = "22px";
-    videoBox.style.bottom = "65px";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
     videoBox.style.zIndex = "1000";
     videoBox.appendChild(video);
     document.body.appendChild(videoBox);
 
-    // Play-Button Overlay
     const playBtn = document.createElement('button');
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
@@ -1083,70 +1103,75 @@ else if (s.type === "counting") {
     showCountingGame();
   }
 
-  // Das eigentliche Game
+  // --- Eigentliches Counting Game ---
   function showCountingGame() {
-    textArea.innerHTML = ""; // vorherigen Text löschen
+    mainWrap.innerHTML = "";
 
+    // --- Instruktion immer mittig ---
     const instr = document.createElement('div');
-    instr.textContent = "Which number matches the animals?";
-    instr.style.fontSize = "1.2rem";
-    instr.style.margin = "0 0 14px 0";
-    textArea.appendChild(instr);
+    instr.textContent = "Tap a number below, dann auf das Fragezeichen!";
+    instr.style.fontSize = "1.13rem";
+    instr.style.margin = "0 0 17px 0";
+    instr.style.textAlign = "center";
+    instr.style.color = "#555";
+    mainWrap.appendChild(instr);
 
+    // --- Spielfeld-Wrapper für alles weitere ---
     const gameBox = document.createElement('div');
     gameBox.style.display = "flex";
     gameBox.style.flexDirection = "column";
     gameBox.style.alignItems = "center";
     gameBox.style.justifyContent = "center";
-    gameBox.style.gap = "32px";
+    gameBox.style.gap = "24px";
     gameBox.style.width = "100%";
-    textArea.appendChild(gameBox);
+    mainWrap.appendChild(gameBox);
 
     let currentItem = 0;
     function showItem(idx) {
       gameBox.innerHTML = "";
 
       const item = s.items[idx];
-      // Mehrere Tiere nebeneinander, mobilfreundlich
+
+      // --- Tiere nebeneinander (zentriert, mobilfreundlich) ---
       const animalBox = document.createElement('div');
       animalBox.style.display = "flex";
-      animalBox.style.gap = "10px";
+      animalBox.style.gap = "8px";
       animalBox.style.justifyContent = "center";
-      animalBox.style.marginBottom = "12px";
+      animalBox.style.marginBottom = "8px";
       animalBox.style.flexWrap = "wrap";
       for (let k = 0; k < item.number; k++) {
         const img = document.createElement('img');
         img.src = item.image;
         img.alt = item.label || "Animal";
-        img.style.width = "48px";
-        img.style.height = "48px";
+        img.style.width = "42px";
+        img.style.height = "42px";
         img.style.objectFit = "contain";
-        img.style.borderRadius = "14px";
+        img.style.borderRadius = "13px";
         img.style.boxShadow = "0 2px 14px #ffd54f88";
         img.draggable = false;
         animalBox.appendChild(img);
       }
 
-      // Drop-Zone (gleiches Style wie Zahl-Kacheln!)
+      // --- Drop-Zone als Quadrat (zentriert) ---
       const dropZone = document.createElement('div');
       dropZone.className = "drop-zone";
-      dropZone.style.width = "58px";
-      dropZone.style.height = "58px";
+      dropZone.style.width = "54px";
+      dropZone.style.height = "54px";
       dropZone.style.background = "#e3f2fd";
-      dropZone.style.borderRadius = "13px";
+      dropZone.style.borderRadius = "11px";
       dropZone.style.display = "flex";
       dropZone.style.alignItems = "center";
       dropZone.style.justifyContent = "center";
       dropZone.style.fontWeight = "bold";
-      dropZone.style.fontSize = "2rem";
+      dropZone.style.fontSize = "1.75rem";
       dropZone.style.boxShadow = "0 2px 10px #81d4fa88";
       dropZone.style.cursor = "pointer";
-      dropZone.style.margin = "0 auto 16px auto";
+      dropZone.style.margin = "0 auto 14px auto";
       dropZone.style.border = "3px dashed #ffd54f";
       dropZone.style.transition = "all 0.19s";
       dropZone.innerText = "?";
 
-      // Zahl-Kacheln (draggable, quadratisch)
+      // --- Zahlen-Kacheln darunter (zentriert, gleiches Style) ---
       const numbers = [item.number];
       while (numbers.length < 3) {
         let n = Math.floor(Math.random() * 5) + 1;
@@ -1154,83 +1179,45 @@ else if (s.type === "counting") {
       }
       numbers.sort(() => Math.random() - 0.5);
 
+      let selectedNumber = null;
       const numBox = document.createElement('div');
       numBox.style.display = "flex";
-      numBox.style.gap = "18px";
+      numBox.style.gap = "16px";
       numBox.style.justifyContent = "center";
-      numBox.style.marginTop = "10px";
+      numBox.style.marginTop = "9px";
       numbers.forEach(num => {
         const btn = document.createElement('div');
         btn.className = "draggable-number";
         btn.textContent = num;
-        btn.style.width = "58px";
-        btn.style.height = "58px";
+        btn.style.width = "54px";
+        btn.style.height = "54px";
         btn.style.background = "#e3f2fd";
-        btn.style.borderRadius = "13px";
+        btn.style.borderRadius = "11px";
         btn.style.display = "flex";
         btn.style.alignItems = "center";
         btn.style.justifyContent = "center";
         btn.style.fontWeight = "bold";
-        btn.style.fontSize = "2rem";
+        btn.style.fontSize = "1.65rem";
         btn.style.boxShadow = "0 2px 10px #81d4fa88";
-        btn.style.cursor = "grab";
+        btn.style.cursor = "pointer";
         btn.style.border = "3px solid #ffd54f";
-        btn.setAttribute("draggable", "true");
-
-        // Drag & Drop Events (Desktop)
-        btn.ondragstart = (e) => {
-          e.dataTransfer.setData("text/plain", num);
-          setTimeout(() => btn.style.opacity = "0.3", 1);
+        btn.style.transition = "0.18s";
+        btn.onclick = () => {
+          Array.from(numBox.children).forEach(b => b.style.background = "#e3f2fd");
+          btn.style.background = "#ffd54f";
+          selectedNumber = num;
         };
-        btn.ondragend = (e) => { btn.style.opacity = "1"; };
-
-        // Touch-Handling (Mobile)
-        btn.ontouchstart = (e) => {
-          btn.dataset.dragging = "true";
-          btn.style.opacity = "0.5";
-        };
-        btn.ontouchend = (e) => {
-          btn.dataset.dragging = "false";
-          btn.style.opacity = "1";
-        };
-        btn.addEventListener("touchmove", (e) => {
-          e.preventDefault();
-          let touch = e.targetTouches[0];
-          btn.style.position = "fixed";
-          btn.style.left = (touch.clientX - 29) + "px";
-          btn.style.top = (touch.clientY - 29) + "px";
-        });
-        btn.addEventListener("touchend", (e) => {
-          btn.style.position = "";
-          btn.style.left = "";
-          btn.style.top = "";
-        });
-
         numBox.appendChild(btn);
       });
 
-      // Nur in die Drop-Zone möglich!
-      dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.background = "#ffd54f"; };
-      dropZone.ondragleave = (e) => { dropZone.style.background = "#e3f2fd"; };
-      dropZone.ondrop = (e) => {
-        e.preventDefault();
-        dropZone.style.background = "#e3f2fd";
-        let val = parseInt(e.dataTransfer.getData("text/plain"));
-        handleDrop(val);
-      };
-
-      // Touch-Drop (nur in die Zone, mobil!)
-      dropZone.ontouchstart = (e) => e.preventDefault();
-      dropZone.ontouchend = (e) => {
-        let dragging = document.querySelector(".draggable-number[data-dragging='true']");
-        if (dragging) {
-          handleDrop(parseInt(dragging.textContent));
-          dragging.dataset.dragging = "false";
+      // --- Fragezeichen-Box klickbar für Antwortauswertung ---
+      dropZone.onclick = () => {
+        if (selectedNumber === null) {
+          dropZone.style.background = "#ffcdd2";
+          setTimeout(() => dropZone.style.background = "#e3f2fd", 500);
+          return;
         }
-      };
-
-      function handleDrop(val) {
-        if (val === item.number) {
+        if (selectedNumber === item.number) {
           new Audio("audio/yay.mp3").play();
           dropZone.innerText = `✔️`;
           dropZone.style.background = "#c8e6c9";
@@ -1256,23 +1243,16 @@ else if (s.type === "counting") {
             dropZone.style.color = "#222";
           }, 900);
         }
-      }
+      };
 
-      // Reihenfolge im GameBox
+      // --- Reihenfolge für perfekte Zentrierung ---
       gameBox.appendChild(animalBox);
       gameBox.appendChild(dropZone);
       gameBox.appendChild(numBox);
     }
-
-    // Starte bei erstem Item
     showItem(0);
   }
 }
-
-
-
-
-
 
 
 
