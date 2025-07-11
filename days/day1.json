@@ -63,7 +63,9 @@
                     "pairId": 2
                 }
             ],
-            "successSticker": 0
+            "successSticker": 0,
+			"rewardType": "star",
+  "onCorrect": "Super memory skills!"
         },
         {
             "type": "counting",
