@@ -1638,16 +1638,18 @@ else if (s.type === "memory") {
             matched.push(opened[0], opened[1]);
             setTimeout(() => {
               opened.forEach(el => {
-  // Erstelle den Haken als zentriertes Overlay
+  // Erstelle SVG-Haken-Overlay
   const check = document.createElement("div");
-  check.textContent = "✔️";
+  check.innerHTML = `
+    <svg width="38" height="38" viewBox="0 0 38 38">
+      <circle cx="19" cy="19" r="18" fill="#fffde7" stroke="#aeea00" stroke-width="2"/>
+      <polyline points="10,21 17,28 28,13" fill="none" stroke="#43a047" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  `;
   check.style.position = "absolute";
   check.style.left = "50%";
   check.style.top = "50%";
-  check.style.transform = "translate(-50%,-50%) scale(0.4)";
-  check.style.fontSize = "2.7em";
-  check.style.color = "#43a047";
-  check.style.textShadow = "0 2px 12px #fffde7, 0 1px 8px #aeea00aa";
+  check.style.transform = "translate(-50%,-50%) scale(0.5)";
   check.style.pointerEvents = "none";
   check.style.zIndex = "10";
   check.style.opacity = "1";
