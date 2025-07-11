@@ -1985,7 +1985,7 @@ else if (s.type === "shadow") {
     });
   }
 
-  // Video unten rechts
+  // Video unten rechts (NUR EINMAL zu Beginn!)
   let videoBox, video;
   if (s.video) {
     video = document.createElement('video');
@@ -2035,12 +2035,12 @@ else if (s.type === "shadow") {
       playBtn.style.display = "";
       video.style.pointerEvents = "none";
       showShadowTask();
-    });
+    }, { once: true }); // WICHTIG: nur EINMALIG!
   } else {
     showShadowTask();
   }
 
-  // Multi-Task-Support (Mehrere Schatten-Aufgaben pro Session)
+  // Multi-Task-Support (Mehrere Aufgaben pro Session)
   const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
   let taskIdx = 0;
   const sessionStart = Date.now();
@@ -2063,14 +2063,13 @@ else if (s.type === "shadow") {
 
     // Schattenbild groß und mittig
     const shadowImg = document.createElement('img');
-shadowImg.src = currentTask.shadow || currentTask.image || ""; // shadow ODER image
-shadowImg.className = "shadow-image";
-shadowImg.style.width = "110px";
-shadowImg.style.height = "110px";
-shadowImg.style.margin = "18px 0 18px 0";
-// Filter für Schatteneffekt:
-shadowImg.style.filter = "grayscale(1) brightness(0.32) contrast(2)";
-
+    shadowImg.src = currentTask.shadow || currentTask.image || ""; // shadow ODER image
+    shadowImg.className = "shadow-image";
+    shadowImg.style.width = "110px";
+    shadowImg.style.height = "110px";
+    shadowImg.style.margin = "18px 0 18px 0";
+    // Filter für Schatteneffekt:
+    shadowImg.style.filter = "grayscale(1) brightness(0.32) contrast(2)";
     mainWrap.appendChild(shadowImg);
 
     // Frage (optional)
@@ -2155,28 +2154,21 @@ shadowImg.style.filter = "grayscale(1) brightness(0.32) contrast(2)";
       feedback.style.color = "#388e3c";
 
       setTimeout(() => {
-        // Nächste Frage oder Abschluss
         taskIdx++;
         if (taskIdx < tasks.length) {
-          // ALLES andere aus dem Main-Bereich entfernen:
-textArea.querySelectorAll(".shadowMain, .shadow-feedback").forEach(e => e.remove());
-showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
-  showUniversalRewardFromSession(s);
-});
-
-
+          // Nur warten & nächste Frage laden!
+          showLoadingOverlay("Next question loading...", 1200, showShadowTask);
         } else {
-          // Session vorbei – auf minDuration warten
+          // Session vorbei – erst jetzt Reward & ggf. Zeitsteuerung
           if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
           const elapsed = (Date.now() - sessionStart) / 1000;
           if (elapsed >= minDuration) {
             showUniversalRewardFromSession(s);
           } else {
             const waitTime = Math.ceil(minDuration - elapsed);
-            feedback.textContent = `⏳ Please wait ${waitTime}s...`;
-            setTimeout(() => {
+            showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
               showUniversalRewardFromSession(s);
-            }, waitTime * 1000);
+            });
           }
         }
       }, pauseAfterCorrect);
@@ -2195,7 +2187,8 @@ showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
 }
 
 
-  
+
+ 
 // ==== Modul: ANIMALS ====
  else if (s.type === "animalsold") {
   // Grund-Setup & Cleanup
