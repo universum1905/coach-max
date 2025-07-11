@@ -2080,15 +2080,27 @@ shadowImg.style.filter = "grayscale(1) brightness(0.32) contrast(2)";
         // Nächste Frage oder Abschluss
         taskIdx++;
         if (taskIdx < tasks.length) {
-          textArea.querySelectorAll(".shadowMain, .shadow-feedback").forEach(e => e.remove());
-          // Nachricht "Next question..."
-          const waitMsg = document.createElement("div");
-          waitMsg.textContent = "Next question loading...";
-          waitMsg.style.textAlign = "center";
-          waitMsg.style.fontSize = "1.18rem";
-          waitMsg.style.margin = "13px";
-          textArea.appendChild(waitMsg);
-          setTimeout(showShadowTask, 1200);
+          // ALLES andere aus dem Main-Bereich entfernen:
+textArea.querySelectorAll(".shadowMain, .shadow-feedback").forEach(e => e.remove());
+const waitMsg = document.createElement("div");
+waitMsg.textContent = "Next question loading...";
+waitMsg.style.position = "absolute";
+waitMsg.style.top = "45%";
+waitMsg.style.left = "50%";
+waitMsg.style.transform = "translate(-50%, -50%)";
+waitMsg.style.background = "#fffbe6";
+waitMsg.style.padding = "22px 34px";
+waitMsg.style.borderRadius = "18px";
+waitMsg.style.boxShadow = "0 2px 22px #ffd54f55";
+waitMsg.style.fontSize = "1.23rem";
+waitMsg.style.fontWeight = "bold";
+waitMsg.style.zIndex = "10000";
+textArea.appendChild(waitMsg);
+setTimeout(() => {
+  waitMsg.remove();
+  showShadowTask();
+}, 1200);
+
         } else {
           // Session vorbei – auf minDuration warten
           if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
