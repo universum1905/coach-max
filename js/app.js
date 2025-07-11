@@ -3790,6 +3790,9 @@ else if (s.type === "chatgpt-quiz") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
+  // Fortschrittsvariable GANZ OBEN deklarieren!
+  let currentQ = 0;
+
   // Überschrift bleibt immer oben
   const heading = document.createElement('h2');
   heading.className = "session-heading";
@@ -3828,69 +3831,6 @@ else if (s.type === "chatgpt-quiz") {
   // Video unten rechts (optional)
   let videoBox, video;
   let quizStarted = false; // Nur nach Video-Ende
-  if (s.video) {
-    video = document.createElement('video');
-    video.src = `videos/${s.video}`;
-    video.setAttribute("controls", "true");
-    video.setAttribute("controlsList", "nodownload");
-    video.autoplay = false;
-    video.muted = false;
-    video.playsInline = true;
-    video.poster = "images/video-placeholder.png";
-    video.className = "session-video";
-
-    videoBox = document.createElement("div");
-    videoBox.className = "floating-video";
-    videoBox.style.position = "fixed";
-    videoBox.style.right = "14px";
-    videoBox.style.bottom = "62px";
-    videoBox.style.zIndex = "1000";
-    videoBox.appendChild(video);
-    document.body.appendChild(videoBox);
-
-    const playBtn = document.createElement('button');
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-    `;
-    videoBox.appendChild(playBtn);
-
-    playBtn.onclick = function () {
-      video.play();
-      playBtn.style.display = "none";
-      video.style.pointerEvents = "auto";
-    };
-    video.addEventListener('play', () => {
-      playBtn.style.display = "none";
-      video.style.pointerEvents = "auto";
-    });
-    video.addEventListener('pause', () => {
-      playBtn.style.display = "";
-      video.style.pointerEvents = "none";
-    });
-    video.addEventListener('ended', () => {
-      playBtn.style.display = "";
-      video.style.pointerEvents = "none";
-      if (!quizStarted) {
-        quizStarted = true;
-        showQuiz();
-      }
-    });
-  } else {
-    showQuiz();
-  }
-
-  // Zeitsteuerung
-  const sessionStart = Date.now();
-  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
-  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1600;
-
-  let currentQ = 0; // Richtig initialisiert!
-
   function showQuiz() {
     mainWrap.innerHTML = "";
     const qObj = s.questions[currentQ];
@@ -4059,9 +3999,68 @@ else if (s.type === "chatgpt-quiz") {
       // Feedback bleibt sichtbar, bis richtig geantwortet wird!
     }
   }
+
+  // Video Setup oder direkt Quiz zeigen
+  let pauseBetweenQuestions = s.pauseBetweenQuestions || 1600;
+  const sessionStart = Date.now();
+  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+
+  if (s.video) {
+    video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+      if (!quizStarted) {
+        quizStarted = true;
+        showQuiz();
+      }
+    });
+  } else {
+    showQuiz();
+  }
 }
-
-
 
  // ==== AI-EMOJI-MADNESS ====
 // In renderSession(idx) einfügen
