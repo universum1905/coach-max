@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 2; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -1737,7 +1737,7 @@ else if (s.type === "memory") {
 
 
 // ==== Modul: SCHATTENRÄTSEL ====
- else if (s.type === "shadow") {
+ else if (s.type === "shadowold") {
   console.log("shadow BLOCK:", s, "s.video=", s.video);
   if (!s.video) alert("Achtung! s.video ist leer!");
   console.log("SHADOW-BLOCK WIRD AUSGEFÜHRT!", s);
@@ -1873,6 +1873,248 @@ if (shadowMusic) {
 	}
   }
  }
+
+
+else if (s.type === "shadow") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(el => el.remove());
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
+
+  // Überschrift
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Shadow Match!";
+  heading.style.textAlign = "center";
+  heading.style.margin = "18px 0 8px 0";
+  heading.style.fontSize = "2.2rem";
+  textArea.appendChild(heading);
+
+  // Musik abspielen (aus JSON)
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.17;
+    sessionMusic.play();
+    document.addEventListener("visibilitychange", function musicPauseHandler() {
+      if (document.hidden && sessionMusic) sessionMusic.pause();
+      else if (!document.hidden && sessionMusic) sessionMusic.play();
+    });
+    window.addEventListener("pagehide", function() {
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    });
+  }
+
+  // Video unten rechts
+  let videoBox, video;
+  if (s.video) {
+    video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+      showShadowTask();
+    });
+  } else {
+    showShadowTask();
+  }
+
+  // Multi-Task-Support (Mehrere Schatten-Aufgaben pro Session)
+  const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
+  let taskIdx = 0;
+  const sessionStart = Date.now();
+  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+  const pauseAfterCorrect = s.pauseAfterCorrect || 1700;
+
+  function showShadowTask() {
+    textArea.querySelectorAll(".shadowMain, .shadow-feedback").forEach(e => e.remove());
+    const mainWrap = document.createElement('div');
+    mainWrap.className = "shadowMain";
+    mainWrap.style.display = "flex";
+    mainWrap.style.flexDirection = "column";
+    mainWrap.style.justifyContent = "center";
+    mainWrap.style.alignItems = "center";
+    mainWrap.style.minHeight = "54vh";
+    mainWrap.style.width = "100%";
+    textArea.appendChild(mainWrap);
+
+    const currentTask = tasks[taskIdx];
+
+    // Schattenbild groß und mittig
+    const shadowImg = document.createElement('img');
+    shadowImg.src = currentTask.shadow;
+    shadowImg.className = "shadow-image";
+    shadowImg.style.width = "110px";
+    shadowImg.style.height = "110px";
+    shadowImg.style.margin = "18px 0 18px 0";
+    shadowImg.style.filter = "grayscale(1) contrast(1.2)";
+    mainWrap.appendChild(shadowImg);
+
+    // Frage (optional)
+    if (currentTask.question) {
+      const question = document.createElement("div");
+      question.className = "animated-text";
+      question.style.textAlign = "center";
+      question.style.fontWeight = "bold";
+      question.style.fontSize = "1.12rem";
+      question.style.margin = "0 0 10px 0";
+      question.innerText = currentTask.question;
+      mainWrap.appendChild(question);
+    }
+
+    // Antwort-Buttons als Bilder
+    const choicesBox = document.createElement('div');
+    choicesBox.className = "shadow-buttons";
+    choicesBox.style.display = "flex";
+    choicesBox.style.justifyContent = "center";
+    choicesBox.style.gap = "22px";
+    choicesBox.style.margin = "8px 0";
+    mainWrap.appendChild(choicesBox);
+
+    currentTask.choices.forEach((img, i) => {
+      const btn = document.createElement('button');
+      btn.innerHTML = `<img src="${img}" alt="choice" style="width:78px;height:78px;border-radius:18px;box-shadow:0 2px 8px #ffd54f55;">`;
+      btn.style.border = "none";
+      btn.style.background = "#fffbe6";
+      btn.style.borderRadius = "20px";
+      btn.style.padding = "0";
+      btn.style.transition = "transform 0.17s, box-shadow 0.17s";
+      btn.className = "shadow-choice-btn bounce-glow";
+      btn.onclick = () => handleChoice(btn, i, img);
+      choicesBox.appendChild(btn);
+    });
+
+    // Bonus-Animation-Style (nur 1x pro Seite einfügen)
+    if (!document.getElementById("shadow-btn-bounce-style")) {
+      const style = document.createElement('style');
+      style.id = "shadow-btn-bounce-style";
+      style.innerHTML = `
+        .bounce-glow {
+          animation: bounceBtn 1.18s infinite alternate;
+        }
+        @keyframes bounceBtn {
+          0% { box-shadow: 0 2px 10px #81d4fa88; transform: scale(1);}
+          70%{ box-shadow: 0 7px 28px #ffd54f77; transform: scale(1.09);}
+          100%{box-shadow: 0 2px 10px #81d4fa88; transform: scale(1);}
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
+  function handleChoice(btn, i, imgSrc) {
+    const currentTask = tasks[taskIdx];
+    new Audio(`audio/${i === currentTask.correct ? "yay.mp3" : "fail.mp3"}`).play();
+
+    // Feedback
+    let feedback = textArea.querySelector(".shadow-feedback");
+    if (!feedback) {
+      feedback = document.createElement("div");
+      feedback.className = "animated-text shadow-feedback";
+      feedback.style.textAlign = "center";
+      feedback.style.marginTop = "17px";
+      feedback.style.fontWeight = "bold";
+      feedback.style.fontSize = "1.13rem";
+      textArea.appendChild(feedback);
+    }
+
+    if (i === currentTask.correct) {
+      // Richtiger Button hervorheben, andere ausgrauen
+      Array.from(btn.parentNode.children).forEach((b, idx) => {
+        if (b !== btn) b.style.opacity = "0.4";
+        b.disabled = true;
+      });
+      btn.style.background = "#b2dfdb";
+      btn.style.transform = "scale(1.15)";
+      setTimeout(() => btn.style.transform = "scale(1)", 130);
+
+      feedback.textContent = currentTask.onCorrect || "Correct! Well done!";
+      feedback.style.color = "#388e3c";
+
+      setTimeout(() => {
+        // Nächste Frage oder Abschluss
+        taskIdx++;
+        if (taskIdx < tasks.length) {
+          textArea.querySelectorAll(".shadowMain, .shadow-feedback").forEach(e => e.remove());
+          // Nachricht "Next question..."
+          const waitMsg = document.createElement("div");
+          waitMsg.textContent = "Next question loading...";
+          waitMsg.style.textAlign = "center";
+          waitMsg.style.fontSize = "1.18rem";
+          waitMsg.style.margin = "13px";
+          textArea.appendChild(waitMsg);
+          setTimeout(showShadowTask, 1200);
+        } else {
+          // Session vorbei – auf minDuration warten
+          if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+          const elapsed = (Date.now() - sessionStart) / 1000;
+          if (elapsed >= minDuration) {
+            showUniversalRewardFromSession(s);
+          } else {
+            const waitTime = Math.ceil(minDuration - elapsed);
+            feedback.textContent = `⏳ Please wait ${waitTime}s...`;
+            setTimeout(() => {
+              showUniversalRewardFromSession(s);
+            }, waitTime * 1000);
+          }
+        }
+      }, pauseAfterCorrect);
+      return;
+    }
+
+    // Falsch-Logik
+    feedback.style.color = "#d32f2f";
+    feedback.textContent = currentTask.onWrong || "Oops, that's not right. Try again!";
+    btn.classList.add("shake");
+    setTimeout(() => btn.classList.remove("shake"), 600);
+    setTimeout(() => {
+      if (feedback.parentNode) feedback.remove();
+    }, 1400);
+  }
+}
 
 
   
