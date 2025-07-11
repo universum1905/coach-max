@@ -259,6 +259,96 @@ function showUniversalRewardFromSession(sessionObj, nextAction) {
 }
 
 
+function showLoadingOverlay(msg = "Loading…", duration = 1200, callback) {
+  // Vorherige Overlays entfernen
+  document.querySelectorAll(".universal-loading-overlay").forEach(e => e.remove());
+
+  // Overlay bauen
+  const overlay = document.createElement("div");
+  overlay.className = "universal-loading-overlay";
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100vw";
+  overlay.style.height = "100vh";
+  overlay.style.background = "rgba(255,255,246,0.85)";
+  overlay.style.zIndex = "10001";
+  overlay.style.display = "flex";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+
+  // Container für Spinner + Text
+  const box = document.createElement("div");
+  box.style.background = "#fffbe6";
+  box.style.padding = "30px 44px";
+  box.style.borderRadius = "22px";
+  box.style.boxShadow = "0 4px 32px #ffd54faa";
+  box.style.display = "flex";
+  box.style.flexDirection = "column";
+  box.style.alignItems = "center";
+  box.style.gap = "18px";
+
+  // Spinner (animiertes SVG)
+  const spinner = document.createElement("div");
+  spinner.innerHTML = `
+    <svg width="42" height="42" viewBox="0 0 42 42">
+      <circle cx="21" cy="21" r="18" stroke="#ffd54f" stroke-width="5" fill="none" opacity="0.6"/>
+      <circle class="loading-spinner-path" cx="21" cy="21" r="18" stroke="#29b6f6" stroke-width="5" fill="none"
+        stroke-dasharray="85 70" stroke-linecap="round"/>
+    </svg>
+  `;
+  spinner.style.animation = "spin 1.1s linear infinite";
+  box.appendChild(spinner);
+
+  // Text
+  const waitMsg = document.createElement("div");
+  waitMsg.textContent = msg;
+  waitMsg.style.fontSize = "1.22rem";
+  waitMsg.style.fontWeight = "bold";
+  waitMsg.style.color = "#1976d2";
+  waitMsg.style.textAlign = "center";
+  box.appendChild(waitMsg);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  // Spinner-Animation (nur 1x global hinzufügen)
+  if (!document.getElementById("loading-spinner-style")) {
+    const style = document.createElement("style");
+    style.id = "loading-spinner-style";
+    style.innerHTML = `
+      @keyframes spin {
+        0% { transform: rotate(0deg);}
+        100% { transform: rotate(360deg);}
+      }
+      .loading-spinner-path {
+        stroke-dasharray: 65 80;
+        stroke-dashoffset: 0;
+        animation: dashmove 1.2s ease-in-out infinite;
+      }
+      @keyframes dashmove {
+        0% { stroke-dashoffset: 0;}
+        50% { stroke-dashoffset: -36;}
+        100% { stroke-dashoffset: 0;}
+      }
+      .universal-loading-overlay {
+        user-select: none;
+        -webkit-user-select: none;
+        pointer-events: all;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  setTimeout(() => {
+    overlay.remove();
+    if (typeof callback === "function") callback();
+  }, duration);
+}
+
+
+
+
 function playSessionVideoIfNeeded(s, afterVideoCallback) {
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
   if (s.video) {
@@ -1251,16 +1341,10 @@ else if (s.type === "counting") {
               showUniversalRewardFromSession(s);
             } else {
               const waitTime = Math.ceil(minDuration - elapsed);
-              const waitMsg = document.createElement("div");
-              waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
-              waitMsg.style.textAlign = "center";
-              waitMsg.style.fontSize = "1.1rem";
-              waitMsg.style.marginTop = "15px";
-              mainWrap.appendChild(waitMsg);
-              setTimeout(() => {
-                waitMsg.remove();
-                showUniversalRewardFromSession(s);
-              }, waitTime * 1000);
+              showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+  showUniversalRewardFromSession(s);
+});
+
             }
           }
         } else {
@@ -1701,16 +1785,10 @@ else if (s.type === "memory") {
       showUniversalRewardFromSession(s);
     } else {
       const waitTime = Math.ceil(minDuration - elapsed);
-      const waitMsg = document.createElement("div");
-      waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
-      waitMsg.style.textAlign = "center";
-      waitMsg.style.fontSize = "1.1rem";
-      waitMsg.style.marginTop = "15px";
-      mainWrap.appendChild(waitMsg);
-      setTimeout(() => {
-        waitMsg.remove();
-        showUniversalRewardFromSession(s);
-      }, waitTime * 1000);
+      showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+  showUniversalRewardFromSession(s);
+});
+
     }
   }, pauseBetweenPairs + 600);
 }
@@ -2082,24 +2160,10 @@ shadowImg.style.filter = "grayscale(1) brightness(0.32) contrast(2)";
         if (taskIdx < tasks.length) {
           // ALLES andere aus dem Main-Bereich entfernen:
 textArea.querySelectorAll(".shadowMain, .shadow-feedback").forEach(e => e.remove());
-const waitMsg = document.createElement("div");
-waitMsg.textContent = "Next question loading...";
-waitMsg.style.position = "absolute";
-waitMsg.style.top = "45%";
-waitMsg.style.left = "50%";
-waitMsg.style.transform = "translate(-50%, -50%)";
-waitMsg.style.background = "#fffbe6";
-waitMsg.style.padding = "22px 34px";
-waitMsg.style.borderRadius = "18px";
-waitMsg.style.boxShadow = "0 2px 22px #ffd54f55";
-waitMsg.style.fontSize = "1.23rem";
-waitMsg.style.fontWeight = "bold";
-waitMsg.style.zIndex = "10000";
-textArea.appendChild(waitMsg);
-setTimeout(() => {
-  waitMsg.remove();
-  showShadowTask();
-}, 1200);
+showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+  showUniversalRewardFromSession(s);
+});
+
 
         } else {
           // Session vorbei – auf minDuration warten
@@ -2568,16 +2632,10 @@ if (animal.sound) {
               showUniversalRewardFromSession(s);
             } else {
               const waitTime = Math.ceil(minDuration - elapsed);
-              const waitMsg = document.createElement("div");
-              waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
-              waitMsg.style.textAlign = "center";
-              waitMsg.style.fontSize = "1.1rem";
-              waitMsg.style.marginTop = "15px";
-              mainWrap.appendChild(waitMsg);
-              setTimeout(() => {
-                waitMsg.remove();
-                showUniversalRewardFromSession(s);
-              }, waitTime * 1000);
+              showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+  showUniversalRewardFromSession(s);
+});
+
             }
           }
         } else {
@@ -2949,11 +3007,10 @@ else if (s.type === "rhyme") {
           if (elapsed >= minDuration) {
             showUniversalRewardFromSession(s);
           } else {
-            const waitTime = Math.ceil(minDuration - elapsed);
-            feedback.textContent = `⏳ Please wait ${waitTime}s...`;
-            setTimeout(() => {
-              showUniversalRewardFromSession(s);
-            }, waitTime * 1000);
+            showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+  showUniversalRewardFromSession(s);
+});
+
           }
         }
       }, pauseAfterCorrect);
@@ -3559,16 +3616,10 @@ else if (s.type === "pattern") {
             showUniversalRewardFromSession(s);
           } else {
             const waitTime = Math.ceil(minDuration - elapsed);
-            const waitMsg = document.createElement("div");
-            waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
-            waitMsg.style.textAlign = "center";
-            waitMsg.style.fontSize = "1.1rem";
-            waitMsg.style.marginTop = "13px";
-            mainWrap.appendChild(waitMsg);
-            setTimeout(() => {
-              waitMsg.remove();
-              showUniversalRewardFromSession(s);
-            }, waitTime * 1000);
+            showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+  showUniversalRewardFromSession(s);
+});
+
           }
         }
       }, pauseAfterCorrect);
