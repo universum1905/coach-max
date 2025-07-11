@@ -2988,25 +2988,25 @@ else if (s.type === "rhyme") {
       textArea.appendChild(feedback);
 
       setTimeout(() => {
-        qIdx++;
-        if (qIdx < questions.length) {
-          // Next question message
-          feedback.textContent = "Next question loading...";
-          setTimeout(showRhymeQuestion, 1200);
-        } else {
-          // Session vorbei – auf minDuration warten
-          if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-          const elapsed = (Date.now() - sessionStart) / 1000;
-          if (elapsed >= minDuration) {
-            showUniversalRewardFromSession(s);
-          } else {
-            showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
-  showUniversalRewardFromSession(s);
-});
+  taskIdx++;
+  if (taskIdx < tasks.length) {
+    // Nächste Frage laden, OHNE Reward!
+    showLoadingOverlay("Next question loading...", 1200, showShadowTask); // oder showPatternQuestion etc.
+  } else {
+    // Session vorbei – erst jetzt Reward & ggf. Zeitsteuerung
+    if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    const elapsed = (Date.now() - sessionStart) / 1000;
+    if (elapsed >= minDuration) {
+      showUniversalRewardFromSession(s); // HIER der Reward!
+    } else {
+      const waitTime = Math.ceil(minDuration - elapsed);
+      showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+        showUniversalRewardFromSession(s);
+      });
+    }
+  }
+}, pauseAfterCorrect);
 
-          }
-        }
-      }, pauseAfterCorrect);
       return;
     }
 
@@ -3589,33 +3589,25 @@ else if (s.type === "pattern") {
       feedback.style.color = "#388e3c";
 
       setTimeout(() => {
-        // Nächste Frage oder Abschluss
-        taskIdx++;
-        if (taskIdx < tasks.length) {
-          mainWrap.innerHTML = "";
-          // Nachricht "Next question..."
-          const waitMsg = document.createElement("div");
-          waitMsg.textContent = "Next question loading...";
-          waitMsg.style.textAlign = "center";
-          waitMsg.style.fontSize = "1.18rem";
-          waitMsg.style.margin = "13px";
-          mainWrap.appendChild(waitMsg);
-          setTimeout(showPatternQuestion, 1200);
-        } else {
-          // Session vorbei – auf minDuration warten
-          if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-          const elapsed = (Date.now() - sessionStart) / 1000;
-          if (elapsed >= minDuration) {
-            showUniversalRewardFromSession(s);
-          } else {
-            const waitTime = Math.ceil(minDuration - elapsed);
-            showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
-  showUniversalRewardFromSession(s);
-});
+  taskIdx++;
+  if (taskIdx < tasks.length) {
+    // Nächste Frage laden, OHNE Reward!
+    showLoadingOverlay("Next question loading...", 1200, showShadowTask); // oder showPatternQuestion etc.
+  } else {
+    // Session vorbei – erst jetzt Reward & ggf. Zeitsteuerung
+    if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    const elapsed = (Date.now() - sessionStart) / 1000;
+    if (elapsed >= minDuration) {
+      showUniversalRewardFromSession(s); // HIER der Reward!
+    } else {
+      const waitTime = Math.ceil(minDuration - elapsed);
+      showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+        showUniversalRewardFromSession(s);
+      });
+    }
+  }
+}, pauseAfterCorrect);
 
-          }
-        }
-      }, pauseAfterCorrect);
     } else {
       feedback.style.color = "#d32f2f";
       feedback.textContent = currentTask.onWrong || "Oops, that's not right. Try again!";
