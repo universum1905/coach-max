@@ -100,18 +100,30 @@
 
 {
   "type": "chatgpt-quiz",
-  "title": "Quiz Time!",
   "music": "focus-loop.mp3",
-  "minDuration": 60,
-  "video": "day1-test.mp4",
-  "correctSound": "correct.mp3",       
+  "correctSound": "correct.mp3",     
   "wrongSound": "wrong.mp3",
   "questions": [
-    { "q": "What rhymes with star?", "choices": ["car", "dog", "tree"], "correct": 0, "correctSound": "star-win.mp3", "wrongSound": "star-lose.mp3" },
-    { "q": "Which animal barks?", "choices": ["cat", "dog", "bird"], "correct": 1 } 
-  ],
-  "successSticker": 2
+    {
+      "q": "What rhymes with star?",
+      "choices": ["car", "dog", "tree"],
+      "correct": 0
+      
+    },
+    {
+      "q": "Which animal says 'moo'?",
+      "choices": ["dog", "cow", "cat"],
+      "correct": 1,
+      },
+    {
+      "q": "What is the color of the sky on a clear day?",
+      "choices": ["blue", "green", "red"],
+      "correct": 0
+      
+    }
+  ]
 }
+
 
 ,
 	
