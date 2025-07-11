@@ -2143,10 +2143,73 @@ else if (s.type === "animals") {
       const animal = s.items[idx];
 
       // Tiergeräusch abspielen (optional)
-      if (animal.sound) {
-        const sound = new Audio(animal.sound);
-        sound.play();
-      }
+      // Play Sound Again Button + automatisches Abspielen
+// Play Sound Again Button mit Bounce-Animation und Shine-Effekt
+if (animal.sound) {
+  const soundBtn = document.createElement("button");
+  soundBtn.textContent = "🔊 Play Sound Again";
+  soundBtn.style.margin = "0 0 12px 0";
+  soundBtn.style.padding = "0.5em 1.7em";
+  soundBtn.style.fontSize = "1.14rem";
+  soundBtn.style.fontWeight = "bold";
+  soundBtn.style.borderRadius = "21px";
+  soundBtn.style.background = "linear-gradient(90deg,#fffde7,#ffe082,#ffd54f)";
+  soundBtn.style.color = "#222";
+  soundBtn.style.boxShadow = "0 3px 18px #ffe08277";
+  soundBtn.style.border = "none";
+  soundBtn.style.cursor = "pointer";
+  soundBtn.style.position = "relative";
+  soundBtn.style.overflow = "hidden";
+  soundBtn.classList.add("bounce-glow"); // Für die Animation
+
+  // Shine-Animation als “Pseudo-Element” (CSS-in-JS)
+  const shine = document.createElement("span");
+  shine.style.position = "absolute";
+  shine.style.top = "0";
+  shine.style.left = "-70%";
+  shine.style.width = "50%";
+  shine.style.height = "100%";
+  shine.style.background = "linear-gradient(120deg,rgba(255,255,255,0.6) 0%,rgba(255,255,255,0) 60%)";
+  shine.style.pointerEvents = "none";
+  shine.style.transform = "skewX(-22deg)";
+  shine.style.transition = "left 0.7s";
+  soundBtn.appendChild(shine);
+
+  soundBtn.addEventListener("mouseenter", function() {
+    shine.style.left = "110%";
+    setTimeout(() => { shine.style.left = "-70%"; }, 700);
+  });
+
+  soundBtn.onclick = () => {
+    // Bounce-Click
+    soundBtn.style.transform = "scale(1.17)";
+    setTimeout(() => soundBtn.style.transform = "scale(1)", 170);
+
+    const sound = new Audio(animal.sound);
+    sound.play();
+  };
+
+  // Bounce Animation mit CSS-in-JS
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .bounce-glow {
+      animation: bounceBtn 1.2s infinite alternate;
+      transition: box-shadow 0.25s;
+    }
+    @keyframes bounceBtn {
+      0%   { box-shadow: 0 3px 18px #ffe08277; transform: scale(1); }
+      70%  { box-shadow: 0 6px 28px #ffe082ee; transform: scale(1.07);}
+      100% { box-shadow: 0 3px 18px #ffe08277; transform: scale(1);}
+    }
+  `;
+  document.head.appendChild(style);
+
+  mainWrap.appendChild(soundBtn);
+
+  // Direkt beim Start einmal abspielen:
+  const sound = new Audio(animal.sound);
+  sound.play();
+}
 
       // Hinweis-Text
       const hints = Array.isArray(animal.hints) ? animal.hints : [animal.hints];
