@@ -3827,6 +3827,7 @@ else if (s.type === "chatgpt-quiz") {
 
   // Video unten rechts (optional)
   let videoBox, video;
+  let quizStarted = false; // Nur nach Video-Ende
   if (s.video) {
     video = document.createElement('video');
     video.src = `videos/${s.video}`;
@@ -3874,7 +3875,10 @@ else if (s.type === "chatgpt-quiz") {
     video.addEventListener('ended', () => {
       playBtn.style.display = "";
       video.style.pointerEvents = "none";
-      showQuiz();
+      if (!quizStarted) {
+        quizStarted = true;
+        showQuiz();
+      }
     });
   } else {
     showQuiz();
@@ -3885,7 +3889,7 @@ else if (s.type === "chatgpt-quiz") {
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
   const pauseBetweenQuestions = s.pauseBetweenQuestions || 1600;
 
-  let currentQ = 0;
+  let currentQ = 0; // Richtig initialisiert!
 
   function showQuiz() {
     mainWrap.innerHTML = "";
@@ -3925,7 +3929,7 @@ else if (s.type === "chatgpt-quiz") {
       btn.style.transition = "all 0.2s";
       btn.classList.add("bounce-glow");
       btn.textContent = ans;
-      btn.onclick = () => handleAnswer(btn, i, btn, answersBox, qObj.correct);
+      btn.onclick = () => handleAnswer(btn, i, answersBox, qObj.correct);
       answersBox.appendChild(btn);
     });
 
@@ -3964,7 +3968,7 @@ else if (s.type === "chatgpt-quiz") {
     mainWrap.appendChild(progress);
   }
 
-  function handleAnswer(btn, i, thisBtn, answersBox, correctIdx) {
+  function handleAnswer(btn, i, answersBox, correctIdx) {
     const qObj = s.questions[currentQ];
     const correct = (i === correctIdx);
 
