@@ -3594,7 +3594,7 @@ else if (s.type === "pattern") {
 
 
 // ==== Modul: CHATGPT-QUIZ ====
- else if (s.type === "chatgpt-quiz") {
+ else if (s.type === "chatgpt-quiz-old") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -3781,6 +3781,201 @@ else if (s.type === "pattern") {
     
 }
  }
+
+
+else if (s.type === "chatgpt-quiz") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(e => e.remove());
+
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
+
+  // Überschrift
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Quiz Time!";
+  heading.style.textAlign = "center";
+  heading.style.margin = "18px 0 8px 0";
+  heading.style.fontSize = "2.2rem";
+  textArea.appendChild(heading);
+
+  // Musik (aus JSON)
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.18;
+    sessionMusic.play();
+    document.addEventListener("visibilitychange", function musicPauseHandler() {
+      if (document.hidden && sessionMusic) sessionMusic.pause();
+      else if (!document.hidden && sessionMusic) sessionMusic.play();
+    });
+    window.addEventListener("pagehide", function() {
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    });
+  }
+
+  // Video unten rechts (wie immer)
+  let videoBox, video;
+  if (s.video) {
+    video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+      showQuiz(0);
+    });
+  } else {
+    showQuiz(0);
+  }
+
+  // Fragen-Logik
+  const questions = Array.isArray(s.questions) ? s.questions : [];
+  const sessionStart = Date.now();
+  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+
+  function showQuiz(qIdx) {
+    textArea.querySelectorAll(".quiz-main, .quiz-feedback").forEach(e => e.remove());
+    if (qIdx >= questions.length) {
+      // Session vorbei
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+      const elapsed = (Date.now() - sessionStart) / 1000;
+      if (elapsed >= minDuration) {
+        showUniversalRewardFromSession(s);
+      } else {
+        const waitTime = Math.ceil(minDuration - elapsed);
+        showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+          showUniversalRewardFromSession(s);
+        });
+      }
+      return;
+    }
+
+    const q = questions[qIdx];
+    const mainWrap = document.createElement("div");
+    mainWrap.className = "quiz-main";
+    mainWrap.style.display = "flex";
+    mainWrap.style.flexDirection = "column";
+    mainWrap.style.alignItems = "center";
+    mainWrap.style.justifyContent = "center";
+    mainWrap.style.minHeight = "45vh";
+    mainWrap.style.width = "100%";
+    mainWrap.style.marginTop = "12px";
+    textArea.appendChild(mainWrap);
+
+    // Frage
+    const questionDiv = document.createElement("div");
+    questionDiv.textContent = q.q || q.question || "";
+    questionDiv.style.fontSize = "1.28rem";
+    questionDiv.style.margin = "0 0 18px 0";
+    questionDiv.style.textAlign = "center";
+    questionDiv.style.fontWeight = "bold";
+    mainWrap.appendChild(questionDiv);
+
+    // Antwortmöglichkeiten
+    const box = document.createElement("div");
+    box.style.display = "flex";
+    box.style.flexDirection = "column";
+    box.style.alignItems = "center";
+    box.style.justifyContent = "center";
+    box.style.gap = "14px";
+    box.style.width = "100%";
+    mainWrap.appendChild(box);
+
+    q.choices.forEach((ans, i) => {
+      const btn = document.createElement("button");
+      btn.style.border = "none";
+      btn.style.background = "#fffbe6";
+      btn.style.fontSize = "1.34rem";
+      btn.style.fontWeight = "600";
+      btn.style.padding = "0.7em 2.1em";
+      btn.style.borderRadius = "19px";
+      btn.style.boxShadow = "0 2px 10px #ffe08288";
+      btn.style.cursor = "pointer";
+      btn.style.width = "90vw";
+      btn.style.maxWidth = "320px";
+      btn.style.display = "flex";
+      btn.style.justifyContent = "center";
+      btn.style.alignItems = "center";
+      btn.style.letterSpacing = "0.13em";
+      btn.textContent = ans;
+      btn.onclick = () => handleQuizAnswer(btn, i, qIdx);
+      box.appendChild(btn);
+    });
+  }
+
+  function handleQuizAnswer(btn, i, qIdx) {
+    const q = questions[qIdx];
+    const correct = i === q.correct;
+    new Audio(`audio/${correct ? "yay.mp3" : "fail.mp3"}`).play();
+
+    // Feedback-Element
+    let feedback = textArea.querySelector(".quiz-feedback");
+    if (!feedback) {
+      feedback = document.createElement("div");
+      feedback.className = "quiz-feedback animated-text";
+      feedback.style.textAlign = "center";
+      feedback.style.marginTop = "17px";
+      feedback.style.fontWeight = "bold";
+      feedback.style.fontSize = "1.13rem";
+      textArea.appendChild(feedback);
+    }
+    feedback.textContent = correct ? (q.onCorrect || "Correct!") : (q.onWrong || "Try again!");
+
+    if (correct) {
+      btn.style.background = "#b2dfdb";
+      btn.style.transform = "scale(1.1)";
+      setTimeout(() => btn.style.transform = "scale(1)", 170);
+      setTimeout(() => showQuiz(qIdx + 1), 1200);
+    } else {
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 600);
+      setTimeout(() => { feedback.textContent = ""; }, 1100);
+    }
+  }
+}
+
 
 
  // ==== AI-EMOJI-MADNESS ====
