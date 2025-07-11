@@ -73,21 +73,37 @@
 ,
 	
 	{
-      "type": "animals",
-      "video": "day2-test.mp4",
-      "sound": "dog-bark.mp3",
-	  "music": "focus-loop.mp3",
-      "repeats": 2,
-      "title": "Guess the Animal!",
-      "text": ["Listen carefully to the sound. Which animal is it?"],
-      "timings": [0],
-      "choices": ["images/animals/lion.png", "images/animals/elephant.png", "images/animals/monkey.png"],
-      "correct": 0,
-      "onCorrect": "Awesome! That’s a lion!",
-      "onWrong": "Oops! Try again!",
-      "avatar": "momo",
-      "successSticker": 0
+  "type": "animals",
+  "title": "Guess the Animal!",
+  "video": "day1-test.mp4",
+  "music": "focus-loop.mp3",
+  "minDuration": 60,
+  "pauseBetweenAnimals": 1800,
+  "items": [
+    {
+      "hints": ["I have four paws and a wagging tail.", "I love to chase balls and go for walks.", "I say woof woof loudly."],
+      "sound": "audio/dog-bark.mp3",
+      "choices": ["images/animals/cat.png", "images/animals/dog.png", "images/animals/bear.png"],
+      "correct": 1
     },
+    {
+      "hints": ["I have a mane and I roar very loud.", "I am called the king of the jungle."],
+      "sound": "audio/lion-roar.mp3",
+      "choices": ["images/animals/elephant.png", "images/animals/lion.png", "images/animals/fox.png"],
+      "correct": 1
+    },
+    {
+      "hints": ["I have a long trunk.", "I am the biggest land animal."],
+      "sound": "audio/elephant.mp3",
+      "choices": ["images/animals/elephant.png", "images/animals/cat.png", "images/animals/dog.png"],
+      "correct": 0
+    }
+  ],
+  "successSticker": 3,
+  "rewardType": "star",
+  "onCorrect": "You guessed all animals!"
+},
+
 	
 	{
   "type": "ai-emoji-madness",
