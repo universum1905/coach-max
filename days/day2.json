@@ -103,7 +103,7 @@
   "title": "Quiz Time!",
   "music": "focus-loop.mp3",
   "minDuration": 60,
-  "video": "quiz1.mp4",
+  "video": "day1-test.mp4",
   "correctSound": "correct.mp3",       
   "wrongSound": "wrong.mp3",
   "questions": [
