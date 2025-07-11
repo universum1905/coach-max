@@ -4032,6 +4032,8 @@ else if (s.type === "chatgpt-quiz") {
   }
 }
 
+
+
  // ==== AI-EMOJI-MADNESS ====
 // In renderSession(idx) einfügen
 else if (s.type === "ai-emoji-madness") {
