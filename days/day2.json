@@ -56,25 +56,37 @@
   "pauseAfterCorrect": 1400,
   "tasks": [
     {
-      "shadow": "images/shadows/cat-shadow.png",
+      "image": "images/animals/cat.png",
       "question": "Which picture matches the shadow?",
-      "choices": ["images/animals/cat.png", "images/animals/dog.png", "images/animals/lion.png"],
+      "choices": [
+        "images/animals/cat.png",
+        "images/animals/dog.png",
+        "images/animals/lion.png"
+      ],
       "correct": 0,
       "onCorrect": "Well done! Cat is correct.",
       "onWrong": "Try again!"
     },
     {
-      "shadow": "images/shadows/rabbit-shadow.png",
+      "image": "images/animals/rabbit.png",
       "question": "Which animal is this?",
-      "choices": ["images/animals/bear.png", "images/animals/rabbit.png", "images/animals/fox.png"],
+      "choices": [
+        "images/animals/bear.png",
+        "images/animals/rabbit.png",
+        "images/animals/fox.png"
+      ],
       "correct": 1,
       "onCorrect": "Great! Rabbit is correct.",
       "onWrong": "Try again!"
     },
     {
-      "shadow": "images/shadows/elephant-shadow.png",
+      "image": "images/animals/elephant.png",
       "question": "Which animal fits the shadow?",
-      "choices": ["images/animals/elephant.png", "images/animals/mouse.png", "images/animals/monkey.png"],
+      "choices": [
+        "images/animals/elephant.png",
+        "images/animals/mouse.png",
+        "images/animals/monkey.png"
+      ],
       "correct": 0,
       "onCorrect": "You got it! Elephant is correct.",
       "onWrong": "Try again!"
@@ -83,6 +95,7 @@
   "successSticker": 7,
   "rewardType": "star"
 }
+
 ,
 
 {

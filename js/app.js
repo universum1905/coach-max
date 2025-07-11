@@ -1985,12 +1985,14 @@ else if (s.type === "shadow") {
 
     // Schattenbild groß und mittig
     const shadowImg = document.createElement('img');
-    shadowImg.src = currentTask.shadow;
-    shadowImg.className = "shadow-image";
-    shadowImg.style.width = "110px";
-    shadowImg.style.height = "110px";
-    shadowImg.style.margin = "18px 0 18px 0";
-    shadowImg.style.filter = "grayscale(1) contrast(1.2)";
+shadowImg.src = currentTask.shadow || currentTask.image || ""; // shadow ODER image
+shadowImg.className = "shadow-image";
+shadowImg.style.width = "110px";
+shadowImg.style.height = "110px";
+shadowImg.style.margin = "18px 0 18px 0";
+// Filter für Schatteneffekt:
+shadowImg.style.filter = "grayscale(1) brightness(0.32) contrast(2)";
+
     mainWrap.appendChild(shadowImg);
 
     // Frage (optional)
