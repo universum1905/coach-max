@@ -1186,6 +1186,7 @@ textArea.appendChild(yesBtn);
     renderSession(currentSession);
   });
 }
+   }
 
 
 
