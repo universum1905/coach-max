@@ -3787,11 +3787,10 @@ else if (s.type === "chatgpt-quiz") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(e => e.remove());
-
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Überschrift
+  // Überschrift bleibt immer oben
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = s.title || "Quiz Time!";
@@ -3800,7 +3799,17 @@ else if (s.type === "chatgpt-quiz") {
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // Musik (aus JSON)
+  // Fester Wrapper für Zentrierung
+  const mainWrap = document.createElement('div');
+  mainWrap.style.display = "flex";
+  mainWrap.style.flexDirection = "column";
+  mainWrap.style.justifyContent = "center";
+  mainWrap.style.alignItems = "center";
+  mainWrap.style.minHeight = "55vh";
+  mainWrap.style.width = "100%";
+  textArea.appendChild(mainWrap);
+
+  // Musik abspielen (aus JSON)
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
@@ -3828,6 +3837,7 @@ else if (s.type === "chatgpt-quiz") {
     video.playsInline = true;
     video.poster = "images/video-placeholder.png";
     video.className = "session-video";
+
     videoBox = document.createElement("div");
     videoBox.className = "floating-video";
     videoBox.style.position = "fixed";
@@ -3864,119 +3874,163 @@ else if (s.type === "chatgpt-quiz") {
     video.addEventListener('ended', () => {
       playBtn.style.display = "";
       video.style.pointerEvents = "none";
-      showQuiz(0);
+      showQuiz();
     });
   } else {
-    showQuiz(0);
+    showQuiz();
   }
 
-  // Fragen-Logik
-  const questions = Array.isArray(s.questions) ? s.questions : [];
+  // Zeitsteuerung (minDuration aus JSON, Default 60s)
   const sessionStart = Date.now();
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1600; // Millisekunden
 
-  function showQuiz(qIdx) {
-    textArea.querySelectorAll(".quiz-main, .quiz-feedback").forEach(e => e.remove());
-    if (qIdx >= questions.length) {
-      // Session vorbei
-      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-      const elapsed = (Date.now() - sessionStart) / 1000;
-      if (elapsed >= minDuration) {
-        showUniversalRewardFromSession(s);
-      } else {
-        const waitTime = Math.ceil(minDuration - elapsed);
-        showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
-          showUniversalRewardFromSession(s);
-        });
-      }
-      return;
-    }
+  let currentQ = 0;
 
-    const q = questions[qIdx];
-    const mainWrap = document.createElement("div");
-    mainWrap.className = "quiz-main";
-    mainWrap.style.display = "flex";
-    mainWrap.style.flexDirection = "column";
-    mainWrap.style.alignItems = "center";
-    mainWrap.style.justifyContent = "center";
-    mainWrap.style.minHeight = "45vh";
-    mainWrap.style.width = "100%";
-    mainWrap.style.marginTop = "12px";
-    textArea.appendChild(mainWrap);
+  function showQuiz() {
+    mainWrap.innerHTML = "";
+    const qObj = s.questions[currentQ];
+    // Frage anzeigen
+    const question = document.createElement('div');
+    question.textContent = qObj.q;
+    question.className = "animated-text";
+    question.style.textAlign = "center";
+    question.style.fontSize = "1.21rem";
+    question.style.fontWeight = "bold";
+    question.style.margin = "10px 0 14px 0";
+    mainWrap.appendChild(question);
 
-    // Frage
-    const questionDiv = document.createElement("div");
-    questionDiv.textContent = q.q || q.question || "";
-    questionDiv.style.fontSize = "1.28rem";
-    questionDiv.style.margin = "0 0 18px 0";
-    questionDiv.style.textAlign = "center";
-    questionDiv.style.fontWeight = "bold";
-    mainWrap.appendChild(questionDiv);
+    // Antworten als Buttons
+    const answersBox = document.createElement("div");
+    answersBox.style.display = "flex";
+    answersBox.style.justifyContent = "center";
+    answersBox.style.gap = "18px";
+    answersBox.style.flexWrap = "wrap";
+    answersBox.style.margin = "8px 0 0 0";
+    mainWrap.appendChild(answersBox);
 
-    // Antwortmöglichkeiten
-    const box = document.createElement("div");
-    box.style.display = "flex";
-    box.style.flexDirection = "column";
-    box.style.alignItems = "center";
-    box.style.justifyContent = "center";
-    box.style.gap = "14px";
-    box.style.width = "100%";
-    mainWrap.appendChild(box);
-
-    q.choices.forEach((ans, i) => {
+    qObj.choices.forEach((ans, i) => {
       const btn = document.createElement("button");
       btn.style.border = "none";
       btn.style.background = "#fffbe6";
-      btn.style.fontSize = "1.34rem";
-      btn.style.fontWeight = "600";
-      btn.style.padding = "0.7em 2.1em";
-      btn.style.borderRadius = "19px";
-      btn.style.boxShadow = "0 2px 10px #ffe08288";
+      btn.style.fontSize = "1.29rem";
+      btn.style.fontWeight = "bold";
+      btn.style.padding = "0.88em 1.38em";
+      btn.style.borderRadius = "16px";
+      btn.style.boxShadow = "0 2px 10px #81d4fa88";
       btn.style.cursor = "pointer";
-      btn.style.width = "90vw";
-      btn.style.maxWidth = "320px";
-      btn.style.display = "flex";
-      btn.style.justifyContent = "center";
-      btn.style.alignItems = "center";
-      btn.style.letterSpacing = "0.13em";
+      btn.style.margin = "4px 0";
+      btn.style.minWidth = "105px";
+      btn.style.transition = "all 0.2s";
+      btn.classList.add("bounce-glow");
       btn.textContent = ans;
-      btn.onclick = () => handleQuizAnswer(btn, i, qIdx);
-      box.appendChild(btn);
+      btn.onclick = () => handleAnswer(btn, i);
+      answersBox.appendChild(btn);
     });
+
+    // Animation-Style nur einmal einbinden
+    if (!document.getElementById("quiz-btn-bounce-style")) {
+      const style = document.createElement('style');
+      style.id = "quiz-btn-bounce-style";
+      style.innerHTML = `
+        .bounce-glow {
+          animation: bounceBtn 1.15s infinite alternate;
+        }
+        @keyframes bounceBtn {
+          0% { box-shadow: 0 2px 10px #81d4fa88; transform: scale(1);}
+          65%{ box-shadow: 0 7px 30px #ffd54f77; transform: scale(1.11);}
+          100%{box-shadow: 0 2px 10px #81d4fa88; transform: scale(1);}
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Fortschrittsleiste (optional)
+    const progress = document.createElement("div");
+    progress.style.width = "100%";
+    progress.style.margin = "15px 0 0 0";
+    progress.style.display = "flex";
+    progress.style.justifyContent = "center";
+    for (let i = 0; i < s.questions.length; i++) {
+      const dot = document.createElement("div");
+      dot.style.width = "18px";
+      dot.style.height = "18px";
+      dot.style.borderRadius = "50%";
+      dot.style.background = (i === currentQ) ? "#ffd54f" : "#bdbdbd";
+      dot.style.margin = "0 5px";
+      progress.appendChild(dot);
+    }
+    mainWrap.appendChild(progress);
   }
 
-  function handleQuizAnswer(btn, i, qIdx) {
-    const q = questions[qIdx];
-    const correct = i === q.correct;
-    new Audio(`audio/${correct ? "yay.mp3" : "fail.mp3"}`).play();
+  function handleAnswer(btn, i) {
+    const qObj = s.questions[currentQ];
+    const correct = (i === qObj.correct);
+
+    // ----- SOUNDAUSWAHL UNIVERSAL -----
+    let correctSound = qObj.correctSound || s.correctSound || "yay.mp3";
+    let wrongSound   = qObj.wrongSound   || s.wrongSound   || "fail.mp3";
+    new Audio("audio/" + (correct ? correctSound : wrongSound)).play();
+    // -----------------------------------
+
+    // Buttons blockieren
+    Array.from(btn.parentNode.children).forEach((b, idx) => {
+      b.disabled = true;
+      if (b !== btn) b.style.opacity = "0.5";
+    });
+    btn.style.background = correct ? "#b2dfdb" : "#ffcdd2";
+    btn.style.transform = "scale(1.09)";
+    setTimeout(() => btn.style.transform = "scale(1)", 150);
 
     // Feedback-Element
-    let feedback = textArea.querySelector(".quiz-feedback");
+    let feedback = mainWrap.querySelector(".quiz-feedback");
     if (!feedback) {
       feedback = document.createElement("div");
-      feedback.className = "quiz-feedback animated-text";
+      feedback.className = "animated-text quiz-feedback";
       feedback.style.textAlign = "center";
-      feedback.style.marginTop = "17px";
+      feedback.style.marginTop = "13px";
       feedback.style.fontWeight = "bold";
-      feedback.style.fontSize = "1.13rem";
-      textArea.appendChild(feedback);
+      feedback.style.fontSize = "1.12rem";
+      mainWrap.appendChild(feedback);
     }
-    feedback.textContent = correct ? (q.onCorrect || "Correct!") : (q.onWrong || "Try again!");
+    feedback.textContent = correct ? (qObj.onCorrect || "Great!") : (qObj.onWrong || "Oops, try again!");
+    feedback.style.color = correct ? "#388e3c" : "#d32f2f";
 
     if (correct) {
-      btn.style.background = "#b2dfdb";
-      btn.style.transform = "scale(1.1)";
-      setTimeout(() => btn.style.transform = "scale(1)", 170);
-      setTimeout(() => showQuiz(qIdx + 1), 1200);
+      setTimeout(() => {
+        currentQ++;
+        if (currentQ < s.questions.length) {
+          mainWrap.innerHTML = "";
+          const waitMsg = document.createElement("div");
+          waitMsg.textContent = "Next question loading...";
+          waitMsg.style.textAlign = "center";
+          waitMsg.style.fontSize = "1.15rem";
+          waitMsg.style.margin = "15px";
+          mainWrap.appendChild(waitMsg);
+          setTimeout(showQuiz, pauseBetweenQuestions);
+        } else {
+          if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+          // Zeitsteuerung aktiv
+          const elapsed = (Date.now() - sessionStart) / 1000;
+          if (elapsed >= minDuration) {
+            showUniversalRewardFromSession(s);
+          } else {
+            const waitTime = Math.ceil(minDuration - elapsed);
+            showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+              showUniversalRewardFromSession(s);
+            });
+          }
+        }
+      }, pauseBetweenQuestions);
     } else {
       btn.classList.add("shake");
       setTimeout(() => btn.classList.remove("shake"), 600);
-      setTimeout(() => { feedback.textContent = ""; }, 1100);
+      setTimeout(() => {
+        if (feedback.parentNode) feedback.remove();
+      }, 1200);
     }
   }
 }
-
-
 
  // ==== AI-EMOJI-MADNESS ====
 // In renderSession(idx) einfügen

@@ -103,14 +103,16 @@
   "title": "Quiz Time!",
   "music": "focus-loop.mp3",
   "minDuration": 60,
-  "video": "day1-test.mp4",
+  "video": "quiz1.mp4",
+  "correctSound": "correct.mp3",       
+  "wrongSound": "wrong.mp3",
   "questions": [
-    { "q": "What rhymes with star?", "choices": ["car", "dog", "tree"], "correct": 0 },
-    { "q": "Which animal barks?", "choices": ["cat", "dog", "bird"], "correct": 1 },
-    { "q": "What comes after 2?", "choices": ["1", "3", "4"], "correct": 1 }
+    { "q": "What rhymes with star?", "choices": ["car", "dog", "tree"], "correct": 0, "correctSound": "star-win.mp3", "wrongSound": "star-lose.mp3" },
+    { "q": "Which animal barks?", "choices": ["cat", "dog", "bird"], "correct": 1 } 
   ],
   "successSticker": 2
 }
+
 ,
 	
 	{
