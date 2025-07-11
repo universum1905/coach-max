@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 2; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -1565,7 +1565,7 @@ else if (s.type === "memory") {
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // Fester Wrapper für Zentrierung
+  // Zentrierter Wrapper
   const mainWrap = document.createElement('div');
   mainWrap.style.display = "flex";
   mainWrap.style.flexDirection = "column";
@@ -1591,7 +1591,7 @@ else if (s.type === "memory") {
     });
   }
 
-  // Video unten rechts (wie immer)
+  // Video unten rechts
   let videoBox, video;
   if (s.video) {
     video = document.createElement('video');
@@ -1651,7 +1651,7 @@ else if (s.type === "memory") {
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
   const pauseBetweenPairs = s.pauseBetweenPairs || 1800; // Millisekunden (1.8s Standard)
 
-  // Das eigentliche Memory-Game
+  // Memory-Game
   function startMemoryGame() {
     mainWrap.innerHTML = "";
 
@@ -1722,47 +1722,37 @@ else if (s.type === "memory") {
             matched.push(opened[0], opened[1]);
             setTimeout(() => {
               opened.forEach(el => {
-  // Erstelle SVG-Haken-Overlay
-  const check = document.createElement("div");
-  check.innerHTML = `
-    <svg width="38" height="38" viewBox="0 0 38 38">
-      <circle cx="19" cy="19" r="18" fill="#fffde7" stroke="#aeea00" stroke-width="2"/>
-      <polyline points="10,21 17,28 28,13" fill="none" stroke="#43a047" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  `;
-  check.style.position = "absolute";
-  check.style.left = "50%";
-  check.style.top = "50%";
-  check.style.transform = "translate(-50%,-50%) scale(0.5)";
-  check.style.pointerEvents = "none";
-  check.style.zIndex = "10";
-  check.style.opacity = "1";
-  check.style.transition = "opacity 0.7s, transform 0.27s";
-  el.style.position = "relative";
-  el.appendChild(check);
-
-  // Bounce-Animation (Pop)
-  setTimeout(() => {
-    check.style.transform = "translate(-50%,-50%) scale(1.2)";
-  }, 40);
-  setTimeout(() => {
-    check.style.transform = "translate(-50%,-50%) scale(1)";
-  }, 220);
-  // Fade-out nach 1s
-  setTimeout(() => {
-    check.style.opacity = "0";
-    check.style.transform = "translate(-50%,-50%) scale(0.7)";
-    setTimeout(() => check.remove(), 650);
-  }, 950);
-});
-
+                // SVG-Haken-Overlay
+                const check = document.createElement("div");
+                check.innerHTML = `
+                  <svg width="38" height="38" viewBox="0 0 38 38">
+                    <circle cx="19" cy="19" r="18" fill="#fffde7" stroke="#aeea00" stroke-width="2"/>
+                    <polyline points="10,21 17,28 28,13" fill="none" stroke="#43a047" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                `;
+                check.style.position = "absolute";
+                check.style.left = "50%";
+                check.style.top = "50%";
+                check.style.transform = "translate(-50%,-50%) scale(0.5)";
+                check.style.pointerEvents = "none";
+                check.style.zIndex = "10";
+                check.style.opacity = "1";
+                check.style.transition = "opacity 0.7s, transform 0.27s";
+                el.style.position = "relative";
+                el.appendChild(check);
+                setTimeout(() => { check.style.transform = "translate(-50%,-50%) scale(1.2)"; }, 40);
+                setTimeout(() => { check.style.transform = "translate(-50%,-50%) scale(1)"; }, 220);
+                setTimeout(() => {
+                  check.style.opacity = "0";
+                  check.style.transform = "translate(-50%,-50%) scale(0.7)";
+                  setTimeout(() => check.remove(), 650);
+                }, 950);
+              });
             }, 120);
-            // Animation und Sound
             new Audio("audio/yay.mp3").play();
             setTimeout(() => {
               opened = [];
               isBlocked = false;
-              // Optional kurze Pause vor nächstem Zug (mehr Flow):
               if (matched.length < shuffled.length) {
                 const msg = document.createElement("div");
                 msg.textContent = "Great! Next pair...";
@@ -1777,22 +1767,19 @@ else if (s.type === "memory") {
             }, pauseBetweenPairs);
             // Komplett fertig
             if (matched.length === shuffled.length) {
-  setTimeout(() => {
-    if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-    // Zeitsteuerung aktiv
-    const elapsed = (Date.now() - sessionStart) / 1000;
-    if (elapsed >= minDuration) {
-      showUniversalRewardFromSession(s);
-    } else {
-      const waitTime = Math.ceil(minDuration - elapsed);
-      showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
-  showUniversalRewardFromSession(s);
-});
-
-    }
-  }, pauseBetweenPairs + 600);
-}
-
+              setTimeout(() => {
+                if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+                const elapsed = (Date.now() - sessionStart) / 1000;
+                if (elapsed >= minDuration) {
+                  showUniversalRewardFromSession(s);
+                } else {
+                  const waitTime = Math.ceil(minDuration - elapsed);
+                  showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+                    showUniversalRewardFromSession(s);
+                  });
+                }
+              }, pauseBetweenPairs + 600);
+            }
           } else {
             // Wrong: kurz zeigen, dann verstecken
             new Audio("audio/fail.mp3").play();
@@ -1809,10 +1796,6 @@ else if (s.type === "memory") {
     });
   }
 }
-
-
-
-
 
 // ==== Modul: SCHATTENRÄTSEL ====
  else if (s.type === "shadowold") {
@@ -2491,72 +2474,73 @@ else if (s.type === "animals") {
 
       // Tiergeräusch abspielen (optional)
       // Play Sound Again Button + automatisches Abspielen
-// Play Sound Again Button mit Bounce-Animation und Shine-Effekt
-if (animal.sound) {
-  const soundBtn = document.createElement("button");
-  soundBtn.textContent = "🔊 Play Sound Again";
-  soundBtn.style.margin = "0 0 12px 0";
-  soundBtn.style.padding = "0.5em 1.7em";
-  soundBtn.style.fontSize = "1.14rem";
-  soundBtn.style.fontWeight = "bold";
-  soundBtn.style.borderRadius = "21px";
-  soundBtn.style.background = "linear-gradient(90deg,#fffde7,#ffe082,#ffd54f)";
-  soundBtn.style.color = "#222";
-  soundBtn.style.boxShadow = "0 3px 18px #ffe08277";
-  soundBtn.style.border = "none";
-  soundBtn.style.cursor = "pointer";
-  soundBtn.style.position = "relative";
-  soundBtn.style.overflow = "hidden";
-  soundBtn.classList.add("bounce-glow"); // Für die Animation
+      if (animal.sound) {
+        const soundBtn = document.createElement("button");
+        soundBtn.textContent = "🔊 Play Sound Again";
+        soundBtn.className = "bounce-glow";
+        soundBtn.style.margin = "0 0 12px 0";
+        soundBtn.style.padding = "0.5em 1.7em";
+        soundBtn.style.fontSize = "1.14rem";
+        soundBtn.style.fontWeight = "bold";
+        soundBtn.style.borderRadius = "21px";
+        soundBtn.style.background = "linear-gradient(90deg,#fffde7,#ffe082,#ffd54f)";
+        soundBtn.style.color = "#222";
+        soundBtn.style.boxShadow = "0 3px 18px #ffe08277";
+        soundBtn.style.border = "none";
+        soundBtn.style.cursor = "pointer";
+        soundBtn.style.position = "relative";
+        soundBtn.style.overflow = "hidden";
 
-  // Shine-Animation als “Pseudo-Element” (CSS-in-JS)
-  const shine = document.createElement("span");
-  shine.style.position = "absolute";
-  shine.style.top = "0";
-  shine.style.left = "-70%";
-  shine.style.width = "50%";
-  shine.style.height = "100%";
-  shine.style.background = "linear-gradient(120deg,rgba(255,255,255,0.6) 0%,rgba(255,255,255,0) 60%)";
-  shine.style.pointerEvents = "none";
-  shine.style.transform = "skewX(-22deg)";
-  shine.style.transition = "left 0.7s";
-  soundBtn.appendChild(shine);
+        // Shine-Animation
+        const shine = document.createElement("span");
+        shine.style.position = "absolute";
+        shine.style.top = "0";
+        shine.style.left = "-70%";
+        shine.style.width = "50%";
+        shine.style.height = "100%";
+        shine.style.background = "linear-gradient(120deg,rgba(255,255,255,0.6) 0%,rgba(255,255,255,0) 60%)";
+        shine.style.pointerEvents = "none";
+        shine.style.transform = "skewX(-22deg)";
+        shine.style.transition = "left 0.7s";
+        soundBtn.appendChild(shine);
 
-  soundBtn.addEventListener("mouseenter", function() {
-    shine.style.left = "110%";
-    setTimeout(() => { shine.style.left = "-70%"; }, 700);
-  });
+        soundBtn.addEventListener("mouseenter", function() {
+          shine.style.left = "110%";
+          setTimeout(() => { shine.style.left = "-70%"; }, 700);
+        });
 
-  soundBtn.onclick = () => {
-    // Bounce-Click
-    soundBtn.style.transform = "scale(1.17)";
-    setTimeout(() => soundBtn.style.transform = "scale(1)", 170);
+        soundBtn.onclick = () => {
+          soundBtn.style.transform = "scale(1.17)";
+          setTimeout(() => soundBtn.style.transform = "scale(1)", 170);
 
-    const sound = new Audio(animal.sound);
-    sound.play();
-  };
+          const sound = new Audio(animal.sound);
+          sound.play();
+        };
 
-  // Bounce Animation mit CSS-in-JS
-  const style = document.createElement('style');
-  style.innerHTML = `
-    .bounce-glow {
-      animation: bounceBtn 1.2s infinite alternate;
-      transition: box-shadow 0.25s;
-    }
-    @keyframes bounceBtn {
-      0%   { box-shadow: 0 3px 18px #ffe08277; transform: scale(1); }
-      70%  { box-shadow: 0 6px 28px #ffe082ee; transform: scale(1.07);}
-      100% { box-shadow: 0 3px 18px #ffe08277; transform: scale(1);}
-    }
-  `;
-  document.head.appendChild(style);
+        // Animation style (CSS only 1x anlegen)
+        if (!document.getElementById("animals-btn-bounce-style")) {
+          const style = document.createElement('style');
+          style.id = "animals-btn-bounce-style";
+          style.innerHTML = `
+            .bounce-glow {
+              animation: bounceBtn 1.2s infinite alternate;
+              transition: box-shadow 0.25s;
+            }
+            @keyframes bounceBtn {
+              0%   { box-shadow: 0 3px 18px #ffe08277; transform: scale(1); }
+              70%  { box-shadow: 0 6px 28px #ffe082ee; transform: scale(1.07);}
+              100% { box-shadow: 0 3px 18px #ffe08277; transform: scale(1);}
+            }
+          `;
+          document.head.appendChild(style);
+        }
 
-  mainWrap.appendChild(soundBtn);
+        mainWrap.appendChild(soundBtn);
 
-  // Direkt beim Start einmal abspielen:
-  const sound = new Audio(animal.sound);
-  sound.play();
-}
+        // Direkt beim Start einmal abspielen:
+        const sound = new Audio(animal.sound);
+        sound.play();
+      }
 
       // Hinweis-Text
       const hints = Array.isArray(animal.hints) ? animal.hints : [animal.hints];
@@ -2595,44 +2579,42 @@ if (animal.sound) {
         new Audio(`audio/${i === correctIdx ? "yay.mp3" : "fail.mp3"}`).play();
 
         if (i === correctIdx) {
-          // Richtige Antwort
           Array.from(choicesBox.children).forEach(b => { if (b !== btn) b.style.opacity = "0.4"; });
           btn.style.border = "3px solid #43a047";
           btn.style.background = "#c8e6c9";
           btn.disabled = true;
 
           // Nächste Aufgabe oder Belohnung
-          if (currentItem < s.items.length - 1) {
-            const nextMsg = document.createElement("div");
-            nextMsg.textContent = "Great! Here comes the next animal...";
-            nextMsg.style.textAlign = "center";
-            nextMsg.style.color = "#43a047";
-            nextMsg.style.fontSize = "1.12rem";
-            nextMsg.style.fontWeight = "bold";
-            nextMsg.style.margin = "14px 0 2px 0";
-            mainWrap.appendChild(nextMsg);
+          setTimeout(() => {
+            if (currentItem < s.items.length - 1) {
+              const nextMsg = document.createElement("div");
+              nextMsg.textContent = "Great! Here comes the next animal...";
+              nextMsg.style.textAlign = "center";
+              nextMsg.style.color = "#43a047";
+              nextMsg.style.fontSize = "1.12rem";
+              nextMsg.style.fontWeight = "bold";
+              nextMsg.style.margin = "14px 0 2px 0";
+              mainWrap.appendChild(nextMsg);
 
-            setTimeout(() => {
-              nextMsg.remove();
-              currentItem++;
-              showAnimal(currentItem);
-            }, pauseBetweenAnimals);
-          } else {
-            if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-            // Zeitsteuerung aktiv
-            const elapsed = (Date.now() - sessionStart) / 1000;
-            if (elapsed >= minDuration) {
-              showUniversalRewardFromSession(s);
+              setTimeout(() => {
+                nextMsg.remove();
+                currentItem++;
+                showAnimal(currentItem);
+              }, pauseBetweenAnimals);
             } else {
-              const waitTime = Math.ceil(minDuration - elapsed);
-              showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
-  showUniversalRewardFromSession(s);
-});
-
+              if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+              const elapsed = (Date.now() - sessionStart) / 1000;
+              if (elapsed >= minDuration) {
+                showUniversalRewardFromSession(s);
+              } else {
+                const waitTime = Math.ceil(minDuration - elapsed);
+                showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+                  showUniversalRewardFromSession(s);
+                });
+              }
             }
-          }
+          }, 1000); // Kurze Pause nach richtiger Antwort für Animation/Feedback!
         } else {
-          // Falsche Antwort
           btn.style.border = "3px solid #d32f2f";
           btn.style.background = "#ffcdd2";
           btn.disabled = true;
@@ -2644,16 +2626,9 @@ if (animal.sound) {
         }
       }
     }
-
     showAnimal(currentItem);
   }
 }
-
-
-
-
-
-
 
   // ==== Modul: RHYME ====
   else if (s.type === "rhymeold") {
