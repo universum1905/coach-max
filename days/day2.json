@@ -49,19 +49,41 @@
 ,
     {
   "type": "shadow",
+  "title": "Match the Shadow!",
+  "video": "day1-test.mp4",
   "music": "focus-loop.mp3",
-  "video": "day2-test.mp4",
-  "shadow": "images/animals/cat.png",
-  "choices": [
-    "images/animals/dog.png",
-    "images/animals/cat.png",
-    "images/animals/bear.png"
+  "minDuration": 60,
+  "pauseAfterCorrect": 1400,
+  "tasks": [
+    {
+      "shadow": "images/shadows/cat-shadow.png",
+      "question": "Which picture matches the shadow?",
+      "choices": ["images/animals/cat.png", "images/animals/dog.png", "images/animals/lion.png"],
+      "correct": 0,
+      "onCorrect": "Well done! Cat is correct.",
+      "onWrong": "Try again!"
+    },
+    {
+      "shadow": "images/shadows/rabbit-shadow.png",
+      "question": "Which animal is this?",
+      "choices": ["images/animals/bear.png", "images/animals/rabbit.png", "images/animals/fox.png"],
+      "correct": 1,
+      "onCorrect": "Great! Rabbit is correct.",
+      "onWrong": "Try again!"
+    },
+    {
+      "shadow": "images/shadows/elephant-shadow.png",
+      "question": "Which animal fits the shadow?",
+      "choices": ["images/animals/elephant.png", "images/animals/mouse.png", "images/animals/monkey.png"],
+      "correct": 0,
+      "onCorrect": "You got it! Elephant is correct.",
+      "onWrong": "Try again!"
+    }
   ],
-  "correct": 1,
-  "successSticker": 0,
-  "rewardType": "star",
-  "onCorrect": "Super memory skills!"
-},
+  "successSticker": 7,
+  "rewardType": "star"
+}
+,
 
 {
   "type": "chatgpt-quiz",
