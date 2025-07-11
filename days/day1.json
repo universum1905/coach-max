@@ -68,83 +68,27 @@
   "onCorrect": "Super memory skills!"
         },
         {
-            "type": "counting",
-            "avatar": "benny",
-            "music": "focus-loop.mp3",
-            "video": "day1-counting.mp4",
-            "countingTimings": [
-                {
-                    "number": 1,
-                    "animal": "mouse",
-                    "image": "images/animals/mouse.png",
-                    "time": 12
-                },
-                {
-                    "number": 2,
-                    "animal": "cat",
-                    "image": "images/animals/cat.png",
-                    "time": 16
-                },
-                {
-                    "number": 3,
-                    "animal": "dog",
-                    "image": "images/animals/dog.png",
-                    "time": 20
-                },
-                {
-                    "number": 4,
-                    "animal": "lion",
-                    "image": "images/animals/lion.png",
-                    "time": 24
-                },
-                {
-                    "number": 5,
-                    "animal": "rabbit",
-                    "image": "images/animals/rabbit.png",
-                    "time": 28
-                },
-                {
-                    "number": 6,
-                    "animal": "elephant",
-                    "image": "images/animals/elephant.png",
-                    "time": 32
-                },
-                {
-                    "number": 7,
-                    "animal": "monkey",
-                    "image": "images/animals/monkey.png",
-                    "time": 36
-                },
-                {
-                    "number": 8,
-                    "animal": "frog",
-                    "image": "images/animals/frog.png",
-                    "time": 40
-                },
-                {
-                    "number": 9,
-                    "animal": "fox",
-                    "image": "images/animals/fox.png",
-                    "time": 44
-                },
-                {
-                    "number": 10,
-                    "animal": "bear",
-                    "image": "images/animals/bear.png",
-                    "time": 48
-                }
-            ],
-            "text": [
-                {
-                    "line": "Let's count to 10! Ready?",
-                    "duration": 6
-                },
-                {
-                    "line": "Watch and count with Benny!",
-                    "duration": 8
-                }
-            ]
-        },
+  "type": "counting",
+  "title": "Count the Animals!",
+  "video": "day1-test.mp4",
+  "music": "focus-loop.mp3",
+  "items": [
+    {
+      "image": "images/animals/cat.png",
+      "label": "Cat",
+      "number": 3  
+    },
+    {
+      "image": "images/animals/dog.png",
+      "label": "Dog",
+      "number": 2
+    }
+  ],
+  "successSticker": 5,
+  "rewardType": "star",
+  "onCorrect": "You counted perfectly!"
+},
+
         {
             "type": "animals",
             "avatar": "momo",

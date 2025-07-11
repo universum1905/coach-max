@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 2; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -805,7 +805,7 @@ document.body.appendChild(btn);
   }
 
   // ===== 3. COUNTING =====
-  else if (s.type === "counting") {
+  else if (s.type === "countingold") {
   clearTimeouts();
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
@@ -1004,6 +1004,231 @@ textArea.appendChild(yesBtn);
 }
   }
 
+else if (s.type === "counting") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(el => el.remove());
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
+
+  // 1. Überschrift
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Counting Time!";
+  heading.style.textAlign = "center";
+  textArea.appendChild(heading);
+
+  // 2. Video wie gehabt
+  let videoBox, video;
+  if (s.video) {
+    video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "22px";
+    videoBox.style.bottom = "65px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    // Play-Button Overlay
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+      showCountingGame();
+    });
+  } else {
+    showCountingGame();
+  }
+
+  // 3. Zähl-Game (Drag & Drop)
+  function showCountingGame() {
+    textArea.innerHTML = ""; // vorherigen Text löschen
+    const instr = document.createElement('div');
+    instr.textContent = "Drag the right number to the animal!";
+    instr.style.fontSize = "1.2rem";
+    instr.style.margin = "0 0 14px 0";
+    textArea.appendChild(instr);
+
+    // Für Mobilfreundlichkeit: vertikales Flex-Layout
+    const gameBox = document.createElement('div');
+    gameBox.style.display = "flex";
+    gameBox.style.flexDirection = "column";
+    gameBox.style.alignItems = "center";
+    gameBox.style.justifyContent = "center";
+    gameBox.style.gap = "22px";
+    gameBox.style.width = "100%";
+    textArea.appendChild(gameBox);
+
+    // Für jede Aufgabe ein eigenes Drag & Drop-Set
+    let currentItem = 0;
+    function showItem(idx) {
+      gameBox.innerHTML = ""; // vorherige Aufgabe entfernen
+
+      const item = s.items[idx];
+      const animalImg = document.createElement('img');
+      animalImg.src = item.image;
+      animalImg.alt = item.label || "Animal";
+      animalImg.style.width = "100px";
+      animalImg.style.height = "100px";
+      animalImg.style.objectFit = "contain";
+      animalImg.style.marginBottom = "8px";
+      animalImg.style.borderRadius = "18px";
+      animalImg.style.boxShadow = "0 2px 14px #ffd54f88";
+      animalImg.draggable = false;
+
+      const dropZone = document.createElement('div');
+      dropZone.className = "drop-zone";
+      dropZone.style.width = "130px";
+      dropZone.style.height = "38px";
+      dropZone.style.margin = "0 auto 16px auto";
+      dropZone.style.background = "#fffbe6";
+      dropZone.style.border = "2.5px dashed #ffd54f";
+      dropZone.style.borderRadius = "14px";
+      dropZone.style.display = "flex";
+      dropZone.style.alignItems = "center";
+      dropZone.style.justifyContent = "center";
+      dropZone.style.fontSize = "1.7rem";
+      dropZone.style.color = "#aaa";
+      dropZone.innerText = "Drop number here";
+
+      // Numbers to drag (1–5), gemischt
+      const numbers = [item.number];
+      while (numbers.length < 3) {
+        let n = Math.floor(Math.random() * 5) + 1;
+        if (!numbers.includes(n)) numbers.push(n);
+      }
+      numbers.sort(() => Math.random() - 0.5);
+
+      // Number-Buttons (draggable/touch)
+      const numBox = document.createElement('div');
+      numBox.style.display = "flex";
+      numBox.style.gap = "18px";
+      numBox.style.justifyContent = "center";
+      numBox.style.marginTop = "10px";
+      numbers.forEach(num => {
+        const btn = document.createElement('div');
+        btn.className = "draggable-number";
+        btn.textContent = num;
+        btn.style.width = "56px";
+        btn.style.height = "56px";
+        btn.style.background = "#e3f2fd";
+        btn.style.borderRadius = "13px";
+        btn.style.display = "flex";
+        btn.style.alignItems = "center";
+        btn.style.justifyContent = "center";
+        btn.style.fontWeight = "bold";
+        btn.style.fontSize = "2rem";
+        btn.style.boxShadow = "0 2px 10px #81d4fa88";
+        btn.style.cursor = "grab";
+        btn.setAttribute("draggable", "true");
+        btn.ontouchstart = (e) => { btn.dataset.dragging = "true"; };
+        btn.ontouchend = (e) => { btn.dataset.dragging = "false"; };
+        btn.ondragstart = (e) => { e.dataTransfer.setData("text/plain", num); btn.style.opacity = "0.4"; };
+        btn.ondragend = (e) => { btn.style.opacity = "1"; };
+        btn.addEventListener("touchmove", (e) => {
+          e.preventDefault();
+          let touch = e.targetTouches[0];
+          btn.style.position = "fixed";
+          btn.style.left = (touch.clientX - 28) + "px";
+          btn.style.top = (touch.clientY - 28) + "px";
+        });
+        btn.addEventListener("touchend", (e) => {
+          btn.style.position = "";
+          btn.style.left = "";
+          btn.style.top = "";
+        });
+        numBox.appendChild(btn);
+      });
+
+      // Drop-Zone Drag/Drop Events
+      dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.background = "#ffe082"; };
+      dropZone.ondragleave = (e) => { dropZone.style.background = "#fffbe6"; };
+      dropZone.ondrop = (e) => {
+        e.preventDefault();
+        dropZone.style.background = "#fffbe6";
+        let val = parseInt(e.dataTransfer.getData("text/plain"));
+        handleDrop(val);
+      };
+      // Touch (vereinfachte Variante)
+      dropZone.ontouchstart = (e) => e.preventDefault();
+      dropZone.ontouchend = (e) => {
+        let dragging = document.querySelector(".draggable-number[data-dragging='true']");
+        if (dragging) {
+          handleDrop(parseInt(dragging.textContent));
+        }
+      };
+
+      // Erfolg/Fehler auswerten
+      function handleDrop(val) {
+        if (val === item.number) {
+          dropZone.innerText = `✔️ ${val}`;
+          dropZone.style.background = "#c8e6c9";
+          dropZone.style.color = "#388e3c";
+          animalImg.style.filter = "drop-shadow(0 0 22px #ffeb3b)";
+          setTimeout(() => {
+            if (currentItem < s.items.length - 1) {
+              currentItem++;
+              showItem(currentItem);
+            } else {
+              showUniversalRewardFromSession(s);
+            }
+          }, 850);
+        } else {
+          dropZone.innerText = `❌`;
+          dropZone.style.background = "#ffcdd2";
+          dropZone.style.color = "#d32f2f";
+          setTimeout(() => {
+            dropZone.innerText = "Drop number here";
+            dropZone.style.background = "#fffbe6";
+            dropZone.style.color = "#aaa";
+          }, 900);
+        }
+      }
+
+      // Anordnung
+      gameBox.appendChild(animalImg);
+      gameBox.appendChild(dropZone);
+      gameBox.appendChild(numBox);
+    }
+
+    // Starte bei erstem Item
+    showItem(0);
+  }
+}
 
 
 
