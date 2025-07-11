@@ -37,7 +37,7 @@
     {
       "pattern": ["🐶", "🐱", "🐶", "🐱", "?"],
       "question": "What comes next?",
-      "answers": ["🐭", "🐱", "🐰"],
+      "answers": ["🐭", "🐶", "🐰"],
       "correct": 1,
       "onCorrect": "You got it! Cat is correct.",
       "onWrong": "Try again!"
