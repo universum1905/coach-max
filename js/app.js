@@ -1843,7 +1843,7 @@ if (shadowMusic) {
 
   
 // ==== Modul: ANIMALS ====
- else if (s.type === "animals") {
+ else if (s.type === "animalsold") {
   // Grund-Setup & Cleanup
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
@@ -2029,6 +2029,221 @@ if (shadowMusic) {
  }
 
 
+else if (s.type === "animals") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(el => el.remove());
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
+
+  // Überschrift bleibt immer oben
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Guess the Animal!";
+  heading.style.textAlign = "center";
+  heading.style.margin = "18px 0 8px 0";
+  heading.style.fontSize = "2.2rem";
+  textArea.appendChild(heading);
+
+  // Fester Wrapper für Zentrierung
+  const mainWrap = document.createElement('div');
+  mainWrap.style.display = "flex";
+  mainWrap.style.flexDirection = "column";
+  mainWrap.style.justifyContent = "center";
+  mainWrap.style.alignItems = "center";
+  mainWrap.style.minHeight = "55vh";
+  mainWrap.style.width = "100%";
+  textArea.appendChild(mainWrap);
+
+  // Musik abspielen (aus JSON)
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.17;
+    sessionMusic.play();
+    document.addEventListener("visibilitychange", function musicPauseHandler() {
+      if (document.hidden && sessionMusic) sessionMusic.pause();
+      else if (!document.hidden && sessionMusic) sessionMusic.play();
+    });
+    window.addEventListener("pagehide", function() {
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    });
+  }
+
+  // Video unten rechts (wie immer)
+  let videoBox, video;
+  if (s.video) {
+    video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+      showAnimalsGame();
+    });
+  } else {
+    showAnimalsGame();
+  }
+
+  // Zeitsteuerung (minDuration aus JSON, Default 60s)
+  const sessionStart = Date.now();
+  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+  const pauseBetweenAnimals = s.pauseBetweenAnimals || 1800; // Millisekunden (1.8s Standard)
+
+  // Mehrere Tiere pro Session
+  let currentItem = 0;
+
+  function showAnimalsGame() {
+    mainWrap.innerHTML = "";
+
+    function showAnimal(idx) {
+      mainWrap.innerHTML = "";
+
+      const animal = s.items[idx];
+
+      // Tiergeräusch abspielen (optional)
+      if (animal.sound) {
+        const sound = new Audio(animal.sound);
+        sound.play();
+      }
+
+      // Hinweis-Text
+      const hints = Array.isArray(animal.hints) ? animal.hints : [animal.hints];
+      hints.forEach(hint => {
+        const p = document.createElement('div');
+        p.className = "animated-text";
+        p.textContent = hint;
+        p.style.textAlign = "center";
+        p.style.fontSize = "1.13rem";
+        p.style.margin = "0 0 6px 0";
+        p.style.color = "#444";
+        mainWrap.appendChild(p);
+      });
+
+      // Auswahlmöglichkeiten als Buttons oder Bilder
+      const choicesBox = document.createElement('div');
+      choicesBox.style.display = "flex";
+      choicesBox.style.justifyContent = "center";
+      choicesBox.style.gap = "18px";
+      choicesBox.style.margin = "18px 0 0 0";
+      mainWrap.appendChild(choicesBox);
+
+      animal.choices.forEach((img, i) => {
+        const btn = document.createElement('button');
+        btn.innerHTML = `<img src="${img}" alt="choice" style="width:72px;height:72px;border-radius:12px;">`;
+        btn.style.border = "none";
+        btn.style.background = "#fffbe6";
+        btn.style.borderRadius = "13px";
+        btn.style.boxShadow = "0 2px 10px #81d4fa88";
+        btn.style.cursor = "pointer";
+        btn.onclick = () => handleChoice(btn, i, animal.correct, img);
+        choicesBox.appendChild(btn);
+      });
+
+      function handleChoice(btn, i, correctIdx, imgSrc) {
+        new Audio(`audio/${i === correctIdx ? "yay.mp3" : "fail.mp3"}`).play();
+
+        if (i === correctIdx) {
+          // Richtige Antwort
+          Array.from(choicesBox.children).forEach(b => { if (b !== btn) b.style.opacity = "0.4"; });
+          btn.style.border = "3px solid #43a047";
+          btn.style.background = "#c8e6c9";
+          btn.disabled = true;
+
+          // Nächste Aufgabe oder Belohnung
+          if (currentItem < s.items.length - 1) {
+            const nextMsg = document.createElement("div");
+            nextMsg.textContent = "Great! Here comes the next animal...";
+            nextMsg.style.textAlign = "center";
+            nextMsg.style.color = "#43a047";
+            nextMsg.style.fontSize = "1.12rem";
+            nextMsg.style.fontWeight = "bold";
+            nextMsg.style.margin = "14px 0 2px 0";
+            mainWrap.appendChild(nextMsg);
+
+            setTimeout(() => {
+              nextMsg.remove();
+              currentItem++;
+              showAnimal(currentItem);
+            }, pauseBetweenAnimals);
+          } else {
+            if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+            // Zeitsteuerung aktiv
+            const elapsed = (Date.now() - sessionStart) / 1000;
+            if (elapsed >= minDuration) {
+              showUniversalRewardFromSession(s);
+            } else {
+              const waitTime = Math.ceil(minDuration - elapsed);
+              const waitMsg = document.createElement("div");
+              waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
+              waitMsg.style.textAlign = "center";
+              waitMsg.style.fontSize = "1.1rem";
+              waitMsg.style.marginTop = "15px";
+              mainWrap.appendChild(waitMsg);
+              setTimeout(() => {
+                waitMsg.remove();
+                showUniversalRewardFromSession(s);
+              }, waitTime * 1000);
+            }
+          }
+        } else {
+          // Falsche Antwort
+          btn.style.border = "3px solid #d32f2f";
+          btn.style.background = "#ffcdd2";
+          btn.disabled = true;
+          setTimeout(() => {
+            btn.style.border = "none";
+            btn.style.background = "#fffbe6";
+            btn.disabled = false;
+          }, 900);
+        }
+      }
+    }
+
+    showAnimal(currentItem);
+  }
+}
 
 
 
