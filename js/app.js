@@ -2499,21 +2499,11 @@ else if (s.type === "rhyme") {
   // Überschrift immer oben, groß
   const heading = document.createElement("h2");
   heading.className = "session-heading";
-  heading.textContent = s.title || "Find the Rhyme!";
+  heading.textContent = s.title || "Find the Rhymes!";
   heading.style.textAlign = "center";
   heading.style.margin = "18px 0 8px 0";
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
-
-  // Hauptbereich für alles andere
-  const mainWrap = document.createElement('div');
-  mainWrap.style.display = "flex";
-  mainWrap.style.flexDirection = "column";
-  mainWrap.style.justifyContent = "center";
-  mainWrap.style.alignItems = "center";
-  mainWrap.style.minHeight = "54vh";
-  mainWrap.style.width = "100%";
-  textArea.appendChild(mainWrap);
 
   // Musik abspielen (aus JSON)
   let sessionMusic = null;
@@ -2586,18 +2576,30 @@ else if (s.type === "rhyme") {
     showRhymeQuestion();
   }
 
-  // Zeitsteuerung (minDuration aus JSON, Default 60s)
+  // Multi-Question-Support
+  const questions = Array.isArray(s.questions) ? s.questions : [];
+  let qIdx = 0;
   const sessionStart = Date.now();
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
-  const pauseAfterCorrect = s.pauseAfterCorrect || 1800; // Pause nach richtiger Antwort in ms
+  const pauseAfterCorrect = s.pauseAfterCorrect || 1700;
 
   function showRhymeQuestion() {
-    mainWrap.innerHTML = "";
+    textArea.querySelectorAll(".mainWrapRhyme, .rhyme-feedback").forEach(e => e.remove());
+    const mainWrap = document.createElement('div');
+    mainWrap.className = "mainWrapRhyme";
+    mainWrap.style.display = "flex";
+    mainWrap.style.flexDirection = "column";
+    mainWrap.style.justifyContent = "center";
+    mainWrap.style.alignItems = "center";
+    mainWrap.style.minHeight = "54vh";
+    mainWrap.style.width = "100%";
+    textArea.appendChild(mainWrap);
 
     // Frage
+    const currentQ = questions[qIdx];
     const questionDiv = document.createElement("div");
     questionDiv.className = "animated-text";
-    questionDiv.textContent = s.question || "What rhymes with ...?";
+    questionDiv.textContent = currentQ.question || "What rhymes with ...?";
     questionDiv.style.textAlign = "center";
     questionDiv.style.fontSize = "1.27rem";
     questionDiv.style.margin = "0 0 17px 0";
@@ -2613,7 +2615,7 @@ else if (s.type === "rhyme") {
     choicesBox.style.margin = "15px 0 0 0";
     mainWrap.appendChild(choicesBox);
 
-    s.choices.forEach((word, i) => {
+    currentQ.choices.forEach((word, i) => {
       const btn = document.createElement("button");
       btn.textContent = word;
       btn.style.border = "none";
@@ -2649,11 +2651,11 @@ else if (s.type === "rhyme") {
   }
 
   function handleChoice(btn, i) {
-    // Feedback-Sound
-    new Audio(`audio/${i === s.correct ? "yay.mp3" : "fail.mp3"}`).play();
+    const currentQ = questions[qIdx];
+    new Audio(`audio/${i === currentQ.correct ? "yay.mp3" : "fail.mp3"}`).play();
 
     // vorheriges Feedback entfernen
-    const prev = mainWrap.querySelector(".rhyme-feedback");
+    const prev = textArea.querySelector(".rhyme-feedback");
     if (prev) prev.remove();
 
     // Feedback-Element
@@ -2664,7 +2666,7 @@ else if (s.type === "rhyme") {
     feedback.style.fontWeight = "bold";
     feedback.style.fontSize = "1.13rem";
 
-    if (i === s.correct) {
+    if (i === currentQ.correct) {
       // Antwort-Buttons deaktivieren und animieren
       Array.from(btn.parentNode.children).forEach((b, idx) => {
         if (b !== btn) b.style.opacity = "0.5";
@@ -2674,28 +2676,29 @@ else if (s.type === "rhyme") {
       btn.style.transform = "scale(1.18)";
       setTimeout(() => btn.style.transform = "scale(1)", 180);
 
-      feedback.textContent = s.onCorrect || "Great! That's the rhyme!";
+      feedback.textContent = currentQ.onCorrect || "Great! That's the rhyme!";
       feedback.style.color = "#388e3c";
-      mainWrap.appendChild(feedback);
+      textArea.appendChild(feedback);
 
       setTimeout(() => {
-        if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-        // Zeitsteuerung aktiv
-        const elapsed = (Date.now() - sessionStart) / 1000;
-        if (elapsed >= minDuration) {
-          showUniversalRewardFromSession(s);
+        qIdx++;
+        if (qIdx < questions.length) {
+          // Next question message
+          feedback.textContent = "Next question loading...";
+          setTimeout(showRhymeQuestion, 1200);
         } else {
-          const waitTime = Math.ceil(minDuration - elapsed);
-          const waitMsg = document.createElement("div");
-          waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
-          waitMsg.style.textAlign = "center";
-          waitMsg.style.fontSize = "1.1rem";
-          waitMsg.style.marginTop = "13px";
-          mainWrap.appendChild(waitMsg);
-          setTimeout(() => {
-            waitMsg.remove();
+          // Session vorbei – auf minDuration warten
+          if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+          const elapsed = (Date.now() - sessionStart) / 1000;
+          if (elapsed >= minDuration) {
             showUniversalRewardFromSession(s);
-          }, waitTime * 1000);
+          } else {
+            const waitTime = Math.ceil(minDuration - elapsed);
+            feedback.textContent = `⏳ Please wait ${waitTime}s...`;
+            setTimeout(() => {
+              showUniversalRewardFromSession(s);
+            }, waitTime * 1000);
+          }
         }
       }, pauseAfterCorrect);
       return;
@@ -2703,8 +2706,8 @@ else if (s.type === "rhyme") {
 
     // Falsch-Logik (Feedback anzeigen)
     feedback.style.color = "#d32f2f";
-    feedback.textContent = s.onWrong || "Oops, that's not right. Try again!";
-    mainWrap.appendChild(feedback);
+    feedback.textContent = currentQ.onWrong || "Oops, that's not right. Try again!";
+    textArea.appendChild(feedback);
 
     btn.classList.add("shake");
     setTimeout(() => btn.classList.remove("shake"), 650);
@@ -2857,7 +2860,7 @@ else if (s.type === "rhyme") {
 
   
 // ==== Modul: PATTERN ====
- else if (s.type === "pattern") {
+ else if (s.type === "patternold") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -3054,6 +3057,276 @@ else if (s.type === "rhyme") {
   }, 1500);
 }
  }
+
+
+else if (s.type === "pattern") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(el => el.remove());
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
+
+  // Überschrift
+  const heading = document.createElement("h2");
+  heading.className = "session-heading";
+  heading.textContent = s.title || "What comes next?";
+  heading.style.textAlign = "center";
+  heading.style.margin = "18px 0 8px 0";
+  heading.style.fontSize = "2.2rem";
+  textArea.appendChild(heading);
+
+  // Hauptbereich
+  const mainWrap = document.createElement('div');
+  mainWrap.style.display = "flex";
+  mainWrap.style.flexDirection = "column";
+  mainWrap.style.justifyContent = "center";
+  mainWrap.style.alignItems = "center";
+  mainWrap.style.minHeight = "54vh";
+  mainWrap.style.width = "100%";
+  textArea.appendChild(mainWrap);
+
+  // Musik abspielen (aus JSON)
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.15;
+    sessionMusic.play();
+    document.addEventListener("visibilitychange", function musicPauseHandler() {
+      if (document.hidden && sessionMusic) sessionMusic.pause();
+      else if (!document.hidden && sessionMusic) sessionMusic.play();
+    });
+    window.addEventListener("pagehide", function() {
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    });
+  }
+
+  // Video unten rechts
+  let videoBox, video;
+  if (s.video) {
+    video = document.createElement("video");
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+      showPatternQuestion();
+    });
+  } else {
+    showPatternQuestion();
+  }
+
+  // Fragen & Zeitsteuerung
+  const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
+  let taskIdx = 0;
+  const sessionStart = Date.now();
+  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+  const pauseAfterCorrect = s.pauseAfterCorrect || 1600;
+
+  function showPatternQuestion() {
+    mainWrap.innerHTML = "";
+
+    // Pattern anzeigen (als bunte Boxen/Symbole/Zahlen/Bilder)
+    const patternRow = document.createElement("div");
+    patternRow.style.display = "flex";
+    patternRow.style.justifyContent = "center";
+    patternRow.style.gap = "14px";
+    patternRow.style.margin = "16px 0 7px 0";
+    patternRow.style.flexWrap = "wrap";
+    patternRow.style.fontSize = "2.1rem";
+    patternRow.style.fontWeight = "bold";
+    patternRow.style.overflowX = "auto";
+    patternRow.style.padding = "0 10px";
+
+    const pattern = tasks[taskIdx].pattern || [];
+    pattern.forEach(item => {
+      const el = document.createElement("div");
+      el.style.minWidth = "48px";
+      el.style.minHeight = "46px";
+      el.style.background = (item === "?" ? "#ffd54f" : "#fffbe6");
+      el.style.margin = "0 2.5px";
+      el.style.borderRadius = "14px";
+      el.style.boxShadow = "0 2px 8px #b2dfdb99";
+      el.style.display = "flex";
+      el.style.justifyContent = "center";
+      el.style.alignItems = "center";
+      el.style.fontSize = "2.1rem";
+      el.textContent = item;
+      patternRow.appendChild(el);
+    });
+    mainWrap.appendChild(patternRow);
+
+    // Frage
+    const questionDiv = document.createElement("div");
+    questionDiv.className = "animated-text";
+    questionDiv.textContent = tasks[taskIdx].question || "What comes next in the pattern?";
+    questionDiv.style.textAlign = "center";
+    questionDiv.style.fontSize = "1.15rem";
+    questionDiv.style.margin = "12px 0 11px 0";
+    questionDiv.style.fontWeight = "bold";
+    mainWrap.appendChild(questionDiv);
+
+    // Antwortmöglichkeiten
+    const answersBox = document.createElement("div");
+    answersBox.style.display = "flex";
+    answersBox.style.justifyContent = "center";
+    answersBox.style.gap = "16px";
+    answersBox.style.flexWrap = "wrap";
+    answersBox.style.margin = "8px 0 0 0";
+    answersBox.style.padding = "0 8px";
+    mainWrap.appendChild(answersBox);
+
+    (tasks[taskIdx].answers || []).forEach((ans, i) => {
+      const btn = document.createElement("button");
+      btn.style.border = "none";
+      btn.style.background = "#fffbe6";
+      btn.style.fontSize = "1.5rem";
+      btn.style.fontWeight = "bold";
+      btn.style.padding = "0.92em 1.44em";
+      btn.style.borderRadius = "18px";
+      btn.style.boxShadow = "0 2px 10px #81d4fa88";
+      btn.style.cursor = "pointer";
+      btn.style.margin = "4px 0";
+      btn.style.minWidth = "88px";
+      btn.style.transition = "all 0.2s";
+      btn.classList.add("bounce-glow");
+      btn.textContent = ans;
+      btn.onclick = () => handleAnswer(btn, i);
+      answersBox.appendChild(btn);
+    });
+
+    // Bonus-Animation: Button-Bounce
+    if (!document.getElementById("pattern-btn-bounce-style")) {
+      const style = document.createElement('style');
+      style.id = "pattern-btn-bounce-style";
+      style.innerHTML = `
+        .bounce-glow {
+          animation: bounceBtn 1.24s infinite alternate;
+        }
+        @keyframes bounceBtn {
+          0% { box-shadow: 0 2px 10px #81d4fa88; transform: scale(1);}
+          65%{ box-shadow: 0 7px 30px #ffd54f77; transform: scale(1.11);}
+          100%{box-shadow: 0 2px 10px #81d4fa88; transform: scale(1);}
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
+  function handleAnswer(btn, i) {
+    const currentTask = tasks[taskIdx];
+    new Audio(`audio/${i === currentTask.correct ? "yay.mp3" : "fail.mp3"}`).play();
+
+    // Feedback-Element
+    let feedback = mainWrap.querySelector(".pattern-feedback");
+    if (!feedback) {
+      feedback = document.createElement("div");
+      feedback.className = "animated-text pattern-feedback";
+      feedback.style.textAlign = "center";
+      feedback.style.marginTop = "15px";
+      feedback.style.fontWeight = "bold";
+      feedback.style.fontSize = "1.13rem";
+      mainWrap.appendChild(feedback);
+    }
+
+    if (i === currentTask.correct) {
+      // Buttons deaktivieren
+      Array.from(btn.parentNode.children).forEach((b, idx) => {
+        if (b !== btn) b.style.opacity = "0.5";
+        b.disabled = true;
+      });
+      btn.style.background = "#b2dfdb";
+      btn.style.transform = "scale(1.13)";
+      setTimeout(() => btn.style.transform = "scale(1)", 150);
+
+      feedback.textContent = currentTask.onCorrect || "Great job! You found the pattern!";
+      feedback.style.color = "#388e3c";
+
+      setTimeout(() => {
+        // Nächste Frage oder Abschluss
+        taskIdx++;
+        if (taskIdx < tasks.length) {
+          mainWrap.innerHTML = "";
+          // Nachricht "Next question..."
+          const waitMsg = document.createElement("div");
+          waitMsg.textContent = "Next question loading...";
+          waitMsg.style.textAlign = "center";
+          waitMsg.style.fontSize = "1.18rem";
+          waitMsg.style.margin = "13px";
+          mainWrap.appendChild(waitMsg);
+          setTimeout(showPatternQuestion, 1200);
+        } else {
+          // Session vorbei – auf minDuration warten
+          if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+          const elapsed = (Date.now() - sessionStart) / 1000;
+          if (elapsed >= minDuration) {
+            showUniversalRewardFromSession(s);
+          } else {
+            const waitTime = Math.ceil(minDuration - elapsed);
+            const waitMsg = document.createElement("div");
+            waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
+            waitMsg.style.textAlign = "center";
+            waitMsg.style.fontSize = "1.1rem";
+            waitMsg.style.marginTop = "13px";
+            mainWrap.appendChild(waitMsg);
+            setTimeout(() => {
+              waitMsg.remove();
+              showUniversalRewardFromSession(s);
+            }, waitTime * 1000);
+          }
+        }
+      }, pauseAfterCorrect);
+    } else {
+      feedback.style.color = "#d32f2f";
+      feedback.textContent = currentTask.onWrong || "Oops, that's not right. Try again!";
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 650);
+      setTimeout(() => {
+        if (feedback.parentNode) feedback.remove();
+      }, 1400);
+    }
+  }
+}
 
 
 
