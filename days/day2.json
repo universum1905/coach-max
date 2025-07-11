@@ -34,7 +34,9 @@
     "images/animals/bear.png"
   ],
   "correct": 1,
-  "successSticker": 0
+  "successSticker": 0,
+  "rewardType": "star",
+  "onCorrect": "Super memory skills!"
 },
 
 {

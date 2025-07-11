@@ -1320,27 +1320,12 @@ if (shadowMusic) {
   }
 
   // UNIVERSAL REWARD CONTAINER wie überall sonst:
-  showUniversalReward(
-    s.choices[i],               // Das richtige Bild
-    s.onCorrect || "",          // Richtiger Text (optional)
-    null,                       // Callback (Next wird universell erzeugt)
-    s.successSticker || 0       // Sticker-Index, falls definiert
-  );
-  return;
-} else {
-    // ---- HIER DIESEN CODE EINBAUEN: ----
-    btn.style.border = "2px solid #d32f2f";
-    feedback.textContent = s.onWrong || "Oops, that's not right. Try again!";
-    feedback.style.color = "#d32f2f";
-    textArea.appendChild(feedback);
-    btn.classList.add("shake");
-    setTimeout(() => btn.classList.remove("shake"), 600);
-    setTimeout(() => {
-      if (feedback.parentNode) feedback.remove();
-      btn.style.border = "2px solid #ffd54f";
-    }, 1500);
-  }
-}
+  showUniversalRewardFromSession(s, () => {
+  currentSession++;
+  renderSession(currentSession);
+});
+	  }
+	}
   }
  }
 
