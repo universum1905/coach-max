@@ -41,32 +41,27 @@
             "animation": "welcome_rainbow"
         },
         {
-            "type": "memory",
-            "avatar": "momo",
-            "music": "focus-loop.mp3",
-            "video": "day1-memory.mp4",
-            "cards": [
-                {
-                    "img": "images/animals/cat.png",
-                    "pairId": 1
-                },
-                {
-                    "img": "images/animals/cat.png",
-                    "pairId": 1
-                },
-                {
-                    "img": "images/animals/lion.png",
-                    "pairId": 2
-                },
-                {
-                    "img": "images/animals/lion.png",
-                    "pairId": 2
-                }
-            ],
-            "successSticker": 0,
-			"rewardType": "star",
-  "onCorrect": "Super memory skills!"
-        },
+  "type": "memory",
+  "title": "Memory Game!",
+  "video": "day1-memory.mp4",
+  "music": "focus-loop.mp3",
+  "minDuration": 60,
+  "pauseBetweenPairs": 1800,
+  "cards": [
+    { "img": "images/animals/cat.png",   "pairId": 1 },
+    { "img": "images/animals/cat.png",   "pairId": 1 },
+    { "img": "images/animals/dog.png",   "pairId": 2 },
+    { "img": "images/animals/dog.png",   "pairId": 2 },
+    { "img": "images/animals/lion.png",  "pairId": 3 },
+    { "img": "images/animals/lion.png",  "pairId": 3 },
+    { "img": "images/animals/fox.png",   "pairId": 4 },
+    { "img": "images/animals/fox.png",   "pairId": 4 }
+  ],
+  "successSticker": 2,
+  "rewardType": "star",
+  "onCorrect": "You found all the pairs!"
+},
+
         {
   "type": "counting",
   "title": "Counting Time!",

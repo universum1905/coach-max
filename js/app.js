@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 2; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -1289,7 +1289,7 @@ else if (s.type === "counting") {
 
 
 // ==== 4. NEUES MODUL: MEMORY ====
-   else if (s.type === "memory") {
+   else if (s.type === "memoryold") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn, .memory-reward-container").forEach(el => el.remove());
@@ -1464,6 +1464,239 @@ else if (s.type === "counting") {
   });
 }
    }
+
+else if (s.type === "memory") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(el => el.remove());
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
+
+  // Überschrift bleibt immer oben
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Memory Game!";
+  heading.style.textAlign = "center";
+  heading.style.margin = "18px 0 8px 0";
+  heading.style.fontSize = "2.2rem";
+  textArea.appendChild(heading);
+
+  // Fester Wrapper für Zentrierung
+  const mainWrap = document.createElement('div');
+  mainWrap.style.display = "flex";
+  mainWrap.style.flexDirection = "column";
+  mainWrap.style.justifyContent = "center";
+  mainWrap.style.alignItems = "center";
+  mainWrap.style.minHeight = "55vh";
+  mainWrap.style.width = "100%";
+  textArea.appendChild(mainWrap);
+
+  // Musik abspielen (aus JSON)
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.18;
+    sessionMusic.play();
+    document.addEventListener("visibilitychange", function memoryMusicPauseHandler() {
+      if (document.hidden && sessionMusic) sessionMusic.pause();
+      else if (!document.hidden && sessionMusic) sessionMusic.play();
+    });
+    window.addEventListener("pagehide", function() {
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    });
+  }
+
+  // Video unten rechts (wie immer)
+  let videoBox, video;
+  if (s.video) {
+    video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+      startMemoryGame();
+    });
+  } else {
+    startMemoryGame();
+  }
+
+  // Zeitsteuerung (minDuration aus JSON, Default 60s)
+  const sessionStart = Date.now();
+  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+  const pauseBetweenPairs = s.pauseBetweenPairs || 1800; // Millisekunden (1.8s Standard)
+
+  // Das eigentliche Memory-Game
+  function startMemoryGame() {
+    mainWrap.innerHTML = "";
+
+    const instr = document.createElement('div');
+    instr.textContent = "Find all the matching pairs!";
+    instr.style.fontSize = "1.15rem";
+    instr.style.margin = "0 0 17px 0";
+    instr.style.textAlign = "center";
+    instr.style.color = "#444";
+    mainWrap.appendChild(instr);
+
+    // Spielfeld
+    const boardWrapper = document.createElement('div');
+    boardWrapper.style.display = "flex";
+    boardWrapper.style.justifyContent = "center";
+    boardWrapper.style.alignItems = "center";
+    boardWrapper.style.width = "100%";
+    boardWrapper.style.margin = "12px 0";
+
+    const board = document.createElement('div');
+    const totalCards = s.cards.length;
+    let columns = 2;
+    if (totalCards === 4) columns = 2;
+    else if (totalCards === 6) columns = 3;
+    else if (totalCards === 8) columns = 4;
+    else if (totalCards === 12) columns = 4;
+    else if (totalCards === 16) columns = 4;
+    else if (totalCards === 20) columns = 5;
+    else if (totalCards === 24) columns = 6;
+    else columns = Math.ceil(Math.sqrt(totalCards));
+
+    board.style.display = "grid";
+    board.style.gridTemplateColumns = `repeat(${columns}, 62px)`;
+    board.style.gap = "14px";
+    boardWrapper.appendChild(board);
+    mainWrap.appendChild(boardWrapper);
+
+    // Shuffle cards
+    const shuffled = s.cards.slice().sort(() => Math.random() - 0.5);
+    let opened = [], matched = [];
+    let isBlocked = false;
+
+    shuffled.forEach((card, idx) => {
+      const btn = document.createElement('button');
+      btn.style.width = "62px";
+      btn.style.height = "62px";
+      btn.style.borderRadius = "16px";
+      btn.style.background = "#fffbe6";
+      btn.style.border = "2px solid #b2dfdb";
+      btn.style.boxShadow = "0 2px 8px #81d4fa88";
+      btn.style.fontSize = "2.2rem";
+      btn.style.cursor = "pointer";
+      btn.dataset.pair = card.pairId;
+      btn.dataset.idx = idx;
+      btn.innerHTML = `<span style="font-size:2.5rem;">❓</span>`; // Hidden
+
+      btn.onclick = function () {
+        if (btn.classList.contains("matched") || btn === opened[0] || isBlocked) return;
+        btn.innerHTML = `<img src="${card.img}" alt="card" style="width:48px;height:48px;">`;
+        opened.push(btn);
+
+        if (opened.length === 2) {
+          isBlocked = true;
+          if (opened[0].dataset.pair === opened[1].dataset.pair) {
+            // Correct!
+            opened[0].classList.add("matched");
+            opened[1].classList.add("matched");
+            matched.push(opened[0], opened[1]);
+            setTimeout(() => {
+              opened.forEach(el => el.innerHTML += "<span style='color:#43a047;font-size:1.4em;position:absolute;top:6px;right:10px;'>✔️</span>");
+            }, 120);
+            // Animation und Sound
+            new Audio("audio/yay.mp3").play();
+            setTimeout(() => {
+              opened = [];
+              isBlocked = false;
+              // Optional kurze Pause vor nächstem Zug (mehr Flow):
+              if (matched.length < shuffled.length) {
+                const msg = document.createElement("div");
+                msg.textContent = "Great! Next pair...";
+                msg.style.textAlign = "center";
+                msg.style.color = "#43a047";
+                msg.style.fontSize = "1.12rem";
+                msg.style.fontWeight = "bold";
+                msg.style.margin = "8px 0 2px 0";
+                mainWrap.appendChild(msg);
+                setTimeout(() => { msg.remove(); }, pauseBetweenPairs);
+              }
+            }, pauseBetweenPairs);
+            // Komplett fertig
+            if (matched.length + 2 === shuffled.length) {
+              setTimeout(() => {
+                if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+                // Zeitsteuerung aktiv
+                const elapsed = (Date.now() - sessionStart) / 1000;
+                if (elapsed >= minDuration) {
+                  showUniversalRewardFromSession(s);
+                } else {
+                  const waitTime = Math.ceil(minDuration - elapsed);
+                  const waitMsg = document.createElement("div");
+                  waitMsg.textContent = `⏳ Please wait ${waitTime}s...`;
+                  waitMsg.style.textAlign = "center";
+                  waitMsg.style.fontSize = "1.1rem";
+                  waitMsg.style.marginTop = "15px";
+                  mainWrap.appendChild(waitMsg);
+                  setTimeout(() => {
+                    waitMsg.remove();
+                    showUniversalRewardFromSession(s);
+                  }, waitTime * 1000);
+                }
+              }, pauseBetweenPairs + 600);
+            }
+          } else {
+            // Wrong: kurz zeigen, dann verstecken
+            new Audio("audio/fail.mp3").play();
+            setTimeout(() => {
+              opened[0].innerHTML = `<span style="font-size:2.5rem;">❓</span>`;
+              opened[1].innerHTML = `<span style="font-size:2.5rem;">❓</span>`;
+              opened = [];
+              isBlocked = false;
+            }, 1100);
+          }
+        }
+      };
+      board.appendChild(btn);
+    });
+  }
+}
+
 
 
 
