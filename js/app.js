@@ -1637,7 +1637,39 @@ else if (s.type === "memory") {
             opened[1].classList.add("matched");
             matched.push(opened[0], opened[1]);
             setTimeout(() => {
-              opened.forEach(el => el.innerHTML += "<span style='color:#43a047;font-size:1.4em;position:absolute;top:6px;right:10px;'>✔️</span>");
+              opened.forEach(el => {
+  // Erstelle den Haken als zentriertes Overlay
+  const check = document.createElement("div");
+  check.textContent = "✔️";
+  check.style.position = "absolute";
+  check.style.left = "50%";
+  check.style.top = "50%";
+  check.style.transform = "translate(-50%,-50%) scale(0.4)";
+  check.style.fontSize = "2.7em";
+  check.style.color = "#43a047";
+  check.style.textShadow = "0 2px 12px #fffde7, 0 1px 8px #aeea00aa";
+  check.style.pointerEvents = "none";
+  check.style.zIndex = "10";
+  check.style.opacity = "1";
+  check.style.transition = "opacity 0.7s, transform 0.27s";
+  el.style.position = "relative";
+  el.appendChild(check);
+
+  // Bounce-Animation (Pop)
+  setTimeout(() => {
+    check.style.transform = "translate(-50%,-50%) scale(1.2)";
+  }, 40);
+  setTimeout(() => {
+    check.style.transform = "translate(-50%,-50%) scale(1)";
+  }, 220);
+  // Fade-out nach 1s
+  setTimeout(() => {
+    check.style.opacity = "0";
+    check.style.transform = "translate(-50%,-50%) scale(0.7)";
+    setTimeout(() => check.remove(), 650);
+  }, 950);
+});
+
             }, 120);
             // Animation und Sound
             new Audio("audio/yay.mp3").play();
