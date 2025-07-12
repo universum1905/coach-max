@@ -607,6 +607,30 @@ html, body {
   0%   { filter: brightness(1); }
   100% { filter: brightness(1.16) drop-shadow(0 0 18px #ffd54f88); }
 }
+.main-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.color-circle {
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 16px auto;
+  border-radius: 50%;
+  border: 5px solid #ffd54f;
+  box-shadow: 0 2px 32px #ffd54faa, 0 0 32px #aeea00aa;
+}
+
+.animated-text {
+  text-align: center;
+  font-size: 1.22rem;
+  margin: 0 0 17px 0;
+}
+
 .centered-next-btn {
   display: block;
   margin: 24px auto 0 auto;
