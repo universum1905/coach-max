@@ -5277,54 +5277,70 @@ else if (s.type === "color-sequence") {
     });
   }
 
-  // 4) Video unten rechts
-  if (s.video) {
-    const videoBox = document.createElement("div");
-    Object.assign(videoBox.style, {
-      position: "fixed",
-      right: "14px",
-      bottom: "62px",
-      zIndex: "1000"
-    });
-    const video = document.createElement("video");
-    video.src = "videos/" + s.video;
-    video.playsInline = true;
-    video.style.pointerEvents = "none";
-    video.className = "session-video";
-    videoBox.appendChild(video);
+  // 4) Video unten rechts als kleiner Kreis mit Play-Button
+if (s.video) {
+  const videoBox = document.createElement("div");
+  Object.assign(videoBox.style, {
+    position: "fixed",
+    right: "14px",
+    bottom: "62px",
+    width: "64px",
+    height: "64px",
+    borderRadius: "50%",
+    overflow: "hidden",
+    backgroundColor: "#fffde7",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+    zIndex: "1000"
+  });
 
-    const playBtn = document.createElement("button");
-    playBtn.className = "custom-play-btn";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>`;
-    videoBox.appendChild(playBtn);
+  const video = document.createElement("video");
+  video.src = "videos/" + s.video;
+  video.playsInline = true;
+  video.muted = false;
+  // Versteckt das Video initial
+  video.style.display = "none";
+  // Füllt den Kreiscontainer komplett aus
+  video.style.width  = "100%";
+  video.style.height = "100%";
+  videoBox.appendChild(video);
 
-    playBtn.onclick = () => {
-      video.play();
-      playBtn.style.display = "none";
-      video.style.pointerEvents = "auto";
-    };
+  const playBtn = document.createElement("button");
+  Object.assign(playBtn.style, {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    padding: "0"
+  });
+  playBtn.innerHTML = `
+    <svg width="32" height="32" viewBox="0 0 60 60">
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>`;
+  videoBox.appendChild(playBtn);
 
-    // Erst wenn das Video endet, starten wir die erste Aufgabe
-    video.addEventListener("ended", () => {
-      playBtn.style.display = "";
-      video.style.pointerEvents = "none";
-      if (sessionMusic) {
-        sessionMusic.pause();
-        sessionMusic.currentTime = 0;
-      }
-      showTask();
-    });
+  playBtn.onclick = () => {
+    playBtn.style.display = "none";
+    video.style.display = "block";
+    video.play();
+  };
 
-    document.body.appendChild(videoBox);
-
-  } else {
-    // Falls kein Video, sofort starten
+  video.addEventListener("ended", () => {
+    // Container entfernen, damit er nicht weiter im Weg ist
+    videoBox.remove();
+    // Session-Aufgabe starten
     showTask();
-  }
+  });
+
+  document.body.appendChild(videoBox);
+
+} else {
+  // Kein Video → direkt in die Aufgabe springen
+  showTask();
+}
+
 
   // 5) Tasks initialisieren
   const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
