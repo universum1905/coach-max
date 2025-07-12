@@ -632,19 +632,8 @@ html, body {
 }
 
 .centered-next-btn {
-  display: block;
-  margin: 24px auto 0 auto;
-  width: 100%;
-  max-width: 320px;
-  box-sizing: border-box;
-  font-size: 1.18rem;
-  font-weight: bold;
-  padding: 15px 36px;
-  border-radius: 24px;
-  background: linear-gradient(90deg,#ffe082,#ffd54f,#ffe082);
-  box-shadow: 0 2px 22px #ffd54f99, 0 0 18px #fffde4;
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.2s;
-  animation: countYesPulse 1s infinite alternate;
+  position: relative !important;
+  z-index: 2001 !important;
+  margin-top: 24px !important;
+  display: block !important;
 }
