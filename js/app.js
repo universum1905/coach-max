@@ -4961,7 +4961,7 @@ else if (s.type === "color-sequence") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Überschrift immer oben
+  // Überschrift bleibt immer oben
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = s.title || "Rainbow Sequence!";
@@ -4970,7 +4970,7 @@ else if (s.type === "color-sequence") {
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // Fester Wrapper für Mitte
+  // Wrapper für Mitte
   const mainWrap = document.createElement('div');
   mainWrap.style.display = "flex";
   mainWrap.style.flexDirection = "column";
@@ -4980,12 +4980,12 @@ else if (s.type === "color-sequence") {
   mainWrap.style.width = "100%";
   textArea.appendChild(mainWrap);
 
-  // Musik abspielen (aus JSON)
+  // Musik (optional)
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
     sessionMusic.loop = true;
-    sessionMusic.volume = 0.16;
+    sessionMusic.volume = 0.18;
     sessionMusic.play();
     document.addEventListener("visibilitychange", function musicPauseHandler() {
       if (document.hidden && sessionMusic) sessionMusic.pause();
@@ -5045,198 +5045,198 @@ else if (s.type === "color-sequence") {
     video.addEventListener('ended', () => {
       playBtn.style.display = "";
       video.style.pointerEvents = "none";
-      startGame();
+      showDragDropTask();
     });
   } else {
-    startGame();
+    showDragDropTask();
   }
 
-  // Zeitsteuerung (wie gehabt)
+  // Zeitsteuerung (minDuration aus JSON, Default 60s)
   const sessionStart = Date.now();
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+  const pauseBetweenTasks = s.pauseBetweenTasks || 1600;
 
-  function startGame() {
+  // Aufgaben aus JSON (mind. 3 Fragen)
+  const tasks = Array.isArray(s.tasks) ? s.tasks : [];
+  let taskIdx = 0;
+
+  function showDragDropTask() {
     mainWrap.innerHTML = "";
+    const currentTask = tasks[taskIdx];
 
-    // Beispiel oben, falls vorhanden
-    if (s.example && Array.isArray(s.example)) {
-      const exRow = document.createElement('div');
-      exRow.style.display = "flex";
-      exRow.style.justifyContent = "center";
-      exRow.style.gap = "13px";
-      exRow.style.margin = "6px 0 14px 0";
-      exRow.innerHTML = s.example.map(col =>
-        `<div style="width:36px;height:36px;border-radius:50%;background:${col};border:2px solid #ffd54f;box-shadow:0 1px 6px #ffe08277;"></div>`
-      ).join('');
-      mainWrap.appendChild(exRow);
+    // Beispiel-Anzeige (falls vorhanden)
+    if (currentTask.example && currentTask.example.length > 0) {
+      const ex = document.createElement("div");
+      ex.style.display = "flex";
+      ex.style.justifyContent = "center";
+      ex.style.gap = "12px";
+      ex.style.marginBottom = "16px";
+      currentTask.example.forEach(col => {
+        const ball = document.createElement("div");
+        ball.style.width = "38px";
+        ball.style.height = "38px";
+        ball.style.borderRadius = "50%";
+        ball.style.background = col;
+        ball.style.border = "2.5px solid #ffd54f";
+        ball.title = col;
+        ex.appendChild(ball);
+      });
+      mainWrap.appendChild(ex);
     }
 
-    // Frage-Text
+    // Frage
     const q = document.createElement("div");
     q.className = "animated-text";
     q.style.textAlign = "center";
-    q.style.fontSize = "1.19rem";
-    q.style.margin = "0 0 14px 0";
-    q.innerText = s.question || "Drag the colors into the right order!";
+    q.style.fontSize = "1.22rem";
+    q.style.margin = "0 0 17px 0";
+    q.innerText = currentTask.question || "Put the colors in the correct order!";
     mainWrap.appendChild(q);
 
-    // Drop-Zone-Slots
-    const slotRow = document.createElement("div");
-    slotRow.style.display = "flex";
-    slotRow.style.justifyContent = "center";
-    slotRow.style.gap = "16px";
-    slotRow.style.margin = "16px 0 17px 0";
-    mainWrap.appendChild(slotRow);
+    // Drag-Ziel-Liste (leere Slots)
+    const dropBox = document.createElement("div");
+    dropBox.style.display = "flex";
+    dropBox.style.justifyContent = "center";
+    dropBox.style.gap = "13px";
+    dropBox.style.margin = "9px 0 19px 0";
+    dropBox.style.flexWrap = "wrap";
+    mainWrap.appendChild(dropBox);
 
-    // Die Slots sind leer zu Beginn
-    const slots = [];
-    for (let i = 0; i < s.colors.length; i++) {
+    // Drag-Quelle-Liste (bunte Kreise)
+    const dragBox = document.createElement("div");
+    dragBox.style.display = "flex";
+    dragBox.style.justifyContent = "center";
+    dragBox.style.gap = "13px";
+    dragBox.style.margin = "9px 0 0 0";
+    dragBox.style.flexWrap = "wrap";
+    mainWrap.appendChild(dragBox);
+
+    // Zustand
+    let answer = Array(currentTask.colors.length).fill(null);
+    let usedIdx = [];
+
+    // Render Slots
+    for (let i = 0; i < currentTask.colors.length; i++) {
       const slot = document.createElement("div");
-      slot.style.width = "54px";
-      slot.style.height = "54px";
-      slot.style.background = "#f8f8f8";
-      slot.style.borderRadius = "50%";
+      slot.style.width = "56px";
+      slot.style.height = "56px";
       slot.style.border = "3px dashed #ffd54f";
-      slot.style.boxShadow = "0 2px 10px #81d4fa55";
+      slot.style.borderRadius = "50%";
+      slot.style.background = "#fffde7";
       slot.style.display = "flex";
       slot.style.alignItems = "center";
       slot.style.justifyContent = "center";
+      slot.style.fontSize = "2.2rem";
       slot.style.fontWeight = "bold";
-      slot.style.fontSize = "1.4rem";
-      slot.style.transition = "all 0.19s";
+      slot.style.transition = "all 0.17s";
+      slot.style.cursor = "pointer";
+      slot.innerHTML = "❔";
       slot.dataset.idx = i;
-      slotRow.appendChild(slot);
-      slots.push(slot);
+      slot.ondragover = e => { e.preventDefault(); slot.style.background = "#ffecb3"; };
+      slot.ondragleave = () => { slot.style.background = "#fffde7"; };
+      slot.ondrop = e => {
+        e.preventDefault();
+        slot.style.background = "#b2dfdb";
+        const colorIdx = parseInt(e.dataTransfer.getData("colorIdx"), 10);
+        if (usedIdx.includes(colorIdx)) return;
+        slot.innerHTML = "";
+        const colorBall = makeColorBall(currentTask.colors[colorIdx]);
+        slot.appendChild(colorBall);
+        answer[i] = colorIdx;
+        usedIdx.push(colorIdx);
+        checkIfComplete();
+      };
+      dropBox.appendChild(slot);
     }
 
-    // Color-Bubbles zum Ziehen/Klicken
-    const colorBox = document.createElement("div");
-    colorBox.style.display = "flex";
-    colorBox.style.justifyContent = "center";
-    colorBox.style.gap = "14px";
-    colorBox.style.margin = "16px 0 0 0";
-    mainWrap.appendChild(colorBox);
-
-    // Shuffle Farben für die Bubbles
-    const colorOrder = s.colors.slice().sort(() => Math.random() - 0.5);
-    const colorsPlaced = [];
-
-    colorOrder.forEach((col, i) => {
-      const bubble = document.createElement("div");
-      bubble.className = "drag-bubble";
-      bubble.style.width = "54px";
-      bubble.style.height = "54px";
-      bubble.style.background = col;
-      bubble.style.border = "4px solid #ffd54f";
-      bubble.style.borderRadius = "50%";
-      bubble.style.margin = "0";
-      bubble.style.boxShadow = "0 2px 10px #ffd54f55";
-      bubble.style.cursor = "grab";
-      bubble.style.display = "flex";
-      bubble.style.alignItems = "center";
-      bubble.style.justifyContent = "center";
-      bubble.style.fontWeight = "bold";
-      bubble.style.fontSize = "1rem";
-      bubble.style.transition = "box-shadow 0.22s, opacity 0.21s";
-      bubble.draggable = true;
-      bubble.dataset.color = col;
-
-      // Drag & Drop Events
-      bubble.ondragstart = (e) => {
-        e.dataTransfer.setData("text/color", col);
-        setTimeout(() => bubble.style.opacity = "0.25", 0);
+    // Render Draggables
+    currentTask.colors.forEach((col, i) => {
+      const ball = makeColorBall(col);
+      ball.setAttribute("draggable", true);
+      ball.style.opacity = "1";
+      ball.ondragstart = e => {
+        e.dataTransfer.setData("colorIdx", i);
+        setTimeout(() => ball.style.opacity = "0.4", 0);
       };
-      bubble.ondragend = () => {
-        bubble.style.opacity = "1";
+      ball.ondragend = e => {
+        ball.style.opacity = "1";
       };
-
-      slots.forEach(slot => {
-        slot.ondragover = e => {
-          e.preventDefault();
-          slot.style.background = "#fffde7";
-        };
-        slot.ondragleave = e => {
-          slot.style.background = "#f8f8f8";
-        };
-        slot.ondrop = e => {
-          e.preventDefault();
-          slot.style.background = "#f8f8f8";
-          if (slot.dataset.filled) return;
-          const dragColor = e.dataTransfer.getData("text/color");
-          if (!dragColor) return;
-          slot.style.background = dragColor;
-          slot.dataset.filled = "true";
-          slot.dataset.color = dragColor;
-          bubble.style.visibility = "hidden";
-          colorsPlaced[parseInt(slot.dataset.idx, 10)] = dragColor;
-          checkIfDone();
-        };
-      });
-
-      // Tap-Fallback für Touch: Per Klick einsetzen
-      bubble.onclick = () => {
-        // Finde erstes leeres Slot
-        for (let si = 0; si < slots.length; si++) {
-          if (!slots[si].dataset.filled) {
-            slots[si].style.background = col;
-            slots[si].dataset.filled = "true";
-            slots[si].dataset.color = col;
-            bubble.style.visibility = "hidden";
-            colorsPlaced[si] = col;
-            checkIfDone();
-            break;
-          }
-        }
-      };
-
-      colorBox.appendChild(bubble);
+      dragBox.appendChild(ball);
     });
 
-    function checkIfDone() {
-      if (colorsPlaced.length === s.colors.length && colorsPlaced.every(x => x)) {
-        // Prüfen ob korrekt!
-        let correct = true;
-        for (let i = 0; i < s.solution.length; i++) {
-          if ((colorsPlaced[i] || "").toLowerCase() !== (s.colors[s.solution[i]] || "").toLowerCase()) {
-            correct = false;
-            break;
-          }
-        }
-        setTimeout(() => {
-          if (correct) {
-            new Audio("audio/yay.mp3").play();
-            showUniversalRewardFromSession(s);
-          } else {
-            new Audio("audio/fail.mp3").play();
-            // Animation, dann alles zurücksetzen
-            slotRow.style.animation = "shakeBad 0.55s";
-            setTimeout(() => slotRow.style.animation = "", 560);
-            slots.forEach(slot => {
-              slot.style.background = "#f8f8f8";
-              slot.dataset.filled = "";
-              slot.dataset.color = "";
-            });
-            Array.from(colorBox.children).forEach(b => b.style.visibility = "visible");
-            colorsPlaced.length = 0;
-          }
-        }, 300);
-      }
+    function makeColorBall(color) {
+      const ball = document.createElement("div");
+      ball.style.width = "54px";
+      ball.style.height = "54px";
+      ball.style.borderRadius = "50%";
+      ball.style.background = color;
+      ball.style.border = "3px solid #ffd54f";
+      ball.style.boxShadow = "0 2px 12px #ffd54faa";
+      ball.style.display = "flex";
+      ball.style.justifyContent = "center";
+      ball.style.alignItems = "center";
+      ball.title = color;
+      return ball;
     }
 
-    // Bonus: Style für "schütteln" wenn falsch
-    if (!document.getElementById("shake-bad-style")) {
-      const style = document.createElement('style');
-      style.id = "shake-bad-style";
-      style.innerHTML = `
-        @keyframes shakeBad {
-          0% { transform: translateX(0);}
-          23%{ transform: translateX(-8px);}
-          49%{ transform: translateX(6px);}
-          76%{ transform: translateX(-6px);}
-          100%{transform: translateX(0);}
+    function checkIfComplete() {
+      if (answer.every(a => a !== null)) {
+        // Überprüfe Reihenfolge
+        if (JSON.stringify(answer) === JSON.stringify(currentTask.solution)) {
+          new Audio("audio/yay.mp3").play();
+          // Alle Slots grün, kurze Pause, nächste Frage
+          Array.from(dropBox.children).forEach(c => {
+            c.style.background = "#c8e6c9";
+            c.style.border = "3px solid #43a047";
+          });
+          const msg = document.createElement("div");
+          msg.textContent = "Great! Here comes the next one...";
+          msg.style.textAlign = "center";
+          msg.style.color = "#43a047";
+          msg.style.fontSize = "1.12rem";
+          msg.style.fontWeight = "bold";
+          msg.style.margin = "14px 0 2px 0";
+          mainWrap.appendChild(msg);
+          setTimeout(() => {
+            msg.remove();
+            taskIdx++;
+            if (taskIdx < tasks.length) {
+              showDragDropTask();
+            } else {
+              if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+              // Zeitsteuerung
+              const elapsed = (Date.now() - sessionStart) / 1000;
+              if (elapsed >= minDuration) {
+                showUniversalRewardFromSession(s);
+              } else {
+                const waitTime = Math.ceil(minDuration - elapsed);
+                showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+                  showUniversalRewardFromSession(s);
+                });
+              }
+            }
+          }, pauseBetweenTasks);
+        } else {
+          // Falsch! Alles rot, shake
+          new Audio("audio/fail.mp3").play();
+          Array.from(dropBox.children).forEach(c => {
+            c.style.background = "#ffcdd2";
+            c.style.border = "3px solid #d32f2f";
+            c.classList.add("shake");
+            setTimeout(() => c.classList.remove("shake"), 700);
+          });
+          setTimeout(() => {
+            // Reset
+            answer = Array(currentTask.colors.length).fill(null);
+            usedIdx = [];
+            Array.from(dropBox.children).forEach(c => {
+              c.innerHTML = "❔";
+              c.style.background = "#fffde7";
+              c.style.border = "3px dashed #ffd54f";
+            });
+          }, 1000);
         }
-      `;
-      document.head.appendChild(style);
+      }
     }
   }
 }
