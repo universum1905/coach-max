@@ -4961,7 +4961,7 @@ else if (s.type === "color-sequence") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Überschrift bleibt immer oben
+  // Überschrift
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = s.title || "Rainbow Sequence!";
@@ -4970,33 +4970,17 @@ else if (s.type === "color-sequence") {
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // Wrapper für Mitte
+  // Hauptbereich für alles
   const mainWrap = document.createElement('div');
   mainWrap.style.display = "flex";
   mainWrap.style.flexDirection = "column";
   mainWrap.style.justifyContent = "center";
   mainWrap.style.alignItems = "center";
-  mainWrap.style.minHeight = "55vh";
+  mainWrap.style.minHeight = "54vh";
   mainWrap.style.width = "100%";
   textArea.appendChild(mainWrap);
 
-  // Musik (optional)
-  let sessionMusic = null;
-  if (s.music) {
-    sessionMusic = new Audio("audio/" + s.music);
-    sessionMusic.loop = true;
-    sessionMusic.volume = 0.18;
-    sessionMusic.play();
-    document.addEventListener("visibilitychange", function musicPauseHandler() {
-      if (document.hidden && sessionMusic) sessionMusic.pause();
-      else if (!document.hidden && sessionMusic) sessionMusic.play();
-    });
-    window.addEventListener("pagehide", function() {
-      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-    });
-  }
-
-  // Video unten rechts (wie immer)
+  // Video unten rechts (optional)
   let videoBox, video;
   if (s.video) {
     video = document.createElement('video');
@@ -5045,199 +5029,208 @@ else if (s.type === "color-sequence") {
     video.addEventListener('ended', () => {
       playBtn.style.display = "";
       video.style.pointerEvents = "none";
-      showDragDropTask();
+      showColorSequenceGame();
     });
   } else {
-    showDragDropTask();
+    showColorSequenceGame();
   }
 
-  // Zeitsteuerung (minDuration aus JSON, Default 60s)
+  // Musik
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.15;
+    sessionMusic.play();
+    document.addEventListener("visibilitychange", function musicPauseHandler() {
+      if (document.hidden && sessionMusic) sessionMusic.pause();
+      else if (!document.hidden && sessionMusic) sessionMusic.play();
+    });
+    window.addEventListener("pagehide", function() {
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    });
+  }
+
+  // Zeitsteuerung (wie immer)
   const sessionStart = Date.now();
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
-  const pauseBetweenTasks = s.pauseBetweenTasks || 1600;
-
-  // Aufgaben aus JSON (mind. 3 Fragen)
-  const tasks = Array.isArray(s.tasks) ? s.tasks : [];
+  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1800;
+  const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
   let taskIdx = 0;
 
-  function showDragDropTask() {
+  function showColorSequenceGame() {
     mainWrap.innerHTML = "";
-    const currentTask = tasks[taskIdx];
+    const task = tasks[taskIdx];
 
-    // Beispiel-Anzeige (falls vorhanden)
-    if (currentTask.example && currentTask.example.length > 0) {
-      const ex = document.createElement("div");
-      ex.style.display = "flex";
-      ex.style.justifyContent = "center";
-      ex.style.gap = "12px";
-      ex.style.marginBottom = "16px";
-      currentTask.example.forEach(col => {
-        const ball = document.createElement("div");
-        ball.style.width = "38px";
-        ball.style.height = "38px";
-        ball.style.borderRadius = "50%";
-        ball.style.background = col;
-        ball.style.border = "2.5px solid #ffd54f";
-        ball.title = col;
-        ex.appendChild(ball);
+    // Beispiel oben anzeigen (optional)
+    if (task.example && Array.isArray(task.example)) {
+      const exRow = document.createElement("div");
+      exRow.style.display = "flex";
+      exRow.style.justifyContent = "center";
+      exRow.style.gap = "10px";
+      exRow.style.marginBottom = "18px";
+      task.example.forEach(col => {
+        const circle = document.createElement("div");
+        circle.style.width = "38px";
+        circle.style.height = "38px";
+        circle.style.borderRadius = "50%";
+        circle.style.background = col;
+        circle.style.border = "2.5px solid #ffd54f";
+        exRow.appendChild(circle);
       });
-      mainWrap.appendChild(ex);
+      mainWrap.appendChild(exRow);
     }
 
     // Frage
-    const q = document.createElement("div");
-    q.className = "animated-text";
-    q.style.textAlign = "center";
-    q.style.fontSize = "1.22rem";
-    q.style.margin = "0 0 17px 0";
-    q.innerText = currentTask.question || "Put the colors in the correct order!";
-    mainWrap.appendChild(q);
+    const question = document.createElement("div");
+    question.className = "animated-text";
+    question.textContent = task.question || "Put the colors in the right order!";
+    question.style.textAlign = "center";
+    question.style.fontSize = "1.15rem";
+    question.style.fontWeight = "bold";
+    question.style.margin = "10px 0 16px 0";
+    mainWrap.appendChild(question);
 
-    // Drag-Ziel-Liste (leere Slots)
-    const dropBox = document.createElement("div");
-    dropBox.style.display = "flex";
-    dropBox.style.justifyContent = "center";
-    dropBox.style.gap = "13px";
-    dropBox.style.margin = "9px 0 19px 0";
-    dropBox.style.flexWrap = "wrap";
-    mainWrap.appendChild(dropBox);
+    // Die Ziel-Slots (Kreise, die zu befüllen sind)
+    const slotsBox = document.createElement("div");
+    slotsBox.style.display = "flex";
+    slotsBox.style.justifyContent = "center";
+    slotsBox.style.gap = "20px";
+    slotsBox.style.margin = "14px 0 20px 0";
+    mainWrap.appendChild(slotsBox);
 
-    // Drag-Quelle-Liste (bunte Kreise)
-    const dragBox = document.createElement("div");
-    dragBox.style.display = "flex";
-    dragBox.style.justifyContent = "center";
-    dragBox.style.gap = "13px";
-    dragBox.style.margin = "9px 0 0 0";
-    dragBox.style.flexWrap = "wrap";
-    mainWrap.appendChild(dragBox);
-
-    // Zustand
-    let answer = Array(currentTask.colors.length).fill(null);
-    let usedIdx = [];
-
-    // Render Slots
-    for (let i = 0; i < currentTask.colors.length; i++) {
+    const slots = [];
+    for (let i = 0; i < task.colors.length; i++) {
       const slot = document.createElement("div");
-      slot.style.width = "56px";
-      slot.style.height = "56px";
-      slot.style.border = "3px dashed #ffd54f";
+      slot.style.width = "50px";
+      slot.style.height = "50px";
       slot.style.borderRadius = "50%";
-      slot.style.background = "#fffde7";
+      slot.style.background = "#fafafa";
+      slot.style.border = "4px dashed #ffd54f";
+      slot.style.boxShadow = "0 2px 10px #ffd54faa";
       slot.style.display = "flex";
       slot.style.alignItems = "center";
       slot.style.justifyContent = "center";
-      slot.style.fontSize = "2.2rem";
-      slot.style.fontWeight = "bold";
-      slot.style.transition = "all 0.17s";
+      slot.style.fontSize = "1.2rem";
+      slot.style.transition = "background 0.2s";
       slot.style.cursor = "pointer";
-      slot.innerHTML = "❔";
-      slot.dataset.idx = i;
-      slot.ondragover = e => { e.preventDefault(); slot.style.background = "#ffecb3"; };
-      slot.ondragleave = () => { slot.style.background = "#fffde7"; };
-      slot.ondrop = e => {
-        e.preventDefault();
-        slot.style.background = "#b2dfdb";
-        const colorIdx = parseInt(e.dataTransfer.getData("colorIdx"), 10);
-        if (usedIdx.includes(colorIdx)) return;
-        slot.innerHTML = "";
-        const colorBall = makeColorBall(currentTask.colors[colorIdx]);
-        slot.appendChild(colorBall);
-        answer[i] = colorIdx;
-        usedIdx.push(colorIdx);
-        checkIfComplete();
-      };
-      dropBox.appendChild(slot);
+      slot.dataset.slotIdx = i;
+      slots.push(slot);
+      slotsBox.appendChild(slot);
     }
 
-    // Render Draggables
-    currentTask.colors.forEach((col, i) => {
-      const ball = makeColorBall(col);
-      ball.setAttribute("draggable", true);
-      ball.style.opacity = "1";
-      ball.ondragstart = e => {
-        e.dataTransfer.setData("colorIdx", i);
-        setTimeout(() => ball.style.opacity = "0.4", 0);
-      };
-      ball.ondragend = e => {
-        ball.style.opacity = "1";
-      };
-      dragBox.appendChild(ball);
-    });
+    // Farbbälle unten zum Auswählen (wie Drag&Drop, nur per Klick)
+    const ballsBox = document.createElement("div");
+    ballsBox.style.display = "flex";
+    ballsBox.style.justifyContent = "center";
+    ballsBox.style.gap = "18px";
+    ballsBox.style.marginTop = "18px";
+    mainWrap.appendChild(ballsBox);
 
-    function makeColorBall(color) {
-      const ball = document.createElement("div");
-      ball.style.width = "54px";
-      ball.style.height = "54px";
+    const colorOrder = [];
+    const used = new Array(task.colors.length).fill(false);
+
+    task.colors.forEach((col, i) => {
+      const ball = document.createElement("button");
+      ball.style.width = "48px";
+      ball.style.height = "48px";
       ball.style.borderRadius = "50%";
-      ball.style.background = color;
-      ball.style.border = "3px solid #ffd54f";
-      ball.style.boxShadow = "0 2px 12px #ffd54faa";
+      ball.style.background = col;
+      ball.style.border = "4px solid #ffd54f";
+      ball.style.margin = "0";
       ball.style.display = "flex";
-      ball.style.justifyContent = "center";
       ball.style.alignItems = "center";
-      ball.title = color;
-      return ball;
-    }
-
-    function checkIfComplete() {
-      if (answer.every(a => a !== null)) {
-        // Überprüfe Reihenfolge
-        if (JSON.stringify(answer) === JSON.stringify(currentTask.solution)) {
-          new Audio("audio/yay.mp3").play();
-          // Alle Slots grün, kurze Pause, nächste Frage
-          Array.from(dropBox.children).forEach(c => {
-            c.style.background = "#c8e6c9";
-            c.style.border = "3px solid #43a047";
-          });
-          const msg = document.createElement("div");
-          msg.textContent = "Great! Here comes the next one...";
-          msg.style.textAlign = "center";
-          msg.style.color = "#43a047";
-          msg.style.fontSize = "1.12rem";
-          msg.style.fontWeight = "bold";
-          msg.style.margin = "14px 0 2px 0";
-          mainWrap.appendChild(msg);
-          setTimeout(() => {
-            msg.remove();
-            taskIdx++;
-            if (taskIdx < tasks.length) {
-              showDragDropTask();
-            } else {
-              if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-              // Zeitsteuerung
-              const elapsed = (Date.now() - sessionStart) / 1000;
-              if (elapsed >= minDuration) {
-                showUniversalRewardFromSession(s);
-              } else {
-                const waitTime = Math.ceil(minDuration - elapsed);
-                showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
-                  showUniversalRewardFromSession(s);
-                });
-              }
-            }
-          }, pauseBetweenTasks);
-        } else {
-          // Falsch! Alles rot, shake
-          new Audio("audio/fail.mp3").play();
-          Array.from(dropBox.children).forEach(c => {
-            c.style.background = "#ffcdd2";
-            c.style.border = "3px solid #d32f2f";
-            c.classList.add("shake");
-            setTimeout(() => c.classList.remove("shake"), 700);
-          });
-          setTimeout(() => {
-            // Reset
-            answer = Array(currentTask.colors.length).fill(null);
-            usedIdx = [];
-            Array.from(dropBox.children).forEach(c => {
-              c.innerHTML = "❔";
-              c.style.background = "#fffde7";
-              c.style.border = "3px dashed #ffd54f";
-            });
-          }, 1000);
+      ball.style.justifyContent = "center";
+      ball.style.cursor = "pointer";
+      ball.style.fontWeight = "bold";
+      ball.style.fontSize = "1.1rem";
+      ball.style.boxShadow = "0 2px 12px #ffd54f33";
+      ball.innerText = col;
+      ball.onclick = () => {
+        // Find first empty slot
+        const emptyIdx = colorOrder.length;
+        if (emptyIdx < slots.length && !used[i]) {
+          slots[emptyIdx].style.background = col;
+          slots[emptyIdx].style.color = "#222";
+          slots[emptyIdx].innerText = col;
+          colorOrder.push(i);
+          used[i] = true;
+          ball.disabled = true;
+          ball.style.opacity = "0.33";
         }
-      }
-    }
+        // Prüfe, ob voll
+        if (colorOrder.length === slots.length) {
+          setTimeout(() => {
+            // Überprüfung
+            const isCorrect = JSON.stringify(colorOrder) === JSON.stringify(task.solution);
+            if (isCorrect) {
+              new Audio("audio/" + (task.correctSound || s.correctSound || "yay.mp3")).play();
+              slots.forEach(s => {
+                s.style.background = "#c8e6c9";
+                s.style.border = "4px solid #43a047";
+              });
+              const feedback = document.createElement("div");
+              feedback.textContent = task.onCorrect || "Well done! That's the correct order!";
+              feedback.style.textAlign = "center";
+              feedback.style.color = "#388e3c";
+              feedback.style.fontWeight = "bold";
+              feedback.style.margin = "16px 0 4px 0";
+              mainWrap.appendChild(feedback);
+              setTimeout(() => {
+                taskIdx++;
+                if (taskIdx < tasks.length) {
+                  mainWrap.innerHTML = "";
+                  const waitMsg = document.createElement("div");
+                  waitMsg.textContent = "Next question loading...";
+                  waitMsg.style.textAlign = "center";
+                  waitMsg.style.fontSize = "1.15rem";
+                  waitMsg.style.margin = "13px";
+                  mainWrap.appendChild(waitMsg);
+                  setTimeout(showColorSequenceGame, pauseBetweenQuestions);
+                } else {
+                  if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+                  // Zeitsteuerung
+                  const elapsed = (Date.now() - sessionStart) / 1000;
+                  if (elapsed >= minDuration) {
+                    showUniversalRewardFromSession(s);
+                  } else {
+                    const waitTime = Math.ceil(minDuration - elapsed);
+                    showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+                      showUniversalRewardFromSession(s);
+                    });
+                  }
+                }
+              }, 1100);
+            } else {
+              new Audio("audio/" + (task.wrongSound || s.wrongSound || "fail.mp3")).play();
+              const feedback = document.createElement("div");
+              feedback.textContent = task.onWrong || "Oops! Try again!";
+              feedback.style.textAlign = "center";
+              feedback.style.color = "#d32f2f";
+              feedback.style.fontWeight = "bold";
+              feedback.style.margin = "16px 0 4px 0";
+              mainWrap.appendChild(feedback);
+              setTimeout(() => {
+                // Reset alles
+                colorOrder.length = 0;
+                used.fill(false);
+                slots.forEach((slot) => {
+                  slot.style.background = "#fafafa";
+                  slot.style.color = "#222";
+                  slot.innerText = "";
+                });
+                ballsBox.querySelectorAll("button").forEach((ball) => {
+                  ball.disabled = false;
+                  ball.style.opacity = "1";
+                });
+                feedback.remove();
+              }, 1300);
+            }
+          }, 280);
+        }
+      };
+      ballsBox.appendChild(ball);
+    });
   }
 }
 
