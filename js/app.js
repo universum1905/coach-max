@@ -4802,6 +4802,7 @@ else if (s.type === "color-find") {
     }, pauseBetweenQuestions);
   };
 }
+}
 
 
 
