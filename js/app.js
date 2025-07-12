@@ -4607,13 +4607,13 @@ else if (s.type === "color-find") {
   // Überschrift bleibt immer oben
   const heading = document.createElement('h2');
   heading.className = "session-heading";
-  heading.textContent = s.title || "Find the Color!";
+  heading.textContent = s.title || "Color Detective!";
   heading.style.textAlign = "center";
   heading.style.margin = "18px 0 8px 0";
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // Wrapper für Mitte
+  // Zentrierter Wrapper
   const mainWrap = document.createElement('div');
   mainWrap.style.display = "flex";
   mainWrap.style.flexDirection = "column";
@@ -4639,122 +4639,108 @@ else if (s.type === "color-find") {
     });
   }
 
-  // Video unten rechts (optional)
-  let videoBox, video;
-  if (s.video) {
-    video = document.createElement('video');
-    video.src = `videos/${s.video}`;
-    video.setAttribute("controls", "true");
-    video.setAttribute("controlsList", "nodownload");
-    video.autoplay = false;
-    video.muted = false;
-    video.playsInline = true;
-    video.poster = "images/video-placeholder.png";
-    video.className = "session-video";
-
-    videoBox = document.createElement("div");
-    videoBox.className = "floating-video";
-    videoBox.style.position = "fixed";
-    videoBox.style.right = "14px";
-    videoBox.style.bottom = "62px";
-    videoBox.style.zIndex = "1000";
-    videoBox.appendChild(video);
-    document.body.appendChild(videoBox);
-
-    const playBtn = document.createElement('button');
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-    `;
-    videoBox.appendChild(playBtn);
-
-    playBtn.onclick = function () {
-      video.play();
-      playBtn.style.display = "none";
-      video.style.pointerEvents = "auto";
-    };
-    video.addEventListener('play', () => {
-      playBtn.style.display = "none";
-      video.style.pointerEvents = "auto";
-    });
-    video.addEventListener('pause', () => {
-      playBtn.style.display = "";
-      video.style.pointerEvents = "none";
-    });
-    video.addEventListener('ended', () => {
-      playBtn.style.display = "";
-      video.style.pointerEvents = "none";
-      showColorFind();
-    });
-  } else {
-    showColorFind();
-  }
-
   // Zeitsteuerung
   const sessionStart = Date.now();
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1600;
 
-  function showColorFind() {
+  // Multi-Task/Fragen
+  const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
+  let taskIdx = 0;
+
+  function showColorTask() {
     mainWrap.innerHTML = "";
+    const currentTask = tasks[taskIdx];
 
-    // Farbe als großer Kreis
+    // Großer, farbiger Kreis
     const colorCircle = document.createElement("div");
     colorCircle.style.width = "110px";
     colorCircle.style.height = "110px";
-    colorCircle.style.margin = "24px auto 14px auto";
+    colorCircle.style.margin = "16px auto 18px auto";
     colorCircle.style.borderRadius = "50%";
-    colorCircle.style.background = (s.color || "#4caf50").toLowerCase();
+    colorCircle.style.background = currentTask.color ? currentTask.color.toLowerCase() : "#4caf50";
     colorCircle.style.border = "5px solid #ffd54f";
     colorCircle.style.boxShadow = "0 2px 32px #ffd54faa, 0 0 32px #aeea00aa";
     mainWrap.appendChild(colorCircle);
 
-    // Frage
+    // Frage aus JSON Task
     const q = document.createElement("div");
     q.className = "animated-text";
     q.style.textAlign = "center";
     q.style.fontSize = "1.22rem";
     q.style.margin = "0 0 17px 0";
-    q.innerText = s.question || "Find something in this color!";
+    q.innerText = currentTask.question || "Find something in this color!";
     mainWrap.appendChild(q);
 
     // Button
     const btn = document.createElement("button");
-    btn.innerText = `I found something ${s.color ? "in this color" : ""}!`;
+    btn.innerText = currentTask.buttonText || `I found something ${currentTask.color || ""}!`;
     btn.className = "centered-next-btn";
-    btn.style.margin = "28px auto 0 auto";
-    btn.style.fontSize = "1.13rem";
+    btn.style.margin = "20px auto 0 auto";
+    btn.style.fontSize = "1.18rem";
     btn.style.fontWeight = "bold";
-    btn.onclick = () => {
-      // Sound (universal aus JSON)
-      let correctSound = s.correctSound || "yay.mp3";
+    btn.style.padding = "15px 36px";
+    btn.style.borderRadius = "24px";
+    btn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
+    btn.style.boxShadow = "0 2px 22px #ffd54f99, 0 0 18px #fffde4";
+    btn.style.position = "relative";
+    btn.style.cursor = "pointer";
+    btn.style.transition = "transform 0.2s";
+    btn.style.animation = "countYesPulse 1s infinite alternate";
+    mainWrap.appendChild(btn);
+
+    btn.onclick = function () {
+      // Richtig Sound
+      let correctSound = currentTask.correctSound || s.correctSound || "yay.mp3";
       new Audio("audio/" + correctSound).play();
 
-      // Musik pausieren
-      if (sessionMusic) {
-        sessionMusic.pause();
-        sessionMusic.currentTime = 0;
-      }
+      btn.disabled = true;
+      btn.style.opacity = "0.6";
+      btn.style.transform = "scale(0.97)";
+      setTimeout(() => btn.style.transform = "scale(1)", 180);
 
-      // Zeitsteuerung
-      const elapsed = (Date.now() - sessionStart) / 1000;
-      if (elapsed >= minDuration) {
-        showUniversalRewardFromSession(s);
-      } else {
-        const waitTime = Math.ceil(minDuration - elapsed);
-        showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
-          showUniversalRewardFromSession(s);
-        });
+      // Feedback Text
+      let feedback = mainWrap.querySelector(".color-feedback");
+      if (!feedback) {
+        feedback = document.createElement("div");
+        feedback.className = "animated-text color-feedback";
+        feedback.style.textAlign = "center";
+        feedback.style.marginTop = "14px";
+        feedback.style.fontWeight = "bold";
+        feedback.style.fontSize = "1.15rem";
+        mainWrap.appendChild(feedback);
       }
-    };
-    mainWrap.appendChild(btn);
+      feedback.textContent = currentTask.onDone || "Great!";
+
+      setTimeout(() => {
+        taskIdx++;
+        if (taskIdx < tasks.length) {
+          mainWrap.innerHTML = "";
+          const waitMsg = document.createElement("div");
+          waitMsg.textContent = "Next color loading...";
+          waitMsg.style.textAlign = "center";
+          waitMsg.style.fontSize = "1.18rem";
+          waitMsg.style.margin = "13px";
+          mainWrap.appendChild(waitMsg);
+          setTimeout(showColorTask, pauseBetweenQuestions);
+        } else {
+          // Session vorbei – Zeitsteuerung aktiv
+          if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+          const elapsed = (Date.now() - sessionStart) / 1000;
+          if (elapsed >= minDuration) {
+            showUniversalRewardFromSession(s);
+          } else {
+            const waitTime = Math.ceil(minDuration - elapsed);
+            showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+              showUniversalRewardFromSession(s);
+            });
+          }
+        }
+      }, pauseBetweenQuestions);
+    }
   }
+  showColorTask();
 }
-
-
 
 else if (s.type === "color-sequence") {
   clearTimeouts();
