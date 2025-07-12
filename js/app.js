@@ -4064,7 +4064,7 @@ else if (s.type === "chatgpt-quiz") {
 
  // ==== AI-EMOJI-MADNESS ====
 // In renderSession(idx) einfügen
-else if (s.type === "ai-emoji-madness") {
+else if (s.type === "ai-emoji-madness-old") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn, .reward-box, .glitter, .animals-reward-container").forEach(el => el.remove());
@@ -4239,6 +4239,269 @@ else if (s.type === "ai-emoji-madness") {
 
   return; // Session endet hier!
 }
+
+else if (s.type === "ai-emoji-madness") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(e => e.remove());
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
+
+  // Überschrift bleibt immer oben
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Emoji Madness!";
+  heading.style.textAlign = "center";
+  heading.style.margin = "18px 0 8px 0";
+  heading.style.fontSize = "2.2rem";
+  textArea.appendChild(heading);
+
+  // Fester Wrapper für Zentrierung
+  const mainWrap = document.createElement('div');
+  mainWrap.style.display = "flex";
+  mainWrap.style.flexDirection = "column";
+  mainWrap.style.justifyContent = "center";
+  mainWrap.style.alignItems = "center";
+  mainWrap.style.minHeight = "55vh";
+  mainWrap.style.width = "100%";
+  textArea.appendChild(mainWrap);
+
+  // Musik abspielen (aus JSON)
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.17;
+    sessionMusic.play();
+    document.addEventListener("visibilitychange", function musicPauseHandler() {
+      if (document.hidden && sessionMusic) sessionMusic.pause();
+      else if (!document.hidden && sessionMusic) sessionMusic.play();
+    });
+    window.addEventListener("pagehide", function() {
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    });
+  }
+
+  // Video unten rechts (optional)
+  let videoBox, video;
+  if (s.video) {
+    video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+      showEmojiTask();
+    });
+  } else {
+    showEmojiTask();
+  }
+
+  // Zeitsteuerung (minDuration aus JSON, Default 60s)
+  const sessionStart = Date.now();
+  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1600;
+
+  const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
+  let taskIdx = 0;
+
+  function showEmojiTask() {
+    mainWrap.innerHTML = "";
+
+    const task = tasks[taskIdx];
+
+    // Emoji-Reihe
+    const emojiRow = document.createElement('div');
+    emojiRow.style.fontSize = "2.5rem";
+    emojiRow.style.letterSpacing = "0.18em";
+    emojiRow.style.textAlign = "center";
+    emojiRow.style.margin = "9px auto 17px auto";
+    emojiRow.textContent = Array.isArray(task.emojis) ? task.emojis.join(" ") : "";
+    mainWrap.appendChild(emojiRow);
+
+    // Frage
+    const question = document.createElement('div');
+    question.className = "animated-text";
+    question.textContent = task.question || "";
+    question.style.textAlign = "center";
+    question.style.fontSize = "1.19rem";
+    question.style.fontWeight = "bold";
+    question.style.margin = "6px 0 12px 0";
+    mainWrap.appendChild(question);
+
+    // Antwortmöglichkeiten als Buttons
+    const answersBox = document.createElement("div");
+    answersBox.style.display = "flex";
+    answersBox.style.justifyContent = "center";
+    answersBox.style.gap = "18px";
+    answersBox.style.flexWrap = "wrap";
+    answersBox.style.margin = "8px 0 0 0";
+    mainWrap.appendChild(answersBox);
+
+    (task.choices || []).forEach((ans, i) => {
+      const btn = document.createElement("button");
+      btn.style.border = "none";
+      btn.style.background = "#fffbe6";
+      btn.style.fontSize = "1.29rem";
+      btn.style.fontWeight = "bold";
+      btn.style.padding = "0.88em 1.38em";
+      btn.style.borderRadius = "16px";
+      btn.style.boxShadow = "0 2px 10px #81d4fa88";
+      btn.style.cursor = "pointer";
+      btn.style.margin = "4px 0";
+      btn.style.minWidth = "105px";
+      btn.style.transition = "all 0.2s";
+      btn.classList.add("bounce-glow");
+      btn.textContent = ans;
+      btn.onclick = () => handleAnswer(btn, i, answersBox, task.correct, task.onCorrect, task.onWrong);
+      answersBox.appendChild(btn);
+    });
+
+    // Fortschritt (unten, groß)
+    const progress = document.createElement("div");
+    progress.style.width = "100%";
+    progress.style.margin = "20px 0 0 0";
+    progress.style.display = "flex";
+    progress.style.justifyContent = "center";
+    for (let i = 0; i < tasks.length; i++) {
+      const dot = document.createElement("div");
+      dot.style.width = "18px";
+      dot.style.height = "18px";
+      dot.style.borderRadius = "50%";
+      dot.style.background = (i === taskIdx) ? "#ffd54f" : "#bdbdbd";
+      dot.style.margin = "0 5px";
+      progress.appendChild(dot);
+    }
+    mainWrap.appendChild(progress);
+  }
+
+  function handleAnswer(btn, i, answersBox, correctIdx, onCorrect, onWrong) {
+    const correct = (i === correctIdx);
+    if (correct) {
+      new Audio("audio/yay.mp3").play();
+
+      // Buttons sperren
+      Array.from(answersBox.children).forEach((b, idx) => {
+        b.disabled = true;
+        if (b !== btn) b.style.opacity = "0.5";
+      });
+      btn.style.background = "#b2dfdb";
+      btn.style.transform = "scale(1.09)";
+      setTimeout(() => btn.style.transform = "scale(1)", 150);
+
+      // Feedback
+      let feedback = mainWrap.querySelector(".emoji-feedback");
+      if (!feedback) {
+        feedback = document.createElement("div");
+        feedback.className = "animated-text emoji-feedback";
+        feedback.style.textAlign = "center";
+        feedback.style.marginTop = "13px";
+        feedback.style.fontWeight = "bold";
+        feedback.style.fontSize = "1.12rem";
+        mainWrap.appendChild(feedback);
+      }
+      feedback.textContent = onCorrect || "Great!";
+      feedback.style.color = "#388e3c";
+
+      setTimeout(() => {
+        taskIdx++;
+        if (taskIdx < tasks.length) {
+          mainWrap.innerHTML = "";
+          const waitMsg = document.createElement("div");
+          waitMsg.textContent = "Next question loading...";
+          waitMsg.style.textAlign = "center";
+          waitMsg.style.fontSize = "1.15rem";
+          waitMsg.style.margin = "15px";
+          mainWrap.appendChild(waitMsg);
+          setTimeout(showEmojiTask, pauseBetweenQuestions);
+        } else {
+          if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+          // Zeitsteuerung aktiv
+          const elapsed = (Date.now() - sessionStart) / 1000;
+          if (elapsed >= minDuration) {
+            showUniversalRewardFromSession(s);
+          } else {
+            const waitTime = Math.ceil(minDuration - elapsed);
+            showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+              showUniversalRewardFromSession(s);
+            });
+          }
+        }
+      }, pauseBetweenQuestions);
+
+    } else {
+      // FALSCH: Nur diesen Button kurz sperren & Effekte
+      new Audio("audio/fail.mp3").play();
+      btn.disabled = true;
+      btn.style.background = "#ffcdd2";
+      btn.style.transform = "scale(1.08)";
+      setTimeout(() => {
+        btn.style.background = "#fffbe6";
+        btn.style.transform = "scale(1)";
+        btn.disabled = false;
+      }, 950);
+
+      // Feedback
+      let feedback = mainWrap.querySelector(".emoji-feedback");
+      if (!feedback) {
+        feedback = document.createElement("div");
+        feedback.className = "animated-text emoji-feedback";
+        feedback.style.textAlign = "center";
+        feedback.style.marginTop = "13px";
+        feedback.style.fontWeight = "bold";
+        feedback.style.fontSize = "1.12rem";
+        mainWrap.appendChild(feedback);
+      }
+      feedback.textContent = onWrong || "Oops, try again!";
+      feedback.style.color = "#d32f2f";
+
+      btn.classList.add("shake");
+      setTimeout(() => btn.classList.remove("shake"), 600);
+      // Feedback bleibt sichtbar, bis richtig geantwortet wird!
+    }
+  }
+}
+
 
 
 else if (s.type === "color-find") {
