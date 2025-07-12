@@ -4954,7 +4954,7 @@ else if (s.type === "color-sequence-old") {
 }
 
 
-else if (s.type === "color-sequence") {
+else if (s.type === "color-sequence1") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(e => e.remove());
@@ -5233,6 +5233,7 @@ else if (s.type === "color-sequence") {
     });
   }
 }
+
 else if (s.type === "color-sequence") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
