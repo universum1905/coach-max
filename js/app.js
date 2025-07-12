@@ -5488,7 +5488,7 @@ else if (s.type === "color-sequence") {
 }
 
 
-  if (!s.video) showTask();
+  showTask();
 }
 
 
