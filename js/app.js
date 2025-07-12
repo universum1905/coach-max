@@ -4758,7 +4758,7 @@ textArea.appendChild(mainWrap);
 }
 
 
-else if (s.type === "color-sequence") {
+else if (s.type === "color-sequence-old") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
@@ -4953,6 +4953,293 @@ else if (s.type === "color-sequence") {
   }
 }
 
+
+else if (s.type === "color-sequence") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(e => e.remove());
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
+
+  // Überschrift immer oben
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Rainbow Sequence!";
+  heading.style.textAlign = "center";
+  heading.style.margin = "18px 0 8px 0";
+  heading.style.fontSize = "2.2rem";
+  textArea.appendChild(heading);
+
+  // Fester Wrapper für Mitte
+  const mainWrap = document.createElement('div');
+  mainWrap.style.display = "flex";
+  mainWrap.style.flexDirection = "column";
+  mainWrap.style.justifyContent = "center";
+  mainWrap.style.alignItems = "center";
+  mainWrap.style.minHeight = "55vh";
+  mainWrap.style.width = "100%";
+  textArea.appendChild(mainWrap);
+
+  // Musik abspielen (aus JSON)
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.16;
+    sessionMusic.play();
+    document.addEventListener("visibilitychange", function musicPauseHandler() {
+      if (document.hidden && sessionMusic) sessionMusic.pause();
+      else if (!document.hidden && sessionMusic) sessionMusic.play();
+    });
+    window.addEventListener("pagehide", function() {
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    });
+  }
+
+  // Video unten rechts (wie immer)
+  let videoBox, video;
+  if (s.video) {
+    video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+      startGame();
+    });
+  } else {
+    startGame();
+  }
+
+  // Zeitsteuerung (wie gehabt)
+  const sessionStart = Date.now();
+  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+
+  function startGame() {
+    mainWrap.innerHTML = "";
+
+    // Beispiel oben, falls vorhanden
+    if (s.example && Array.isArray(s.example)) {
+      const exRow = document.createElement('div');
+      exRow.style.display = "flex";
+      exRow.style.justifyContent = "center";
+      exRow.style.gap = "13px";
+      exRow.style.margin = "6px 0 14px 0";
+      exRow.innerHTML = s.example.map(col =>
+        `<div style="width:36px;height:36px;border-radius:50%;background:${col};border:2px solid #ffd54f;box-shadow:0 1px 6px #ffe08277;"></div>`
+      ).join('');
+      mainWrap.appendChild(exRow);
+    }
+
+    // Frage-Text
+    const q = document.createElement("div");
+    q.className = "animated-text";
+    q.style.textAlign = "center";
+    q.style.fontSize = "1.19rem";
+    q.style.margin = "0 0 14px 0";
+    q.innerText = s.question || "Drag the colors into the right order!";
+    mainWrap.appendChild(q);
+
+    // Drop-Zone-Slots
+    const slotRow = document.createElement("div");
+    slotRow.style.display = "flex";
+    slotRow.style.justifyContent = "center";
+    slotRow.style.gap = "16px";
+    slotRow.style.margin = "16px 0 17px 0";
+    mainWrap.appendChild(slotRow);
+
+    // Die Slots sind leer zu Beginn
+    const slots = [];
+    for (let i = 0; i < s.colors.length; i++) {
+      const slot = document.createElement("div");
+      slot.style.width = "54px";
+      slot.style.height = "54px";
+      slot.style.background = "#f8f8f8";
+      slot.style.borderRadius = "50%";
+      slot.style.border = "3px dashed #ffd54f";
+      slot.style.boxShadow = "0 2px 10px #81d4fa55";
+      slot.style.display = "flex";
+      slot.style.alignItems = "center";
+      slot.style.justifyContent = "center";
+      slot.style.fontWeight = "bold";
+      slot.style.fontSize = "1.4rem";
+      slot.style.transition = "all 0.19s";
+      slot.dataset.idx = i;
+      slotRow.appendChild(slot);
+      slots.push(slot);
+    }
+
+    // Color-Bubbles zum Ziehen/Klicken
+    const colorBox = document.createElement("div");
+    colorBox.style.display = "flex";
+    colorBox.style.justifyContent = "center";
+    colorBox.style.gap = "14px";
+    colorBox.style.margin = "16px 0 0 0";
+    mainWrap.appendChild(colorBox);
+
+    // Shuffle Farben für die Bubbles
+    const colorOrder = s.colors.slice().sort(() => Math.random() - 0.5);
+    const colorsPlaced = [];
+
+    colorOrder.forEach((col, i) => {
+      const bubble = document.createElement("div");
+      bubble.className = "drag-bubble";
+      bubble.style.width = "54px";
+      bubble.style.height = "54px";
+      bubble.style.background = col;
+      bubble.style.border = "4px solid #ffd54f";
+      bubble.style.borderRadius = "50%";
+      bubble.style.margin = "0";
+      bubble.style.boxShadow = "0 2px 10px #ffd54f55";
+      bubble.style.cursor = "grab";
+      bubble.style.display = "flex";
+      bubble.style.alignItems = "center";
+      bubble.style.justifyContent = "center";
+      bubble.style.fontWeight = "bold";
+      bubble.style.fontSize = "1rem";
+      bubble.style.transition = "box-shadow 0.22s, opacity 0.21s";
+      bubble.draggable = true;
+      bubble.dataset.color = col;
+
+      // Drag & Drop Events
+      bubble.ondragstart = (e) => {
+        e.dataTransfer.setData("text/color", col);
+        setTimeout(() => bubble.style.opacity = "0.25", 0);
+      };
+      bubble.ondragend = () => {
+        bubble.style.opacity = "1";
+      };
+
+      slots.forEach(slot => {
+        slot.ondragover = e => {
+          e.preventDefault();
+          slot.style.background = "#fffde7";
+        };
+        slot.ondragleave = e => {
+          slot.style.background = "#f8f8f8";
+        };
+        slot.ondrop = e => {
+          e.preventDefault();
+          slot.style.background = "#f8f8f8";
+          if (slot.dataset.filled) return;
+          const dragColor = e.dataTransfer.getData("text/color");
+          if (!dragColor) return;
+          slot.style.background = dragColor;
+          slot.dataset.filled = "true";
+          slot.dataset.color = dragColor;
+          bubble.style.visibility = "hidden";
+          colorsPlaced[parseInt(slot.dataset.idx, 10)] = dragColor;
+          checkIfDone();
+        };
+      });
+
+      // Tap-Fallback für Touch: Per Klick einsetzen
+      bubble.onclick = () => {
+        // Finde erstes leeres Slot
+        for (let si = 0; si < slots.length; si++) {
+          if (!slots[si].dataset.filled) {
+            slots[si].style.background = col;
+            slots[si].dataset.filled = "true";
+            slots[si].dataset.color = col;
+            bubble.style.visibility = "hidden";
+            colorsPlaced[si] = col;
+            checkIfDone();
+            break;
+          }
+        }
+      };
+
+      colorBox.appendChild(bubble);
+    });
+
+    function checkIfDone() {
+      if (colorsPlaced.length === s.colors.length && colorsPlaced.every(x => x)) {
+        // Prüfen ob korrekt!
+        let correct = true;
+        for (let i = 0; i < s.solution.length; i++) {
+          if ((colorsPlaced[i] || "").toLowerCase() !== (s.colors[s.solution[i]] || "").toLowerCase()) {
+            correct = false;
+            break;
+          }
+        }
+        setTimeout(() => {
+          if (correct) {
+            new Audio("audio/yay.mp3").play();
+            showUniversalRewardFromSession(s);
+          } else {
+            new Audio("audio/fail.mp3").play();
+            // Animation, dann alles zurücksetzen
+            slotRow.style.animation = "shakeBad 0.55s";
+            setTimeout(() => slotRow.style.animation = "", 560);
+            slots.forEach(slot => {
+              slot.style.background = "#f8f8f8";
+              slot.dataset.filled = "";
+              slot.dataset.color = "";
+            });
+            Array.from(colorBox.children).forEach(b => b.style.visibility = "visible");
+            colorsPlaced.length = 0;
+          }
+        }, 300);
+      }
+    }
+
+    // Bonus: Style für "schütteln" wenn falsch
+    if (!document.getElementById("shake-bad-style")) {
+      const style = document.createElement('style');
+      style.id = "shake-bad-style";
+      style.innerHTML = `
+        @keyframes shakeBad {
+          0% { transform: translateX(0);}
+          23%{ transform: translateX(-8px);}
+          49%{ transform: translateX(6px);}
+          76%{ transform: translateX(-6px);}
+          100%{transform: translateX(0);}
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+}
 
 
 

@@ -199,6 +199,34 @@
 }
 ,
 {
+  "type": "color-sequence",
+  "music": "focus-loop.mp3",
+  "minDuration": 60,
+  "video": "day2-color.mp4",
+  "tasks": [
+    {
+      "colors": ["red", "yellow", "blue"],
+      "solution": [2, 0, 1],
+      "example": ["blue", "red", "yellow"],
+      "question": "Can you put the colors in the right order?"
+    },
+    {
+      "colors": ["green", "purple", "orange"],
+      "solution": [1, 2, 0],
+      "example": ["purple", "orange", "green"],
+      "question": "What's the rainbow order?"
+    },
+    {
+      "colors": ["pink", "blue", "yellow"],
+      "solution": [0, 2, 1],
+      "example": ["pink", "yellow", "blue"],
+      "question": "Arrange the colors!"
+    }
+  ],
+  "successSticker": 2
+},
+
+{
   "type": "color-find",
   "title": "Find the Color!",
   "music": "focus-loop.mp3",
