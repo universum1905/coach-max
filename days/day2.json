@@ -200,48 +200,33 @@
 ,
 {
   "type": "color-find",
-  "avatar": "momo",
-  "video": "day2-test.mp4",
+  "title": "Find the Color!",
   "music": "focus-loop.mp3",
-  "question": "Can you find something green in your room? When you’ve found it, tap the button!",
-  "color": "green",
-  "onDone": "Great job, you found something green! Here’s your sticker!",
-  "successSticker": 2
-},
-{
-  "type": "color-sequence",
-  "video": "day2-test.mp4",
-  "music": "focus-loop.mp3",
-  "example": ["Red", "Yellow", "Green", "Blue"],
-  "exampleText": "This is a rainbow: Red, Yellow, Green, Blue.",
-  "question": "Tap the colors in the correct rainbow order!",
-  "colors": ["Yellow", "Green", "Red", "Blue"],
-  "solution": [2, 0, 1, 3],
-  "onCorrect": "Awesome! You ordered the rainbow perfectly. Here’s your rainbow sticker!",
-  "onWrong": "That's not quite right. Look at the example and try again!",
-  "successSticker": 2
-},
-{
-  "type": "color-detective",
-  "avatar": "luna",
-  "video": "day2-test.mp4",
-  "music": "focus-loop.mp3",
-  "question": "Look around and find something blue. Then tap the blue square!",
-  "choices": ["#ff0000", "#0000ff", "#00ff00"],
-  "correct": 1,
-  "onCorrect": "Well done – you’re a real color detective!",
-  "successSticker": 2
-},
-{
-  "type": "color-memory",
-  "video": "day2-test.mp4",
-  "music": "focus-loop.mp3",
-  "sequence": ["Red", "Yellow", "Blue"],
-  "choices": ["Red-Yellow-Blue", "Blue-Yellow-Red", "Red-Blue-Yellow"],
-  "correct": 0,
-  "onCorrect": "Great memory! You remembered all the colors in order!",
-  "successSticker": 2
+  "minDuration": 60,
+  "pauseBetweenQuestions": 1800,
+  "correctSound": "correct.mp3",
+  "wrongSound": "wrong.mp3",
+  "video": "day1-test.mp4",
+  "tasks": [
+    {
+      "color": "Blue",
+      "question": "Can you find something blue? Tap when you have it!",
+      "onDone": "Great! Blue is everywhere!"
+    },
+    {
+      "color": "Red",
+      "question": "Now look for something red. Tap when you see it!",
+      "onDone": "Awesome! You found red!"
+    },
+    {
+      "color": "Green",
+      "question": "Last one! Can you find something green?",
+      "onDone": "Super! Green is the color of nature!"
+    }
+  ],
+  "successSticker": 4
 }
+
   ]
 }
  
