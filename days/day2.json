@@ -163,17 +163,39 @@
 	
 	{
   "type": "ai-emoji-madness",
-  "video": "day2-test.mp4",
   "music": "focus-loop.mp3",
-  "title": "Emoji Madness!",
-  "emojis": ["🐵", "🍌", "🚀", "?" ],
-  "question": "What comes next in this crazy emoji story?",
-  "choices": ["🌕", "🐱", "🌈"],
-  "correct": 0,
-  "onCorrect": "Amazing! You guessed it – the monkey goes to the moon! 🚀🌕",
-  "onWrong": "Oops! Try again. Which emoji fits best?",
+  "minDuration": 60,
+  "pauseBetweenQuestions": 1700,
+  "video": "day1-test.mp4",
+  "tasks": [
+    {
+      "emojis": ["🐶", "🐱", "🐭"],
+      "question": "Which animal barks?",
+      "choices": ["Dog", "Cat", "Mouse"],
+      "correct": 0,
+      "onCorrect": "Correct! Dogs bark.",
+      "onWrong": "Try again!"
+    },
+    {
+      "emojis": ["🍎", "🍌", "🍓"],
+      "question": "Which one is yellow?",
+      "choices": ["Apple", "Banana", "Strawberry"],
+      "correct": 1,
+      "onCorrect": "Great! Bananas are yellow.",
+      "onWrong": "Oops! Try again."
+    },
+    {
+      "emojis": ["🚗", "✈️", "🚲"],
+      "question": "Which one flies?",
+      "choices": ["Car", "Airplane", "Bicycle"],
+      "correct": 1,
+      "onCorrect": "Correct! The airplane flies.",
+      "onWrong": "Nope! Try again."
+    }
+  ],
   "successSticker": 2
-},
+}
+,
 {
   "type": "color-find",
   "avatar": "momo",
