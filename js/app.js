@@ -4784,6 +4784,7 @@ else if (s.type === "color-find") {
   }
 }
 
+
 else if (s.type === "color-sequence") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
