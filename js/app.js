@@ -4605,7 +4605,7 @@ else if (s.type === "color-find") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Überschrift bleibt immer oben
+  // Überschrift
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = s.title || "Find the Color!";
@@ -4614,7 +4614,7 @@ else if (s.type === "color-find") {
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // Fester Wrapper für Zentrierung
+  // Haupt-Wrapper für Mitte
   const mainWrap = document.createElement('div');
   mainWrap.style.display = "flex";
   mainWrap.style.flexDirection = "column";
@@ -4624,7 +4624,7 @@ else if (s.type === "color-find") {
   mainWrap.style.minHeight = "55vh";
   textArea.appendChild(mainWrap);
 
-  // Musik abspielen (aus JSON)
+  // Musik abspielen (optional)
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
@@ -4662,6 +4662,7 @@ else if (s.type === "color-find") {
     videoBox.appendChild(video);
     document.body.appendChild(videoBox);
 
+    // Custom Play Button
     const playBtn = document.createElement('button');
     playBtn.className = "custom-play-btn";
     playBtn.title = "Play";
@@ -4695,7 +4696,7 @@ else if (s.type === "color-find") {
     showColorTasks();
   }
 
-  // Zeitsteuerung (minDuration aus JSON, Default 60s)
+  // Zeitsteuerung
   const sessionStart = Date.now();
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
   const pauseBetweenQuestions = s.pauseBetweenQuestions || 1700;
@@ -4703,93 +4704,86 @@ else if (s.type === "color-find") {
   let currentTaskIdx = 0;
 
   function showColorTasks() {
-  mainWrap.innerHTML = "";
-  const currentTask = tasks[currentTaskIdx];
+    mainWrap.innerHTML = "";
+    const currentTask = tasks[currentTaskIdx];
 
-  // Farbkugel
-  const colorCircle = document.createElement("div");
-  colorCircle.style.width = "110px";
-  colorCircle.style.height = "110px";
-  colorCircle.style.margin = "0 auto 16px auto";
-  colorCircle.style.borderRadius = "50%";
-  colorCircle.style.background = currentTask.color ? currentTask.color.toLowerCase() : "#4caf50";
-  colorCircle.style.border = "5px solid #ffd54f";
-  colorCircle.style.boxShadow = "0 2px 32px #ffd54faa, 0 0 32px #aeea00aa";
-  mainWrap.appendChild(colorCircle);
+    // Farbkugel
+    const colorCircle = document.createElement("div");
+    colorCircle.style.width = "110px";
+    colorCircle.style.height = "110px";
+    colorCircle.style.margin = "0 auto 16px auto";
+    colorCircle.style.borderRadius = "50%";
+    colorCircle.style.background = currentTask.color ? currentTask.color.toLowerCase() : "#4caf50";
+    colorCircle.style.border = "5px solid #ffd54f";
+    colorCircle.style.boxShadow = "0 2px 32px #ffd54faa, 0 0 32px #aeea00aa";
+    mainWrap.appendChild(colorCircle);
 
-  // Frage
-  const q = document.createElement("div");
-  q.className = "animated-text";
-  q.style.textAlign = "center";
-  q.style.fontSize = "1.22rem";
-  q.style.margin = "0 0 17px 0";
-  q.innerText = currentTask.question || "Find something in this color!";
-  mainWrap.appendChild(q);
+    // Frage
+    const q = document.createElement("div");
+    q.className = "animated-text";
+    q.style.textAlign = "center";
+    q.style.fontSize = "1.22rem";
+    q.style.margin = "0 0 17px 0";
+    q.innerText = currentTask.question || "Find something in this color!";
+    mainWrap.appendChild(q);
 
-  // Button-Logik
-  const btn = document.createElement("button");
-  btn.innerText = currentTask.buttonText || `I found something ${currentTask.color || ""}!`;
-  btn.className = "centered-next-btn";
-  btn.style.fontSize = "1.18rem";
-  btn.style.fontWeight = "bold";
-  btn.style.padding = "15px 36px";
-  btn.style.borderRadius = "24px";
-  btn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
-  btn.style.boxShadow = "0 2px 22px #ffd54f99, 0 0 18px #fffde4";
-  btn.style.cursor = "pointer";
-  btn.style.transition = "transform 0.2s";
-  btn.style.animation = "countYesPulse 1s infinite alternate";
-  btn.style.maxWidth = "340px";
-  btn.style.width = "100%";
-  btn.style.boxSizing = "border-box";
-
-  // Positioniere Button links neben dem Video
-  if (videoBox) {
-    btn.style.position = "fixed";
-    btn.style.right = "254px"; // Abstand zum rechten Rand: Video ist rechts 14px, Video ca. 220px breit + 20px Abstand
-    btn.style.bottom = "62px";
-    btn.style.margin = "0";
-    btn.style.zIndex = "1001";
-    document.body.appendChild(btn);
-  } else {
-    // Kein Video: Button wie gehabt mittig unterm Text
+    // Button immer unter der Frage, IM mainWrap!
+    const btn = document.createElement("button");
+    btn.innerText = currentTask.buttonText || `I found something ${currentTask.color || ""}!`;
+    btn.className = "centered-next-btn";
     btn.style.margin = "24px auto 0 auto";
+    btn.style.display = "block";
+    btn.style.maxWidth = "340px";
+    btn.style.width = "100%";
+    btn.style.boxSizing = "border-box";
+    btn.style.fontSize = "1.18rem";
+    btn.style.fontWeight = "bold";
+    btn.style.padding = "15px 36px";
+    btn.style.borderRadius = "24px";
+    btn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
+    btn.style.boxShadow = "0 2px 22px #ffd54f99, 0 0 18px #fffde4";
+    btn.style.position = "relative";
+    btn.style.cursor = "pointer";
+    btn.style.transition = "transform 0.2s";
+    btn.style.animation = "countYesPulse 1s infinite alternate";
     mainWrap.appendChild(btn);
+
+    btn.onclick = () => {
+      new Audio("audio/" + (currentTask.correctSound || s.correctSound || "yay.mp3")).play();
+      btn.disabled = true;
+      btn.style.background = "#b2dfdb";
+      btn.style.color = "#388e3c";
+
+      setTimeout(() => {
+        currentTaskIdx++;
+        if (currentTaskIdx < tasks.length) {
+          mainWrap.innerHTML = "";
+          const waitMsg = document.createElement("div");
+          waitMsg.textContent = "Next question loading...";
+          waitMsg.style.textAlign = "center";
+          waitMsg.style.fontSize = "1.15rem";
+          waitMsg.style.margin = "15px";
+          mainWrap.appendChild(waitMsg);
+          setTimeout(showColorTasks, pauseBetweenQuestions);
+        } else {
+          if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+          const elapsed = (Date.now() - sessionStart) / 1000;
+          if (elapsed >= minDuration) {
+            showUniversalRewardFromSession(s);
+          } else {
+            const waitTime = Math.ceil(minDuration - elapsed);
+            showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+              showUniversalRewardFromSession(s);
+            });
+          }
+        }
+      }, pauseBetweenQuestions);
+    };
   }
 
-  btn.onclick = () => {
-    new Audio("audio/" + (currentTask.correctSound || s.correctSound || "yay.mp3")).play();
-    btn.disabled = true;
-    btn.style.background = "#b2dfdb";
-    btn.style.color = "#388e3c";
-    setTimeout(() => {
-      currentTaskIdx++;
-      if (currentTaskIdx < tasks.length) {
-        mainWrap.innerHTML = "";
-        const waitMsg = document.createElement("div");
-        waitMsg.textContent = "Next question loading...";
-        waitMsg.style.textAlign = "center";
-        waitMsg.style.fontSize = "1.15rem";
-        waitMsg.style.margin = "15px";
-        mainWrap.appendChild(waitMsg);
-        setTimeout(showColorTasks, pauseBetweenQuestions);
-      } else {
-        if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-        const elapsed = (Date.now() - sessionStart) / 1000;
-        if (elapsed >= minDuration) {
-          showUniversalRewardFromSession(s);
-        } else {
-          const waitTime = Math.ceil(minDuration - elapsed);
-          showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
-            showUniversalRewardFromSession(s);
-          });
-        }
-      }
-    }, pauseBetweenQuestions);
-  };
+  // Falls Video da ist, erst nach Video-Start starten, sonst sofort:
+  if (!s.video) showColorTasks();
 }
-}
-
 
 
 else if (s.type === "color-sequence") {
