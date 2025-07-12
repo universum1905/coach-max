@@ -5321,173 +5321,172 @@ else if (s.type === "color-sequence") {
   let taskIdx = 0;
 
   function showTask() {
-    const currentTask = tasks[taskIdx];
-    mainWrap.innerHTML = "";
+  mainWrap.innerHTML = "";
+  const current = tasks[taskIdx];
 
-    const qText = document.createElement("div");
-    qText.textContent = currentTask.question || "Put the colors in the right order!";
-    qText.className = "animated-text";
-    qText.style.textAlign = "center";
-    qText.style.fontSize = "1.25rem";
-    qText.style.fontWeight = "bold";
-    qText.style.marginBottom = "16px";
-    mainWrap.appendChild(qText);
+  // 1) Question text
+  const q = document.createElement("div");
+  q.textContent = current.question;
+  Object.assign(q.style, {
+    textAlign: "center",
+    fontSize: "1.25rem",
+    fontWeight: "bold",
+    marginBottom: "16px"
+  });
+  mainWrap.appendChild(q);
 
-    const dropBox = document.createElement("div");
-    dropBox.style.display = "flex";
-    dropBox.style.justifyContent = "center";
-    dropBox.style.gap = "20px";
-    dropBox.style.marginBottom = "16px";
-    mainWrap.appendChild(dropBox);
+  // 2) Drop targets
+  const dropBox = document.createElement("div");
+  Object.assign(dropBox.style, {
+    display: "flex",
+    justifyContent: "center",
+    gap: "20px",
+    marginBottom: "20px"
+  });
+  mainWrap.appendChild(dropBox);
 
-    const pickBox = document.createElement("div");
-    pickBox.style.display = "flex";
-    pickBox.style.justifyContent = "center";
-    pickBox.style.gap = "14px";
-    mainWrap.appendChild(pickBox);
+  let userOrder = Array(current.colors.length).fill(null);
 
-    let userOrder = Array(currentTask.colors.length).fill(null);
-
-    const colorOptions = currentTask.colors.map((col, i) => {
-      const btn = document.createElement("button");
-      btn.style.background = "none";
-      btn.style.border = "none";
-      btn.style.cursor = "pointer";
-      btn.style.display = "flex";
-      btn.style.flexDirection = "column";
-      btn.style.alignItems = "center";
+  function renderDrops() {
+    dropBox.innerHTML = "";
+    current.colors.forEach((col, i) => {
+      const slot = document.createElement("div");
+      Object.assign(slot.style, {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        width: "60px"
+      });
 
       const circle = document.createElement("div");
-      circle.style.width = "48px";
-      circle.style.height = "48px";
-      circle.style.borderRadius = "50%";
-      circle.style.background = col;
-      circle.style.border = "3px solid #ffd54f";
-      btn.appendChild(circle);
+      Object.assign(circle.style, {
+        width: "48px",
+        height: "48px",
+        borderRadius: "50%",
+        border: "3px dashed #ffd54f",
+        background: userOrder[i] !== null ? current.colors[userOrder[i]] : "#fffbe6",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "1.3rem",
+        cursor: userOrder[i] !== null ? "pointer" : "default"
+      });
+      circle.textContent = userOrder[i] === null ? "?" : "";
+      if (userOrder[i] !== null) {
+        circle.onclick = () => {
+          const idx = userOrder[i];
+          userOrder[i] = null;
+          colorBtns[idx].disabled = false;
+          colorBtns[idx].style.opacity = "1";
+          renderDrops();
+        };
+      }
 
       const label = document.createElement("div");
-      label.textContent = col.charAt(0).toUpperCase() + col.slice(1);
+      label.textContent = userOrder[i] !== null
+        ? current.colors[userOrder[i]].charAt(0).toUpperCase() + current.colors[userOrder[i]].slice(1)
+        : "";
       label.style.marginTop = "6px";
-      label.style.fontSize = "1rem";
-      btn.appendChild(label);
 
-      btn.onclick = () => {
-        const idx = userOrder.indexOf(null);
-        if (idx !== -1) {
-          userOrder[idx] = i;
-          renderDrops();
-          btn.disabled = true;
-          btn.style.opacity = "0.5";
-        }
-      };
-      return btn;
+      slot.append(circle, label);
+      dropBox.appendChild(slot);
     });
+  }
+  renderDrops();
 
-    function renderDrops() {
-      dropBox.innerHTML = "";
-      for (let i = 0; i < currentTask.colors.length; i++) {
-        const slot = document.createElement("div");
-        slot.style.display = "flex";
-        slot.style.flexDirection = "column";
-        slot.style.alignItems = "center";
-        slot.style.width = "60px";
+  // 3) Color option buttons
+  const pickBox = document.createElement("div");
+  Object.assign(pickBox.style, {
+    display: "flex",
+    justifyContent: "center",
+    gap: "14px",
+    marginBottom: "20px"
+  });
+  mainWrap.appendChild(pickBox);
 
-        const circle = document.createElement("div");
-        circle.style.width = "48px";
-        circle.style.height = "48px";
-        circle.style.borderRadius = "50%";
-        circle.style.border = "3px dashed #ffd54f";
-        circle.style.background = userOrder[i] !== null ? currentTask.colors[userOrder[i]] : "#fffbe6";
-        circle.textContent = userOrder[i] === null ? "?" : "";
-        circle.style.display = "flex";
-        circle.style.justifyContent = "center";
-        circle.style.alignItems = "center";
-        circle.style.fontSize = "1.3rem";
-
-        if (userOrder[i] !== null) {
-          circle.style.cursor = "pointer";
-          circle.onclick = () => {
-            const idx = userOrder[i];
-            userOrder[i] = null;
-            colorOptions[idx].disabled = false;
-            colorOptions[idx].style.opacity = "1";
-            renderDrops();
-          };
-        }
-
-        const label = document.createElement("div");
-        label.textContent = userOrder[i] !== null ? currentTask.colors[userOrder[i]].charAt(0).toUpperCase() + currentTask.colors[userOrder[i]].slice(1) : "";
-        label.style.fontSize = "0.95rem";
-        label.style.marginTop = "6px";
-
-        slot.appendChild(circle);
-        slot.appendChild(label);
-        dropBox.appendChild(slot);
-      }
-    }
-
-    renderDrops();
-    colorOptions.forEach(btn => pickBox.appendChild(btn));
-
-    // Check-Button direkt unter den Farbauswahl-Kreisen
-    const checkBtn = document.createElement("button");
-    checkBtn.innerText = "Check Order";
-    checkBtn.className = "centered-next-btn";
-
-    // Position direkt unter pickBox + höhere z-Index
-    Object.assign(checkBtn.style, {
-      position: "relative",
-      zIndex: "2001",         // über dem Video-Overlay
-      margin: "24px auto 0",  // 24px Abstand nach oben, zentriert
-      display: "block"
+  const colorBtns = current.colors.map((col, i) => {
+    const btn = document.createElement("button");
+    Object.assign(btn.style, {
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center"
     });
+    const circ = document.createElement("div");
+    Object.assign(circ.style, {
+      width: "48px",
+      height: "48px",
+      borderRadius: "50%",
+      background: col,
+      border: "3px solid #ffd54f"
+    });
+    const lbl = document.createElement("div");
+    lbl.textContent = col.charAt(0).toUpperCase() + col.slice(1);
+    lbl.style.marginTop = "6px";
 
-    mainWrap.appendChild(checkBtn);
-
-    checkBtn.onclick = () => {
-      if (userOrder.includes(null)) {
-        checkBtn.innerText = "Please fill all!";
-        checkBtn.style.background = "#ffcdd2";
-        setTimeout(() => {
-          checkBtn.innerText = "Check Order";
-          checkBtn.style.background = "";
-        }, 1000);
-        return;
-      }
-
-      const isCorrect = JSON.stringify(userOrder) === JSON.stringify(currentTask.solution);
-      const sound = new Audio("audio/" + (isCorrect ? (currentTask.correctSound || s.correctSound || "yay.mp3") : (currentTask.wrongSound || s.wrongSound || "fail.mp3")));
-      sound.play();
-
-      if (isCorrect) {
-        checkBtn.innerText = "Great!";
-        taskIdx++;
-        setTimeout(() => {
-          if (taskIdx < tasks.length) {
-            showTask();
-          } else {
-            if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-            const elapsed = (Date.now() - sessionStart) / 1000;
-            if (elapsed >= minDuration) {
-              showUniversalRewardFromSession(s);
-            } else {
-              const waitTime = Math.ceil(minDuration - elapsed);
-              showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
-                showUniversalRewardFromSession(s);
-              });
-            }
-          }
-        }, 1000);
-      } else {
-        checkBtn.innerText = "Oops, try again!";
-        checkBtn.style.background = "#ffcdd2";
-        setTimeout(() => {
-          checkBtn.innerText = "Check Order";
-          checkBtn.style.background = "";
-        }, 1000);
+    btn.append(circ, lbl);
+    btn.onclick = () => {
+      const emptyIdx = userOrder.indexOf(null);
+      if (emptyIdx >= 0) {
+        userOrder[emptyIdx] = i;
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        renderDrops();
       }
     };
-  }
+    pickBox.appendChild(btn);
+    return btn;
+  });
+
+  // 4) Check Order button
+  const checkBtn = document.createElement("button");
+  checkBtn.innerText = "Check Order";
+  checkBtn.className = "centered-next-btn";
+  Object.assign(checkBtn.style, {
+    position: "relative",
+    zIndex: "2001",
+    margin: "0 auto 20px",
+    display: "block"
+  });
+  mainWrap.appendChild(checkBtn);
+
+  // 5) Button logic
+  checkBtn.onclick = () => {
+    if (userOrder.includes(null)) {
+      checkBtn.innerText = "Please place all colors!";
+      checkBtn.style.background = "#ffcdd2";
+      return setTimeout(() => {
+        checkBtn.innerText = "Check Order";
+        checkBtn.style.background = "";
+      }, 800);
+    }
+    const isCorrect = JSON.stringify(userOrder) === JSON.stringify(current.solution);
+    const soundFile = isCorrect ? (current.correctSound || s.correctSound) : (current.wrongSound || s.wrongSound);
+    new Audio("audio/" + soundFile).play();
+
+    if (isCorrect) {
+      checkBtn.innerText = "Great!";
+      setTimeout(() => {
+        taskIdx++;
+        if (taskIdx < tasks.length) {
+          showTask();
+        } else {
+          showUniversalRewardFromSession(s);
+        }
+      }, pauseBetweenTasks);
+    } else {
+      checkBtn.innerText = "Oops, try again!";
+      checkBtn.style.background = "#ffcdd2";
+      setTimeout(() => {
+        checkBtn.innerText = "Check Order";
+        checkBtn.style.background = "";
+      }, 800);
+    }
+  };
+}
+
 
   if (!s.video) showTask();
 }
