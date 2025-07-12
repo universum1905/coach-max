@@ -5241,7 +5241,7 @@ else if (s.type === "color-sequence") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Überschrift bleibt immer oben
+  // Überschrift
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.textContent = s.title || "Color Sequence!";
@@ -5250,17 +5250,15 @@ else if (s.type === "color-sequence") {
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // Fester Wrapper für Zentrierung
   const mainWrap = document.createElement('div');
   mainWrap.style.display = "flex";
   mainWrap.style.flexDirection = "column";
   mainWrap.style.justifyContent = "center";
   mainWrap.style.alignItems = "center";
   mainWrap.style.minHeight = "55vh";
-  mainWrap.style.width = "100%";
   textArea.appendChild(mainWrap);
 
-  // Musik abspielen (aus JSON)
+  // Musik
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
@@ -5271,125 +5269,106 @@ else if (s.type === "color-sequence") {
       if (document.hidden && sessionMusic) sessionMusic.pause();
       else if (!document.hidden && sessionMusic) sessionMusic.play();
     });
-    window.addEventListener("pagehide", function() {
+    window.addEventListener("pagehide", function () {
       if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
     });
   }
 
-  // Video unten rechts (optional)
-  let videoBox, video;
+  // Video
   if (s.video) {
-    video = document.createElement('video');
-    video.src = `videos/${s.video}`;
-    video.setAttribute("controls", "true");
-    video.setAttribute("controlsList", "nodownload");
-    video.autoplay = false;
-    video.muted = false;
-    video.playsInline = true;
-    video.poster = "images/video-placeholder.png";
-    video.className = "session-video";
-
-    videoBox = document.createElement("div");
+    const videoBox = document.createElement("div");
     videoBox.className = "floating-video";
     videoBox.style.position = "fixed";
     videoBox.style.right = "14px";
     videoBox.style.bottom = "62px";
     videoBox.style.zIndex = "1000";
-    videoBox.appendChild(video);
-    document.body.appendChild(videoBox);
 
-    const playBtn = document.createElement('button');
+    const video = document.createElement("video");
+    video.src = "videos/" + s.video;
+    video.controls = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.className = "session-video";
+    video.style.pointerEvents = "none";
+    videoBox.appendChild(video);
+
+    const playBtn = document.createElement("button");
     playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-    `;
+    playBtn.innerHTML = `<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" fill="none"/><polygon points="22,16 46,30 22,44" fill="#383838"/></svg>`;
     videoBox.appendChild(playBtn);
 
-    playBtn.onclick = function () {
+    playBtn.onclick = () => {
       video.play();
       playBtn.style.display = "none";
       video.style.pointerEvents = "auto";
     };
-    video.addEventListener('play', () => {
-      playBtn.style.display = "none";
-      video.style.pointerEvents = "auto";
-    });
-    video.addEventListener('pause', () => {
-      playBtn.style.display = "";
-      video.style.pointerEvents = "none";
-    });
-    video.addEventListener('ended', () => {
+
+    video.addEventListener("ended", () => {
       playBtn.style.display = "";
       video.style.pointerEvents = "none";
       showTask();
     });
+
+    document.body.appendChild(videoBox);
   } else {
     showTask();
   }
 
-  // Zeitsteuerung
-  const sessionStart = Date.now();
-  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
-  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1700;
   const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
+  const pauseBetweenQuestions = s.pauseBetweenTasks || 1700;
+  const sessionStart = Date.now();
+  const minDuration = parseInt(s.minDuration || "60", 10);
   let taskIdx = 0;
 
   function showTask() {
-    mainWrap.innerHTML = "";
     const currentTask = tasks[taskIdx];
-    let userOrder = Array(currentTask.colors.length).fill(null);
+    mainWrap.innerHTML = "";
 
-    // Frage
-    const qDiv = document.createElement("div");
-    qDiv.className = "animated-text";
-    qDiv.style.textAlign = "center";
-    qDiv.style.fontSize = "1.21rem";
-    qDiv.style.fontWeight = "bold";
-    qDiv.style.margin = "0 0 15px 0";
-    qDiv.textContent = currentTask.question || "Put the colors in the right order!";
-    mainWrap.appendChild(qDiv);
+    const qText = document.createElement("div");
+    qText.textContent = currentTask.question || "Put the colors in the right order!";
+    qText.className = "animated-text";
+    qText.style.textAlign = "center";
+    qText.style.fontSize = "1.25rem";
+    qText.style.fontWeight = "bold";
+    qText.style.marginBottom = "16px";
+    mainWrap.appendChild(qText);
 
-    // Drop-Ziele (Kreise mit "?" und Farbnamen darunter)
     const dropBox = document.createElement("div");
     dropBox.style.display = "flex";
     dropBox.style.justifyContent = "center";
     dropBox.style.gap = "20px";
-    dropBox.style.margin = "10px 0 14px 0";
-    dropBox.style.flexWrap = "wrap";
+    dropBox.style.marginBottom = "16px";
     mainWrap.appendChild(dropBox);
 
-    // Farben zur Auswahl
+    const pickBox = document.createElement("div");
+    pickBox.style.display = "flex";
+    pickBox.style.justifyContent = "center";
+    pickBox.style.gap = "14px";
+    mainWrap.appendChild(pickBox);
+
+    let userOrder = Array(currentTask.colors.length).fill(null);
+
     const colorOptions = currentTask.colors.map((col, i) => {
-      const colorVal = typeof col === "object" ? col.color : col;
-      const colorLabel = typeof col === "object" ? col.label : col.charAt(0).toUpperCase() + col.slice(1);
       const btn = document.createElement("button");
-      btn.style.display = "flex";
-      btn.style.flexDirection = "column";
-      btn.style.alignItems = "center";
-      btn.style.justifyContent = "center";
-      btn.style.width = "62px";
-      btn.style.margin = "0 7px";
       btn.style.background = "none";
       btn.style.border = "none";
       btn.style.cursor = "pointer";
+      btn.style.display = "flex";
+      btn.style.flexDirection = "column";
+      btn.style.alignItems = "center";
 
       const circle = document.createElement("div");
       circle.style.width = "48px";
       circle.style.height = "48px";
       circle.style.borderRadius = "50%";
-      circle.style.background = colorVal.toLowerCase();
-      circle.style.border = "3.2px solid #ffd54f";
+      circle.style.background = col;
+      circle.style.border = "3px solid #ffd54f";
       btn.appendChild(circle);
 
       const label = document.createElement("div");
-      label.textContent = colorLabel;
-      label.style.fontSize = "1.08rem";
-      label.style.color = "#444";
+      label.textContent = col.charAt(0).toUpperCase() + col.slice(1);
       label.style.marginTop = "6px";
+      label.style.fontSize = "1rem";
       btn.appendChild(label);
 
       btn.onclick = () => {
@@ -5398,117 +5377,86 @@ else if (s.type === "color-sequence") {
           userOrder[idx] = i;
           renderDrops();
           btn.disabled = true;
-          btn.style.opacity = "0.52";
-          btn.style.pointerEvents = "none";
+          btn.style.opacity = "0.5";
         }
       };
       return btn;
     });
 
-    // Drop-Bereiche anzeigen (Fragezeichen + Name)
     function renderDrops() {
       dropBox.innerHTML = "";
       for (let i = 0; i < currentTask.colors.length; i++) {
-        const spot = document.createElement("div");
-        spot.style.display = "flex";
-        spot.style.flexDirection = "column";
-        spot.style.alignItems = "center";
-        spot.style.width = "62px";
-        spot.style.minHeight = "66px";
-        const c = document.createElement("div");
-        c.style.width = "48px";
-        c.style.height = "48px";
-        c.style.borderRadius = "50%";
-        c.style.border = "3.2px dashed #ffd54f";
-        c.style.background = userOrder[i] === null ? "#fffbe6" : colorOptions[userOrder[i]].firstChild.style.background;
-        c.style.display = "flex";
-        c.style.alignItems = "center";
-        c.style.justifyContent = "center";
-        c.style.fontSize = "2rem";
-        c.textContent = userOrder[i] === null ? "?" : "";
+        const slot = document.createElement("div");
+        slot.style.display = "flex";
+        slot.style.flexDirection = "column";
+        slot.style.alignItems = "center";
+        slot.style.width = "60px";
 
-        const l = document.createElement("div");
-        l.style.fontSize = "1.08rem";
-        l.style.color = "#555";
-        l.style.marginTop = "6px";
-        l.style.minHeight = "18px";
-        l.textContent = userOrder[i] !== null
-          ? colorOptions[userOrder[i]].lastChild.textContent
-          : "";
-
-        spot.appendChild(c);
-        spot.appendChild(l);
+        const circle = document.createElement("div");
+        circle.style.width = "48px";
+        circle.style.height = "48px";
+        circle.style.borderRadius = "50%";
+        circle.style.border = "3px dashed #ffd54f";
+        circle.style.background = userOrder[i] !== null ? currentTask.colors[userOrder[i]] : "#fffbe6";
+        circle.textContent = userOrder[i] === null ? "?" : "";
+        circle.style.display = "flex";
+        circle.style.justifyContent = "center";
+        circle.style.alignItems = "center";
+        circle.style.fontSize = "1.3rem";
 
         if (userOrder[i] !== null) {
-          c.style.cursor = "pointer";
-          c.onclick = () => {
-            colorOptions[userOrder[i]].disabled = false;
-            colorOptions[userOrder[i]].style.opacity = "1";
-            colorOptions[userOrder[i]].style.pointerEvents = "auto";
+          circle.style.cursor = "pointer";
+          circle.onclick = () => {
+            const idx = userOrder[i];
             userOrder[i] = null;
+            colorOptions[idx].disabled = false;
+            colorOptions[idx].style.opacity = "1";
             renderDrops();
           };
         }
-        dropBox.appendChild(spot);
+
+        const label = document.createElement("div");
+        label.textContent = userOrder[i] !== null ? currentTask.colors[userOrder[i]].charAt(0).toUpperCase() + currentTask.colors[userOrder[i]].slice(1) : "";
+        label.style.fontSize = "0.95rem";
+        label.style.marginTop = "6px";
+
+        slot.appendChild(circle);
+        slot.appendChild(label);
+        dropBox.appendChild(slot);
       }
     }
+
     renderDrops();
-
-    // Farbauswahl unterhalb!
-    const pickBox = document.createElement("div");
-    pickBox.style.display = "flex";
-    pickBox.style.justifyContent = "center";
-    pickBox.style.gap = "14px";
-    pickBox.style.margin = "16px 0 0 0";
     colorOptions.forEach(btn => pickBox.appendChild(btn));
-    mainWrap.appendChild(pickBox);
 
-    // Check-Button ganz unten, immer unter alles
     const checkBtn = document.createElement("button");
     checkBtn.innerText = "Check Order";
     checkBtn.className = "centered-next-btn";
-    checkBtn.style.margin = "27px auto 0 auto";
-    checkBtn.style.fontSize = "1.14rem";
-    checkBtn.style.fontWeight = "bold";
-    checkBtn.style.padding = "14px 32px";
-    checkBtn.style.borderRadius = "24px";
-    checkBtn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
-    checkBtn.style.boxShadow = "0 2px 22px #ffd54f99, 0 0 18px #fffde4";
-    checkBtn.style.cursor = "pointer";
+    checkBtn.style.zIndex = "20";
+    checkBtn.style.marginTop = "24px";
     mainWrap.appendChild(checkBtn);
 
-    // Logik beim Prüfen
     checkBtn.onclick = () => {
       if (userOrder.includes(null)) {
+        checkBtn.innerText = "Please fill all!";
         checkBtn.style.background = "#ffcdd2";
-        checkBtn.innerText = "Please place all colors!";
         setTimeout(() => {
-          checkBtn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
           checkBtn.innerText = "Check Order";
-        }, 900);
+          checkBtn.style.background = "";
+        }, 1000);
         return;
       }
-      if (JSON.stringify(userOrder) === JSON.stringify(currentTask.solution)) {
-        new Audio("audio/" + (currentTask.correctSound || s.correctSound || "yay.mp3")).play();
-        checkBtn.style.background = "#c8e6c9";
-        checkBtn.innerText = "Great! That's correct!";
+
+      const isCorrect = JSON.stringify(userOrder) === JSON.stringify(currentTask.solution);
+      const sound = new Audio("audio/" + (isCorrect ? (currentTask.correctSound || s.correctSound || "yay.mp3") : (currentTask.wrongSound || s.wrongSound || "fail.mp3")));
+      sound.play();
+
+      if (isCorrect) {
+        checkBtn.innerText = "Great!";
+        taskIdx++;
         setTimeout(() => {
-          taskIdx++;
           if (taskIdx < tasks.length) {
-            mainWrap.innerHTML = "";
-            const waitMsg = document.createElement("div");
-            waitMsg.textContent = "Next question loading...";
-            waitMsg.style.textAlign = "center";
-            waitMsg.style.fontSize = "1.13rem";
-            waitMsg.style.margin = "15px";
-            mainWrap.appendChild(waitMsg);
-            colorOptions.forEach(b => {
-              b.disabled = false;
-              b.style.opacity = "1";
-              b.style.pointerEvents = "auto";
-            });
-            userOrder = Array(currentTask.colors.length).fill(null);
-            setTimeout(showTask, pauseBetweenQuestions);
+            showTask();
           } else {
             if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
             const elapsed = (Date.now() - sessionStart) / 1000;
@@ -5521,23 +5469,20 @@ else if (s.type === "color-sequence") {
               });
             }
           }
-        }, 900);
+        }, 1000);
       } else {
-        new Audio("audio/" + (currentTask.wrongSound || s.wrongSound || "fail.mp3")).play();
-        checkBtn.style.background = "#ffcdd2";
         checkBtn.innerText = "Oops, try again!";
+        checkBtn.style.background = "#ffcdd2";
         setTimeout(() => {
-          checkBtn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
           checkBtn.innerText = "Check Order";
-        }, 950);
+          checkBtn.style.background = "";
+        }, 1000);
       }
     };
   }
 
-  // Mit oder ohne Video: Session startet mit Frage
   if (!s.video) showTask();
 }
-
 
 else if (s.type === "color-detective") {
   clearTimeouts();
