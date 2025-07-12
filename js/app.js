@@ -5233,6 +5233,297 @@ else if (s.type === "color-sequence") {
     });
   }
 }
+else if (s.type === "color-sequence") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(e => e.remove());
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
+
+  // Überschrift
+  const heading = document.createElement("h2");
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Rainbow Sequence!";
+  heading.style.textAlign = "center";
+  heading.style.margin = "18px 0 8px 0";
+  heading.style.fontSize = "2.2rem";
+  textArea.appendChild(heading);
+
+  // Wrapper für Mitte
+  const mainWrap = document.createElement('div');
+  mainWrap.style.display = "flex";
+  mainWrap.style.flexDirection = "column";
+  mainWrap.style.justifyContent = "center";
+  mainWrap.style.alignItems = "center";
+  mainWrap.style.minHeight = "55vh";
+  mainWrap.style.width = "100%";
+  textArea.appendChild(mainWrap);
+
+  // Musik
+  let sessionMusic = null;
+  if (s.music) {
+    sessionMusic = new Audio("audio/" + s.music);
+    sessionMusic.loop = true;
+    sessionMusic.volume = 0.16;
+    sessionMusic.play();
+    document.addEventListener("visibilitychange", function musicPauseHandler() {
+      if (document.hidden && sessionMusic) sessionMusic.pause();
+      else if (!document.hidden && sessionMusic) sessionMusic.play();
+    });
+    window.addEventListener("pagehide", function() {
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+    });
+  }
+
+  // Zeitsteuerung (minDuration aus JSON, Default 60s)
+  const sessionStart = Date.now();
+  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1600;
+
+  // --- Click-to-Place Variante, 3 Aufgaben ---
+  const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
+  let taskIdx = 0;
+
+  function showColorSequenceTask() {
+    mainWrap.innerHTML = "";
+
+    const currentTask = tasks[taskIdx];
+
+    // Frage
+    const qDiv = document.createElement("div");
+    qDiv.className = "animated-text";
+    qDiv.style.textAlign = "center";
+    qDiv.style.fontSize = "1.21rem";
+    qDiv.style.fontWeight = "bold";
+    qDiv.style.margin = "0 0 15px 0";
+    qDiv.textContent = currentTask.question || "Put the colors in the right order!";
+    mainWrap.appendChild(qDiv);
+
+    // Beispiel-Anzeige
+    if (currentTask.example && Array.isArray(currentTask.example)) {
+      const exampleRow = document.createElement("div");
+      exampleRow.style.display = "flex";
+      exampleRow.style.justifyContent = "center";
+      exampleRow.style.gap = "13px";
+      exampleRow.style.margin = "6px 0 20px 0";
+      currentTask.example.forEach(color => {
+        const circle = document.createElement("div");
+        circle.style.width = "32px";
+        circle.style.height = "32px";
+        circle.style.borderRadius = "50%";
+        circle.style.background = color.toLowerCase();
+        circle.style.border = "2.5px solid #ffd54f";
+        circle.title = color;
+        exampleRow.appendChild(circle);
+      });
+      mainWrap.appendChild(exampleRow);
+    }
+
+    // Lösung (z. B. [2,0,1])
+    const solution = currentTask.solution;
+
+    // Drop-Ziele (Kreise mit "?" und Farbnamen darunter)
+    const dropBox = document.createElement("div");
+    dropBox.style.display = "flex";
+    dropBox.style.justifyContent = "center";
+    dropBox.style.gap = "20px";
+    dropBox.style.margin = "20px 0 18px 0";
+    dropBox.style.flexWrap = "wrap";
+
+    // Platzhalter für die Farbauswahl, z. B. [null,null,null]
+    let userOrder = Array(currentTask.colors.length).fill(null);
+
+    // Farben vorbereiten (Kreis + Name)
+    const colorOptions = currentTask.colors.map((col, i) => {
+      const colorVal = typeof col === "object" ? col.color : col;
+      const colorLabel = typeof col === "object" ? col.label : col.charAt(0).toUpperCase() + col.slice(1);
+
+      const btn = document.createElement("button");
+      btn.style.display = "flex";
+      btn.style.flexDirection = "column";
+      btn.style.alignItems = "center";
+      btn.style.justifyContent = "center";
+      btn.style.width = "62px";
+      btn.style.margin = "0 7px";
+      btn.style.background = "none";
+      btn.style.border = "none";
+      btn.style.cursor = "pointer";
+
+      // Farbiger Kreis
+      const circle = document.createElement("div");
+      circle.style.width = "48px";
+      circle.style.height = "48px";
+      circle.style.borderRadius = "50%";
+      circle.style.background = colorVal.toLowerCase();
+      circle.style.border = "3.2px solid #ffd54f";
+      btn.appendChild(circle);
+
+      // Name drunter
+      const label = document.createElement("div");
+      label.textContent = colorLabel;
+      label.style.fontSize = "1.08rem";
+      label.style.color = "#444";
+      label.style.marginTop = "6px";
+      btn.appendChild(label);
+
+      // Click zum Auswählen
+      btn.onclick = () => {
+        // Finde ersten freien Platz im Drop-Bereich
+        const idx = userOrder.indexOf(null);
+        if (idx !== -1) {
+          userOrder[idx] = i;
+          renderDrops();
+          btn.disabled = true;
+          btn.style.opacity = "0.52";
+          btn.style.pointerEvents = "none";
+        }
+      };
+      return btn;
+    });
+
+    // Drop-Bereiche anzeigen (Fragezeichen + Name)
+    function renderDrops() {
+      dropBox.innerHTML = "";
+      for (let i = 0; i < currentTask.colors.length; i++) {
+        const spot = document.createElement("div");
+        spot.style.display = "flex";
+        spot.style.flexDirection = "column";
+        spot.style.alignItems = "center";
+        spot.style.width = "62px";
+        spot.style.minHeight = "66px";
+
+        // Kreis (leerer Kreis oder belegter Kreis)
+        const c = document.createElement("div");
+        c.style.width = "48px";
+        c.style.height = "48px";
+        c.style.borderRadius = "50%";
+        c.style.border = "3.2px dashed #ffd54f";
+        c.style.background = userOrder[i] === null ? "#fffbe6" : colorOptions[userOrder[i]].firstChild.style.background;
+        c.style.display = "flex";
+        c.style.alignItems = "center";
+        c.style.justifyContent = "center";
+        c.style.fontSize = "2rem";
+        c.textContent = userOrder[i] === null ? "?" : "";
+
+        // Name unten, nur wenn belegt
+        const l = document.createElement("div");
+        l.style.fontSize = "1.08rem";
+        l.style.color = "#555";
+        l.style.marginTop = "6px";
+        l.style.minHeight = "18px";
+        l.textContent = userOrder[i] !== null
+          ? colorOptions[userOrder[i]].lastChild.textContent
+          : "";
+
+        spot.appendChild(c);
+        spot.appendChild(l);
+
+        // Klick zum Entfernen, falls schon belegt
+        if (userOrder[i] !== null) {
+          c.style.cursor = "pointer";
+          c.onclick = () => {
+            // Freigeben und Button wieder aktivieren
+            colorOptions[userOrder[i]].disabled = false;
+            colorOptions[userOrder[i]].style.opacity = "1";
+            colorOptions[userOrder[i]].style.pointerEvents = "auto";
+            userOrder[i] = null;
+            renderDrops();
+          };
+        }
+        dropBox.appendChild(spot);
+      }
+    }
+    renderDrops();
+
+    // Farbauswahl unterhalb
+    const pickBox = document.createElement("div");
+    pickBox.style.display = "flex";
+    pickBox.style.justifyContent = "center";
+    pickBox.style.gap = "14px";
+    pickBox.style.margin = "16px 0 8px 0";
+    colorOptions.forEach(btn => pickBox.appendChild(btn));
+
+    mainWrap.appendChild(dropBox);
+    mainWrap.appendChild(pickBox);
+
+    // Check-Button
+    const checkBtn = document.createElement("button");
+    checkBtn.innerText = "Check Order";
+    checkBtn.className = "centered-next-btn";
+    checkBtn.style.margin = "19px auto 0 auto";
+    checkBtn.style.fontSize = "1.14rem";
+    checkBtn.style.fontWeight = "bold";
+    checkBtn.style.padding = "14px 32px";
+    checkBtn.style.borderRadius = "24px";
+    checkBtn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
+    checkBtn.style.boxShadow = "0 2px 22px #ffd54f99, 0 0 18px #fffde4";
+    checkBtn.style.cursor = "pointer";
+    checkBtn.onclick = () => {
+      // Prüfen
+      if (userOrder.includes(null)) {
+        checkBtn.style.background = "#ffcdd2";
+        checkBtn.innerText = "Please place all colors!";
+        setTimeout(() => {
+          checkBtn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
+          checkBtn.innerText = "Check Order";
+        }, 900);
+        return;
+      }
+      // Prüfen, ob korrekt
+      if (JSON.stringify(userOrder) === JSON.stringify(solution)) {
+        new Audio("audio/" + (currentTask.correctSound || s.correctSound || "yay.mp3")).play();
+        // Glückwunsch Feedback
+        checkBtn.style.background = "#c8e6c9";
+        checkBtn.innerText = "Great! That's correct!";
+        // Nächste Frage oder Abschluss
+        setTimeout(() => {
+          taskIdx++;
+          if (taskIdx < tasks.length) {
+            mainWrap.innerHTML = "";
+            const waitMsg = document.createElement("div");
+            waitMsg.textContent = "Next question loading...";
+            waitMsg.style.textAlign = "center";
+            waitMsg.style.fontSize = "1.13rem";
+            waitMsg.style.margin = "15px";
+            mainWrap.appendChild(waitMsg);
+            // Farben zurücksetzen
+            colorOptions.forEach(b => {
+              b.disabled = false;
+              b.style.opacity = "1";
+              b.style.pointerEvents = "auto";
+            });
+            userOrder = Array(currentTask.colors.length).fill(null);
+            setTimeout(showColorSequenceTask, pauseBetweenQuestions);
+          } else {
+            if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+            // Zeitsteuerung aktiv
+            const elapsed = (Date.now() - sessionStart) / 1000;
+            if (elapsed >= minDuration) {
+              showUniversalRewardFromSession(s);
+            } else {
+              const waitTime = Math.ceil(minDuration - elapsed);
+              showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+                showUniversalRewardFromSession(s);
+              });
+            }
+          }
+        }, 900);
+      } else {
+        new Audio("audio/" + (currentTask.wrongSound || s.wrongSound || "fail.mp3")).play();
+        checkBtn.style.background = "#ffcdd2";
+        checkBtn.innerText = "Oops, try again!";
+        setTimeout(() => {
+          checkBtn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
+          checkBtn.innerText = "Check Order";
+        }, 950);
+      }
+    };
+    mainWrap.appendChild(checkBtn);
+  }
+
+  // Start mit erster Frage
+  showColorSequenceTask();
+}
 
 
 
