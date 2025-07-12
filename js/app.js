@@ -5429,11 +5429,19 @@ else if (s.type === "color-sequence") {
     renderDrops();
     colorOptions.forEach(btn => pickBox.appendChild(btn));
 
+    // Check-Button direkt unter den Farbauswahl-Kreisen
     const checkBtn = document.createElement("button");
     checkBtn.innerText = "Check Order";
     checkBtn.className = "centered-next-btn";
-    checkBtn.style.zIndex = "20";
-    checkBtn.style.marginTop = "24px";
+
+    // Position direkt unter pickBox + höhere z-Index
+    Object.assign(checkBtn.style, {
+      position: "relative",
+      zIndex: "2001",         // über dem Video-Overlay
+      margin: "24px auto 0",  // 24px Abstand nach oben, zentriert
+      display: "block"
+    });
+
     mainWrap.appendChild(checkBtn);
 
     checkBtn.onclick = () => {
