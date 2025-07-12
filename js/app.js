@@ -5241,190 +5241,171 @@ else if (s.type === "color-sequence") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // 1) Überschrift (bleibt immer oben)
+  // Überschrift bleibt immer oben
   const heading = document.createElement("h2");
   heading.className = "session-heading";
   heading.textContent = s.title || "Color Sequence!";
   heading.style.textAlign = "center";
-  heading.style.margin = "18px 0 8px";
+  heading.style.margin = "18px 0 8px 0";
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // 2) Main-Wrap für alle Tasks
+  // Haupt-Wrapper für die Aufgaben
   const mainWrap = document.createElement("div");
-  Object.assign(mainWrap.style, {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    minHeight: "55vh",
-    width: "100%"
-  });
+  mainWrap.style.display = "flex";
+  mainWrap.style.flexDirection = "column";
+  mainWrap.style.justifyContent = "center";
+  mainWrap.style.alignItems = "center";
+  mainWrap.style.minHeight = "55vh";
+  mainWrap.style.width = "100%";
   textArea.appendChild(mainWrap);
 
-  // 3) Musik
+  // Musik abspielen (aus JSON)
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
     sessionMusic.loop = true;
     sessionMusic.volume = 0.16;
     sessionMusic.play();
-    document.addEventListener("visibilitychange", () => {
-      document.hidden ? sessionMusic.pause() : sessionMusic.play();
+    document.addEventListener("visibilitychange", function musicPauseHandler() {
+      if (document.hidden && sessionMusic) sessionMusic.pause();
+      else if (!document.hidden && sessionMusic) sessionMusic.play();
     });
-    window.addEventListener("pagehide", () => {
-      sessionMusic.pause();
-      sessionMusic.currentTime = 0;
+    window.addEventListener("pagehide", function() {
+      if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
     });
   }
 
-  // 4) Video unten rechts als kleiner Kreis mit Play-Button
-if (s.video) {
-  const videoBox = document.createElement("div");
-  Object.assign(videoBox.style, {
-    position: "fixed",
-    right: "14px",
-    bottom: "62px",
-    width: "64px",
-    height: "64px",
-    borderRadius: "50%",
-    overflow: "hidden",
-    backgroundColor: "#fffde7",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-    zIndex: "1000"
-  });
+  // Video unten rechts wie IMMER, mit Play-Button Overlay
+  let videoBox, video;
+  if (s.video) {
+    video = document.createElement("video");
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
 
-  const video = document.createElement("video");
-  video.src = "videos/" + s.video;
-  video.playsInline = true;
-  video.muted = false;
-  // Versteckt das Video initial
-  video.style.display = "none";
-  // Füllt den Kreiscontainer komplett aus
-  video.style.width  = "100%";
-  video.style.height = "100%";
-  videoBox.appendChild(video);
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
 
-  const playBtn = document.createElement("button");
-  Object.assign(playBtn.style, {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    padding: "0"
-  });
-  playBtn.innerHTML = `
-    <svg width="32" height="32" viewBox="0 0 60 60">
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>`;
-  videoBox.appendChild(playBtn);
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
 
-  playBtn.onclick = () => {
-    playBtn.style.display = "none";
-    video.style.display = "block";
-    video.play();
-  };
-
-  video.addEventListener("ended", () => {
-    // Container entfernen, damit er nicht weiter im Weg ist
-    videoBox.remove();
-    // Session-Aufgabe starten
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+      showTask();
+    });
+  } else {
     showTask();
-  });
+  }
 
-  document.body.appendChild(videoBox);
-
-} else {
-  // Kein Video → direkt in die Aufgabe springen
-  showTask();
-}
-
-
-  // 5) Tasks initialisieren
+  // Zeitsteuerung
+  const sessionStart = Date.now();
+  const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1500;
   const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
-  const pauseBetweenTasks = parseInt(s.pauseBetweenTasks || 1600, 10);
   let taskIdx = 0;
 
   function showTask() {
     mainWrap.innerHTML = "";
     const current = tasks[taskIdx];
 
-    // a) Frage
+    // Frage
     const q = document.createElement("div");
     q.textContent = current.question;
-    Object.assign(q.style, {
-      textAlign: "center",
-      fontSize: "1.25rem",
-      fontWeight: "bold",
-      marginBottom: "12px"
-    });
+    q.style.textAlign = "center";
+    q.style.fontSize = "1.18rem";
+    q.style.fontWeight = "bold";
+    q.style.marginBottom = "14px";
     mainWrap.appendChild(q);
 
-    // b) Beispiel-Sequenz
-    const exampleBox = document.createElement("div");
-    Object.assign(exampleBox.style, {
-      display: "flex",
-      justifyContent: "center",
-      gap: "12px",
-      marginBottom: "20px"
-    });
-    current.example.forEach(col => {
-      const circ = document.createElement("div");
-      Object.assign(circ.style, {
-        width: "32px",
-        height: "32px",
-        borderRadius: "50%",
-        background: col,
-        border: "2px solid #ffd54f"
+    // Beispielreihe (wenn vorhanden)
+    if (Array.isArray(current.example)) {
+      const exampleBox = document.createElement("div");
+      exampleBox.style.display = "flex";
+      exampleBox.style.justifyContent = "center";
+      exampleBox.style.gap = "10px";
+      exampleBox.style.marginBottom = "14px";
+      current.example.forEach(col => {
+        const circ = document.createElement("div");
+        circ.style.width = "32px";
+        circ.style.height = "32px";
+        circ.style.borderRadius = "50%";
+        circ.style.background = col;
+        circ.style.border = "2px solid #ffd54f";
+        exampleBox.appendChild(circ);
       });
-      exampleBox.appendChild(circ);
-    });
-    mainWrap.appendChild(exampleBox);
+      mainWrap.appendChild(exampleBox);
+    }
 
-    // c) Leere Drop-Ziele
+    // Drop-Zonen
     const dropBox = document.createElement("div");
-    Object.assign(dropBox.style, {
-      display: "flex",
-      justifyContent: "center",
-      gap: "20px",
-      marginBottom: "20px"
-    });
+    dropBox.style.display = "flex";
+    dropBox.style.justifyContent = "center";
+    dropBox.style.gap = "18px";
+    dropBox.style.marginBottom = "15px";
+    dropBox.style.flexWrap = "wrap";
     mainWrap.appendChild(dropBox);
 
-    // d) Farbauswahl unten
+    // Farbauswahl darunter
     const pickBox = document.createElement("div");
-    Object.assign(pickBox.style, {
-      display: "flex",
-      justifyContent: "center",
-      gap: "14px"
-    });
+    pickBox.style.display = "flex";
+    pickBox.style.justifyContent = "center";
+    pickBox.style.gap = "14px";
     mainWrap.appendChild(pickBox);
 
-    // Hilfsarray und Buttons
+    // Click-to-Place Logik
     let userOrder = Array(current.colors.length).fill(null);
     const colorBtns = current.colors.map((col, i) => {
       const btn = document.createElement("button");
-      Object.assign(btn.style, {
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center"
-      });
+      btn.style.background = "none";
+      btn.style.border = "none";
+      btn.style.cursor = "pointer";
+      btn.style.display = "flex";
+      btn.style.flexDirection = "column";
+      btn.style.alignItems = "center";
       const circ = document.createElement("div");
-      Object.assign(circ.style, {
-        width: "48px",
-        height: "48px",
-        borderRadius: "50%",
-        background: col,
-        border: "3px solid #ffd54f"
-      });
+      circ.style.width = "48px";
+      circ.style.height = "48px";
+      circ.style.borderRadius = "50%";
+      circ.style.background = col;
+      circ.style.border = "3px solid #ffd54f";
       const lbl = document.createElement("div");
       lbl.textContent = col.charAt(0).toUpperCase() + col.slice(1);
       lbl.style.marginTop = "6px";
+      lbl.style.fontSize = "1.04rem";
       btn.append(circ, lbl);
 
       btn.onclick = () => {
@@ -5432,7 +5413,7 @@ if (s.video) {
         if (emptyIdx >= 0) {
           userOrder[emptyIdx] = i;
           btn.disabled = true;
-          btn.style.opacity = "0.5";
+          btn.style.opacity = "0.53";
           renderDrops();
           checkCompletion();
         }
@@ -5441,31 +5422,28 @@ if (s.video) {
       return btn;
     });
 
-    // Drop-Rendering
     function renderDrops() {
       dropBox.innerHTML = "";
       current.colors.forEach((_, i) => {
         const slot = document.createElement("div");
-        Object.assign(slot.style, {
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          width: "60px"
-        });
+        slot.style.display = "flex";
+        slot.style.flexDirection = "column";
+        slot.style.alignItems = "center";
+        slot.style.width = "58px";
         const circle = document.createElement("div");
-        Object.assign(circle.style, {
-          width: "48px",
-          height: "48px",
-          borderRadius: "50%",
-          border: "3px dashed #ffd54f",
-          background: userOrder[i] !== null ? current.colors[userOrder[i]] : "#fffbe6",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "1.3rem",
-          cursor: userOrder[i] !== null ? "pointer" : "default"
-        });
+        circle.style.width = "48px";
+        circle.style.height = "48px";
+        circle.style.borderRadius = "50%";
+        circle.style.border = "3px dashed #ffd54f";
+        circle.style.background = userOrder[i] !== null ? current.colors[userOrder[i]] : "#fffbe6";
+        circle.style.display = "flex";
+        circle.style.alignItems = "center";
+        circle.style.justifyContent = "center";
+        circle.style.fontSize = "1.3rem";
+        circle.style.cursor = userOrder[i] !== null ? "pointer" : "default";
         circle.textContent = userOrder[i] === null ? "?" : "";
+
+        // Rücknahme eines platzierten Chips
         if (userOrder[i] !== null) {
           circle.onclick = () => {
             const idx = userOrder[i];
@@ -5475,42 +5453,67 @@ if (s.video) {
             renderDrops();
           };
         }
-        slot.append(circle);
+        slot.appendChild(circle);
+
+        // Label UNTER den Drop-Kreisen
+        const lbl = document.createElement("div");
+        lbl.style.fontSize = "1.02rem";
+        lbl.style.color = "#666";
+        lbl.style.marginTop = "6px";
+        lbl.style.minHeight = "18px";
+        lbl.textContent = userOrder[i] !== null ? colorBtns[userOrder[i]].lastChild.textContent : "";
+        slot.appendChild(lbl);
+
         dropBox.appendChild(slot);
       });
     }
     renderDrops();
 
-    // Überprüfen, ob alle korrekt sind
     function checkCompletion() {
       if (userOrder.includes(null)) return;
       if (JSON.stringify(userOrder) === JSON.stringify(current.solution)) {
-        new Audio("audio/" + s.correctSound).play();
-        taskIdx++;
-        if (taskIdx < tasks.length) {
-          setTimeout(showTask, pauseBetweenTasks);
-        } else {
-          // nach der letzten Aufgabe Next-Button zeigen
-          const nextBtn = document.createElement("button");
-          nextBtn.innerText = "Next";
-          nextBtn.className = "centered-next-btn";
-          Object.assign(nextBtn.style, {
-            margin: "24px auto",
-            display: "block"
-          });
-          nextBtn.onclick = () => showUniversalRewardFromSession(s);
-          mainWrap.appendChild(nextBtn);
-        }
+        new Audio("audio/" + (current.correctSound || s.correctSound || "yay.mp3")).play();
+        // Feedback grün, kurze Pause dann nächste Frage oder Reward
+        setTimeout(() => {
+          taskIdx++;
+          if (taskIdx < tasks.length) {
+            mainWrap.innerHTML = "";
+            const waitMsg = document.createElement("div");
+            waitMsg.textContent = "Next question loading...";
+            waitMsg.style.textAlign = "center";
+            waitMsg.style.fontSize = "1.14rem";
+            waitMsg.style.margin = "13px";
+            mainWrap.appendChild(waitMsg);
+            colorBtns.forEach(b => { b.disabled = false; b.style.opacity = "1"; });
+            setTimeout(showTask, pauseBetweenQuestions);
+          } else {
+            if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+            // minDuration abwarten, dann Reward
+            const elapsed = (Date.now() - sessionStart) / 1000;
+            if (elapsed >= minDuration) {
+              showUniversalRewardFromSession(s);
+            } else {
+              const waitTime = Math.ceil(minDuration - elapsed);
+              showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+                showUniversalRewardFromSession(s);
+              });
+            }
+          }
+        }, pauseBetweenQuestions);
       } else {
-        new Audio("audio/" + s.wrongSound).play();
-        // falsch: alles zurücksetzen
+        new Audio("audio/" + (current.wrongSound || s.wrongSound || "fail.mp3")).play();
+        // Alles zurücksetzen
         userOrder = Array(current.colors.length).fill(null);
         colorBtns.forEach(b => { b.disabled = false; b.style.opacity = "1"; });
         renderDrops();
       }
     }
   }
+
+  // Falls kein Video, Aufgaben sofort starten
+  if (!s.video) showTask();
 }
+
 
 
 else if (s.type === "color-detective") {
