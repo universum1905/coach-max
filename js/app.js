@@ -5484,6 +5484,8 @@ else if (s.type === "color-sequence") {
   if (!s.video) showTask();
 }
 
+
+
 else if (s.type === "color-detective") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
