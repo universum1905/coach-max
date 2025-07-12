@@ -4601,26 +4601,27 @@ else if (s.type === "color-find") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn, .reward-container").forEach(e => e.remove());
+
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
   // Überschrift bleibt immer oben
   const heading = document.createElement('h2');
   heading.className = "session-heading";
-  heading.textContent = s.title || "Color Detective!";
+  heading.textContent = s.title || "Find the Color!";
   heading.style.textAlign = "center";
   heading.style.margin = "18px 0 8px 0";
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // Zentraler Wrapper
+  // Fester Wrapper für Zentrierung
   const mainWrap = document.createElement('div');
   mainWrap.style.display = "flex";
   mainWrap.style.flexDirection = "column";
   mainWrap.style.justifyContent = "center";
   mainWrap.style.alignItems = "center";
-  mainWrap.style.minHeight = "55vh";
   mainWrap.style.width = "100%";
+  mainWrap.style.minHeight = "55vh";
   textArea.appendChild(mainWrap);
 
   // Musik abspielen (aus JSON)
@@ -4628,7 +4629,7 @@ else if (s.type === "color-find") {
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
     sessionMusic.loop = true;
-    sessionMusic.volume = 0.18;
+    sessionMusic.volume = 0.16;
     sessionMusic.play();
     document.addEventListener("visibilitychange", function musicPauseHandler() {
       if (document.hidden && sessionMusic) sessionMusic.pause();
@@ -4639,7 +4640,7 @@ else if (s.type === "color-find") {
     });
   }
 
-  // Video unten rechts (wie überall)
+  // Video unten rechts (optional)
   let videoBox, video;
   if (s.video) {
     video = document.createElement('video');
@@ -4688,50 +4689,52 @@ else if (s.type === "color-find") {
     video.addEventListener('ended', () => {
       playBtn.style.display = "";
       video.style.pointerEvents = "none";
-      showColorTask();
+      showColorTasks();
     });
   } else {
-    showColorTask();
+    showColorTasks();
   }
 
-  // Zeitsteuerung
+  // Zeitsteuerung (minDuration aus JSON, Default 60s)
   const sessionStart = Date.now();
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
-  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1600;
-
-  // Multi-Task
+  const pauseBetweenQuestions = s.pauseBetweenQuestions || 1700;
   const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
-  let taskIdx = 0;
+  let currentTaskIdx = 0;
 
-  function showColorTask() {
+  function showColorTasks() {
     mainWrap.innerHTML = "";
-    const currentTask = tasks[taskIdx];
+    const currentTask = tasks[currentTaskIdx];
 
-    // Farbkugel (immer oben im Task)
+    // Farbkugel
     const colorCircle = document.createElement("div");
     colorCircle.style.width = "110px";
     colorCircle.style.height = "110px";
-    colorCircle.style.margin = "8px auto 14px auto";
+    colorCircle.style.margin = "0 auto 16px auto";
     colorCircle.style.borderRadius = "50%";
     colorCircle.style.background = currentTask.color ? currentTask.color.toLowerCase() : "#4caf50";
     colorCircle.style.border = "5px solid #ffd54f";
     colorCircle.style.boxShadow = "0 2px 32px #ffd54faa, 0 0 32px #aeea00aa";
     mainWrap.appendChild(colorCircle);
 
-    // Frage mittig
+    // Frage
     const q = document.createElement("div");
     q.className = "animated-text";
     q.style.textAlign = "center";
     q.style.fontSize = "1.22rem";
-    q.style.margin = "0 0 13px 0";
+    q.style.margin = "0 0 17px 0";
     q.innerText = currentTask.question || "Find something in this color!";
     mainWrap.appendChild(q);
 
-    // Button mittig unter Frage, mobilfreundlich
+    // Button mittig unter der Frage
     const btn = document.createElement("button");
     btn.innerText = currentTask.buttonText || `I found something ${currentTask.color || ""}!`;
     btn.className = "centered-next-btn";
-    btn.style.margin = "15px auto 0 auto";
+    btn.style.margin = "24px auto 0 auto";
+    btn.style.display = "block";
+    btn.style.maxWidth = "340px";
+    btn.style.width = "100%";
+    btn.style.boxSizing = "border-box";
     btn.style.fontSize = "1.18rem";
     btn.style.fontWeight = "bold";
     btn.style.padding = "15px 36px";
@@ -4744,42 +4747,28 @@ else if (s.type === "color-find") {
     btn.style.animation = "countYesPulse 1s infinite alternate";
     mainWrap.appendChild(btn);
 
-    btn.onclick = function () {
-      // Richtig Sound
-      let correctSound = currentTask.correctSound || s.correctSound || "yay.mp3";
-      new Audio("audio/" + correctSound).play();
-
+    btn.onclick = () => {
+      new Audio("audio/" + (currentTask.correctSound || s.correctSound || "yay.mp3")).play();
       btn.disabled = true;
-      btn.style.opacity = "0.7";
-      btn.style.transform = "scale(0.97)";
-      setTimeout(() => btn.style.transform = "scale(1)", 180);
+      btn.style.background = "#b2dfdb";
+      btn.style.color = "#388e3c";
 
-      // Feedback Text
-      let feedback = mainWrap.querySelector(".color-feedback");
-      if (!feedback) {
-        feedback = document.createElement("div");
-        feedback.className = "animated-text color-feedback";
-        feedback.style.textAlign = "center";
-        feedback.style.marginTop = "14px";
-        feedback.style.fontWeight = "bold";
-        feedback.style.fontSize = "1.15rem";
-        mainWrap.appendChild(feedback);
-      }
-      feedback.textContent = currentTask.onDone || "Great!";
-
+      // Weiter zur nächsten Frage oder Reward
       setTimeout(() => {
-        taskIdx++;
-        if (taskIdx < tasks.length) {
+        currentTaskIdx++;
+        if (currentTaskIdx < tasks.length) {
+          // Nächste Frage
           mainWrap.innerHTML = "";
           const waitMsg = document.createElement("div");
-          waitMsg.textContent = "Next color loading...";
+          waitMsg.textContent = "Next question loading...";
           waitMsg.style.textAlign = "center";
-          waitMsg.style.fontSize = "1.18rem";
-          waitMsg.style.margin = "13px";
+          waitMsg.style.fontSize = "1.15rem";
+          waitMsg.style.margin = "15px";
           mainWrap.appendChild(waitMsg);
-          setTimeout(showColorTask, pauseBetweenQuestions);
+          setTimeout(showColorTasks, pauseBetweenQuestions);
         } else {
           if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+          // Zeitsteuerung aktiv
           const elapsed = (Date.now() - sessionStart) / 1000;
           if (elapsed >= minDuration) {
             showUniversalRewardFromSession(s);
@@ -4791,13 +4780,9 @@ else if (s.type === "color-find") {
           }
         }
       }, pauseBetweenQuestions);
-    }
+    };
   }
-
-  // Starte Task wenn KEIN Video, ansonsten nach Video-Ende
-  if (!s.video) showColorTask();
 }
-
 
 else if (s.type === "color-sequence") {
   clearTimeouts();
