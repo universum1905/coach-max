@@ -4616,13 +4616,8 @@ else if (s.type === "color-find") {
 
   // Haupt-Wrapper für Mitte
   const mainWrap = document.createElement('div');
-  mainWrap.style.display = "flex";
-  mainWrap.style.flexDirection = "column";
-  mainWrap.style.justifyContent = "center";
-  mainWrap.style.alignItems = "center";
-  mainWrap.style.width = "100%";
-  mainWrap.style.minHeight = "55vh";
-  textArea.appendChild(mainWrap);
+mainWrap.className = "main-wrap";   // <<< HIER
+textArea.appendChild(mainWrap);
 
   // Musik abspielen (optional)
   let sessionMusic = null;
@@ -4719,7 +4714,7 @@ else if (s.type === "color-find") {
   q.innerText = currentTask.question || "Find something in this color!";
   mainWrap.appendChild(q);
 
-  // Button direkt unter die Frage
+  // Button unter die Frage
   const btn = document.createElement("button");
   btn.innerText = currentTask.buttonText || `I found something ${currentTask.color || ""}!`;
   btn.className = "centered-next-btn";
