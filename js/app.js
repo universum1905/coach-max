@@ -4613,7 +4613,7 @@ else if (s.type === "color-find") {
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // Zentrierter Wrapper
+  // Zentraler Wrapper
   const mainWrap = document.createElement('div');
   mainWrap.style.display = "flex";
   mainWrap.style.flexDirection = "column";
@@ -4639,12 +4639,67 @@ else if (s.type === "color-find") {
     });
   }
 
+  // Video unten rechts (wie überall)
+  let videoBox, video;
+  if (s.video) {
+    video = document.createElement('video');
+    video.src = `videos/${s.video}`;
+    video.setAttribute("controls", "true");
+    video.setAttribute("controlsList", "nodownload");
+    video.autoplay = false;
+    video.muted = false;
+    video.playsInline = true;
+    video.poster = "images/video-placeholder.png";
+    video.className = "session-video";
+
+    videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
+    videoBox.style.zIndex = "1000";
+    videoBox.appendChild(video);
+    document.body.appendChild(videoBox);
+
+    const playBtn = document.createElement('button');
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = function () {
+      video.play();
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    };
+    video.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+    });
+    video.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+    });
+    video.addEventListener('ended', () => {
+      playBtn.style.display = "";
+      video.style.pointerEvents = "none";
+      showColorTask();
+    });
+  } else {
+    showColorTask();
+  }
+
   // Zeitsteuerung
   const sessionStart = Date.now();
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
   const pauseBetweenQuestions = s.pauseBetweenQuestions || 1600;
 
-  // Multi-Task/Fragen
+  // Multi-Task
   const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
   let taskIdx = 0;
 
@@ -4652,31 +4707,31 @@ else if (s.type === "color-find") {
     mainWrap.innerHTML = "";
     const currentTask = tasks[taskIdx];
 
-    // Großer, farbiger Kreis
+    // Farbkugel (immer oben im Task)
     const colorCircle = document.createElement("div");
     colorCircle.style.width = "110px";
     colorCircle.style.height = "110px";
-    colorCircle.style.margin = "16px auto 18px auto";
+    colorCircle.style.margin = "8px auto 14px auto";
     colorCircle.style.borderRadius = "50%";
     colorCircle.style.background = currentTask.color ? currentTask.color.toLowerCase() : "#4caf50";
     colorCircle.style.border = "5px solid #ffd54f";
     colorCircle.style.boxShadow = "0 2px 32px #ffd54faa, 0 0 32px #aeea00aa";
     mainWrap.appendChild(colorCircle);
 
-    // Frage aus JSON Task
+    // Frage mittig
     const q = document.createElement("div");
     q.className = "animated-text";
     q.style.textAlign = "center";
     q.style.fontSize = "1.22rem";
-    q.style.margin = "0 0 17px 0";
+    q.style.margin = "0 0 13px 0";
     q.innerText = currentTask.question || "Find something in this color!";
     mainWrap.appendChild(q);
 
-    // Button
+    // Button mittig unter Frage, mobilfreundlich
     const btn = document.createElement("button");
     btn.innerText = currentTask.buttonText || `I found something ${currentTask.color || ""}!`;
     btn.className = "centered-next-btn";
-    btn.style.margin = "20px auto 0 auto";
+    btn.style.margin = "15px auto 0 auto";
     btn.style.fontSize = "1.18rem";
     btn.style.fontWeight = "bold";
     btn.style.padding = "15px 36px";
@@ -4695,7 +4750,7 @@ else if (s.type === "color-find") {
       new Audio("audio/" + correctSound).play();
 
       btn.disabled = true;
-      btn.style.opacity = "0.6";
+      btn.style.opacity = "0.7";
       btn.style.transform = "scale(0.97)";
       setTimeout(() => btn.style.transform = "scale(1)", 180);
 
@@ -4724,7 +4779,6 @@ else if (s.type === "color-find") {
           mainWrap.appendChild(waitMsg);
           setTimeout(showColorTask, pauseBetweenQuestions);
         } else {
-          // Session vorbei – Zeitsteuerung aktiv
           if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
           const elapsed = (Date.now() - sessionStart) / 1000;
           if (elapsed >= minDuration) {
@@ -4739,8 +4793,11 @@ else if (s.type === "color-find") {
       }, pauseBetweenQuestions);
     }
   }
-  showColorTask();
+
+  // Starte Task wenn KEIN Video, ansonsten nach Video-Ende
+  if (!s.video) showColorTask();
 }
+
 
 else if (s.type === "color-sequence") {
   clearTimeouts();
