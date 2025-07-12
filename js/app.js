@@ -4703,86 +4703,106 @@ else if (s.type === "color-find") {
   let currentTaskIdx = 0;
 
   function showColorTasks() {
-    mainWrap.innerHTML = "";
-    const currentTask = tasks[currentTaskIdx];
+  mainWrap.innerHTML = "";
+  const currentTask = tasks[currentTaskIdx];
 
-    // Farbkugel
-    const colorCircle = document.createElement("div");
-    colorCircle.style.width = "110px";
-    colorCircle.style.height = "110px";
-    colorCircle.style.margin = "0 auto 16px auto";
-    colorCircle.style.borderRadius = "50%";
-    colorCircle.style.background = currentTask.color ? currentTask.color.toLowerCase() : "#4caf50";
-    colorCircle.style.border = "5px solid #ffd54f";
-    colorCircle.style.boxShadow = "0 2px 32px #ffd54faa, 0 0 32px #aeea00aa";
-    mainWrap.appendChild(colorCircle);
+  // Farbkugel
+  const colorCircle = document.createElement("div");
+  colorCircle.style.width = "110px";
+  colorCircle.style.height = "110px";
+  colorCircle.style.margin = "0 auto 16px auto";
+  colorCircle.style.borderRadius = "50%";
+  colorCircle.style.background = currentTask.color ? currentTask.color.toLowerCase() : "#4caf50";
+  colorCircle.style.border = "5px solid #ffd54f";
+  colorCircle.style.boxShadow = "0 2px 32px #ffd54faa, 0 0 32px #aeea00aa";
+  mainWrap.appendChild(colorCircle);
 
-    // Frage
-    const q = document.createElement("div");
-    q.className = "animated-text";
-    q.style.textAlign = "center";
-    q.style.fontSize = "1.22rem";
-    q.style.margin = "0 0 17px 0";
-    q.innerText = currentTask.question || "Find something in this color!";
-    mainWrap.appendChild(q);
+  // Frage
+  const q = document.createElement("div");
+  q.className = "animated-text";
+  q.style.textAlign = "center";
+  q.style.fontSize = "1.22rem";
+  q.style.margin = "0 0 17px 0";
+  q.innerText = currentTask.question || "Find something in this color!";
+  mainWrap.appendChild(q);
 
-    // Button mittig unter der Frage
-    const btn = document.createElement("button");
-    btn.innerText = currentTask.buttonText || `I found something ${currentTask.color || ""}!`;
-    btn.className = "centered-next-btn";
+  // Button-Logik
+  const btn = document.createElement("button");
+  btn.innerText = currentTask.buttonText || `I found something ${currentTask.color || ""}!`;
+  btn.className = "centered-next-btn";
+  btn.style.fontSize = "1.18rem";
+  btn.style.fontWeight = "bold";
+  btn.style.padding = "15px 36px";
+  btn.style.borderRadius = "24px";
+  btn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
+  btn.style.boxShadow = "0 2px 22px #ffd54f99, 0 0 18px #fffde4";
+  btn.style.cursor = "pointer";
+  btn.style.transition = "transform 0.2s";
+  btn.style.animation = "countYesPulse 1s infinite alternate";
+  btn.style.maxWidth = "340px";
+  btn.style.width = "100%";
+  btn.style.boxSizing = "border-box";
+
+  // Button-Positionierung
+  if (videoBox) {
+    // Video existiert: Button unterhalb links vom VideoBox platzieren
+    btn.style.position = "absolute";
+    btn.style.left = "0";
+    btn.style.bottom = "-58px";
+    btn.style.margin = "0";
+    btn.style.transform = "translateY(12px)";
+    btn.style.zIndex = "1002";
+    videoBox.style.position = "fixed";
+    videoBox.style.right = "14px";
+    videoBox.style.bottom = "62px";
+    videoBox.style.zIndex = "1000";
+    // Button-Wrapper für Positionierung
+    if (!videoBox.querySelector('.centered-next-btn')) {
+      // Wrapper für VideoBox-Positionierung
+      videoBox.style.display = "inline-block";
+      videoBox.style.paddingBottom = "48px"; // damit Button Platz hat
+      videoBox.appendChild(btn);
+    }
+  } else {
+    // Kein Video: Button mittig unterm Text wie gehabt
     btn.style.margin = "24px auto 0 auto";
-    btn.style.display = "block";
-    btn.style.maxWidth = "340px";
-    btn.style.width = "100%";
-    btn.style.boxSizing = "border-box";
-    btn.style.fontSize = "1.18rem";
-    btn.style.fontWeight = "bold";
-    btn.style.padding = "15px 36px";
-    btn.style.borderRadius = "24px";
-    btn.style.background = "linear-gradient(90deg,#ffe082,#ffd54f,#ffe082)";
-    btn.style.boxShadow = "0 2px 22px #ffd54f99, 0 0 18px #fffde4";
-    btn.style.position = "relative";
-    btn.style.cursor = "pointer";
-    btn.style.transition = "transform 0.2s";
-    btn.style.animation = "countYesPulse 1s infinite alternate";
     mainWrap.appendChild(btn);
-
-    btn.onclick = () => {
-      new Audio("audio/" + (currentTask.correctSound || s.correctSound || "yay.mp3")).play();
-      btn.disabled = true;
-      btn.style.background = "#b2dfdb";
-      btn.style.color = "#388e3c";
-
-      // Weiter zur nächsten Frage oder Reward
-      setTimeout(() => {
-        currentTaskIdx++;
-        if (currentTaskIdx < tasks.length) {
-          // Nächste Frage
-          mainWrap.innerHTML = "";
-          const waitMsg = document.createElement("div");
-          waitMsg.textContent = "Next question loading...";
-          waitMsg.style.textAlign = "center";
-          waitMsg.style.fontSize = "1.15rem";
-          waitMsg.style.margin = "15px";
-          mainWrap.appendChild(waitMsg);
-          setTimeout(showColorTasks, pauseBetweenQuestions);
-        } else {
-          if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-          // Zeitsteuerung aktiv
-          const elapsed = (Date.now() - sessionStart) / 1000;
-          if (elapsed >= minDuration) {
-            showUniversalRewardFromSession(s);
-          } else {
-            const waitTime = Math.ceil(minDuration - elapsed);
-            showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
-              showUniversalRewardFromSession(s);
-            });
-          }
-        }
-      }, pauseBetweenQuestions);
-    };
   }
+
+  btn.onclick = () => {
+    new Audio("audio/" + (currentTask.correctSound || s.correctSound || "yay.mp3")).play();
+    btn.disabled = true;
+    btn.style.background = "#b2dfdb";
+    btn.style.color = "#388e3c";
+    // Weiter zur nächsten Frage oder Reward
+    setTimeout(() => {
+      currentTaskIdx++;
+      if (currentTaskIdx < tasks.length) {
+        mainWrap.innerHTML = "";
+        const waitMsg = document.createElement("div");
+        waitMsg.textContent = "Next question loading...";
+        waitMsg.style.textAlign = "center";
+        waitMsg.style.fontSize = "1.15rem";
+        waitMsg.style.margin = "15px";
+        mainWrap.appendChild(waitMsg);
+        setTimeout(showColorTasks, pauseBetweenQuestions);
+      } else {
+        if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+        // Zeitsteuerung aktiv
+        const elapsed = (Date.now() - sessionStart) / 1000;
+        if (elapsed >= minDuration) {
+          showUniversalRewardFromSession(s);
+        } else {
+          const waitTime = Math.ceil(minDuration - elapsed);
+          showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+            showUniversalRewardFromSession(s);
+          });
+        }
+      }
+    }, pauseBetweenQuestions);
+  };
 }
+
 
 
 else if (s.type === "color-sequence") {
