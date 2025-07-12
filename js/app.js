@@ -4743,28 +4743,16 @@ else if (s.type === "color-find") {
   btn.style.width = "100%";
   btn.style.boxSizing = "border-box";
 
-  // Button-Positionierung
+  // Positioniere Button links neben dem Video
   if (videoBox) {
-    // Video existiert: Button unterhalb links vom VideoBox platzieren
-    btn.style.position = "absolute";
-    btn.style.left = "0";
-    btn.style.bottom = "-58px";
+    btn.style.position = "fixed";
+    btn.style.right = "254px"; // Abstand zum rechten Rand: Video ist rechts 14px, Video ca. 220px breit + 20px Abstand
+    btn.style.bottom = "62px";
     btn.style.margin = "0";
-    btn.style.transform = "translateY(12px)";
-    btn.style.zIndex = "1002";
-    videoBox.style.position = "fixed";
-    videoBox.style.right = "14px";
-    videoBox.style.bottom = "62px";
-    videoBox.style.zIndex = "1000";
-    // Button-Wrapper für Positionierung
-    if (!videoBox.querySelector('.centered-next-btn')) {
-      // Wrapper für VideoBox-Positionierung
-      videoBox.style.display = "inline-block";
-      videoBox.style.paddingBottom = "48px"; // damit Button Platz hat
-      videoBox.appendChild(btn);
-    }
+    btn.style.zIndex = "1001";
+    document.body.appendChild(btn);
   } else {
-    // Kein Video: Button mittig unterm Text wie gehabt
+    // Kein Video: Button wie gehabt mittig unterm Text
     btn.style.margin = "24px auto 0 auto";
     mainWrap.appendChild(btn);
   }
@@ -4774,7 +4762,6 @@ else if (s.type === "color-find") {
     btn.disabled = true;
     btn.style.background = "#b2dfdb";
     btn.style.color = "#388e3c";
-    // Weiter zur nächsten Frage oder Reward
     setTimeout(() => {
       currentTaskIdx++;
       if (currentTaskIdx < tasks.length) {
@@ -4788,7 +4775,6 @@ else if (s.type === "color-find") {
         setTimeout(showColorTasks, pauseBetweenQuestions);
       } else {
         if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
-        // Zeitsteuerung aktiv
         const elapsed = (Date.now() - sessionStart) / 1000;
         if (elapsed >= minDuration) {
           showUniversalRewardFromSession(s);
