@@ -4250,13 +4250,13 @@ else if (s.type === "ai-emoji-madness") {
   // Überschrift bleibt immer oben
   const heading = document.createElement('h2');
   heading.className = "session-heading";
-  heading.textContent = s.title || "Emoji Madness!";
+  heading.textContent = s.title || "Emoji Quiz!";
   heading.style.textAlign = "center";
   heading.style.margin = "18px 0 8px 0";
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // Fester Wrapper für Zentrierung
+  // Wrapper für Mitte
   const mainWrap = document.createElement('div');
   mainWrap.style.display = "flex";
   mainWrap.style.flexDirection = "column";
@@ -4266,12 +4266,12 @@ else if (s.type === "ai-emoji-madness") {
   mainWrap.style.width = "100%";
   textArea.appendChild(mainWrap);
 
-  // Musik abspielen (aus JSON)
+  // Musik (optional)
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
     sessionMusic.loop = true;
-    sessionMusic.volume = 0.17;
+    sessionMusic.volume = 0.18;
     sessionMusic.play();
     document.addEventListener("visibilitychange", function musicPauseHandler() {
       if (document.hidden && sessionMusic) sessionMusic.pause();
@@ -4331,45 +4331,43 @@ else if (s.type === "ai-emoji-madness") {
     video.addEventListener('ended', () => {
       playBtn.style.display = "";
       video.style.pointerEvents = "none";
-      showEmojiTask();
+      showEmojiQuiz();
     });
   } else {
-    showEmojiTask();
+    showEmojiQuiz();
   }
 
-  // Zeitsteuerung (minDuration aus JSON, Default 60s)
+  // Zeitsteuerung
   const sessionStart = Date.now();
   const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
   const pauseBetweenQuestions = s.pauseBetweenQuestions || 1600;
-
   const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
-  let taskIdx = 0;
+  let currentTask = 0;
 
-  function showEmojiTask() {
+  function showEmojiQuiz() {
     mainWrap.innerHTML = "";
+    const task = tasks[currentTask];
 
-    const task = tasks[taskIdx];
-
-    // Emoji-Reihe
+    // Emojis zentriert & groß
     const emojiRow = document.createElement('div');
-    emojiRow.style.fontSize = "2.5rem";
-    emojiRow.style.letterSpacing = "0.18em";
+    emojiRow.textContent = (task.emojis || []).join(' ');
+    emojiRow.style.fontSize = "2.4rem";
+    emojiRow.style.letterSpacing = "0.14em";
+    emojiRow.style.margin = "10px auto 16px auto";
     emojiRow.style.textAlign = "center";
-    emojiRow.style.margin = "9px auto 17px auto";
-    emojiRow.textContent = Array.isArray(task.emojis) ? task.emojis.join(" ") : "";
     mainWrap.appendChild(emojiRow);
 
     // Frage
     const question = document.createElement('div');
+    question.textContent = task.question;
     question.className = "animated-text";
-    question.textContent = task.question || "";
     question.style.textAlign = "center";
-    question.style.fontSize = "1.19rem";
+    question.style.fontSize = "1.21rem";
     question.style.fontWeight = "bold";
-    question.style.margin = "6px 0 12px 0";
+    question.style.margin = "7px 0 16px 0";
     mainWrap.appendChild(question);
 
-    // Antwortmöglichkeiten als Buttons
+    // Antworten als Buttons
     const answersBox = document.createElement("div");
     answersBox.style.display = "flex";
     answersBox.style.justifyContent = "center";
@@ -4378,7 +4376,7 @@ else if (s.type === "ai-emoji-madness") {
     answersBox.style.margin = "8px 0 0 0";
     mainWrap.appendChild(answersBox);
 
-    (task.choices || []).forEach((ans, i) => {
+    task.choices.forEach((ans, i) => {
       const btn = document.createElement("button");
       btn.style.border = "none";
       btn.style.background = "#fffbe6";
@@ -4393,14 +4391,31 @@ else if (s.type === "ai-emoji-madness") {
       btn.style.transition = "all 0.2s";
       btn.classList.add("bounce-glow");
       btn.textContent = ans;
-      btn.onclick = () => handleAnswer(btn, i, answersBox, task.correct, task.onCorrect, task.onWrong);
+      btn.onclick = () => handleAnswer(btn, i, answersBox, task.correct, task.onCorrect, task.onWrong, task.correctSound, task.wrongSound);
       answersBox.appendChild(btn);
     });
 
-    // Fortschritt (unten, groß)
+    // Animation-Style (einmalig)
+    if (!document.getElementById("emoji-btn-bounce-style")) {
+      const style = document.createElement('style');
+      style.id = "emoji-btn-bounce-style";
+      style.innerHTML = `
+        .bounce-glow {
+          animation: bounceBtn 1.18s infinite alternate;
+        }
+        @keyframes bounceBtn {
+          0% { box-shadow: 0 2px 10px #81d4fa88; transform: scale(1);}
+          65%{ box-shadow: 0 7px 30px #ffd54f77; transform: scale(1.09);}
+          100%{box-shadow: 0 2px 10px #81d4fa88; transform: scale(1);}
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Fortschritt
     const progress = document.createElement("div");
     progress.style.width = "100%";
-    progress.style.margin = "20px 0 0 0";
+    progress.style.margin = "15px 0 0 0";
     progress.style.display = "flex";
     progress.style.justifyContent = "center";
     for (let i = 0; i < tasks.length; i++) {
@@ -4408,19 +4423,22 @@ else if (s.type === "ai-emoji-madness") {
       dot.style.width = "18px";
       dot.style.height = "18px";
       dot.style.borderRadius = "50%";
-      dot.style.background = (i === taskIdx) ? "#ffd54f" : "#bdbdbd";
+      dot.style.background = (i === currentTask) ? "#ffd54f" : "#bdbdbd";
       dot.style.margin = "0 5px";
       progress.appendChild(dot);
     }
     mainWrap.appendChild(progress);
   }
 
-  function handleAnswer(btn, i, answersBox, correctIdx, onCorrect, onWrong) {
+  function handleAnswer(btn, i, answersBox, correctIdx, onCorrect, onWrong, correctSound, wrongSound) {
+    const task = tasks[currentTask];
+    // Sound-Handling
+    let playCorrect = correctSound || s.correctSound || "yay.mp3";
+    let playWrong   = wrongSound   || s.wrongSound   || "fail.mp3";
     const correct = (i === correctIdx);
-    if (correct) {
-      new Audio("audio/yay.mp3").play();
 
-      // Buttons sperren
+    if (correct) {
+      new Audio("audio/" + playCorrect).play();
       Array.from(answersBox.children).forEach((b, idx) => {
         b.disabled = true;
         if (b !== btn) b.style.opacity = "0.5";
@@ -4444,8 +4462,8 @@ else if (s.type === "ai-emoji-madness") {
       feedback.style.color = "#388e3c";
 
       setTimeout(() => {
-        taskIdx++;
-        if (taskIdx < tasks.length) {
+        currentTask++;
+        if (currentTask < tasks.length) {
           mainWrap.innerHTML = "";
           const waitMsg = document.createElement("div");
           waitMsg.textContent = "Next question loading...";
@@ -4453,7 +4471,7 @@ else if (s.type === "ai-emoji-madness") {
           waitMsg.style.fontSize = "1.15rem";
           waitMsg.style.margin = "15px";
           mainWrap.appendChild(waitMsg);
-          setTimeout(showEmojiTask, pauseBetweenQuestions);
+          setTimeout(showEmojiQuiz, pauseBetweenQuestions);
         } else {
           if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
           // Zeitsteuerung aktiv
@@ -4471,7 +4489,7 @@ else if (s.type === "ai-emoji-madness") {
 
     } else {
       // FALSCH: Nur diesen Button kurz sperren & Effekte
-      new Audio("audio/fail.mp3").play();
+      new Audio("audio/" + playWrong).play();
       btn.disabled = true;
       btn.style.background = "#ffcdd2";
       btn.style.transform = "scale(1.08)";
@@ -4501,8 +4519,6 @@ else if (s.type === "ai-emoji-madness") {
     }
   }
 }
-
-
 
 else if (s.type === "color-find") {
   clearTimeouts();
