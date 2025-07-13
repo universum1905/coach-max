@@ -222,41 +222,6 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
  * Ruft am Ende jeder Session einfach auf: showUniversalRewardFromSession(s);
  * s = aktuelles Session-Objekt aus deinem sessions-Array.
  */
-function testshowUniversalRewardFromSession(sessionObj, nextAction) {
-  if (!sessionObj) return;
-  // Prüfe, ob überhaupt eine Belohnung vorgesehen ist:
-  if (!("rewardType" in sessionObj) && typeof sessionObj.successSticker === "undefined" && typeof sessionObj.successPuzzle === "undefined") {
-    // Kein Reward definiert – direkt nächste Session (mit optionalem Callback)
-    if (typeof nextAction === "function") nextAction();
-    else {
-      currentSession++;
-      renderSession(currentSession);
-    }
-    return;
-  }
-
-  // Art des Rewards bestimmen
-  let rewardType = sessionObj.rewardType || (typeof sessionObj.successPuzzle !== "undefined" ? "puzzle" : "star");
-  let imgSrc = "";
-  if (rewardType === "star") imgSrc = "images/stickers/star.png";
-  if (rewardType === "trophy") imgSrc = "images/trophy.png";
-  if (rewardType === "certificate") imgSrc = "images/certificate.png";
-  if (rewardType === "puzzle" && typeof sessionObj.puzzleId !== "undefined" && typeof sessionObj.successPuzzle !== "undefined") {
-    // Puzzle-Image zusammensetzen:
-    const pieceIdx = Array.isArray(sessionObj.successPuzzle) ? sessionObj.successPuzzle[0] : sessionObj.successPuzzle;
-    imgSrc = `images/puzzles/puzzle${sessionObj.puzzleId}_piece${pieceIdx}.png`;
-  }
-  // Optional: eigenen Bildpfad aus JSON nutzen
-  if (sessionObj.rewardImg) imgSrc = sessionObj.rewardImg;
-
-  showUniversalReward(
-    imgSrc,
-    sessionObj.onCorrect || "Great job!",
-    nextAction || null,
-    sessionObj.successSticker || 0,
-    rewardType
-  );
-}
 
 function showUniversalRewardFromSession(sessionObj, nextAction) {
   if (!sessionObj) return;
