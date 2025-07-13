@@ -456,16 +456,6 @@ function showCheckingAnimation(parent, callback, opts = {}) {
 }
 
 
-function renderSessionHeader(title) {
-  let titleEl = document.getElementById("mainTitle");
-  if (!titleEl) {
-    titleEl = document.createElement("h2");
-    titleEl.id = "mainTitle";
-    titleEl.className = "session-heading";
-    document.getElementById("mainContent").prepend(titleEl); // Passe ggf. das Container-Target an
-  }
-  titleEl.innerText = title;
-}
 
 
 function runAnimation_confettiGlow() {
@@ -891,9 +881,22 @@ function renderUniversalVideoBox(sessionJSON) {
 // === Hilfsfunktionen – ALLES modular für Kinder-UX ===
 
 function renderSessionHeader(title) {
-  // Kindgerechte Überschrift
-  document.getElementById("mainTitle").innerText = title;
+  let titleEl = document.getElementById("mainTitle");
+  if (!titleEl) {
+    titleEl = document.createElement("h2");
+    titleEl.id = "mainTitle";
+    titleEl.className = "session-heading";
+    document.getElementById("mainContent").prepend(titleEl);
+  }
+  titleEl.innerText = title;
+  titleEl.style.textAlign = "center";
+  titleEl.style.fontFamily = "'Baloo 2', 'Comic Neue', Arial, sans-serif";
+  titleEl.style.fontSize = "2.2rem";
+  titleEl.style.color = "#44a2ff";
+  titleEl.style.letterSpacing = "0.03em";
+  titleEl.style.textShadow = "0 2px 10px #fffbe6, 0 1px 8px #b3e5fc88";
 }
+
 
 function renderAvatarBox(avatar, anim, trigger) {
   // Zeigt Floating-Avatar-Bild oder -Animation, triggert Lottie/Animation falls angegeben
