@@ -200,7 +200,8 @@
 ,
 
   {
-  "type": "color-sequence",
+  "type": "universal-session",
+  "sessionType": "color-sequence",
   "music": "focus-loop.mp3",
   "minDuration": 60,
   "pauseBetweenTasks": 1600,
