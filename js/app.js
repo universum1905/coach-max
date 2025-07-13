@@ -605,18 +605,20 @@ const avatarAnimations = {
 
 // --- Universal Renderer Entry ---
 // UNIVERSAL SESSION RENDERER: Quiz + Sequence (Color/Order)
+// === UNIVERSAL SESSION ENGINE – COACH MAX ===
+
 async function renderUniversalSession(sessionJSON) {
   stopAllSounds();
   clearMainUI();
 
-  // Aufgaben holen (Quiz: questions, Sequence: tasks)
+  // 1. Welche Fragen/Tasks?
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
-  if (!questions.length) return;
+  let currentQ = 0;
 
-  // Video unten rechts einblenden (immer!)
-  renderUniversalVideoBox(sessionJSON);
+  // 2. Video-Box unten rechts befüllen
+  renderUniversalVideoAvatarBox(sessionJSON);
 
-  // Musik starten (stoppt bei Tab zu)
+  // 3. Musik
   let music = null;
   if (sessionJSON.music) {
     music = new Audio("audio/" + sessionJSON.music);
@@ -628,28 +630,33 @@ async function renderUniversalSession(sessionJSON) {
     window.addEventListener("focus", () => { if (music) music.play(); });
   }
 
+  // 4. Titel + Froschbalken
   renderSessionHeader(sessionJSON.title || "");
-  renderFrogProgress(currentSession, currentSession, sessions.length);
+  renderFrogProgress(0, 0, questions.length);
 
-  // Fragen-Engine
+  // 5. Fragen-/Button-Logik
   function showQuestion(idx) {
     const q = questions[idx];
     clearQuestionUI();
+    renderFrogProgress(idx, idx, questions.length);
 
+    // Avatar ggf. (z.B. als kleines Bild über der Frage)
     renderAvatarBox(q.avatar, q.avatarAnimation, "always");
+
+    // Frage-Text
     renderQuestionText(q);
 
-    // UNIVERSAL BUTTONS:
+    // Universal-Buttons
     renderUniversalAnswerButtons(q, (result) => {
-      // Typ-Erkennung
+      // === Auswertung: Quiz oder Reihenfolge ===
       let isCorrect;
-      if (Array.isArray(q.choices))      isCorrect = result === q.correct;
-      else if (Array.isArray(q.colors))  isCorrect = result;
-      else                               isCorrect = false;
+      if (Array.isArray(q.choices)) isCorrect = result === q.correct;
+      else if (Array.isArray(q.colors)) isCorrect = result === true;
+      else isCorrect = false;
 
       lockAnswerButtons();
 
-      // Feedback, Animation, Sound, Avatar etc.
+      // Sound/Animation
       const sound = isCorrect
         ? q.correctSound || randomFrom(soundPool.correct)
         : q.wrongSound   || randomFrom(soundPool.wrong);
@@ -660,34 +667,180 @@ async function renderUniversalSession(sessionJSON) {
         : (q.wrongAnimation   || [randomFrom(animationPool.wrong)]);
       runAnimations(anims);
 
-      if (q.avatar && q.avatarAnimation && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
+      if (q.avatar && q.avatarAnimation &&
+        (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
         playAvatarAnimation(q.avatar, q.avatarAnimation);
       }
 
       renderFeedbackText(isCorrect, q);
-
-      // Checking-Overlay (3 Sek.)
       showCheckingOverlay();
+
       setTimeout(() => {
         hideCheckingOverlay();
         if (isCorrect) {
           if (q.reward !== undefined) showRewardPopup(q.reward);
           setTimeout(() => {
-            if (idx + 1 < questions.length) showQuestion(idx + 1);
-            else finishUniversalSession(sessionJSON);
-          }, 1100);
+            if (idx + 1 < questions.length) {
+              showQuestion(idx + 1);
+            } else {
+              finishUniversalSession(sessionJSON);
+            }
+          }, 1300);
         } else {
           unlockAnswerButtons();
         }
-      }, 1200);
+      }, 1100);
     });
   }
 
-  // Start mit erster Frage
-  showQuestion(0);
+  // Start mit Frage 0
+  if (questions.length > 0) showQuestion(0);
 
   window.addEventListener("beforeunload", stopAllSounds);
 }
+
+// === UNIVERSAL VIDEO + AVATAR CONTAINER ===
+function renderUniversalVideoAvatarBox(sessionJSON) {
+  const box = document.getElementById("videoAvatarBox");
+  box.innerHTML = "";
+  if (sessionJSON.video) {
+    // VIDEO
+    const vid = document.createElement("video");
+    vid.src = "videos/" + sessionJSON.video;
+    vid.setAttribute("controls", "true");
+    vid.setAttribute("controlsList", "nodownload");
+    vid.autoplay = false;
+    vid.muted = false;
+    vid.playsInline = true;
+    vid.poster = "images/video-placeholder.png";
+    vid.style.width = "100%";
+    vid.style.height = "100%";
+    vid.style.objectFit = "cover";
+    box.appendChild(vid);
+
+    // Play-Overlay
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.title = "Play";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>
+    `;
+    playBtn.onclick = function() {
+      vid.play();
+      playBtn.style.display = "none";
+      vid.style.pointerEvents = "auto";
+    };
+    vid.addEventListener('play', () => {
+      playBtn.style.display = "none";
+      vid.style.pointerEvents = "auto";
+    });
+    vid.addEventListener('pause', () => {
+      playBtn.style.display = "";
+      vid.style.pointerEvents = "none";
+    });
+    vid.addEventListener('ended', () => {
+      showAvatarInVideoBox(box, sessionJSON.avatar || "benny", "avatar");
+    });
+    box.appendChild(playBtn);
+  } else {
+    // NUR Avatar
+    showAvatarInVideoBox(box, sessionJSON.avatar || "benny", "avatar");
+  }
+}
+
+// === UNIVERSAL BUTTONS ===
+function renderUniversalAnswerButtons(q, onSelect) {
+  const area = document.getElementById("sessionTextArea");
+  area.innerHTML = "";
+
+  // --- Quiz/Multiple Choice ---
+  if (Array.isArray(q.choices)) {
+    const btnWrap = document.createElement("div");
+    btnWrap.className = "rhyme-buttons"; // Schöne große Buttons
+    q.choices.forEach((choice, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "quiz-choice-btn fade-in-up";
+      btn.innerText = choice;
+      btn.onclick = () => onSelect(idx);
+      btnWrap.appendChild(btn);
+    });
+    area.appendChild(btnWrap);
+    return;
+  }
+
+  // --- Reihenfolge (z.B. Farbreihenfolge) ---
+  if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
+    let userSequence = [];
+    const btnWrap = document.createElement("div");
+    btnWrap.className = "animals-buttons";
+    q.colors.forEach((color, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "sequence-choice-btn fade-in-up";
+      btn.innerText = color;
+      btn.onclick = () => {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        btn.classList.add("selected");
+        userSequence.push(idx);
+        if (userSequence.length === q.solution.length) {
+          // Vergleichen!
+          const correct = userSequence.every((val, i) => val === q.solution[i]);
+          onSelect(correct);
+        }
+      };
+      btnWrap.appendChild(btn);
+    });
+    area.appendChild(btnWrap);
+    return;
+  }
+}
+
+// === Feedback-Text ===
+function renderFeedbackText(isCorrect, q) {
+  // Entferne vorherigen Feedback-Text
+  document.querySelectorAll('.quiz-feedback').forEach(el => el.remove());
+  const area = document.getElementById("sessionTextArea");
+  const feedback = document.createElement("div");
+  feedback.className = "quiz-feedback";
+  feedback.innerText = isCorrect
+    ? (q.feedbackCorrect || "Super gemacht! 🎉")
+    : (q.feedbackWrong || "Oops, nochmal probieren! 😅");
+  area.appendChild(feedback);
+}
+
+function lockAnswerButtons() {
+  document.querySelectorAll('.quiz-choice-btn, .sequence-choice-btn').forEach(btn => btn.disabled = true);
+}
+function unlockAnswerButtons() {
+  document.querySelectorAll('.quiz-choice-btn, .sequence-choice-btn').forEach(btn => btn.disabled = false);
+}
+
+function clearQuestionUI() {
+  document.getElementById("sessionTextArea").innerHTML = "";
+}
+
+// Den Rest deiner bestehenden Animationen, Musik, Frosch, Reward usw. kannst du beibehalten!
+
+// === Hilfsfunktionen ===
+function renderSessionHeader(title) {
+  document.getElementById("mainTitle").innerText = title || "";
+}
+function renderAvatarBox(avatar, anim, trigger) { /* Optional: Avatar über der Frage */ }
+function renderQuestionText(q) {
+  // Frage-Text, ggf. mit großem Abstand, immer sichtbar!
+  const area = document.getElementById("sessionTextArea");
+  const el = document.createElement("div");
+  el.className = "chatgpt-question";
+  el.innerText = q.question || "";
+  area.appendChild(el);
+}
+
+// ... Deine bestehenden Reward, FrogBar, Musik, etc. bleiben!
+
+
 
 // VIDEO unten rechts: universell für alle Sessions
 function renderUniversalVideoBox(sessionJSON) {
