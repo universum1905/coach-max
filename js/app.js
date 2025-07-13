@@ -539,15 +539,6 @@ function runAnimation_rainbowEmoji() {
   setTimeout(() => rainbow.remove(), 1200);
 }
 
-const avatarAnimations = {
-  "benny-wave": "animations/benny-wave.json",
-  "benny-jump": "animations/benny-jump.json",
-  "luna-wave": "animations/luna-wave.json",
-  "luna-dance": "animations/luna-dance.json",
-  "momo-jump": "animations/momo-jump.json",
-  "momo-party": "animations/momo-party.json"
-  // usw. – alles beliebig erweiterbar!
-};
 
 
 
