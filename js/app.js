@@ -425,6 +425,89 @@ function renderSessionHeader(title) {
 }
 
 
+function runAnimation_confettiGlow() {
+  // Erzeuge ein Konfetti-Overlay
+  const confettiBox = document.createElement("div");
+  confettiBox.className = "confetti-overlay";
+  document.body.appendChild(confettiBox);
+
+  for (let i = 0; i < 35; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.animationDelay = (Math.random() * 0.8) + "s";
+    piece.style.background = ["#FFD700", "#FF69B4", "#00E676", "#2979FF", "#FF3D00", "#E040FB"][Math.floor(Math.random()*6)];
+    confettiBox.appendChild(piece);
+  }
+  // Nach 2s alles entfernen
+  setTimeout(() => confettiBox.remove(), 2000);
+
+  // Optional: Glow um Rewards
+  const reward = document.querySelector(".animals-reward-container, .reward-animated, .centered-next-btn");
+  if (reward) {
+    reward.classList.add("glow-effect");
+    setTimeout(() => reward.classList.remove("glow-effect"), 1200);
+  }
+}
+
+
+function runAnimation_emojiParty() {
+  const emojiList = ["🥳", "🎉", "⭐️", "👏", "🎈", "😻", "🐸", "🌈"];
+  for (let i = 0; i < 14; i++) {
+    const emoji = document.createElement("div");
+    emoji.className = "party-emoji";
+    emoji.innerText = emojiList[Math.floor(Math.random()*emojiList.length)];
+    emoji.style.left = Math.random() * 90 + "vw";
+    emoji.style.top = (60 + Math.random()*30) + "vh";
+    emoji.style.fontSize = (1.9 + Math.random()*1.8) + "rem";
+    emoji.style.animationDelay = (Math.random()*0.7) + "s";
+    document.body.appendChild(emoji);
+    setTimeout(() => emoji.remove(), 1800);
+  }
+}
+
+function runAnimation_shake(selector = ".centered-next-btn, .animals-buttons button, .reward-animated") {
+  document.querySelectorAll(selector).forEach(el => {
+    el.classList.add("shake");
+    setTimeout(() => el.classList.remove("shake"), 500);
+  });
+}
+
+function runAnimation_sparkle() {
+  const sparkle = document.createElement("div");
+  sparkle.className = "sparkle-anim";
+  sparkle.innerHTML = "✨✨✨";
+  document.body.appendChild(sparkle);
+  setTimeout(() => sparkle.remove(), 1300);
+}
+
+function runAnimation_bounce(selector = ".animals-reward-container, .reward-animated") {
+  document.querySelectorAll(selector).forEach(el => {
+    el.classList.add("bounce-anim");
+    setTimeout(() => el.classList.remove("bounce-anim"), 700);
+  });
+}
+
+function runAnimation_rainbowEmoji() {
+  const rainbow = document.createElement("div");
+  rainbow.className = "rainbow-emoji-anim";
+  rainbow.innerText = "🌈";
+  document.body.appendChild(rainbow);
+  setTimeout(() => rainbow.remove(), 1200);
+}
+
+
+function demoAllAnimations() {
+  runAnimation_confettiGlow();
+  setTimeout(runAnimation_emojiParty, 900);
+  setTimeout(runAnimation_sparkle, 1700);
+  setTimeout(runAnimation_bounce, 2100);
+  setTimeout(runAnimation_shake, 2500);
+  setTimeout(runAnimation_rainbowEmoji, 2900);
+}
+
+
+
 
 function playSessionVideoIfNeeded(s, afterVideoCallback) {
   document.querySelectorAll(".floating-video").forEach(el => el.remove());

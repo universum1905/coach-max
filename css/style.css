@@ -637,3 +637,90 @@ html, body {
   margin-top: 24px !important;
   display: block !important;
 }
+.confetti-overlay {
+  pointer-events: none;
+  position: fixed;
+  left: 0; top: 0; width: 100vw; height: 100vh;
+  z-index: 9999;
+  overflow: visible;
+}
+.confetti-piece {
+  position: absolute;
+  top: -2vh;
+  width: 14px; height: 14px;
+  border-radius: 3px;
+  opacity: 0.9;
+  animation: confetti-fall 1.6s cubic-bezier(.2,.7,.7,1) forwards;
+}
+@keyframes confetti-fall {
+  to {
+    top: 92vh;
+    transform: rotate(350deg) scale(0.8) translateY(9vh);
+    opacity: 0.3;
+  }
+}
+.glow-effect {
+  box-shadow: 0 0 18px 8px #ffe082, 0 0 60px 12px #fff17666 !important;
+  transition: box-shadow 0.24s;
+}
+.party-emoji {
+  position: fixed;
+  z-index: 9999;
+  animation: emoji-pop 1.2s cubic-bezier(.17,.67,.83,.21) forwards;
+  pointer-events: none;
+  user-select: none;
+}
+@keyframes emoji-pop {
+  0% { transform: scale(0.5) translateY(0); opacity: 0.5; }
+  60% { transform: scale(1.25) translateY(-30px) rotate(10deg);}
+  100% { transform: scale(0.9) translateY(-130px) rotate(-8deg); opacity: 0; }
+}
+.shake {
+  animation: shake-anim 0.45s cubic-bezier(.19, .46, .75, .85);
+}
+@keyframes shake-anim {
+  10%, 90% { transform: translateX(-2px);}
+  20%, 80% { transform: translateX(4px);}
+  30%, 50%, 70% { transform: translateX(-8px);}
+  40%, 60% { transform: translateX(8px);}
+}
+.sparkle-anim {
+  position: fixed;
+  left: 50vw;
+  top: 33vh;
+  font-size: 3.4rem;
+  color: #ffd54f;
+  z-index: 9999;
+  pointer-events: none;
+  filter: blur(0.6px) brightness(1.5);
+  animation: sparkle-fade 1.1s;
+}
+@keyframes sparkle-fade {
+  0% { opacity: 0; transform: scale(0.7);}
+  30% { opacity: 1; transform: scale(1.4);}
+  100% { opacity: 0; transform: scale(0.7);}
+}
+.bounce-anim {
+  animation: bounce-pop 0.55s cubic-bezier(.5,1.6,.7,1.0);
+}
+@keyframes bounce-pop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.18); }
+  70%  { transform: scale(0.92);}
+  100% { transform: scale(1); }
+}
+.rainbow-emoji-anim {
+  position: fixed;
+  left: 44vw;
+  top: 42vh;
+  font-size: 5rem;
+  z-index: 9999;
+  pointer-events: none;
+  animation: rainbow-float 1s cubic-bezier(.5,.1,.7,1.3);
+}
+@keyframes rainbow-float {
+  0%   { opacity: 0; transform: scale(0.7) translateY(0);}
+  35%  { opacity: 1; transform: scale(1.1) translateY(-15px);}
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.1) translateY(-100px);}
+}
