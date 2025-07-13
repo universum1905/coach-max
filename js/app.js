@@ -623,18 +623,19 @@ async function renderUniversalSession(sessionJSON) {
   
   
   
-  let currentQ = 0;
-  let music = null;
+  
+  
   stopAllSounds();
   clearMainUI();
 
-  // Die Aufgaben/Fragen holen
+  // 1. Aufgaben holen (egal ob 'questions' oder 'tasks')
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
   
-  // 1x Fortschrittsbalken für Tasks initialisieren
-  renderFrogProgress(0, 0, questions.length);
+  // 2. Video immer rechts-unten anzeigen, wenn vorhanden
+  renderUniversalVideoBox(sessionJSON);
 
-  // Musik starten (wie gehabt)
+  // 3. Musik starten
+  let music = null;
   if (sessionJSON.music) {
     music = new Audio("audio/" + sessionJSON.music);
     music.loop = true;
@@ -645,19 +646,22 @@ async function renderUniversalSession(sessionJSON) {
     window.addEventListener("focus", () => { if (music) music.play(); });
   }
 
-  // Überschrift setzen
-  renderSessionHeader(sessionJSON.title);
+  // 4. Überschrift, Frosch, usw.
+  renderSessionHeader(sessionJSON.title || "");
+  renderFrogProgress(0, 0, questions.length);
 
-  // Fragen-Engine
+  // 5. Fragen/Tasks Engine
   function showQuestion(idx) {
     const q = questions[idx];
     clearQuestionUI();
-    renderFrogProgress(idx, idx, questions.length);  // Korrekt: Immer für jede Frage
+    renderFrogProgress(idx, idx, questions.length);
+
     renderAvatarBox(q.avatar, q.avatarAnimation, "always");
     renderQuestionText(q);
     renderAnswerButtons(q, (selectedIdx) => {
       const isCorrect = selectedIdx === q.correct;
       lockAnswerButtons();
+
       const sound = isCorrect
         ? q.correctSound || randomFrom(soundPool.correct)
         : q.wrongSound   || randomFrom(soundPool.wrong);
@@ -692,11 +696,89 @@ async function renderUniversalSession(sessionJSON) {
     });
   }
 
-  showQuestion(0);
-
+  if (questions.length > 0) showQuestion(0);
   window.addEventListener("beforeunload", stopAllSounds);
 }
 
+
+
+// Universelles Video-Box-Rendering (nur 1x pro Session)
+function renderUniversalVideoBox(sessionJSON) {
+  // Video entfernen, falls schon da
+  document.querySelectorAll(".floating-video").forEach(el => el.remove());
+
+  if (!sessionJSON.video) return;
+
+  const videoBox = document.createElement('div');
+  videoBox.className = "floating-video";
+  videoBox.style.position = "fixed";
+  videoBox.style.right = "24px";
+  videoBox.style.bottom = "22px";
+  videoBox.style.zIndex = "1200";
+  videoBox.style.width = "220px";
+  videoBox.style.height = "220px";
+  videoBox.style.borderRadius = "50%";
+  videoBox.style.overflow = "hidden";
+  videoBox.style.background = "#fff";
+  videoBox.style.boxShadow = "0 6px 32px #4442, 0 2px 8px #0001";
+
+  const videoElement = document.createElement('video');
+  videoElement.src = "videos/" + sessionJSON.video;
+  videoElement.setAttribute("controls", "true");
+  videoElement.setAttribute("controlsList", "nodownload");
+  videoElement.autoplay = false;
+  videoElement.muted = false;
+  videoElement.playsInline = true;
+  videoElement.poster = "images/video-placeholder.png";
+  videoElement.style.width = "100%";
+  videoElement.style.height = "100%";
+  videoElement.style.objectFit = "cover";
+  videoElement.style.display = "block";
+  videoBox.appendChild(videoElement);
+
+  // Play-Overlay
+  const playBtn = document.createElement('button');
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+  `;
+  playBtn.style.position = "absolute";
+  playBtn.style.left = "50%";
+  playBtn.style.top = "50%";
+  playBtn.style.transform = "translate(-50%,-50%)";
+  playBtn.style.zIndex = "2";
+  playBtn.style.background = "rgba(255,255,255,0.85)";
+  playBtn.style.border = "none";
+  playBtn.style.borderRadius = "50%";
+  playBtn.style.padding = "18px";
+  playBtn.style.cursor = "pointer";
+  playBtn.style.boxShadow = "0 2px 8px #0001";
+  playBtn.onclick = function() {
+    videoElement.play();
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  };
+  videoElement.addEventListener('play', () => {
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  });
+  videoElement.addEventListener('pause', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoElement.addEventListener('ended', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoBox.appendChild(playBtn);
+
+  // Einhängen in Body
+  document.body.appendChild(videoBox);
+}
 
 // === Hilfsfunktionen – ALLES modular für Kinder-UX ===
 
