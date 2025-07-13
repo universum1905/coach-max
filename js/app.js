@@ -413,6 +413,18 @@ function showCheckingAnimation(parent, callback, opts = {}) {
 }
 
 
+function renderSessionHeader(title) {
+  let titleEl = document.getElementById("mainTitle");
+  if (!titleEl) {
+    titleEl = document.createElement("h2");
+    titleEl.id = "mainTitle";
+    titleEl.className = "session-heading";
+    document.getElementById("mainContent").prepend(titleEl); // Passe ggf. das Container-Target an
+  }
+  titleEl.innerText = title;
+}
+
+
 
 function playSessionVideoIfNeeded(s, afterVideoCallback) {
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
