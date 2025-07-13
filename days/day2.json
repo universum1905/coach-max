@@ -54,11 +54,62 @@
     }
   ],
   "successSticker": 2
+},
+
+{
+  "type": "universal-session",
+  "sessionType": "quiz",
+  "title": "Fun Animal Quiz!",
+  "music": "focus-loop.mp3",
+  "minDuration": 60,
+  "successSticker": 3,  
+  "questions": [
+    {
+      "question": "Which animal barks?",
+      "choices": ["Cat", "Dog", "Cow"],
+      "correct": 1,
+      "avatar": "benny",
+      "avatarAnimation": "bounce",
+      "avatarAnimationTrigger": "correct",
+      "correctSound": "yay.mp3",
+      "wrongSound": "fail.mp3",
+      "correctAnimation": ["confetti-glow"],
+      "wrongAnimation": ["shake"],
+      "reward": 0, 
+      "feedbackCorrect": "Super! The dog barks!",
+      "feedbackWrong": "Oops! Try again!"
+    },
+    {
+      "question": "Which animal says 'Moo'?",
+      "choices": ["Duck", "Cow", "Sheep"],
+      "correct": 1,
+      "avatar": "luna",
+      "avatarAnimation": "tada",
+      "avatarAnimationTrigger": "correct",
+      "correctSound": "yay.mp3",
+      "wrongSound": "fail.mp3",
+      "correctAnimation": ["emoji-party"],
+      "wrongAnimation": ["shake"],
+      "reward": 1,
+      "feedbackCorrect": "Right! Cows say moo.",
+      "feedbackWrong": "Nope! Try again!"
+    },
+    {
+      "question": "Which animal is the king of the jungle?",
+      "choices": ["Lion", "Elephant", "Frog"],
+      "correct": 0,
+      "avatar": "momo",
+      "avatarAnimation": "wiggle",
+      "avatarAnimationTrigger": "correct",
+      "correctSound": "sparkle-bell.mp3",
+      "wrongSound": "fail.mp3",
+      "correctAnimation": ["sparkle"],
+      "wrongAnimation": ["shake"],
+      "reward": 2,
+      "feedbackCorrect": "Yay! Lion is the king!",
+      "feedbackWrong": "Not quite! Try again!"
+    } 
+	]
 }
-
-
-
-
-  ]
+]
 }
- 
