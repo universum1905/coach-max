@@ -798,7 +798,7 @@ introMusic.loop = true;
 introMusic.volume = 0.18;
 
 // Fortschrittsbalken (Frosch)
-function renderFrogProgress(fromIdx, toIdx) {
+function renderFrogProgress(fromIdx, toIdx, total) {
   const total = questions.length;
   const bar = document.getElementById("progressFrogBar");
   bar.innerHTML = "";
@@ -1043,7 +1043,6 @@ function renderSession(idx) {
   console.log("Session-Objekt:", s);
   try { breathingMusic.pause(); breathingMusic.currentTime = 0; } catch(e) {}
   clearTimeouts();
-  renderFrogProgress(idx, idx, sessions.length);
   document.querySelectorAll(".floating-video, .fixed-next-btn, .centered-next-btn").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML = "";
 
