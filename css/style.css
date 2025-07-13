@@ -778,3 +778,18 @@ html, body {
   background: #eee;
   display: block;
 }
+.quiz-question {
+  font-size: 1.42rem;
+  font-family: 'Comic Neue', 'Baloo 2', Arial, sans-serif;
+  color: #2979FF;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 12px;
+  margin-bottom: 16px;
+  padding: 12px 8px 6px 8px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #fffbe6 85%, #e3f2fd 100%);
+  box-shadow: 0 2px 12px #b2ebf288;
+  letter-spacing: 0.01em;
+  line-height: 1.38;
+}
