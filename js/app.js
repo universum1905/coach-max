@@ -615,6 +615,14 @@ const avatarAnimations = {
 
 // --- Universal Renderer Entry ---
 async function renderUniversalSession(sessionJSON) {
+  
+  if (sessionJSON.sessionType === "quiz") {
+    renderUniversalQuizSession(sessionJSON);
+    return;
+  }
+  
+  
+  
   let currentQ = 0;
   let music = null;
   stopAllSounds();
@@ -636,17 +644,6 @@ async function renderUniversalSession(sessionJSON) {
     window.addEventListener("blur", () => { music.pause(); });
     window.addEventListener("focus", () => { if (music) music.play(); });
   }
-
-if (type === "quiz") {
-  renderUniversalQuizSession(sessionJSON);
-  return;
-}
-
-
-
-
-
-
 
   // Überschrift setzen
   renderSessionHeader(sessionJSON.title);
