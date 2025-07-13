@@ -785,10 +785,16 @@ function renderUniversalAnswerButtons(q, onSelect) {
   const area = document.getElementById("sessionTextArea");
   area.innerHTML = "";
 
-  // --- Quiz/Multiple Choice ---
+  // FRAGE
+  const el = document.createElement("div");
+  el.className = "chatgpt-question";
+  el.innerText = q.question || "";
+  area.appendChild(el);
+
+  // QUIZ / Multiple Choice
   if (Array.isArray(q.choices)) {
     const btnWrap = document.createElement("div");
-    btnWrap.className = "rhyme-buttons"; // Schöne große Buttons
+    btnWrap.className = "rhyme-buttons";
     q.choices.forEach((choice, idx) => {
       const btn = document.createElement("button");
       btn.className = "quiz-choice-btn fade-in-up";
@@ -800,7 +806,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
     return;
   }
 
-  // --- Reihenfolge (z.B. Farbreihenfolge) ---
+  // SEQUENZ
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
     let userSequence = [];
     const btnWrap = document.createElement("div");
@@ -815,7 +821,6 @@ function renderUniversalAnswerButtons(q, onSelect) {
         btn.classList.add("selected");
         userSequence.push(idx);
         if (userSequence.length === q.solution.length) {
-          // Vergleichen!
           const correct = userSequence.every((val, i) => val === q.solution[i]);
           onSelect(correct);
         }
@@ -826,6 +831,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
     return;
   }
 }
+
 
 // === Feedback-Text ===
 function renderFeedbackText(isCorrect, q) {
