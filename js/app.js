@@ -615,26 +615,16 @@ const avatarAnimations = {
 
 // --- Universal Renderer Entry ---
 async function renderUniversalSession(sessionJSON) {
-  
-  if (sessionJSON.sessionType === "quiz") {
-    renderUniversalQuizSession(sessionJSON);
-    return;
-  }
-  
-  
-  
-  
-  
   stopAllSounds();
   clearMainUI();
 
-  // 1. Aufgaben holen (egal ob 'questions' oder 'tasks')
+  // Aufgaben holen
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
-  
-  // 2. Video immer rechts-unten anzeigen, wenn vorhanden
+
+  // Video unten rechts
   renderUniversalVideoBox(sessionJSON);
 
-  // 3. Musik starten
+  // Musik
   let music = null;
   if (sessionJSON.music) {
     music = new Audio("audio/" + sessionJSON.music);
@@ -646,11 +636,10 @@ async function renderUniversalSession(sessionJSON) {
     window.addEventListener("focus", () => { if (music) music.play(); });
   }
 
-  // 4. Überschrift, Frosch, usw.
+  // Überschrift, Frosch-Balken
   renderSessionHeader(sessionJSON.title || "");
   renderFrogProgress(0, 0, questions.length);
 
-  // 5. Fragen/Tasks Engine
   function showQuestion(idx) {
     const q = questions[idx];
     clearQuestionUI();
@@ -658,10 +647,23 @@ async function renderUniversalSession(sessionJSON) {
 
     renderAvatarBox(q.avatar, q.avatarAnimation, "always");
     renderQuestionText(q);
-    renderAnswerButtons(q, (selectedIdx) => {
-      const isCorrect = selectedIdx === q.correct;
+
+    // *** UNIVERSAL-LOGIK ***
+    renderUniversalAnswerButtons(q, (result) => {
+      // Für Quiz: result = index (number)
+      // Für Reihenfolge: result = true/false (boolean)
+      let isCorrect;
+      if (Array.isArray(q.choices)) {
+        isCorrect = result === q.correct;
+      } else if (Array.isArray(q.colors)) {
+        isCorrect = result;
+      } else {
+        isCorrect = false;
+      }
+
       lockAnswerButtons();
 
+      // Sound, Animation, Feedback, wie gehabt:
       const sound = isCorrect
         ? q.correctSound || randomFrom(soundPool.correct)
         : q.wrongSound   || randomFrom(soundPool.wrong);
@@ -694,12 +696,12 @@ async function renderUniversalSession(sessionJSON) {
         }
       }, 1200);
     });
+    // *** ENDE UNIVERSAL-LOGIK ***
   }
 
   if (questions.length > 0) showQuestion(0);
   window.addEventListener("beforeunload", stopAllSounds);
 }
-
 
 
 // Universelles Video-Box-Rendering (nur 1x pro Session)
@@ -795,11 +797,54 @@ function renderQuestionText(q) {
   // Frage-Text, Bild, Audio oder Video anzeigen
   // ...
 }
-function renderAnswerButtons(q, onSelect) {
-  // Antwort-Buttons erzeugen (Text, Bild, Farbe, Emoji), mit großem Touchbereich
-  // Bei Klick: onSelect(selectedIdx) aufrufen
-  // ...
+function renderUniversalAnswerButtons(q, onSelect) {
+  const area = document.getElementById("sessionTextArea");
+  
+  // Quiz/Multiple Choice
+  if (Array.isArray(q.choices)) {
+    const btns = [];
+    q.choices.forEach((choice, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "quiz-choice-btn";
+      btn.innerText = choice;
+      btn.onclick = () => onSelect(idx);
+      area.appendChild(btn);
+      btns.push(btn);
+    });
+    return;
+  }
+
+  // Reihenfolge/Sequenz (z.B. Farben)
+  if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
+    let userSequence = [];
+    const btns = [];
+    q.colors.forEach((color, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "sequence-choice-btn";
+      btn.innerText = color;
+      btn.onclick = () => {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        btn.classList.add("selected");
+        userSequence.push(idx);
+        if (userSequence.length === q.solution.length) {
+          // Wenn fertig: vergleichen!
+          const correct = userSequence.every((val, i) => val === q.solution[i]);
+          onSelect(correct); // Übergibt true/false!
+        }
+      };
+      area.appendChild(btn);
+      btns.push(btn);
+    });
+    return;
+  }
+
+  // Kann beliebig erweitert werden…
 }
+
+
+
+
 function lockAnswerButtons() {
   // Sperrt alle Buttons temporär
 }
@@ -849,118 +894,6 @@ function clearQuestionUI() {
 }
 function randomFrom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
-}
-
-// UNIVERSAL QUIZ SESSION (Multiple Choice, kindliches Feedback, Sounds, Animationen)
-function renderUniversalQuizSession(sessionJSON) {
-  // Fragen laden
-  const questions = sessionJSON.questions || [];
-  let currentQ = 0;
-
-  // Musik starten
-  let music = null;
-  stopAllSounds();
-  clearMainUI();
-  if (sessionJSON.music) {
-    music = new Audio("audio/" + sessionJSON.music);
-    music.loop = true;
-    music.volume = 0.22;
-    music.play();
-    window.addEventListener("beforeunload", () => { music.pause(); });
-    window.addEventListener("blur", () => { music.pause(); });
-    window.addEventListener("focus", () => { if (music) music.play(); });
-  }
-
-  renderSessionHeader(sessionJSON.title || "Quiz Time!");
-
-  // Fortschritt anzeigen (Frosch-Balken)
-  renderFrogProgress(currentQ, currentQ, questions.length);
-
-  function showQuestion(idx) {
-    const q = questions[idx];
-    clearQuestionUI();
-    renderFrogProgress(idx, idx, questions.length);
-
-    // Quizfrage
-    const area = document.getElementById("sessionTextArea");
-    area.innerHTML = "";
-
-    const question = document.createElement("div");
-    question.className = "quiz-question";
-    question.innerText = q.question || "";
-    area.appendChild(question);
-
-    // Avatar optional anzeigen
-    if (q.avatar) {
-      const img = document.createElement("img");
-      img.src = "images/" + q.avatar + ".png";
-      img.alt = q.avatar;
-      img.className = "quiz-avatar";
-      area.appendChild(img);
-    }
-
-    // Antwort-Buttons
-    if (Array.isArray(q.choices)) {
-      q.choices.forEach((choice, idxBtn) => {
-        const btn = document.createElement("button");
-        btn.className = "quiz-choice-btn";
-        btn.innerText = choice;
-        btn.onclick = function() {
-          lockAnswerButtons();
-          const isCorrect = idxBtn === q.correct;
-
-          // Sound/Animation/Feedback
-          playSound(isCorrect ? "yay.mp3" : "fail.mp3");
-          runAnimations([isCorrect ? "confetti-glow" : "shake"]);
-
-          // Kindliches Feedback-Text
-          const feedback = document.createElement("div");
-          feedback.className = "quiz-feedback";
-          feedback.innerText = isCorrect
-            ? (q.onCorrect || "Super gemacht! 🎉")
-            : (q.onWrong || "Oops, nochmal probieren! 😅");
-          area.appendChild(feedback);
-
-          // Avatar Animation (wenn gewünscht)
-          if (q.avatar && q.avatarAnimation && isCorrect && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "correct")) {
-            btn.classList.add("bounce");
-            setTimeout(() => btn.classList.remove("bounce"), 1100);
-          }
-
-          setTimeout(() => {
-            if (isCorrect) {
-              if (idx + 1 < questions.length) {
-                showQuestion(idx + 1);
-              } else {
-                // Reward anzeigen
-                showUniversalRewardFromSession(sessionJSON, () => {
-                  finishUniversalSession(sessionJSON);
-                });
-              }
-            } else {
-              unlockAnswerButtons();
-              // Feedback-Text entfernen nach 1.5s
-              setTimeout(() => {
-                feedback.remove();
-              }, 1400);
-            }
-          }, isCorrect ? 1400 : 1400);
-        };
-        area.appendChild(btn);
-      });
-    }
-  }
-
-  function lockAnswerButtons() {
-    document.querySelectorAll('.quiz-choice-btn').forEach(btn => btn.disabled = true);
-  }
-  function unlockAnswerButtons() {
-    document.querySelectorAll('.quiz-choice-btn').forEach(btn => btn.disabled = false);
-  }
-
-  showQuestion(0);
-
-  window.addEventListener("beforeunload", stopAllSounds);
 }
 
 
