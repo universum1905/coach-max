@@ -618,8 +618,11 @@ async function renderUniversalSession(sessionJSON) {
   // 1. Setup
   let currentQ = 0;
   let music = null;
-  stopAllSounds(); // Eigene Funktion, stoppt auch Musik/Sounds von anderen Sessions
-  clearMainUI();   // Entfernt alle alten Session-Elemente (eigene Funktion)
+  stopAllSounds();
+  clearMainUI();
+
+  // ----> DAS HIER EINFÜGEN:
+  const questions = sessionJSON.questions || sessionJSON.tasks || [];
 
   // 2. Musik starten
   if (sessionJSON.music) {
@@ -634,13 +637,13 @@ async function renderUniversalSession(sessionJSON) {
 
   // 3. Überschrift, Intro, Frosch-Balken
   renderSessionHeader(sessionJSON.title);
-  renderFrogProgress(0, 0, sessionJSON.questions.length); // (aktuelle Frage, gesamt)
+  renderFrogProgress(0, 0, questions.length);
 
   // 4. Fragen/Tasks sequenziell abarbeiten
   function showQuestion(idx) {
-    const q = sessionJSON.questions[idx];
-    clearQuestionUI();  // Alles leeren, Buttons etc.
-    renderFrogProgress(idx, idx, sessionJSON.questions.length);
+    const q = questions[idx];
+    clearQuestionUI();
+    renderFrogProgress(idx, idx, questions.length);
 
     // --- Floating Avatar-Video/Animation (falls gewünscht) ---
     renderAvatarBox(q.avatar, q.avatarAnimation, "always");
@@ -685,7 +688,7 @@ async function renderUniversalSession(sessionJSON) {
           }
           // --- Nächste Frage oder Finish ---
           setTimeout(() => {
-            if (idx + 1 < sessionJSON.questions.length) {
+            if (idx + 1 < questions.length) {
               showQuestion(idx + 1);
             } else {
               finishUniversalSession(sessionJSON);
@@ -704,6 +707,7 @@ async function renderUniversalSession(sessionJSON) {
   // --- Stopp-Events ---
   window.addEventListener("beforeunload", stopAllSounds);
 }
+
 
 // === Hilfsfunktionen – ALLES modular für Kinder-UX ===
 
