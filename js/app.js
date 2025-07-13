@@ -623,7 +623,8 @@ async function renderUniversalSession(sessionJSON) {
 
   // ----> DAS HIER EINFÜGEN:
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
-
+  renderFrogProgress(0, 0, questions.length); // <-- NUR hier!
+  
   // 2. Musik starten
   if (sessionJSON.music) {
     music = new Audio("audio/" + sessionJSON.music);
@@ -715,10 +716,7 @@ function renderSessionHeader(title) {
   // Kindgerechte Überschrift
   document.getElementById("mainTitle").innerText = title;
 }
-function renderFrogProgress(fromIdx, toIdx, total) {
-  // Frosch-Progressbar: Frosch springt, Fortschritt aktualisieren!
-  // ...
-}
+
 function renderAvatarBox(avatar, anim, trigger) {
   // Zeigt Floating-Avatar-Bild oder -Animation, triggert Lottie/Animation falls angegeben
   // ...
@@ -801,7 +799,7 @@ introMusic.volume = 0.18;
 
 // Fortschrittsbalken (Frosch)
 function renderFrogProgress(fromIdx, toIdx) {
-  const total = sessions.length;
+  const total = questions.length;
   const bar = document.getElementById("progressFrogBar");
   bar.innerHTML = "";
   const barTrack = document.createElement("div");
@@ -1171,7 +1169,7 @@ playBtn.innerHTML = `
   }
 
 
-if (s.type === "universal-session") {
+else if (s.type === "universal-session") {
   renderUniversalSession(s);
   return;
 }
