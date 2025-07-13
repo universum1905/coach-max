@@ -637,6 +637,17 @@ async function renderUniversalSession(sessionJSON) {
     window.addEventListener("focus", () => { if (music) music.play(); });
   }
 
+if (type === "quiz") {
+  renderUniversalQuizSession(sessionJSON);
+  return;
+}
+
+
+
+
+
+
+
   // Überschrift setzen
   renderSessionHeader(sessionJSON.title);
 
@@ -760,6 +771,126 @@ function clearQuestionUI() {
 function randomFrom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
+
+// UNIVERSAL QUIZ SESSION (Multiple Choice, kindliches Feedback, Sounds, Animationen)
+function renderUniversalQuizSession(sessionJSON) {
+  // Fragen laden
+  const questions = sessionJSON.questions || [];
+  let currentQ = 0;
+
+  // Musik starten
+  let music = null;
+  stopAllSounds();
+  clearMainUI();
+  if (sessionJSON.music) {
+    music = new Audio("audio/" + sessionJSON.music);
+    music.loop = true;
+    music.volume = 0.22;
+    music.play();
+    window.addEventListener("beforeunload", () => { music.pause(); });
+    window.addEventListener("blur", () => { music.pause(); });
+    window.addEventListener("focus", () => { if (music) music.play(); });
+  }
+
+  renderSessionHeader(sessionJSON.title || "Quiz Time!");
+
+  // Fortschritt anzeigen (Frosch-Balken)
+  renderFrogProgress(currentQ, currentQ, questions.length);
+
+  function showQuestion(idx) {
+    const q = questions[idx];
+    clearQuestionUI();
+    renderFrogProgress(idx, idx, questions.length);
+
+    // Quizfrage
+    const area = document.getElementById("sessionTextArea");
+    area.innerHTML = "";
+
+    const question = document.createElement("div");
+    question.className = "quiz-question";
+    question.innerText = q.question || "";
+    area.appendChild(question);
+
+    // Avatar optional anzeigen
+    if (q.avatar) {
+      const img = document.createElement("img");
+      img.src = "images/" + q.avatar + ".png";
+      img.alt = q.avatar;
+      img.className = "quiz-avatar";
+      area.appendChild(img);
+    }
+
+    // Antwort-Buttons
+    if (Array.isArray(q.choices)) {
+      q.choices.forEach((choice, idxBtn) => {
+        const btn = document.createElement("button");
+        btn.className = "quiz-choice-btn";
+        btn.innerText = choice;
+        btn.onclick = function() {
+          lockAnswerButtons();
+          const isCorrect = idxBtn === q.correct;
+
+          // Sound/Animation/Feedback
+          playSound(isCorrect ? "yay.mp3" : "fail.mp3");
+          runAnimations([isCorrect ? "confetti-glow" : "shake"]);
+
+          // Kindliches Feedback-Text
+          const feedback = document.createElement("div");
+          feedback.className = "quiz-feedback";
+          feedback.innerText = isCorrect
+            ? (q.onCorrect || "Super gemacht! 🎉")
+            : (q.onWrong || "Oops, nochmal probieren! 😅");
+          area.appendChild(feedback);
+
+          // Avatar Animation (wenn gewünscht)
+          if (q.avatar && q.avatarAnimation && isCorrect && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "correct")) {
+            btn.classList.add("bounce");
+            setTimeout(() => btn.classList.remove("bounce"), 1100);
+          }
+
+          setTimeout(() => {
+            if (isCorrect) {
+              if (idx + 1 < questions.length) {
+                showQuestion(idx + 1);
+              } else {
+                // Reward anzeigen
+                showUniversalRewardFromSession(sessionJSON, () => {
+                  finishUniversalSession(sessionJSON);
+                });
+              }
+            } else {
+              unlockAnswerButtons();
+              // Feedback-Text entfernen nach 1.5s
+              setTimeout(() => {
+                feedback.remove();
+              }, 1400);
+            }
+          }, isCorrect ? 1400 : 1400);
+        };
+        area.appendChild(btn);
+      });
+    }
+  }
+
+  function lockAnswerButtons() {
+    document.querySelectorAll('.quiz-choice-btn').forEach(btn => btn.disabled = true);
+  }
+  function unlockAnswerButtons() {
+    document.querySelectorAll('.quiz-choice-btn').forEach(btn => btn.disabled = false);
+  }
+
+  showQuestion(0);
+
+  window.addEventListener("beforeunload", stopAllSounds);
+}
+
+
+
+
+
+
+
+
 
 
 
