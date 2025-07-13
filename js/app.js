@@ -222,7 +222,7 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
  * Ruft am Ende jeder Session einfach auf: showUniversalRewardFromSession(s);
  * s = aktuelles Session-Objekt aus deinem sessions-Array.
  */
-function showUniversalRewardFromSession(sessionObj, nextAction) {
+function testshowUniversalRewardFromSession(sessionObj, nextAction) {
   if (!sessionObj) return;
   // Prüfe, ob überhaupt eine Belohnung vorgesehen ist:
   if (!("rewardType" in sessionObj) && typeof sessionObj.successSticker === "undefined" && typeof sessionObj.successPuzzle === "undefined") {
@@ -255,6 +255,84 @@ function showUniversalRewardFromSession(sessionObj, nextAction) {
     nextAction || null,
     sessionObj.successSticker || 0,
     rewardType
+  );
+}
+
+function showUniversalRewardFromSession(sessionObj, nextAction) {
+  if (!sessionObj) return;
+
+  // Kein Reward vorgesehen? Dann direkt nächste Session
+  if (
+    !("rewardType" in sessionObj) &&
+    typeof sessionObj.successSticker === "undefined" &&
+    typeof sessionObj.successPuzzle === "undefined" &&
+    typeof sessionObj.specialReward === "undefined"
+  ) {
+    if (typeof nextAction === "function") nextAction();
+    else {
+      currentSession++;
+      renderSession(currentSession);
+    }
+    return;
+  }
+
+  // Reward-Type bestimmen (Fallback: "star")
+  let rewardType = sessionObj.rewardType 
+    || (typeof sessionObj.successPuzzle !== "undefined" ? "puzzle"
+    : (typeof sessionObj.specialReward !== "undefined" ? sessionObj.specialReward : "star"));
+
+  // Reward-Bild festlegen (Mapping)
+  const rewardImgMap = {
+    "star":        "images/stickers/star.png",
+    "trophy":      "images/trophy.png",
+    "certificate": "images/certificate.png",
+    "party-sticker":"images/party-sticker.png",
+    "medal":       "images/medal.png"
+    // weitere Typen nach Bedarf ergänzen!
+  };
+
+  let imgSrc = rewardImgMap[rewardType] || rewardImgMap["star"];
+
+  // Puzzle-Teil(er) abfragen
+  if (rewardType === "puzzle" && typeof sessionObj.puzzleId !== "undefined" && typeof sessionObj.successPuzzle !== "undefined") {
+    const pieces = Array.isArray(sessionObj.successPuzzle) ? sessionObj.successPuzzle : [sessionObj.successPuzzle];
+    // Optional: Mehrere Puzzle-Teile nebeneinander/Animation anzeigen
+    imgSrc = `images/puzzles/puzzle${sessionObj.puzzleId}_piece${pieces[0]}.png`;
+    // TODO: Weitere Puzzle-Teile als Animation anzeigen (wenn nötig)
+  }
+
+  // Eigener Bildpfad aus JSON überschreibt alles
+  if (sessionObj.rewardImg) imgSrc = sessionObj.rewardImg;
+
+  // Animation/Sound für besondere Rewards
+  let rewardAnim = sessionObj.rewardAnimation || 
+    (rewardType === "party-sticker" ? "emoji-party"
+    : rewardType === "puzzle" ? "confetti-glow"
+    : rewardType === "trophy" ? "confetti-glow"
+    : "bounce");
+
+  let rewardSound = sessionObj.rewardSound ||
+    (rewardType === "party-sticker" || rewardType === "trophy" ? "applause.mp3"
+    : "yay.mp3");
+
+  // Text für das Popup
+  let rewardText = sessionObj.onCorrect
+    || (rewardType === "star" ? "Super gemacht!" 
+    : rewardType === "trophy" ? "Wow! Pokal freigeschaltet!"
+    : rewardType === "party-sticker" ? "Partysticker gesammelt!"
+    : rewardType === "medal" ? "Du hast eine Medaille verdient!"
+    : rewardType === "puzzle" ? "Ein neues Puzzleteil!" 
+    : "Great job!");
+
+  // Zeige das universelle Reward-Popup
+  showUniversalReward(
+    imgSrc,
+    rewardText,
+    nextAction || null,
+    sessionObj.successSticker || 0,
+    rewardType,
+    rewardAnim,
+    rewardSound
   );
 }
 
