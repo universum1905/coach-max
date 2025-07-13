@@ -346,6 +346,69 @@ function showLoadingOverlay(msg = "Loading…", duration = 1200, callback) {
   }, duration);
 }
 
+function showCheckingAnimation(parent, callback, opts = {}) {
+  // Default-Einstellungen
+  const duration = opts.duration || 3000; // in ms
+  const text = opts.text || "Let’s see...";
+
+  // Container
+  const overlay = document.createElement("div");
+  overlay.style.display = "flex";
+  overlay.style.flexDirection = "column";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+  overlay.style.position = "absolute";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.background = "rgba(255,255,255,0.91)";
+  overlay.style.zIndex = "50";
+
+  // Bunte Kreise animiert
+  const balls = document.createElement("div");
+  balls.style.display = "flex";
+  balls.style.justifyContent = "center";
+  balls.style.gap = "18px";
+  for (let i = 0; i < 3; i++) {
+    const c = document.createElement("div");
+    c.style.width = "38px";
+    c.style.height = "38px";
+    c.style.borderRadius = "50%";
+    c.style.background = ["#ffb74d", "#4dd0e1", "#ffd54f"][i % 3];
+    c.style.animation = `checkPulse${i} 1.3s ${i * 0.25}s infinite alternate`;
+    balls.appendChild(c);
+  }
+  overlay.appendChild(balls);
+
+  // Keyframes als <style>
+  if (!document.getElementById("checkPulseStyle")) {
+    const style = document.createElement("style");
+    style.id = "checkPulseStyle";
+    style.innerHTML = `
+      @keyframes checkPulse0 {0%{transform:scale(1);}100%{transform:scale(1.35);}}
+      @keyframes checkPulse1 {0%{transform:scale(1);}100%{transform:scale(1.25);}}
+      @keyframes checkPulse2 {0%{transform:scale(1);}100%{transform:scale(1.2);}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Text darunter
+  const txt = document.createElement("div");
+  txt.textContent = text;
+  txt.style.marginTop = "15px";
+  txt.style.fontSize = "1.18rem";
+  txt.style.fontWeight = "bold";
+  txt.style.color = "#444";
+  overlay.appendChild(txt);
+
+  parent.appendChild(overlay);
+
+  setTimeout(() => {
+    overlay.remove();
+    if (typeof callback === "function") callback();
+  }, duration);
+}
 
 
 
@@ -5241,7 +5304,7 @@ else if (s.type === "color-sequence") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // 1) Überschrift (bleibt immer oben)
+  // Überschrift (immer oben)
   const heading = document.createElement("h2");
   heading.className = "session-heading";
   heading.textContent = s.title || "Color Sequence!";
@@ -5250,18 +5313,19 @@ else if (s.type === "color-sequence") {
   heading.style.fontSize = "2.2rem";
   textArea.appendChild(heading);
 
-  // 2) Main-Wrap für alle Tasks
+  // MainWrap
   const mainWrap = document.createElement("div");
   Object.assign(mainWrap.style, {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     minHeight: "55vh",
-    width: "100%"
+    width: "100%",
+    position: "relative"
   });
   textArea.appendChild(mainWrap);
 
-  // 3) Musik
+  // Musik (optional)
   let sessionMusic = null;
   if (s.music) {
     sessionMusic = new Audio("audio/" + s.music);
@@ -5277,71 +5341,78 @@ else if (s.type === "color-sequence") {
     });
   }
 
-  // 4) Video unten rechts (universell wie überall!)
+  // Video unten rechts, wie immer
   let videoBox, video;
   if (s.video) {
     video = document.createElement("video");
     video.src = "videos/" + s.video;
     video.playsInline = true;
+    video.autoplay = false;
     video.muted = false;
-    video.setAttribute("controls", "true");
-    video.setAttribute("controlsList", "nodownload");
-    video.poster = "images/video-placeholder.png";
     video.className = "session-video";
-
+    video.style.width = "68px";
+    video.style.height = "68px";
+    video.style.borderRadius = "50%";
+    video.style.objectFit = "cover";
     videoBox = document.createElement("div");
     videoBox.className = "floating-video";
-    videoBox.style.position = "fixed";
-    videoBox.style.right = "14px";
-    videoBox.style.bottom = "62px";
-    videoBox.style.zIndex = "1000";
+    Object.assign(videoBox.style, {
+      position: "fixed",
+      right: "14px",
+      bottom: "62px",
+      width: "68px",
+      height: "68px",
+      borderRadius: "50%",
+      overflow: "hidden",
+      backgroundColor: "#fffde7",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+      zIndex: "1000"
+    });
     videoBox.appendChild(video);
-    document.body.appendChild(videoBox);
 
-    const playBtn = document.createElement('button');
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-    `;
+    const playBtn = document.createElement("button");
+    Object.assign(playBtn.style, {
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      padding: "0",
+      zIndex: "2"
+    });
+    playBtn.innerHTML = `<svg width="32" height="32" viewBox="0 0 60 60">
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>`;
     videoBox.appendChild(playBtn);
 
     playBtn.onclick = () => {
+      playBtn.style.display = "none";
+      video.style.display = "block";
       video.play();
-      playBtn.style.display = "none";
-      video.style.pointerEvents = "auto";
     };
-    video.addEventListener('play', () => {
-      playBtn.style.display = "none";
-      video.style.pointerEvents = "auto";
-    });
-    video.addEventListener('pause', () => {
-      playBtn.style.display = "";
-      video.style.pointerEvents = "none";
-    });
-    video.addEventListener('ended', () => {
-      playBtn.style.display = "";
-      video.style.pointerEvents = "none";
-      videoBox.remove(); // oder einfach stehen lassen – je nach UX
+
+    video.addEventListener("ended", () => {
+      videoBox.remove();
       showTask();
     });
+
+    document.body.appendChild(videoBox);
   } else {
     showTask();
   }
 
-  // 5) Tasks initialisieren
+  // Tasks und Ablauf
   const tasks = Array.isArray(s.tasks) ? s.tasks : [s];
-  const pauseBetweenTasks = parseInt(s.pauseBetweenTasks || 1600, 10);
+  const pauseBetweenTasks = parseInt(s.pauseBetweenTasks || 1700, 10);
   let taskIdx = 0;
 
   function showTask() {
     mainWrap.innerHTML = "";
     const current = tasks[taskIdx];
 
-    // a) Frage
+    // Frage
     const q = document.createElement("div");
     q.textContent = current.question;
     Object.assign(q.style, {
@@ -5352,7 +5423,7 @@ else if (s.type === "color-sequence") {
     });
     mainWrap.appendChild(q);
 
-    // b) Beispiel-Sequenz
+    // Beispiel-Sequenz
     const exampleBox = document.createElement("div");
     Object.assign(exampleBox.style, {
       display: "flex",
@@ -5360,7 +5431,7 @@ else if (s.type === "color-sequence") {
       gap: "12px",
       marginBottom: "20px"
     });
-    current.example.forEach(col => {
+    (current.example || []).forEach(col => {
       const circ = document.createElement("div");
       Object.assign(circ.style, {
         width: "32px",
@@ -5373,7 +5444,7 @@ else if (s.type === "color-sequence") {
     });
     mainWrap.appendChild(exampleBox);
 
-    // c) Leere Drop-Ziele
+    // Drop-Ziele
     const dropBox = document.createElement("div");
     Object.assign(dropBox.style, {
       display: "flex",
@@ -5383,7 +5454,7 @@ else if (s.type === "color-sequence") {
     });
     mainWrap.appendChild(dropBox);
 
-    // d) Farbauswahl unten
+    // Farbauswahl
     const pickBox = document.createElement("div");
     Object.assign(pickBox.style, {
       display: "flex",
@@ -5392,7 +5463,7 @@ else if (s.type === "color-sequence") {
     });
     mainWrap.appendChild(pickBox);
 
-    // Hilfsarray und Buttons
+    // Hilfsarray für Auswahl
     let userOrder = Array(current.colors.length).fill(null);
     const colorBtns = current.colors.map((col, i) => {
       const btn = document.createElement("button");
@@ -5431,7 +5502,6 @@ else if (s.type === "color-sequence") {
       return btn;
     });
 
-    // Drop-Rendering
     function renderDrops() {
       dropBox.innerHTML = "";
       current.colors.forEach((_, i) => {
@@ -5471,36 +5541,42 @@ else if (s.type === "color-sequence") {
     }
     renderDrops();
 
-    // Überprüfen, ob alle korrekt sind
     function checkCompletion() {
       if (userOrder.includes(null)) return;
-      if (JSON.stringify(userOrder) === JSON.stringify(current.solution)) {
-        new Audio("audio/" + s.correctSound).play();
-        taskIdx++;
-        if (taskIdx < tasks.length) {
-          setTimeout(showTask, pauseBetweenTasks);
+      // Checking-Animation universal einbauen:
+      showCheckingAnimation(mainWrap, () => {
+        if (JSON.stringify(userOrder) === JSON.stringify(current.solution)) {
+          new Audio("audio/" + (s.correctSound || "yay.mp3")).play();
+          taskIdx++;
+          if (taskIdx < tasks.length) {
+            setTimeout(showTask, pauseBetweenTasks);
+          } else {
+            if (sessionMusic) { sessionMusic.pause(); sessionMusic.currentTime = 0; }
+            // Session-Dauer abwarten & dann Reward anzeigen:
+            const sessionStart = window.__sessionStart || Date.now();
+            const minDuration = s.minDuration ? parseInt(s.minDuration, 10) : 60;
+            const elapsed = (Date.now() - sessionStart) / 1000;
+            if (elapsed >= minDuration) {
+              showUniversalRewardFromSession(s);
+            } else {
+              const waitTime = Math.ceil(minDuration - elapsed);
+              showLoadingOverlay(`⏳ Please wait ${waitTime}s...`, waitTime * 1000, () => {
+                showUniversalRewardFromSession(s);
+              });
+            }
+          }
         } else {
-          // nach der letzten Aufgabe Next-Button zeigen
-          const nextBtn = document.createElement("button");
-          nextBtn.innerText = "Next";
-          nextBtn.className = "centered-next-btn";
-          Object.assign(nextBtn.style, {
-            margin: "24px auto",
-            display: "block"
-          });
-          nextBtn.onclick = () => showUniversalRewardFromSession(s);
-          mainWrap.appendChild(nextBtn);
+          new Audio("audio/" + (s.wrongSound || "fail.mp3")).play();
+          // Reset alles (alle Buttons wieder aktiv)
+          userOrder = Array(current.colors.length).fill(null);
+          colorBtns.forEach(b => { b.disabled = false; b.style.opacity = "1"; });
+          renderDrops();
         }
-      } else {
-        new Audio("audio/" + s.wrongSound).play();
-        // falsch: alles zurücksetzen
-        userOrder = Array(current.colors.length).fill(null);
-        colorBtns.forEach(b => { b.disabled = false; b.style.opacity = "1"; });
-        renderDrops();
-      }
+      }, { duration: 3000, text: "Let’s see..." });
     }
   }
 }
+
 
 else if (s.type === "color-detective") {
   clearTimeouts();
