@@ -6,62 +6,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="css/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0"/>
   <script src="https://unpkg.com/lottie-web/build/player/lottie.min.js"></script>
 </head>
 <body>
 
-<style>
-.rhyme-buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 440px;
-  margin: 0 auto;
-  padding: 0 14px !important;
-  box-sizing: border-box;
-  background: #fffa;
-}
-.rhyme-buttons button {
-  width: 100%;
-  min-width: 120px;
-  max-width: 340px;
-  box-sizing: border-box;
-  margin: 0;
-  align-self: center;
-}
-</style>
-
+  <!-- Welcome / Start Overlay -->
   <div id="welcomeArea"></div>
+  
+  <!-- Haupt-Content (Sessions usw.) -->
   <div id="mainContent" style="display:none;">
-    <div id="progressFrogBar"></div>
+    <h2 id="mainTitle" class="session-heading"></h2>
     <div class="session-text-area" id="sessionTextArea"></div>
+    <div id="progressFrogBar"></div>
   </div>
+  
+  <!-- Video-/Avatar-Container: Video ODER Avatar immer unten rechts -->
+  <div id="videoAvatarBox" style="width:150px; height:150px; position:fixed; right:24px; bottom:24px; z-index:6000;">
+    <!-- Wird dynamisch von JS befüllt -->
+  </div>
+
+  <!-- Rotation-Notice für mobile Portrait -->
   <div id="rotationNotice" class="rotation-notice" style="display:none;">
     <div>
       <img src="images/rotate-phone.png" class="rotate-icon" alt="Rotate"/>
       <p>Please rotate your device to portrait mode to continue. 😊</p>
     </div>
   </div>
+
+  <!-- Audios & JS -->
   <audio id="frogSound" src="audio/frog-hop.mp3" preload="auto"></audio>
   <audio id="welcomeMusic" src="audio/welcome-music.mp3" preload="auto" loop></audio>
   <audio id="breathingMusic" src="audio/focus-loop.mp3" preload="auto" loop></audio>
   <script src="js/app.js" defer></script>
-  
-<h2 id="mainTitle" class="session-heading"></h2>
-
-
-<div id="videoAvatarBox" style="width:150px; height:150px; position:fixed; right:24px; bottom:24px; z-index:6000;">
-  <!-- Video ODER Avatar-Image wird hier dynamisch angezeigt -->
-</div>
-
-
-
-
-  
-
 </body>
-
-
 </html>
