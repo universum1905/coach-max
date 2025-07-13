@@ -614,17 +614,19 @@ const avatarAnimations = {
 };
 
 // --- Universal Renderer Entry ---
+// UNIVERSAL SESSION RENDERER: Quiz + Sequence (Color/Order)
 async function renderUniversalSession(sessionJSON) {
   stopAllSounds();
   clearMainUI();
 
-  // Aufgaben holen
+  // Aufgaben holen (Quiz: questions, Sequence: tasks)
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
+  if (!questions.length) return;
 
-  // Video unten rechts
+  // Video unten rechts einblenden (immer!)
   renderUniversalVideoBox(sessionJSON);
 
-  // Musik
+  // Musik starten (stoppt bei Tab zu)
   let music = null;
   if (sessionJSON.music) {
     music = new Audio("audio/" + sessionJSON.music);
@@ -636,34 +638,28 @@ async function renderUniversalSession(sessionJSON) {
     window.addEventListener("focus", () => { if (music) music.play(); });
   }
 
-  // Überschrift, Frosch-Balken
   renderSessionHeader(sessionJSON.title || "");
-  renderFrogProgress(0, 0, questions.length);
+  renderFrogProgress(currentSession, currentSession, sessions.length);
 
+  // Fragen-Engine
   function showQuestion(idx) {
     const q = questions[idx];
     clearQuestionUI();
-    renderFrogProgress(idx, idx, questions.length);
 
     renderAvatarBox(q.avatar, q.avatarAnimation, "always");
     renderQuestionText(q);
 
-    // *** UNIVERSAL-LOGIK ***
+    // UNIVERSAL BUTTONS:
     renderUniversalAnswerButtons(q, (result) => {
-      // Für Quiz: result = index (number)
-      // Für Reihenfolge: result = true/false (boolean)
+      // Typ-Erkennung
       let isCorrect;
-      if (Array.isArray(q.choices)) {
-        isCorrect = result === q.correct;
-      } else if (Array.isArray(q.colors)) {
-        isCorrect = result;
-      } else {
-        isCorrect = false;
-      }
+      if (Array.isArray(q.choices))      isCorrect = result === q.correct;
+      else if (Array.isArray(q.colors))  isCorrect = result;
+      else                               isCorrect = false;
 
       lockAnswerButtons();
 
-      // Sound, Animation, Feedback, wie gehabt:
+      // Feedback, Animation, Sound, Avatar etc.
       const sound = isCorrect
         ? q.correctSound || randomFrom(soundPool.correct)
         : q.wrongSound   || randomFrom(soundPool.wrong);
@@ -677,31 +673,135 @@ async function renderUniversalSession(sessionJSON) {
       if (q.avatar && q.avatarAnimation && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
         playAvatarAnimation(q.avatar, q.avatarAnimation);
       }
-      renderFeedbackText(isCorrect, q);
-      showCheckingOverlay();
 
+      renderFeedbackText(isCorrect, q);
+
+      // Checking-Overlay (3 Sek.)
+      showCheckingOverlay();
       setTimeout(() => {
         hideCheckingOverlay();
         if (isCorrect) {
           if (q.reward !== undefined) showRewardPopup(q.reward);
           setTimeout(() => {
-            if (idx + 1 < questions.length) {
-              showQuestion(idx + 1);
-            } else {
-              finishUniversalSession(sessionJSON);
-            }
-          }, 1400);
+            if (idx + 1 < questions.length) showQuestion(idx + 1);
+            else finishUniversalSession(sessionJSON);
+          }, 1100);
         } else {
           unlockAnswerButtons();
         }
       }, 1200);
     });
-    // *** ENDE UNIVERSAL-LOGIK ***
   }
 
-  if (questions.length > 0) showQuestion(0);
+  // Start mit erster Frage
+  showQuestion(0);
+
   window.addEventListener("beforeunload", stopAllSounds);
 }
+
+// VIDEO unten rechts: universell für alle Sessions
+function renderUniversalVideoBox(sessionJSON) {
+  document.querySelectorAll(".floating-video").forEach(el => el.remove());
+
+  if (!sessionJSON.video) return;
+
+  const videoBox = document.createElement('div');
+  videoBox.className = "floating-video";
+
+  const videoElement = document.createElement('video');
+  videoElement.src = "videos/" + sessionJSON.video;
+  videoElement.setAttribute("controls", "true");
+  videoElement.setAttribute("controlsList", "nodownload");
+  videoElement.autoplay = false;
+  videoElement.muted = false;
+  videoElement.playsInline = true;
+  videoElement.poster = "images/video-placeholder.png";
+  videoElement.style.width = "100%";
+  videoElement.style.height = "100%";
+  videoElement.style.objectFit = "cover";
+  videoElement.style.display = "block";
+  videoBox.appendChild(videoElement);
+
+  // Play-Button Overlay
+  const playBtn = document.createElement('button');
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>
+  `;
+  playBtn.onclick = function() {
+    videoElement.play();
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  };
+  videoElement.addEventListener('play', () => {
+    playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
+  });
+  videoElement.addEventListener('pause', () => {
+    playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
+  });
+  videoElement.addEventListener('ended', () => {
+    // Avatar nach Video
+    videoBox.innerHTML = `<img src="images/${sessionJSON.avatar || 'luna'}.png" class="avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+  });
+  videoBox.appendChild(playBtn);
+
+  document.body.appendChild(videoBox);
+}
+
+// UNIVERSAL BUTTONS für beide Fragetypen
+function renderUniversalAnswerButtons(q, onSelect) {
+  const area = document.getElementById("sessionTextArea");
+  area.innerHTML = ""; // Immer leeren
+
+  // Quiz (choices)
+  if (Array.isArray(q.choices)) {
+    const btns = [];
+    q.choices.forEach((choice, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "quiz-choice-btn";
+      btn.innerText = choice;
+      btn.onclick = () => {
+        btns.forEach(b => b.disabled = true);
+        onSelect(idx);
+      };
+      area.appendChild(btn);
+      btns.push(btn);
+    });
+    return;
+  }
+
+  // Sequence: Reihenfolge (colors/solution)
+  if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
+    let userSequence = [];
+    const btns = [];
+    q.colors.forEach((color, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "sequence-choice-btn";
+      btn.innerText = color;
+      btn.onclick = () => {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        btn.classList.add("selected");
+        userSequence.push(idx);
+        if (userSequence.length === q.solution.length) {
+          const correct = userSequence.every((val, i) => val === q.solution[i]);
+          btns.forEach(b => b.disabled = true);
+          onSelect(correct);
+        }
+      };
+      area.appendChild(btn);
+      btns.push(btn);
+    });
+    return;
+  }
+}
+
 
 
 // Universelles Video-Box-Rendering (nur 1x pro Session)

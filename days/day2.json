@@ -61,24 +61,24 @@
   "sessionType": "quiz",
   "title": "Fun Animal Quiz!",
   "music": "focus-loop.mp3",
-  "video": "day1-test.mp4",
-  "minDuration": 60,
-  "successSticker": 3,  
+  "video": "day1-test.mp4",           
+  "minDuration": 60,                  
+  "successSticker": 3,               
   "questions": [
     {
       "question": "Which animal barks?",
       "choices": ["Cat", "Dog", "Cow"],
-      "correct": 1,
-      "avatar": "benny",
-      "avatarAnimation": "bounce",
+      "correct": 1,                   
+      "avatar": "benny",              
+      "avatarAnimation": "bounce",    
       "avatarAnimationTrigger": "correct",
       "correctSound": "yay.mp3",
       "wrongSound": "fail.mp3",
       "correctAnimation": ["confetti-glow"],
       "wrongAnimation": ["shake"],
-      "reward": 0, 
-      "feedbackCorrect": "Super! The dog barks!",
-      "feedbackWrong": "Oops! Try again!"
+      "reward": 0,                    
+      "feedbackCorrect": "Super! The dog barks!",   
+      "feedbackWrong": "Oops! Try again!"           
     },
     {
       "question": "Which animal says 'Moo'?",
@@ -109,8 +109,9 @@
       "reward": 2,
       "feedbackCorrect": "Yay! Lion is the king!",
       "feedbackWrong": "Not quite! Try again!"
-    } 
-	]
+    }
+  ]
 }
+
 ]
 }
