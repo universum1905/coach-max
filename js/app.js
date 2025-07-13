@@ -454,6 +454,192 @@ function playSessionVideoIfNeeded(s, afterVideoCallback) {
   }
 }
 
+// === UNIVERSAL SESSION ENGINE – COACH MAX ===
+
+// --- Globale Pools für Animation & Sound ---
+const animationPool = {
+  correct: ["confetti-glow", "emoji-party", "sparkle", "bounce", "rainbow-emoji", "star-pulse"],
+  wrong:   ["shake", "red-flash", "swirl-emoji", "wobble", "funny-face", "oops-cloud"]
+};
+const soundPool = {
+  correct: ["yay.mp3", "correct.mp3", "sparkle-bell.mp3"],
+  wrong:   ["fail.mp3", "wrong.mp3", "sad-trombone.mp3"]
+};
+const avatarAnimations = {
+  "benny-wave": "animations/benny-wave.json",
+  "benny-jump": "animations/benny-jump.json",
+  "luna-wave": "animations/luna-wave.json",
+  "momo-party": "animations/momo-party.json"
+};
+
+// --- Universal Renderer Entry ---
+async function renderUniversalSession(sessionJSON) {
+  // 1. Setup
+  let currentQ = 0;
+  let music = null;
+  stopAllSounds(); // Eigene Funktion, stoppt auch Musik/Sounds von anderen Sessions
+  clearMainUI();   // Entfernt alle alten Session-Elemente (eigene Funktion)
+
+  // 2. Musik starten
+  if (sessionJSON.music) {
+    music = new Audio("audio/" + sessionJSON.music);
+    music.loop = true;
+    music.volume = 0.22;
+    music.play();
+    window.addEventListener("beforeunload", () => { music.pause(); });
+    window.addEventListener("blur", () => { music.pause(); });
+    window.addEventListener("focus", () => { if (music) music.play(); });
+  }
+
+  // 3. Überschrift, Intro, Frosch-Balken
+  renderSessionHeader(sessionJSON.title);
+  renderFrogProgress(0, 0, sessionJSON.questions.length); // (aktuelle Frage, gesamt)
+
+  // 4. Fragen/Tasks sequenziell abarbeiten
+  function showQuestion(idx) {
+    const q = sessionJSON.questions[idx];
+    clearQuestionUI();  // Alles leeren, Buttons etc.
+    renderFrogProgress(idx, idx, sessionJSON.questions.length);
+
+    // --- Floating Avatar-Video/Animation (falls gewünscht) ---
+    renderAvatarBox(q.avatar, q.avatarAnimation, "always");
+
+    // --- Frage anzeigen ---
+    renderQuestionText(q);
+
+    // --- Antwortmöglichkeiten generieren (Text, Bild, Emoji, Farbe) ---
+    renderAnswerButtons(q, (selectedIdx) => {
+      const isCorrect = selectedIdx === q.correct;
+      lockAnswerButtons();
+
+      // --- Sound ---
+      const sound = isCorrect
+        ? q.correctSound || randomFrom(soundPool.correct)
+        : q.wrongSound   || randomFrom(soundPool.wrong);
+      playSound(sound);
+
+      // --- Animation ---
+      const anims = isCorrect
+        ? (q.correctAnimation || [randomFrom(animationPool.correct)])
+        : (q.wrongAnimation   || [randomFrom(animationPool.wrong)]);
+      runAnimations(anims);
+
+      // --- Avatar-Animation ---
+      if (q.avatar && q.avatarAnimation && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
+        playAvatarAnimation(q.avatar, q.avatarAnimation);
+      }
+
+      // --- Feedback-Text ---
+      renderFeedbackText(isCorrect, q);
+
+      // --- Checking Overlay (optional) ---
+      showCheckingOverlay();
+
+      setTimeout(() => {
+        hideCheckingOverlay();
+        if (isCorrect) {
+          // --- Sticker/Reward (falls definiert) ---
+          if (q.reward !== undefined) {
+            showRewardPopup(q.reward);
+          }
+          // --- Nächste Frage oder Finish ---
+          setTimeout(() => {
+            if (idx + 1 < sessionJSON.questions.length) {
+              showQuestion(idx + 1);
+            } else {
+              finishUniversalSession(sessionJSON);
+            }
+          }, 1400);
+        } else {
+          unlockAnswerButtons();
+        }
+      }, 1200);
+    });
+  }
+
+  // Starte mit der ersten Frage
+  showQuestion(0);
+
+  // --- Stopp-Events ---
+  window.addEventListener("beforeunload", stopAllSounds);
+}
+
+// === Hilfsfunktionen – ALLES modular für Kinder-UX ===
+
+function renderSessionHeader(title) {
+  // Kindgerechte Überschrift
+  document.getElementById("mainTitle").innerText = title;
+}
+function renderFrogProgress(fromIdx, toIdx, total) {
+  // Frosch-Progressbar: Frosch springt, Fortschritt aktualisieren!
+  // ...
+}
+function renderAvatarBox(avatar, anim, trigger) {
+  // Zeigt Floating-Avatar-Bild oder -Animation, triggert Lottie/Animation falls angegeben
+  // ...
+}
+function renderQuestionText(q) {
+  // Frage-Text, Bild, Audio oder Video anzeigen
+  // ...
+}
+function renderAnswerButtons(q, onSelect) {
+  // Antwort-Buttons erzeugen (Text, Bild, Farbe, Emoji), mit großem Touchbereich
+  // Bei Klick: onSelect(selectedIdx) aufrufen
+  // ...
+}
+function lockAnswerButtons() {
+  // Sperrt alle Buttons temporär
+}
+function unlockAnswerButtons() {
+  // Entsperrt Buttons wieder
+}
+function playSound(soundFile) {
+  // Sound abspielen (z.B. yay.mp3, fail.mp3)
+  const audio = new Audio("audio/" + soundFile);
+  audio.volume = 0.7;
+  audio.play();
+}
+function runAnimations(anims) {
+  // Für jede Animation im Array passende Funktion triggern (Konfetti, Shake, etc.)
+  anims.forEach(anim => {
+    if (anim === "confetti-glow") runAnimation_confettiGlow();
+    if (anim === "emoji-party") runAnimation_emojiParty();
+    if (anim === "sparkle") runAnimation_sparkle();
+    if (anim === "shake") runAnimation_shake();
+    // usw.
+  });
+}
+function playAvatarAnimation(avatar, type) {
+  // Lädt und zeigt z.B. Lottie für benny-wave etc.
+}
+function renderFeedbackText(isCorrect, q) {
+  // Feedback-Text (z.B. "Super gemacht!", "Oops, nochmal probieren!")
+}
+function showCheckingOverlay() {
+  // Spinner/Kreise mit "Checking..." für 2–3 Sek. anzeigen
+}
+function hideCheckingOverlay() {
+  // Checking-Overlay ausblenden
+}
+function showRewardPopup(rewardIdx) {
+  // Sticker/Puzzle/Emoji/Reward als Popup zeigen, speichern etc.
+}
+function finishUniversalSession(sessionJSON) {
+  // Finales Reward, Fortschritt speichern, Eltern/Endscreen etc.
+}
+function stopAllSounds() {
+  // Musik & Sounds stoppen
+}
+function clearMainUI() {
+  // Hauptbereich komplett leeren
+}
+function clearQuestionUI() {
+  // Frage-Bereich leeren
+}
+function randomFrom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 
 
 
@@ -840,6 +1026,20 @@ playBtn.innerHTML = `
     }
     return; // WICHTIG!
   }
+
+
+if (s.type === "universal-session") {
+  renderUniversalSession(s);
+  return;
+}
+
+
+
+
+
+
+
+
 
   // ===== 2. BREATHING =====
    else if (s.type === "breathing") {
