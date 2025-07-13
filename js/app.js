@@ -615,17 +615,18 @@ const avatarAnimations = {
 
 // --- Universal Renderer Entry ---
 async function renderUniversalSession(sessionJSON) {
-  // 1. Setup
   let currentQ = 0;
   let music = null;
   stopAllSounds();
   clearMainUI();
 
-  // ----> DAS HIER EINFÜGEN:
+  // Die Aufgaben/Fragen holen
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
-  renderFrogProgress(0, 0, questions.length); // <-- NUR hier!
   
-  // 2. Musik starten
+  // 1x Fortschrittsbalken für Tasks initialisieren
+  renderFrogProgress(0, 0, questions.length);
+
+  // Musik starten (wie gehabt)
   if (sessionJSON.music) {
     music = new Audio("audio/" + sessionJSON.music);
     music.loop = true;
@@ -636,58 +637,39 @@ async function renderUniversalSession(sessionJSON) {
     window.addEventListener("focus", () => { if (music) music.play(); });
   }
 
-  // 3. Überschrift, Intro, Frosch-Balken
+  // Überschrift setzen
   renderSessionHeader(sessionJSON.title);
-  renderFrogProgress(0, 0, questions.length);
 
-  // 4. Fragen/Tasks sequenziell abarbeiten
+  // Fragen-Engine
   function showQuestion(idx) {
     const q = questions[idx];
     clearQuestionUI();
-    renderFrogProgress(idx, idx, questions.length);
-
-    // --- Floating Avatar-Video/Animation (falls gewünscht) ---
+    renderFrogProgress(idx, idx, questions.length);  // Korrekt: Immer für jede Frage
     renderAvatarBox(q.avatar, q.avatarAnimation, "always");
-
-    // --- Frage anzeigen ---
     renderQuestionText(q);
-
-    // --- Antwortmöglichkeiten generieren (Text, Bild, Emoji, Farbe) ---
     renderAnswerButtons(q, (selectedIdx) => {
       const isCorrect = selectedIdx === q.correct;
       lockAnswerButtons();
-
-      // --- Sound ---
       const sound = isCorrect
         ? q.correctSound || randomFrom(soundPool.correct)
         : q.wrongSound   || randomFrom(soundPool.wrong);
       playSound(sound);
 
-      // --- Animation ---
       const anims = isCorrect
         ? (q.correctAnimation || [randomFrom(animationPool.correct)])
         : (q.wrongAnimation   || [randomFrom(animationPool.wrong)]);
       runAnimations(anims);
 
-      // --- Avatar-Animation ---
       if (q.avatar && q.avatarAnimation && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
         playAvatarAnimation(q.avatar, q.avatarAnimation);
       }
-
-      // --- Feedback-Text ---
       renderFeedbackText(isCorrect, q);
-
-      // --- Checking Overlay (optional) ---
       showCheckingOverlay();
 
       setTimeout(() => {
         hideCheckingOverlay();
         if (isCorrect) {
-          // --- Sticker/Reward (falls definiert) ---
-          if (q.reward !== undefined) {
-            showRewardPopup(q.reward);
-          }
-          // --- Nächste Frage oder Finish ---
+          if (q.reward !== undefined) showRewardPopup(q.reward);
           setTimeout(() => {
             if (idx + 1 < questions.length) {
               showQuestion(idx + 1);
@@ -702,10 +684,8 @@ async function renderUniversalSession(sessionJSON) {
     });
   }
 
-  // Starte mit der ersten Frage
   showQuestion(0);
 
-  // --- Stopp-Events ---
   window.addEventListener("beforeunload", stopAllSounds);
 }
 
@@ -1052,7 +1032,7 @@ function renderSession(idx) {
   // ===== 1. INTRO =====
   if (s.type === "intro") {
     try { introMusic.currentTime = 0; introMusic.play(); } catch(e) {}
-
+    renderFrogProgress(idx, idx, sessions.length);
     const heading = document.createElement('h2');
     heading.textContent = s.title || `Welcome to Day ${localDay}!`;
     heading.className = "intro-heading session-heading";
