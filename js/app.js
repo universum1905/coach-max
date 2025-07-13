@@ -574,14 +574,111 @@ function runAnimation_rainbowEmoji() {
   setTimeout(() => rainbow.remove(), 1200);
 }
 
+const avatarAnimations = {
+  "benny-wave": "animations/benny-wave.json",
+  "benny-jump": "animations/benny-jump.json",
+  "luna-wave": "animations/luna-wave.json",
+  "luna-dance": "animations/luna-dance.json",
+  "momo-jump": "animations/momo-jump.json",
+  "momo-party": "animations/momo-party.json"
+  // usw. – alles beliebig erweiterbar!
+};
 
-function demoAllAnimations() {
-  runAnimation_confettiGlow();
-  setTimeout(runAnimation_emojiParty, 900);
-  setTimeout(runAnimation_sparkle, 1700);
-  setTimeout(runAnimation_bounce, 2100);
-  setTimeout(runAnimation_shake, 2500);
-  setTimeout(runAnimation_rainbowEmoji, 2900);
+function playAvatarAnimation(avatar, animationType) {
+  const animKey = `${avatar}-${animationType}`;
+  const animFile = avatarAnimations[animKey];
+  const box = document.getElementById("avatarAnimationBox");
+  box.innerHTML = ""; // Vorherige Animation löschen
+  if (animFile) {
+    lottie.loadAnimation({
+      container: box,
+      renderer: 'svg',
+      loop: false,
+      autoplay: true,
+      path: animFile
+    });
+  } else {
+    // Optional: Fallback (Emoji, Standardbild)
+    box.innerHTML = `<span style="font-size:5rem;">🤔</span>`;
+  }
+}
+
+function playAvatarAnimation(avatar, animType) {
+  const img = document.getElementById("coachAvatar");
+  if (!img) return;
+  img.src = `images/${avatar}.png`;
+  img.classList.remove("avatar-bounce", "avatar-wiggle");
+  if (animType === "bounce")      img.classList.add("avatar-bounce");
+  else if (animType === "wiggle") img.classList.add("avatar-wiggle");
+  // Option: Nach Animation entfernen (für "wiggle")
+  if (animType === "wiggle") {
+    setTimeout(() => img.classList.remove("avatar-wiggle"), 1200);
+  }
+}
+
+function showAvatarUniversal(avatar, animType) {
+  const box = document.getElementById("avatarAnimationBox");
+  const img = document.getElementById("coachAvatar");
+  if (!avatar) { box.style.display = "none"; return; }
+  img.src = `images/${avatar}.png`;
+  box.style.display = "block";
+  img.classList.remove("avatar-bounce", "avatar-wiggle", "avatar-tada");
+  if (animType === "bounce")      img.classList.add("avatar-bounce");
+  else if (animType === "wiggle") img.classList.add("avatar-wiggle");
+  else if (animType === "tada")   img.classList.add("avatar-tada");
+  // Auto-stopp für wiggle/tada
+  if (animType === "wiggle" || animType === "tada") {
+    setTimeout(() => img.classList.remove("avatar-wiggle", "avatar-tada"), 1300);
+  }
+}
+
+
+function renderVideoAvatarFromJSON(task, trigger) {
+  const box = document.getElementById("videoAvatarBox");
+  if (!box || !task) return;
+
+  // Prüfen ob Video angezeigt werden soll (z.B. nur beim ersten Anzeigen)
+  if (task.video && (!trigger || trigger === "show" || trigger === "always")) {
+    // Video einfügen
+    box.innerHTML = `
+      <video id="coachSessionVideo" width="100%" height="100%" autoplay>
+        <source src="videos/${task.video}" type="video/mp4">
+      </video>
+    `;
+    // Nach Video-Ende: Avatar-PNG + ggf. Animation
+    const vid = document.getElementById("coachSessionVideo");
+    vid.onended = function() {
+      // Avatar anzeigen
+      box.innerHTML = `<img id="coachAvatar" src="images/${task.avatar}.png" style="width:100%; border-radius:50%;">`;
+      // Avatar-Animation sofort nach Video, falls so gewünscht
+      if (task.avatarAnimation && (task.avatarAnimationTrigger === "afterVideo" || !task.avatarAnimationTrigger)) {
+        playAvatarAnimation(task.avatar, task.avatarAnimation);
+      }
+    };
+  } else {
+    // Kein Video – sofort Avatar-PNG anzeigen
+    box.innerHTML = `<img id="coachAvatar" src="images/${task.avatar}.png" style="width:100%; border-radius:50%;">`;
+    // Avatar-Animation je nach Trigger auslösen
+    if (task.avatarAnimation && (!task.avatarAnimationTrigger || task.avatarAnimationTrigger === trigger)) {
+      playAvatarAnimation(task.avatar, task.avatarAnimation);
+    }
+  }
+}
+
+
+
+// Die Animationen-Funktion bleibt wie gehabt:
+function playAvatarAnimation(avatar, animType) {
+  const img = document.getElementById("coachAvatar");
+  if (!img) return;
+  img.src = `images/${avatar}.png`;
+  img.classList.remove("avatar-bounce", "avatar-wiggle", "avatar-tada");
+  if (animType === "bounce")      img.classList.add("avatar-bounce");
+  else if (animType === "wiggle") img.classList.add("avatar-wiggle");
+  else if (animType === "tada")   img.classList.add("avatar-tada");
+  if (animType !== "bounce") {
+    setTimeout(() => img.classList.remove("avatar-wiggle", "avatar-tada"), 1600);
+  }
 }
 
 

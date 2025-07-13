@@ -199,35 +199,49 @@
 }
 ,
 {
+  {
   "type": "color-sequence",
   "music": "focus-loop.mp3",
   "minDuration": 60,
   "pauseBetweenTasks": 1600,
   "video": "day1-test.mp4",
+  "avatar": "benny",                      
+  "avatarAnimation": "bounce",            
+  "avatarAnimationTrigger": "afterVideo", 
   "correctSound": "correct.mp3",
   "wrongSound": "wrong.mp3",
   "tasks": [
     {
+      "question": "Can you put the colors in the right order?",
       "colors": ["red", "yellow", "blue"],
       "solution": [2, 0, 1],
       "example": ["blue", "red", "yellow"],
-      "question": "Can you put the colors in the right order?"
+      "avatar": "benny",                  
+      "avatarAnimation": "wiggle",
+      "avatarAnimationTrigger": "correct" 
     },
     {
+      "question": "What's the rainbow order?",
       "colors": ["green", "purple", "orange"],
       "solution": [1, 2, 0],
       "example": ["purple", "orange", "green"],
-      "question": "What's the rainbow order?"
+      "avatar": "benny",
+      "avatarAnimation": "tada",
+      "avatarAnimationTrigger": "correct"
     },
     {
+      "question": "Arrange the colors!",
       "colors": ["pink", "blue", "yellow"],
       "solution": [0, 2, 1],
       "example": ["pink", "yellow", "blue"],
-      "question": "Arrange the colors!"
+      "avatar": "benny",
+      "avatarAnimation": "bounce",
+      "avatarAnimationTrigger": "wrong" 
     }
   ],
   "successSticker": 2
 }
+
 ,
 
 
