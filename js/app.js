@@ -757,29 +757,36 @@ function renderUniversalVideoBox(sessionJSON) {
 // UNIVERSAL BUTTONS für beide Fragetypen
 function renderUniversalAnswerButtons(q, onSelect) {
   const area = document.getElementById("sessionTextArea");
-  area.innerHTML = ""; // Immer leeren
+  area.innerHTML = ""; // Leeren für jede neue Frage!
 
-  // Quiz (choices)
+  // --- Frage-Text schön, mittig ---
+  if (q.question) {
+    const qText = document.createElement("div");
+    qText.className = "chatgpt-question";
+    qText.innerText = q.question;
+    area.appendChild(qText);
+  }
+
+  // Quiz: choices
   if (Array.isArray(q.choices)) {
-    const btns = [];
+    const btnWrap = document.createElement("div");
+    btnWrap.className = "rhyme-buttons"; // Sorgt für mittig, groß, bunt
     q.choices.forEach((choice, idx) => {
       const btn = document.createElement("button");
       btn.className = "quiz-choice-btn";
       btn.innerText = choice;
-      btn.onclick = () => {
-        btns.forEach(b => b.disabled = true);
-        onSelect(idx);
-      };
-      area.appendChild(btn);
-      btns.push(btn);
+      btn.onclick = () => onSelect(idx);
+      btnWrap.appendChild(btn);
     });
+    area.appendChild(btnWrap);
     return;
   }
 
-  // Sequence: Reihenfolge (colors/solution)
+  // Reihenfolge (colors/solution)
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
+    const btnWrap = document.createElement("div");
+    btnWrap.className = "animals-buttons";
     let userSequence = [];
-    const btns = [];
     q.colors.forEach((color, idx) => {
       const btn = document.createElement("button");
       btn.className = "sequence-choice-btn";
@@ -791,17 +798,16 @@ function renderUniversalAnswerButtons(q, onSelect) {
         userSequence.push(idx);
         if (userSequence.length === q.solution.length) {
           const correct = userSequence.every((val, i) => val === q.solution[i]);
-          btns.forEach(b => b.disabled = true);
+          Array.from(btnWrap.children).forEach(b => b.disabled = true);
           onSelect(correct);
         }
       };
-      area.appendChild(btn);
-      btns.push(btn);
+      btnWrap.appendChild(btn);
     });
+    area.appendChild(btnWrap);
     return;
   }
 }
-
 
 
 // Universelles Video-Box-Rendering (nur 1x pro Session)
