@@ -584,53 +584,7 @@ const avatarAnimations = {
   // usw. – alles beliebig erweiterbar!
 };
 
-function playAvatarAnimation(avatar, animationType) {
-  const animKey = `${avatar}-${animationType}`;
-  const animFile = avatarAnimations[animKey];
-  const box = document.getElementById("avatarAnimationBox");
-  box.innerHTML = ""; // Vorherige Animation löschen
-  if (animFile) {
-    lottie.loadAnimation({
-      container: box,
-      renderer: 'svg',
-      loop: false,
-      autoplay: true,
-      path: animFile
-    });
-  } else {
-    // Optional: Fallback (Emoji, Standardbild)
-    box.innerHTML = `<span style="font-size:5rem;">🤔</span>`;
-  }
-}
 
-function playAvatarAnimation(avatar, animType) {
-  const img = document.getElementById("coachAvatar");
-  if (!img) return;
-  img.src = `images/${avatar}.png`;
-  img.classList.remove("avatar-bounce", "avatar-wiggle");
-  if (animType === "bounce")      img.classList.add("avatar-bounce");
-  else if (animType === "wiggle") img.classList.add("avatar-wiggle");
-  // Option: Nach Animation entfernen (für "wiggle")
-  if (animType === "wiggle") {
-    setTimeout(() => img.classList.remove("avatar-wiggle"), 1200);
-  }
-}
-
-function showAvatarUniversal(avatar, animType) {
-  const box = document.getElementById("avatarAnimationBox");
-  const img = document.getElementById("coachAvatar");
-  if (!avatar) { box.style.display = "none"; return; }
-  img.src = `images/${avatar}.png`;
-  box.style.display = "block";
-  img.classList.remove("avatar-bounce", "avatar-wiggle", "avatar-tada");
-  if (animType === "bounce")      img.classList.add("avatar-bounce");
-  else if (animType === "wiggle") img.classList.add("avatar-wiggle");
-  else if (animType === "tada")   img.classList.add("avatar-tada");
-  // Auto-stopp für wiggle/tada
-  if (animType === "wiggle" || animType === "tada") {
-    setTimeout(() => img.classList.remove("avatar-wiggle", "avatar-tada"), 1300);
-  }
-}
 
 
 function renderVideoAvatarFromJSON(task, trigger) {
@@ -684,45 +638,6 @@ function playAvatarAnimation(avatar, animType) {
 
 
 
-function playSessionVideoIfNeeded(s, afterVideoCallback) {
-  document.querySelectorAll(".floating-video").forEach(el => el.remove());
-  if (s.video) {
-    const video = document.createElement("video");
-    video.src = `videos/${s.video}`;
-    video.setAttribute("controls", "true");
-    video.setAttribute("controlsList", "nodownload");
-    video.autoplay = false;
-    video.muted = false;
-    video.playsInline = true;
-    video.className = "session-video";
-    const videoBox = document.createElement("div");
-    videoBox.className = "floating-video";
-    videoBox.appendChild(video);
-
-    const playBtn = document.createElement("button");
-    playBtn.className = "custom-play-btn";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-    `;
-    videoBox.appendChild(playBtn);
-
-    playBtn.onclick = () => { video.play(); playBtn.style.display = "none"; };
-    video.addEventListener('play', () => playBtn.style.display = "none");
-    video.addEventListener('ended', () => {
-      setTimeout(() => {
-        videoBox.remove();
-        afterVideoCallback();
-      }, 300);
-    });
-
-    document.body.appendChild(videoBox);
-  } else {
-    afterVideoCallback();
-  }
-}
 
 // === UNIVERSAL SESSION ENGINE – COACH MAX ===
 
