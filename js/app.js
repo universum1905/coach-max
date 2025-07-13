@@ -878,57 +878,65 @@ function renderUniversalVideoBox(sessionJSON) {
 // UNIVERSAL BUTTONS für beide Fragetypen
 function renderUniversalAnswerButtons(q, onSelect) {
   const area = document.getElementById("sessionTextArea");
-  area.innerHTML = ""; // Leeren für jede neue Frage!
 
-  // --- Frage-Text schön, mittig ---
+  // Entferne alte Buttons/Feedback
+  document.querySelectorAll('.quiz-choice-btn, .sequence-choice-btn, .quiz-question, .quiz-feedback').forEach(el => el.remove());
+
+  // 1. Fragetext anzeigen
   if (q.question) {
-    const qText = document.createElement("div");
-    qText.className = "chatgpt-question";
-    qText.innerText = q.question;
-    area.appendChild(qText);
+    const questionDiv = document.createElement("div");
+    questionDiv.className = "quiz-question";
+    questionDiv.innerText = q.question;
+    area.appendChild(questionDiv);
   }
 
-  // Quiz: choices
+  // 2. Multiple Choice (Quiz)
   if (Array.isArray(q.choices)) {
-    const btnWrap = document.createElement("div");
-    btnWrap.className = "rhyme-buttons"; // Sorgt für mittig, groß, bunt
+    const btnBox = document.createElement("div");
+    btnBox.className = "quiz-buttons";
     q.choices.forEach((choice, idx) => {
       const btn = document.createElement("button");
       btn.className = "quiz-choice-btn";
       btn.innerText = choice;
-      btn.onclick = () => onSelect(idx);
-      btnWrap.appendChild(btn);
+      btn.onclick = function() {
+        // Buttons sperren (nur eine Antwort möglich)
+        document.querySelectorAll('.quiz-choice-btn').forEach(b => b.disabled = true);
+        onSelect(idx);
+      };
+      btnBox.appendChild(btn);
     });
-    area.appendChild(btnWrap);
+    area.appendChild(btnBox);
     return;
   }
 
-  // Reihenfolge (colors/solution)
+  // 3. Reihenfolge-Aufgabe (z.B. Farben sortieren)
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
-    const btnWrap = document.createElement("div");
-    btnWrap.className = "animals-buttons";
+    const btnBox = document.createElement("div");
+    btnBox.className = "sequence-buttons";
     let userSequence = [];
     q.colors.forEach((color, idx) => {
       const btn = document.createElement("button");
       btn.className = "sequence-choice-btn";
       btn.innerText = color;
-      btn.onclick = () => {
-        if (btn.disabled) return;
+      btn.onclick = function() {
         btn.disabled = true;
         btn.classList.add("selected");
         userSequence.push(idx);
+        // Wenn alle gewählt, auswerten:
         if (userSequence.length === q.solution.length) {
-          const correct = userSequence.every((val, i) => val === q.solution[i]);
-          Array.from(btnWrap.children).forEach(b => b.disabled = true);
-          onSelect(correct);
+          // Buttons sperren:
+          document.querySelectorAll('.sequence-choice-btn').forEach(b => b.disabled = true);
+          const isCorrect = userSequence.every((val, i) => val === q.solution[i]);
+          onSelect(isCorrect);
         }
       };
-      btnWrap.appendChild(btn);
+      btnBox.appendChild(btn);
     });
-    area.appendChild(btnWrap);
+    area.appendChild(btnBox);
     return;
   }
 }
+
 
 
 // Universelles Video-Box-Rendering (nur 1x pro Session)
