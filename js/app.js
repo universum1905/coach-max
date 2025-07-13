@@ -1045,7 +1045,7 @@ function renderSession(idx) {
   console.log("Session-Objekt:", s);
   try { breathingMusic.pause(); breathingMusic.currentTime = 0; } catch(e) {}
   clearTimeouts();
-  renderFrogProgress(lastSessionIdx, idx);
+  renderFrogProgress(idx, idx, sessions.length);
   document.querySelectorAll(".floating-video, .fixed-next-btn, .centered-next-btn").forEach(el => el.remove());
   document.getElementById('sessionTextArea').innerHTML = "";
 
