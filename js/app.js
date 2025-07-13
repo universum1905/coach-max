@@ -833,6 +833,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
 }
 
 
+
 // === Feedback-Text ===
 function renderFeedbackText(isCorrect, q) {
   // Entferne vorherigen Feedback-Text
@@ -864,14 +865,7 @@ function renderSessionHeader(title) {
   document.getElementById("mainTitle").innerText = title || "";
 }
 function renderAvatarBox(avatar, anim, trigger) { /* Optional: Avatar über der Frage */ }
-function renderQuestionText(q) {
-  // Frage-Text, ggf. mit großem Abstand, immer sichtbar!
-  const area = document.getElementById("sessionTextArea");
-  const el = document.createElement("div");
-  el.className = "chatgpt-question";
-  el.innerText = q.question || "";
-  area.appendChild(el);
-}
+
 
 // ... Deine bestehenden Reward, FrogBar, Musik, etc. bleiben!
 
@@ -1091,9 +1085,19 @@ function renderAvatarBox(avatar, anim, trigger) {
   // ...
 }
 function renderQuestionText(q) {
-  // Frage-Text, Bild, Audio oder Video anzeigen
-  // ...
+  const area = document.getElementById('sessionTextArea');
+  // Vorherigen Frage-Text löschen (außer Buttons)
+  area.querySelectorAll('.quiz-question').forEach(e => e.remove());
+  // Frage-Text einfügen
+  const questionDiv = document.createElement('div');
+  questionDiv.className = 'quiz-question';
+  questionDiv.innerText = q.question || '';
+  area.insertBefore(questionDiv, area.firstChild);
 }
+
+
+
+
 function renderUniversalAnswerButtons(q, onSelect) {
   const area = document.getElementById("sessionTextArea");
   
