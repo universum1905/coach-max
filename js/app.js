@@ -799,7 +799,6 @@ introMusic.volume = 0.18;
 
 // Fortschrittsbalken (Frosch)
 function renderFrogProgress(fromIdx, toIdx, total) {
-  const total = questions.length;
   const bar = document.getElementById("progressFrogBar");
   bar.innerHTML = "";
   const barTrack = document.createElement("div");
