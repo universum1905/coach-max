@@ -780,57 +780,6 @@ function renderUniversalVideoAvatarBox(sessionJSON) {
 
 
 
-// === UNIVERSAL BUTTONS ===
-function renderUniversalAnswerButtons(q, onSelect) {
-  const area = document.getElementById("sessionTextArea");
-  area.innerHTML = "";
-
-  // FRAGE
-  const el = document.createElement("div");
-  el.className = "chatgpt-question";
-  el.innerText = q.question || "";
-  area.appendChild(el);
-
-  // QUIZ / Multiple Choice
-  if (Array.isArray(q.choices)) {
-    const btnWrap = document.createElement("div");
-    btnWrap.className = "rhyme-buttons";
-    q.choices.forEach((choice, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "quiz-choice-btn fade-in-up";
-      btn.innerText = choice;
-      btn.onclick = () => onSelect(idx);
-      btnWrap.appendChild(btn);
-    });
-    area.appendChild(btnWrap);
-    return;
-  }
-
-  // SEQUENZ
-  if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
-    let userSequence = [];
-    const btnWrap = document.createElement("div");
-    btnWrap.className = "animals-buttons";
-    q.colors.forEach((color, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "sequence-choice-btn fade-in-up";
-      btn.innerText = color;
-      btn.onclick = () => {
-        if (btn.disabled) return;
-        btn.disabled = true;
-        btn.classList.add("selected");
-        userSequence.push(idx);
-        if (userSequence.length === q.solution.length) {
-          const correct = userSequence.every((val, i) => val === q.solution[i]);
-          onSelect(correct);
-        }
-      };
-      btnWrap.appendChild(btn);
-    });
-    area.appendChild(btnWrap);
-    return;
-  }
-}
 
 
 
@@ -1097,51 +1046,6 @@ function renderQuestionText(q) {
 
 
 
-
-function renderUniversalAnswerButtons(q, onSelect) {
-  const area = document.getElementById("sessionTextArea");
-  
-  // Quiz/Multiple Choice
-  if (Array.isArray(q.choices)) {
-    const btns = [];
-    q.choices.forEach((choice, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "quiz-choice-btn";
-      btn.innerText = choice;
-      btn.onclick = () => onSelect(idx);
-      area.appendChild(btn);
-      btns.push(btn);
-    });
-    return;
-  }
-
-  // Reihenfolge/Sequenz (z.B. Farben)
-  if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
-    let userSequence = [];
-    const btns = [];
-    q.colors.forEach((color, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "sequence-choice-btn";
-      btn.innerText = color;
-      btn.onclick = () => {
-        if (btn.disabled) return;
-        btn.disabled = true;
-        btn.classList.add("selected");
-        userSequence.push(idx);
-        if (userSequence.length === q.solution.length) {
-          // Wenn fertig: vergleichen!
-          const correct = userSequence.every((val, i) => val === q.solution[i]);
-          onSelect(correct); // Übergibt true/false!
-        }
-      };
-      area.appendChild(btn);
-      btns.push(btn);
-    });
-    return;
-  }
-
-  // Kann beliebig erweitert werden…
-}
 
 
 
