@@ -810,43 +810,73 @@ function renderUniversalAnswerButtons(q, onSelect) {
       btn.className = "quiz-choice-btn";
       btn.innerText = choice;
       btn.onclick = function() {
-  if (solved) return;
-  if (idx === q.correct) {
-    solved = true;
-    btn.classList.add("selected");
-    playSound(q.correctSound || "yay.mp3");
-    runAnimations(q.correctAnimation || ["confetti-glow"]);
+        if (solved) return;
+        if (idx === q.correct) {
+          solved = true;
+          btn.classList.add("selected");
+          playSound(q.correctSound || "yay.mp3");
+          runAnimations(q.correctAnimation || ["confetti-glow"]);
 
-    // >>> AVATAR-ANIMATION BEI RICHTIG
-    if (q.avatar && q.avatarAnimation &&
-        (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "correct" || q.avatarAnimationTrigger === "both")) {
-      playAvatarAnimation(q.avatar, q.avatarAnimation);
-    }
+          // >>> AVATAR-ANIMATION BEI RICHTIG
+          if (q.avatar && q.avatarAnimation &&
+              (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "correct" || q.avatarAnimationTrigger === "both")) {
+            playAvatarAnimation(q.avatar, q.avatarAnimation);
+          }
 
-    // Sperre alle Buttons
-    btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
-    renderFeedbackText(true, q);
-    setTimeout(() => { onSelect(idx); }, 1100);
-  } else {
-    btn.classList.add("selected");
-    btn.disabled = true;
-    playSound(q.wrongSound || "fail.mp3");
-    runAnimations(q.wrongAnimation || ["shake"]);
+          // Sperre alle Buttons
+          btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+          renderFeedbackText(true, q);
+          setTimeout(() => { onSelect(idx); }, 1100);
+        } else {
+          btn.classList.add("selected");
+          btn.disabled = true;
+          playSound(q.wrongSound || "fail.mp3");
+          runAnimations(q.wrongAnimation || ["shake"]);
 
-    // >>> AVATAR-ANIMATION BEI FALSCH
-    if (q.avatar && q.avatarAnimation &&
-        (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "wrong" || q.avatarAnimationTrigger === "both")) {
-      playAvatarAnimation(q.avatar, q.avatarAnimation);
-    }
+          // >>> AVATAR-ANIMATION BEI FALSCH
+          if (q.avatar && q.avatarAnimation &&
+              (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "wrong" || q.avatarAnimationTrigger === "both")) {
+            playAvatarAnimation(q.avatar, q.avatarAnimation);
+          }
 
-    renderFeedbackText(false, q);
-    // Optional: Feedback-Text wieder entfernen nach 1.5s, Buttons bleiben aktiv!
+          renderFeedbackText(false, q);
+          // Optional: Feedback-Text wieder entfernen nach 1.5s, Buttons bleiben aktiv!
+        }
+      };
+      btnBox.appendChild(btn);
+    });
+    area.appendChild(btnBox);
+    return;
   }
-};
-	}
+
+  // 3. Reihenfolge-Aufgabe (z.B. Farben sortieren)
+  if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
+    const btnBox = document.createElement("div");
+    btnBox.className = "sequence-buttons";
+    let userSequence = [];
+    q.colors.forEach((color, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "sequence-choice-btn";
+      btn.innerText = color;
+      btn.onclick = function() {
+        btn.disabled = true;
+        btn.classList.add("selected");
+        userSequence.push(idx);
+        // Wenn alle gewählt, auswerten:
+        if (userSequence.length === q.solution.length) {
+          // Buttons sperren:
+          document.querySelectorAll('.sequence-choice-btn').forEach(b => b.disabled = true);
+          const isCorrect = userSequence.every((val, i) => val === q.solution[i]);
+          onSelect(isCorrect);
+        }
+      };
+      btnBox.appendChild(btn);
+    });
+    area.appendChild(btnBox);
+    return;
   }
 }
-}
+
 
   // Sequenz/Color
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
