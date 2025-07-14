@@ -571,7 +571,7 @@ const avatarAnimations = {
 async function renderUniversalSession(sessionJSON) {
   stopAllSounds();
   clearMainUI();
-
+   renderFrogProgress(currentSession, currentSession, sessions.length);
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
   renderSessionHeader(sessionJSON.title || "");
 
@@ -603,7 +603,7 @@ function showQuestion(qIdx) {
 
   // 2. Alles vorbereiten für neue Frage
   clearQuestionUI();
-  renderFrogProgress(qIdx, qIdx, questions.length);
+  
 
   
 
