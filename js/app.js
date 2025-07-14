@@ -609,6 +609,7 @@ const avatarAnimations = {
 async function renderUniversalSession(sessionJSON) {
   stopAllSounds();
   clearMainUI();
+  renderUniversalVideoBox(sessionJSON);
 
   // 1. Welche Fragen/Tasks?
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
