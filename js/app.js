@@ -563,9 +563,9 @@ function renderVideoAvatarFromJSON(task, trigger) {
 
 // Die Animationen-Funktion bleibt wie gehabt:
 function playAvatarAnimation(avatar, animType) {
-  const img = document.getElementById("coachAvatar");
+  // Standard: avatar ist der Dateiname, animType z.B. 'bounce'
+  const img = document.querySelector(".floating-video img.avatar");
   if (!img) return;
-  img.src = `images/${avatar}.png`;
   img.classList.remove("avatar-bounce", "avatar-wiggle", "avatar-tada");
   if (animType === "bounce")      img.classList.add("avatar-bounce");
   else if (animType === "wiggle") img.classList.add("avatar-wiggle");
@@ -574,7 +574,6 @@ function playAvatarAnimation(avatar, animType) {
     setTimeout(() => img.classList.remove("avatar-wiggle", "avatar-tada"), 1600);
   }
 }
-
 
 
 
