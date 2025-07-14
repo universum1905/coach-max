@@ -891,23 +891,43 @@ function renderUniversalAnswerButtons(q, onSelect) {
   }
 
   // 2. Multiple Choice (Quiz)
-  if (Array.isArray(q.choices)) {
-    const btnBox = document.createElement("div");
-    btnBox.className = "quiz-buttons";
-    q.choices.forEach((choice, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "quiz-choice-btn";
-      btn.innerText = choice;
-      btn.onclick = function() {
-        // Buttons sperren (nur eine Antwort möglich)
-        document.querySelectorAll('.quiz-choice-btn').forEach(b => b.disabled = true);
-        onSelect(idx);
-      };
-      btnBox.appendChild(btn);
-    });
-    area.appendChild(btnBox);
-    return;
-  }
+  // 2. Multiple Choice (Quiz) – Kinderfreundliche Logik!
+if (Array.isArray(q.choices)) {
+  const btnBox = document.createElement("div");
+  btnBox.className = "quiz-buttons";
+  let solved = false;
+  q.choices.forEach((choice, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "quiz-choice-btn";
+    btn.innerText = choice;
+    btn.onclick = function() {
+      if (solved) return;
+      if (idx === q.correct) {
+        solved = true;
+        btn.classList.add("selected");
+        playSound(q.correctSound || "yay.mp3");
+        runAnimations(q.correctAnimation || ["confetti-glow"]);
+        // Sperre alle Buttons
+        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+        renderFeedbackText(true, q); // z.B. "Super!"
+        setTimeout(() => {
+          onSelect(idx); // Gehe weiter
+        }, 1100);
+      } else {
+        btn.classList.add("selected");
+        btn.disabled = true;
+        playSound(q.wrongSound || "fail.mp3");
+        runAnimations(q.wrongAnimation || ["shake"]);
+        renderFeedbackText(false, q); // z.B. "Nochmal!"
+        // Alle anderen Buttons bleiben aktiv!
+      }
+    };
+    btnBox.appendChild(btn);
+  });
+  area.appendChild(btnBox);
+  return;
+}
+
 
   // 3. Reihenfolge-Aufgabe (z.B. Farben sortieren)
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
