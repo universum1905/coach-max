@@ -629,12 +629,7 @@ html, body {
   margin: 0 0 17px 0;
 }
 
-.centered-next-btn {
-  position: relative !important;
-  z-index: 2001 !important;
-  margin-top: 24px !important;
-  display: block !important;
-}
+
 .confetti-overlay {
   pointer-events: none;
   position: fixed;
