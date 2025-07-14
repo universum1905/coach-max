@@ -789,17 +789,15 @@ function renderUniversalVideoBox(sessionJSON) {
     videoElement.style.pointerEvents = "none";
   });
   videoElement.addEventListener('ended', () => {
-    // Nach Video-Ende: Avatar
-    videoBox.innerHTML = '';
-    const avatar = document.createElement('img');
-    avatar.src = "images/" + (sessionJSON.avatar || "benny") + ".png";
-    avatar.className = "avatar";
-    avatar.style.width = "140px";
-    avatar.style.height = "140px";
-    avatar.style.objectFit = "cover";
-    avatar.style.borderRadius = "50%";
-    videoBox.appendChild(avatar);
-  });
+  // Entferne Video und Play-Button
+  videoBox.innerHTML = "";
+  // Zeige Avatar
+  const avatarImg = document.createElement('img');
+  avatarImg.className = "avatar";
+  avatarImg.src = `images/${sessionJSON.avatar || "benny"}.png`;
+  videoBox.appendChild(avatarImg);
+});
+ 
   videoBox.appendChild(playBtn);
 
   // Einhängen
@@ -1347,14 +1345,8 @@ playBtn.innerHTML = `
       playBtn.style.display = "";
       videoElement.style.pointerEvents = "none";
     });
-    videoElement.addEventListener('ended', () => {
-  playBtn.style.display = "";
-  videoElement.style.pointerEvents = "none";
-  // Avatar nach Video anzeigen:
-  const avatarName = s.avatar || "luna"; // fallback auf Luna
-  showAvatarInVideoBox(videoBox, avatarName, "avatar");
-});
-    videoBox.appendChild(playBtn);
+    
+	videoBox.appendChild(playBtn);
 
     linesBox.hasAnimated = false;
 
