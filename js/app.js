@@ -606,17 +606,13 @@ async function renderUniversalSession(sessionJSON) {
   clearMainUI();
 
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
-
-  // 1. Überschrift immer oben!
   renderSessionHeader(sessionJSON.title || "");
 
-  // 2. Video-Box unten rechts
   renderUniversalVideoBox(sessionJSON, () => {
-    // Callback: NACHDEM das Video zu Ende ist!
     if (questions.length > 0) showQuestion(0);
   });
 
-  // 3. Musik starten
+  // Musik wie gehabt...
   let music = null;
   if (sessionJSON.music) {
     music = new Audio("audio/" + sessionJSON.music);
@@ -628,46 +624,64 @@ async function renderUniversalSession(sessionJSON) {
     window.addEventListener("focus", () => { if (music) music.play(); });
   }
 
-  // ... Fragen/Quiz-Logik wie gehabt ...
-
-function showQuestion(idx) {
-  const q = questions[idx];
-  // ... dein Fragerendering, Button-Logik, Feedback usw. ...
-
-  // Wenn richtig beantwortet:
-  setTimeout(() => {
-    if (idx + 1 < questions.length) {
-      showQuestion(idx + 1);  // nächste Frage
-    } else {
-      // LETZTE Frage wurde beantwortet → jetzt Reward!
-      showUniversalRewardFromSession(sessionJSON, () => {
-        finishUniversalSession(sessionJSON);
-      });
-    }
-  }, 1200);
-}
-
-    const q = questions[idx];
+  // ---------------  
+  // FRAGEN-LOGIK  
+  function showQuestion(qIdx) {
+    const q = questions[qIdx];
     clearQuestionUI();
-    renderFrogProgress(idx, idx, questions.length);
+    renderFrogProgress(qIdx, qIdx, questions.length);
 
-    // Avatar anzeigen (z.B. neben Frage, wenn du willst)
     renderAvatarBox(q.avatar, q.avatarAnimation, "always");
-
-    // Jetzt die Buttons/Frage:
     renderUniversalAnswerButtons(q, (result) => {
-      // ... Logik wie oben ...
-      // Wenn alles vorbei:
-      if (idx + 1 >= questions.length) {
-        showUniversalRewardFromSession(sessionJSON, () => {
-          finishUniversalSession(sessionJSON);
-        });
-      } else {
-        showQuestion(idx + 1);
+      // Auswerten je nach Quiz/Sequence
+      let isCorrect;
+      if (Array.isArray(q.choices)) {
+        isCorrect = result === q.correct;
+      } else if (Array.isArray(q.colors)) {
+        isCorrect = result; // true/false
       }
+
+      lockAnswerButtons();
+
+      // Animation/Sound/Feedback
+      const sound = isCorrect
+        ? q.correctSound || randomFrom(soundPool.correct)
+        : q.wrongSound   || randomFrom(soundPool.wrong);
+      playSound(sound);
+
+      const anims = isCorrect
+        ? (q.correctAnimation || [randomFrom(animationPool.correct)])
+        : (q.wrongAnimation   || [randomFrom(animationPool.wrong)]);
+      runAnimations(anims);
+
+      if (q.avatar && q.avatarAnimation && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
+        playAvatarAnimation(q.avatar, q.avatarAnimation);
+      }
+      renderFeedbackText(isCorrect, q);
+      showCheckingOverlay();
+
+      setTimeout(() => {
+        hideCheckingOverlay();
+        if (isCorrect) {
+          if (q.reward !== undefined) showRewardPopup(q.reward);
+          setTimeout(() => {
+            // WICHTIG: qIdx + 1, nicht idx!
+            if (qIdx + 1 < questions.length) {
+              showQuestion(qIdx + 1);
+            } else {
+              // Erst NACH ALLEN Fragen Reward zeigen!
+              showUniversalRewardFromSession(sessionJSON, () => {
+                finishUniversalSession(sessionJSON);
+              });
+            }
+          }, 1400);
+        } else {
+          unlockAnswerButtons();
+        }
+      }, 1200);
     });
   }
-
+}
 
 
 
