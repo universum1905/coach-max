@@ -699,83 +699,6 @@ async function renderUniversalSession(sessionJSON) {
   window.addEventListener("beforeunload", stopAllSounds);
 }
 
-// === UNIVERSAL VIDEO + AVATAR CONTAINER ===
-function renderUniversalVideoAvatarBox(sessionJSON) {
-  const box = document.getElementById("videoAvatarBox");
-  box.innerHTML = "";
-
-  if (sessionJSON.video) {
-    // VIDEO
-    const vid = document.createElement("video");
-    vid.src = "videos/" + sessionJSON.video;
-    vid.setAttribute("controls", "true");
-    vid.setAttribute("controlsList", "nodownload");
-    vid.autoplay = false;
-    vid.muted = false;
-    vid.playsInline = true;
-    vid.poster = "images/video-placeholder.png";
-    vid.style.width = "100%";
-    vid.style.height = "100%";
-    vid.style.borderRadius = "50%";
-    vid.style.objectFit = "cover";
-    vid.style.background = "#eee";
-    box.appendChild(vid);
-
-    // Play-Overlay
-    const playBtn = document.createElement("button");
-    playBtn.className = "custom-play-btn";
-    playBtn.title = "Play";
-    playBtn.innerHTML = `
-      <svg viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="28" fill="none"/>
-        <polygon points="22,16 46,30 22,44" fill="#383838"/>
-      </svg>
-    `;
-    playBtn.style.position = "absolute";
-    playBtn.style.left = "50%";
-    playBtn.style.top = "50%";
-    playBtn.style.transform = "translate(-50%,-50%)";
-    playBtn.style.zIndex = "2";
-    playBtn.onclick = function() {
-      vid.play();
-      playBtn.style.display = "none";
-      vid.style.pointerEvents = "auto";
-    };
-    vid.addEventListener('play', () => {
-      playBtn.style.display = "none";
-      vid.style.pointerEvents = "auto";
-    });
-    vid.addEventListener('pause', () => {
-      playBtn.style.display = "";
-      vid.style.pointerEvents = "none";
-    });
-    vid.addEventListener('ended', () => {
-      // AVATAR exakt wie Video, rund und mittig!
-      box.innerHTML = "";
-      const img = document.createElement("img");
-      img.src = "images/" + (sessionJSON.avatar || "benny") + ".png";
-      img.className = "avatar";
-      img.style.width = "100%";
-      img.style.height = "100%";
-      img.style.objectFit = "cover";
-      img.style.borderRadius = "50%";
-      img.style.background = "#eee";
-      box.appendChild(img);
-    });
-    box.appendChild(playBtn);
-  } else {
-    // Nur Avatar anzeigen
-    const img = document.createElement("img");
-    img.src = "images/" + (sessionJSON.avatar || "benny") + ".png";
-    img.className = "avatar";
-    img.style.width = "100%";
-    img.style.height = "100%";
-    img.style.objectFit = "cover";
-    img.style.borderRadius = "50%";
-    img.style.background = "#eee";
-    box.appendChild(img);
-  }
-}
 
 
 
@@ -884,8 +807,6 @@ function renderUniversalVideoBox(sessionJSON) {
   // Einhängen
   document.body.appendChild(videoBox);
 }
-
-
 
 
 // UNIVERSAL BUTTONS für beide Fragetypen
