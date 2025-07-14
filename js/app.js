@@ -629,7 +629,7 @@ async function renderUniversalSession(sessionJSON) {
   function showQuestion(qIdx) {
     const q = questions[qIdx];
     clearQuestionUI();
-    renderFrogProgress(qIdx, qIdx, questions.length);
+    
 
     renderAvatarBox(q.avatar, q.avatarAnimation, "always");
     renderUniversalAnswerButtons(q, (result) => {
@@ -790,11 +790,9 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
 // UNIVERSAL BUTTONS für beide Fragetypen
 function renderUniversalAnswerButtons(q, onSelect) {
   const area = document.getElementById("sessionTextArea");
+  document.querySelectorAll('.quiz-choice-btn, .sequence-choice-btn, .quiz-question, .quiz-feedback').forEach(el => el.remove());
 
-  // Entferne alle alten Buttons, Fragen & Feedback (damit nichts übrig bleibt)
-  area.querySelectorAll('.quiz-choice-btn, .sequence-choice-btn, .quiz-question, .quiz-feedback').forEach(el => el.remove());
-
-  // 1. Fragetext (oben, groß)
+  // Fragetext
   if (q.question) {
     const questionDiv = document.createElement("div");
     questionDiv.className = "quiz-question";
@@ -802,7 +800,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
     area.appendChild(questionDiv);
   }
 
-  // 2. Multiple Choice / Quiz
+  // Quiz/Multiple Choice
   if (Array.isArray(q.choices)) {
     const btnBox = document.createElement("div");
     btnBox.className = "quiz-buttons";
@@ -812,30 +810,23 @@ function renderUniversalAnswerButtons(q, onSelect) {
       btn.className = "quiz-choice-btn";
       btn.innerText = choice;
       btn.onclick = function() {
-        if (solved || btn.disabled) return;
-        solved = true;
-        // Alle Buttons deaktivieren
-        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
-
-        const isCorrect = idx === q.correct;
-
-        // Farben setzen
-        btn.classList.add(isCorrect ? "correct" : "wrong");
-
-        // Sound/Animation
-        playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
-        runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
-        
-        // Avatar-Animation, falls definiert
-        if (q.avatar && q.avatarAnimation && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
-          playAvatarAnimation(q.avatar, q.avatarAnimation);
+        if (solved || btn.disabled) return; // Wenn schon gelöst ODER Button deaktiviert
+        if (idx === q.correct) {
+          solved = true;
+          btn.classList.add("selected", "correct"); // RICHTIG = grün
+          playSound(q.correctSound || "yay.mp3");
+          runAnimations(q.correctAnimation || ["confetti-glow"]);
+          btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+          renderFeedbackText(true, q);
+          setTimeout(() => onSelect(idx), 1100);
+        } else {
+          btn.classList.add("selected", "wrong"); // FALSCH = rot
+          btn.disabled = true; // Nur dieser Button
+          playSound(q.wrongSound || "fail.mp3");
+          runAnimations(q.wrongAnimation || ["shake"]);
+          renderFeedbackText(false, q);
+          // Die anderen Buttons bleiben aktiv!
         }
-        // Feedback
-        renderFeedbackText(isCorrect, q);
-
-        setTimeout(() => {
-          onSelect(idx);
-        }, isCorrect ? 1100 : 1200);
       };
       btnBox.appendChild(btn);
     });
@@ -843,7 +834,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
     return;
   }
 
-  // 3. Reihenfolge / Sequence (z.B. Farben)
+  // Sequenz/Color
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
     const btnBox = document.createElement("div");
     btnBox.className = "sequence-buttons";
@@ -853,26 +844,13 @@ function renderUniversalAnswerButtons(q, onSelect) {
       btn.className = "sequence-choice-btn";
       btn.innerText = color;
       btn.onclick = function() {
-        if (btn.disabled) return;
         btn.disabled = true;
         btn.classList.add("selected");
         userSequence.push(idx);
-
-        // Wenn fertig, auswerten
         if (userSequence.length === q.solution.length) {
-          btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+          document.querySelectorAll('.sequence-choice-btn').forEach(b => b.disabled = true);
           const isCorrect = userSequence.every((val, i) => val === q.solution[i]);
-          // Animation/Sound/Avatar
-          playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
-          runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
-          if (q.avatar && q.avatarAnimation && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
-            playAvatarAnimation(q.avatar, q.avatarAnimation);
-          }
-          renderFeedbackText(isCorrect, q);
-
-          setTimeout(() => {
-            onSelect(isCorrect);
-          }, isCorrect ? 1100 : 1200);
+          onSelect(isCorrect);
         }
       };
       btnBox.appendChild(btn);
@@ -884,25 +862,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
 
 
 
-
 // === Hilfsfunktionen – ALLES modular für Kinder-UX ===
-
-function renderSessionHeader(title) {
-  let titleEl = document.getElementById("mainTitle");
-  if (!titleEl) {
-    titleEl = document.createElement("h2");
-    titleEl.id = "mainTitle";
-    titleEl.className = "session-heading";
-    document.getElementById("mainContent").prepend(titleEl);
-  }
-  titleEl.innerText = title;
-  titleEl.style.textAlign = "center";
-  titleEl.style.fontFamily = "'Baloo 2', 'Comic Neue', Arial, sans-serif";
-  titleEl.style.fontSize = "2.2rem";
-  titleEl.style.color = "#44a2ff";
-  titleEl.style.letterSpacing = "0.03em";
-  titleEl.style.textShadow = "0 2px 10px #fffbe6, 0 1px 8px #b3e5fc88";
-}
 
 
 function renderAvatarBox(avatar, anim, trigger) {
@@ -1240,6 +1200,7 @@ function showAvatarInVideoBox(videoBox, avatarName, avatarClass = "avatar") {
 // Session mit Video, Play-Overlay, animiertem Text und fixiertem Next-Button
 function renderSession(idx) {
   const s = sessions[idx]; // <-- Das MUSS als allererstes kommen!
+  renderFrogProgress(idx, idx, sessions.length);
   console.log("=== renderSession", idx, "TYPE:", s.type, s);
   window.renderedSession = s; // Damit du im Browser jederzeit nachsehen kannst
   console.log("Session-Objekt:", s);

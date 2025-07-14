@@ -820,32 +820,36 @@ html, body {
   cursor: pointer;
   margin: 0;
 }
+
 .quiz-choice-btn.selected,
 .sequence-choice-btn.selected {
   background: #b2ff59;
   color: #444;
   box-shadow: 0 0 18px #b2ff59cc;
 }
+
 .quiz-choice-btn:disabled,
 .sequence-choice-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
-.btn-correct { background: #a5d6a7 !important; color: #1b5e20 !important; }
-.btn-wrong   { background: #ff8a80 !important; color: #b71c1c !important; }
-.btn-disabled { opacity: 0.55; pointer-events: none; }
 
+/* Nur EINMAL korrekt/falsch! */
 .quiz-choice-btn.correct {
-  background: #d6ffd6 !important;
-  color: #218c21 !important;
+  background: #b9f6ca !important;
+  color: #267323 !important;
   border: 2px solid #39c839 !important;
   font-weight: bold;
   box-shadow: 0 0 16px #adffad66;
 }
 .quiz-choice-btn.wrong {
-  background: #ffd6d6 !important;
-  color: #c82121 !important;
+  background: #ffd1d1 !important;
+  color: #b71c1c !important;
   border: 2px solid #ff6060 !important;
   font-weight: bold;
   box-shadow: 0 0 16px #ffadad66;
+}
+
+.quiz-choice-btn.selected {
+  border: 2px solid #ffd54f;
 }
