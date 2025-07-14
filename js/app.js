@@ -644,59 +644,14 @@ async function renderUniversalSession(sessionJSON) {
     // Frage-Text
     renderQuestionText(q);
 
-    // Universal-Buttons
-    renderUniversalAnswerButtons(q, (result) => {
-      // === Auswertung: Quiz oder Reihenfolge ===
-      let isCorrect;
-      if (Array.isArray(q.choices)) isCorrect = result === q.correct;
-      else if (Array.isArray(q.colors)) isCorrect = result === true;
-      else isCorrect = false;
-
-      lockAnswerButtons();
-
-      // Sound/Animation
-      const sound = isCorrect
-        ? q.correctSound || randomFrom(soundPool.correct)
-        : q.wrongSound   || randomFrom(soundPool.wrong);
-      playSound(sound);
-
-      const anims = isCorrect
-        ? (q.correctAnimation || [randomFrom(animationPool.correct)])
-        : (q.wrongAnimation   || [randomFrom(animationPool.wrong)]);
-      runAnimations(anims);
-
-      if (q.avatar && q.avatarAnimation &&
-        (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
-        playAvatarAnimation(q.avatar, q.avatarAnimation);
-      }
-
-      renderFeedbackText(isCorrect, q);
-      showCheckingOverlay();
-
-      setTimeout(() => {
-        hideCheckingOverlay();
-        if (isCorrect) {
-          if (q.reward !== undefined) showRewardPopup(q.reward);
-          setTimeout(() => {
-            if (idx + 1 < questions.length) {
-              showQuestion(idx + 1);
-            } else {
-              finishUniversalSession(sessionJSON);
-            }
-          }, 1300);
-        } else {
-          unlockAnswerButtons();
-        }
-      }, 1100);
-    });
-  }
+   
 
   // Start mit Frage 0
   if (questions.length > 0) showQuestion(0);
 
   window.addEventListener("beforeunload", stopAllSounds);
 }
-
+}
 
 
 
@@ -809,10 +764,10 @@ function renderUniversalVideoBox(sessionJSON) {
 function renderUniversalAnswerButtons(q, onSelect) {
   const area = document.getElementById("sessionTextArea");
 
-  // Entferne alte Buttons/Feedback
-  document.querySelectorAll('.quiz-choice-btn, .sequence-choice-btn, .quiz-question, .quiz-feedback').forEach(el => el.remove());
+  // Entferne alle alten Buttons, Fragen & Feedback (damit nichts übrig bleibt)
+  area.querySelectorAll('.quiz-choice-btn, .sequence-choice-btn, .quiz-question, .quiz-feedback').forEach(el => el.remove());
 
-  // 1. Fragetext anzeigen
+  // 1. Fragetext (oben, groß)
   if (q.question) {
     const questionDiv = document.createElement("div");
     questionDiv.className = "quiz-question";
@@ -820,46 +775,48 @@ function renderUniversalAnswerButtons(q, onSelect) {
     area.appendChild(questionDiv);
   }
 
-  // 2. Multiple Choice (Quiz)
-  // 2. Multiple Choice (Quiz) – Kinderfreundliche Logik!
-if (Array.isArray(q.choices)) {
-  const btnBox = document.createElement("div");
-  btnBox.className = "quiz-buttons";
-  let solved = false;
-  q.choices.forEach((choice, idx) => {
-    const btn = document.createElement("button");
-    btn.className = "quiz-choice-btn";
-    btn.innerText = choice;
-    btn.onclick = function() {
-      if (solved) return;
-      if (idx === q.correct) {
+  // 2. Multiple Choice / Quiz
+  if (Array.isArray(q.choices)) {
+    const btnBox = document.createElement("div");
+    btnBox.className = "quiz-buttons";
+    let solved = false;
+    q.choices.forEach((choice, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "quiz-choice-btn";
+      btn.innerText = choice;
+      btn.onclick = function() {
+        if (solved || btn.disabled) return;
         solved = true;
-        btn.classList.add("selected");
-        playSound(q.correctSound || "yay.mp3");
-        runAnimations(q.correctAnimation || ["confetti-glow"]);
-        // Sperre alle Buttons
+        // Alle Buttons deaktivieren
         btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
-        renderFeedbackText(true, q); // z.B. "Super!"
+
+        const isCorrect = idx === q.correct;
+
+        // Farben setzen
+        btn.classList.add(isCorrect ? "correct" : "wrong");
+
+        // Sound/Animation
+        playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+        runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+        
+        // Avatar-Animation, falls definiert
+        if (q.avatar && q.avatarAnimation && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
+          playAvatarAnimation(q.avatar, q.avatarAnimation);
+        }
+        // Feedback
+        renderFeedbackText(isCorrect, q);
+
         setTimeout(() => {
-          onSelect(idx); // Gehe weiter
-        }, 1100);
-      } else {
-        btn.classList.add("selected");
-        btn.disabled = true;
-        playSound(q.wrongSound || "fail.mp3");
-        runAnimations(q.wrongAnimation || ["shake"]);
-        renderFeedbackText(false, q); // z.B. "Nochmal!"
-        // Alle anderen Buttons bleiben aktiv!
-      }
-    };
-    btnBox.appendChild(btn);
-  });
-  area.appendChild(btnBox);
-  return;
-}
+          onSelect(idx);
+        }, isCorrect ? 1100 : 1200);
+      };
+      btnBox.appendChild(btn);
+    });
+    area.appendChild(btnBox);
+    return;
+  }
 
-
-  // 3. Reihenfolge-Aufgabe (z.B. Farben sortieren)
+  // 3. Reihenfolge / Sequence (z.B. Farben)
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
     const btnBox = document.createElement("div");
     btnBox.className = "sequence-buttons";
@@ -869,15 +826,26 @@ if (Array.isArray(q.choices)) {
       btn.className = "sequence-choice-btn";
       btn.innerText = color;
       btn.onclick = function() {
+        if (btn.disabled) return;
         btn.disabled = true;
         btn.classList.add("selected");
         userSequence.push(idx);
-        // Wenn alle gewählt, auswerten:
+
+        // Wenn fertig, auswerten
         if (userSequence.length === q.solution.length) {
-          // Buttons sperren:
-          document.querySelectorAll('.sequence-choice-btn').forEach(b => b.disabled = true);
+          btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
           const isCorrect = userSequence.every((val, i) => val === q.solution[i]);
-          onSelect(isCorrect);
+          // Animation/Sound/Avatar
+          playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+          runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+          if (q.avatar && q.avatarAnimation && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
+            playAvatarAnimation(q.avatar, q.avatarAnimation);
+          }
+          renderFeedbackText(isCorrect, q);
+
+          setTimeout(() => {
+            onSelect(isCorrect);
+          }, isCorrect ? 1100 : 1200);
         }
       };
       btnBox.appendChild(btn);
