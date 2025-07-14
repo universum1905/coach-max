@@ -534,8 +534,7 @@ function runAnimation_rainbowEmoji() {
 
 
 function renderVideoAvatarFromJSON(task, trigger) {
-  const box = document.getElementById("videoAvatarBox");
-  if (!box || !task) return;
+  
 
   // Prüfen ob Video angezeigt werden soll (z.B. nur beim ersten Anzeigen)
   if (task.video && (!trigger || trigger === "show" || trigger === "always")) {
@@ -615,9 +614,7 @@ async function renderUniversalSession(sessionJSON) {
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
   let currentQ = 0;
 
-  // 2. Video-Box unten rechts befüllen
-  renderUniversalVideoAvatarBox(sessionJSON);
-
+  
   // 3. Musik
   let music = null;
   if (sessionJSON.music) {
