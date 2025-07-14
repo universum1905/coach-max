@@ -831,3 +831,17 @@ html, body {
   opacity: 0.6;
   cursor: not-allowed;
 }
+.btn-correct { background: #a5d6a7 !important; color: #1b5e20 !important; }
+.btn-wrong   { background: #ff8a80 !important; color: #b71c1c !important; }
+.btn-disabled { opacity: 0.55; pointer-events: none; }
+
+.quiz-choice-btn.correct {
+  background: #c8ffc8 !important;
+  color: #207c20 !important;
+  border: 2px solid #34a853 !important;
+}
+.quiz-choice-btn.wrong {
+  background: #ffd7d7 !important;
+  color: #d32020 !important;
+  border: 2px solid #ea4335 !important;
+}
