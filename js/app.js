@@ -800,11 +800,17 @@ function renderUniversalAnswerButtons(q, onSelect) {
     area.appendChild(questionDiv);
   }
 
-  // Quiz/Multiple Choice
+  // --- MULTIPLE CHOICE (Quiz) ---
   if (Array.isArray(q.choices)) {
     const btnBox = document.createElement("div");
     btnBox.className = "quiz-buttons";
     let solved = false;
+
+    // Feedback-Text
+    const feedbackDiv = document.createElement("div");
+    feedbackDiv.className = "quiz-feedback";
+    area.appendChild(feedbackDiv);
+
     q.choices.forEach((choice, idx) => {
       const btn = document.createElement("button");
       btn.className = "quiz-choice-btn";
@@ -813,34 +819,38 @@ function renderUniversalAnswerButtons(q, onSelect) {
         if (solved) return;
         if (idx === q.correct) {
           solved = true;
-          btn.classList.add("selected");
+          btn.classList.add("selected", "btn-correct");
           playSound(q.correctSound || "yay.mp3");
           runAnimations(q.correctAnimation || ["confetti-glow"]);
 
-          // >>> AVATAR-ANIMATION BEI RICHTIG
+          // AVATAR-ANIMATION BEI RICHTIG
           if (q.avatar && q.avatarAnimation &&
-              (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "correct" || q.avatarAnimationTrigger === "both")) {
+            (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "correct" || q.avatarAnimationTrigger === "both")) {
             playAvatarAnimation(q.avatar, q.avatarAnimation);
           }
 
           // Sperre alle Buttons
           btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
-          renderFeedbackText(true, q);
+          feedbackDiv.innerText = q.feedbackCorrect || "Super!";
+          feedbackDiv.style.color = "#218c21";
           setTimeout(() => { onSelect(idx); }, 1100);
         } else {
-          btn.classList.add("selected");
+          btn.classList.add("selected", "btn-wrong");
           btn.disabled = true;
           playSound(q.wrongSound || "fail.mp3");
           runAnimations(q.wrongAnimation || ["shake"]);
 
-          // >>> AVATAR-ANIMATION BEI FALSCH
+          // AVATAR-ANIMATION BEI FALSCH
           if (q.avatar && q.avatarAnimation &&
-              (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "wrong" || q.avatarAnimationTrigger === "both")) {
+            (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "wrong" || q.avatarAnimationTrigger === "both")) {
             playAvatarAnimation(q.avatar, q.avatarAnimation);
           }
 
-          renderFeedbackText(false, q);
-          // Optional: Feedback-Text wieder entfernen nach 1.5s, Buttons bleiben aktiv!
+          feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
+          feedbackDiv.style.color = "#c82121";
+
+          // Nach 1.5s wieder Feedback ausblenden, Buttons bleiben aktiv (außer dem falschen)
+          setTimeout(() => { feedbackDiv.innerText = ""; }, 1200);
         }
       };
       btnBox.appendChild(btn);
@@ -849,25 +859,59 @@ function renderUniversalAnswerButtons(q, onSelect) {
     return;
   }
 
-  // 3. Reihenfolge-Aufgabe (z.B. Farben sortieren)
+  // --- SEQUENCE/ORDER AUFGABE (z.B. Farben sortieren) ---
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
     const btnBox = document.createElement("div");
     btnBox.className = "sequence-buttons";
     let userSequence = [];
+    let solved = false;
+
+    const feedbackDiv = document.createElement("div");
+    feedbackDiv.className = "quiz-feedback";
+    area.appendChild(feedbackDiv);
+
     q.colors.forEach((color, idx) => {
       const btn = document.createElement("button");
       btn.className = "sequence-choice-btn";
       btn.innerText = color;
       btn.onclick = function() {
+        if (solved) return;
         btn.disabled = true;
         btn.classList.add("selected");
         userSequence.push(idx);
-        // Wenn alle gewählt, auswerten:
+
         if (userSequence.length === q.solution.length) {
-          // Buttons sperren:
-          document.querySelectorAll('.sequence-choice-btn').forEach(b => b.disabled = true);
           const isCorrect = userSequence.every((val, i) => val === q.solution[i]);
-          onSelect(isCorrect);
+          if (isCorrect) {
+            solved = true;
+            playSound(q.correctSound || "yay.mp3");
+            runAnimations(q.correctAnimation || ["confetti-glow"]);
+            if (q.avatar && q.avatarAnimation &&
+              (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "correct" || q.avatarAnimationTrigger === "both")) {
+              playAvatarAnimation(q.avatar, q.avatarAnimation);
+            }
+            btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+            feedbackDiv.innerText = q.feedbackCorrect || "Super!";
+            feedbackDiv.style.color = "#218c21";
+            setTimeout(() => { onSelect(true); }, 1200);
+          } else {
+            playSound(q.wrongSound || "fail.mp3");
+            runAnimations(q.wrongAnimation || ["shake"]);
+            if (q.avatar && q.avatarAnimation &&
+              (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "wrong" || q.avatarAnimationTrigger === "both")) {
+              playAvatarAnimation(q.avatar, q.avatarAnimation);
+            }
+            feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
+            feedbackDiv.style.color = "#c82121";
+            setTimeout(() => {
+              userSequence = [];
+              feedbackDiv.innerText = "";
+              btnBox.querySelectorAll("button").forEach(b => {
+                b.disabled = false;
+                b.classList.remove("selected");
+              });
+            }, 1200);
+          }
         }
       };
       btnBox.appendChild(btn);
@@ -876,7 +920,6 @@ function renderUniversalAnswerButtons(q, onSelect) {
     return;
   }
 }
-
 
   // Sequenz/Color
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
