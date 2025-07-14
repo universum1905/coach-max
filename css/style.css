@@ -836,12 +836,16 @@ html, body {
 .btn-disabled { opacity: 0.55; pointer-events: none; }
 
 .quiz-choice-btn.correct {
-  background: #c8ffc8 !important;
-  color: #207c20 !important;
-  border: 2px solid #34a853 !important;
+  background: #d6ffd6 !important;
+  color: #218c21 !important;
+  border: 2px solid #39c839 !important;
+  font-weight: bold;
+  box-shadow: 0 0 16px #adffad66;
 }
 .quiz-choice-btn.wrong {
-  background: #ffd7d7 !important;
-  color: #d32020 !important;
-  border: 2px solid #ea4335 !important;
+  background: #ffd6d6 !important;
+  color: #c82121 !important;
+  border: 2px solid #ff6060 !important;
+  font-weight: bold;
+  box-shadow: 0 0 16px #ffadad66;
 }

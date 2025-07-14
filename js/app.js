@@ -609,14 +609,19 @@ const avatarAnimations = {
 async function renderUniversalSession(sessionJSON) {
   stopAllSounds();
   clearMainUI();
-  renderUniversalVideoBox(sessionJSON);
 
-  // 1. Welche Fragen/Tasks?
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
-  let currentQ = 0;
 
-  
-  // 3. Musik
+  // 1. Überschrift immer oben!
+  renderSessionHeader(sessionJSON.title || "");
+
+  // 2. Video-Box unten rechts
+  renderUniversalVideoBox(sessionJSON, () => {
+    // Callback: NACHDEM das Video zu Ende ist!
+    if (questions.length > 0) showQuestion(0);
+  });
+
+  // 3. Musik starten
   let music = null;
   if (sessionJSON.music) {
     music = new Audio("audio/" + sessionJSON.music);
@@ -628,29 +633,29 @@ async function renderUniversalSession(sessionJSON) {
     window.addEventListener("focus", () => { if (music) music.play(); });
   }
 
-  // 4. Titel + Froschbalken
-  renderSessionHeader(sessionJSON.title || "");
-  renderFrogProgress(0, 0, questions.length);
+  // ... Fragen/Quiz-Logik wie gehabt ...
 
-  // 5. Fragen-/Button-Logik
   function showQuestion(idx) {
     const q = questions[idx];
     clearQuestionUI();
     renderFrogProgress(idx, idx, questions.length);
 
-    // Avatar ggf. (z.B. als kleines Bild über der Frage)
+    // Avatar anzeigen (z.B. neben Frage, wenn du willst)
     renderAvatarBox(q.avatar, q.avatarAnimation, "always");
 
-    // Frage-Text
-    renderQuestionText(q);
-
-   
-
-  // Start mit Frage 0
-  if (questions.length > 0) showQuestion(0);
-
-  window.addEventListener("beforeunload", stopAllSounds);
-}
+    // Jetzt die Buttons/Frage:
+    renderUniversalAnswerButtons(q, (result) => {
+      // ... Logik wie oben ...
+      // Wenn alles vorbei:
+      if (idx + 1 >= questions.length) {
+        showUniversalRewardFromSession(sessionJSON, () => {
+          finishUniversalSession(sessionJSON);
+        });
+      } else {
+        showQuestion(idx + 1);
+      }
+    });
+  }
 }
 
 
@@ -697,15 +702,16 @@ function renderAvatarBox(avatar, anim, trigger) { /* Optional: Avatar über der 
 
 
 // VIDEO unten rechts: universell für alle Sessions
-function renderUniversalVideoBox(sessionJSON) {
-  // Entfernt vorherige Video-Container!
+function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
-
-  if (!sessionJSON.video) return;
-
+  if (!sessionJSON.video) {
+    if (typeof onEndedCallback === "function") onEndedCallback();
+    return;
+  }
   const videoBox = document.createElement('div');
   videoBox.className = "floating-video";
-  
+  // ... (Styling wie gehabt)
+
   const videoElement = document.createElement('video');
   videoElement.src = "videos/" + sessionJSON.video;
   videoElement.setAttribute("controls", "true");
@@ -714,13 +720,13 @@ function renderUniversalVideoBox(sessionJSON) {
   videoElement.muted = false;
   videoElement.playsInline = true;
   videoElement.poster = "images/video-placeholder.png";
-  videoElement.style.width = "140px";
-  videoElement.style.height = "140px";
+  videoElement.style.width = "100%";
+  videoElement.style.height = "100%";
   videoElement.style.objectFit = "cover";
-  videoElement.style.borderRadius = "50%";
+  videoElement.style.display = "block";
   videoBox.appendChild(videoElement);
 
-  // Play-Overlay
+  // Play-Overlay wie gehabt:
   const playBtn = document.createElement('button');
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
@@ -744,19 +750,16 @@ function renderUniversalVideoBox(sessionJSON) {
     videoElement.style.pointerEvents = "none";
   });
   videoElement.addEventListener('ended', () => {
-  // Entferne Video und Play-Button
-  videoBox.innerHTML = "";
-  // Zeige Avatar
-  const avatarImg = document.createElement('img');
-  avatarImg.className = "avatar";
-  avatarImg.src = `images/${sessionJSON.avatar || "benny"}.png`;
-  videoBox.appendChild(avatarImg);
-});
- 
+    // Avatar nach Video anzeigen:
+    videoBox.innerHTML = `<img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png" style="width:100%;height:100%;border-radius:50%;">`;
+    if (typeof onEndedCallback === "function") onEndedCallback();
+  });
   videoBox.appendChild(playBtn);
 
-  // Einhängen
   document.body.appendChild(videoBox);
+
+  // Optional: Wenn du willst, kann das Quiz sofort erscheinen, wenn kein Video:
+  // if (!sessionJSON.video && typeof onEndedCallback === "function") onEndedCallback();
 }
 
 
