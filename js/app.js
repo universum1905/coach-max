@@ -722,7 +722,6 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   }
   const videoBox = document.createElement('div');
   videoBox.className = "floating-video";
-  // ... (Styling wie gehabt)
 
   const videoElement = document.createElement('video');
   videoElement.src = "videos/" + sessionJSON.video;
@@ -764,16 +763,18 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   videoElement.addEventListener('ended', () => {
     // Avatar nach Video anzeigen:
     videoBox.innerHTML = `<img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png" style="width:100%;height:100%;border-radius:50%;">`;
-    if (typeof onEndedCallback === "function") onEndedCallback();
+    // GANZ WICHTIG: Callback aufrufen, damit die Fragen angezeigt werden!
+    if (typeof onEndedCallback === "function") {
+      setTimeout(() => { onEndedCallback(); }, 400); // Kurze Pause fürs Avatar-Bild
+    }
   });
   videoBox.appendChild(playBtn);
 
   document.body.appendChild(videoBox);
 
-  // Optional: Wenn du willst, kann das Quiz sofort erscheinen, wenn kein Video:
+  // Falls KEIN Video da ist, sofort Callback (damit es weitergeht)
   // if (!sessionJSON.video && typeof onEndedCallback === "function") onEndedCallback();
 }
-
 
 // UNIVERSAL BUTTONS für beide Fragetypen
 function renderUniversalAnswerButtons(q, onSelect) {
