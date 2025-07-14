@@ -822,13 +822,14 @@ function renderAvatarBox(avatar, anim, trigger) { /* Optional: Avatar über der 
 
 // VIDEO unten rechts: universell für alle Sessions
 function renderUniversalVideoBox(sessionJSON) {
+  // Entfernt vorherige Video-Container!
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
 
   if (!sessionJSON.video) return;
 
   const videoBox = document.createElement('div');
   videoBox.className = "floating-video";
-
+  
   const videoElement = document.createElement('video');
   videoElement.src = "videos/" + sessionJSON.video;
   videoElement.setAttribute("controls", "true");
@@ -837,13 +838,13 @@ function renderUniversalVideoBox(sessionJSON) {
   videoElement.muted = false;
   videoElement.playsInline = true;
   videoElement.poster = "images/video-placeholder.png";
-  videoElement.style.width = "100%";
-  videoElement.style.height = "100%";
+  videoElement.style.width = "140px";
+  videoElement.style.height = "140px";
   videoElement.style.objectFit = "cover";
-  videoElement.style.display = "block";
+  videoElement.style.borderRadius = "50%";
   videoBox.appendChild(videoElement);
 
-  // Play-Button Overlay
+  // Play-Overlay
   const playBtn = document.createElement('button');
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
@@ -867,13 +868,25 @@ function renderUniversalVideoBox(sessionJSON) {
     videoElement.style.pointerEvents = "none";
   });
   videoElement.addEventListener('ended', () => {
-    // Avatar nach Video
-    videoBox.innerHTML = `<img src="images/${sessionJSON.avatar || 'luna'}.png" class="avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    // Nach Video-Ende: Avatar
+    videoBox.innerHTML = '';
+    const avatar = document.createElement('img');
+    avatar.src = "images/" + (sessionJSON.avatar || "benny") + ".png";
+    avatar.className = "avatar";
+    avatar.style.width = "140px";
+    avatar.style.height = "140px";
+    avatar.style.objectFit = "cover";
+    avatar.style.borderRadius = "50%";
+    videoBox.appendChild(avatar);
   });
   videoBox.appendChild(playBtn);
 
+  // Einhängen
   document.body.appendChild(videoBox);
 }
+
+
+
 
 // UNIVERSAL BUTTONS für beide Fragetypen
 function renderUniversalAnswerButtons(q, onSelect) {
@@ -959,83 +972,6 @@ if (Array.isArray(q.choices)) {
 
 
 
-// Universelles Video-Box-Rendering (nur 1x pro Session)
-function renderUniversalVideoBox(sessionJSON) {
-  // Video entfernen, falls schon da
-  document.querySelectorAll(".floating-video").forEach(el => el.remove());
-
-  if (!sessionJSON.video) return;
-
-  const videoBox = document.createElement('div');
-  videoBox.className = "floating-video";
-  videoBox.style.position = "fixed";
-  videoBox.style.right = "24px";
-  videoBox.style.bottom = "22px";
-  videoBox.style.zIndex = "1200";
-  videoBox.style.width = "220px";
-  videoBox.style.height = "220px";
-  videoBox.style.borderRadius = "50%";
-  videoBox.style.overflow = "hidden";
-  videoBox.style.background = "#fff";
-  videoBox.style.boxShadow = "0 6px 32px #4442, 0 2px 8px #0001";
-
-  const videoElement = document.createElement('video');
-  videoElement.src = "videos/" + sessionJSON.video;
-  videoElement.setAttribute("controls", "true");
-  videoElement.setAttribute("controlsList", "nodownload");
-  videoElement.autoplay = false;
-  videoElement.muted = false;
-  videoElement.playsInline = true;
-  videoElement.poster = "images/video-placeholder.png";
-  videoElement.style.width = "100%";
-  videoElement.style.height = "100%";
-  videoElement.style.objectFit = "cover";
-  videoElement.style.display = "block";
-  videoBox.appendChild(videoElement);
-
-  // Play-Overlay
-  const playBtn = document.createElement('button');
-  playBtn.className = "custom-play-btn";
-  playBtn.title = "Play";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-  `;
-  playBtn.style.position = "absolute";
-  playBtn.style.left = "50%";
-  playBtn.style.top = "50%";
-  playBtn.style.transform = "translate(-50%,-50%)";
-  playBtn.style.zIndex = "2";
-  playBtn.style.background = "rgba(255,255,255,0.85)";
-  playBtn.style.border = "none";
-  playBtn.style.borderRadius = "50%";
-  playBtn.style.padding = "18px";
-  playBtn.style.cursor = "pointer";
-  playBtn.style.boxShadow = "0 2px 8px #0001";
-  playBtn.onclick = function() {
-    videoElement.play();
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  };
-  videoElement.addEventListener('play', () => {
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  });
-  videoElement.addEventListener('pause', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
-  videoElement.addEventListener('ended', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
-  videoBox.appendChild(playBtn);
-
-  // Einhängen in Body
-  document.body.appendChild(videoBox);
-}
 
 // === Hilfsfunktionen – ALLES modular für Kinder-UX ===
 
