@@ -217,11 +217,6 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
   }, 800);
 }
 
-/**
- * Universeller Reward-Aufruf – übernimmt ALLE Sticker, Puzzle, Pokal, Zertifikat, usw.
- * Ruft am Ende jeder Session einfach auf: showUniversalRewardFromSession(s);
- * s = aktuelles Session-Objekt aus deinem sessions-Array.
- */
 
 function showUniversalRewardFromSession(sessionObj, nextAction) {
   if (!sessionObj) return;
@@ -666,27 +661,26 @@ async function renderUniversalSession(sessionJSON) {
 
 // === Feedback-Text ===
 function renderFeedbackText(isCorrect, q) {
-  // Entferne vorherigen Feedback-Text
+  // Entferne alte Feedbacks
   document.querySelectorAll('.quiz-feedback').forEach(el => el.remove());
   const area = document.getElementById("sessionTextArea");
   const feedback = document.createElement("div");
   feedback.className = "quiz-feedback";
   feedback.innerText = isCorrect
     ? (q.feedbackCorrect || "Super gemacht! 🎉")
-    : (q.feedbackWrong || "Oops, nochmal probieren! 😅");
+    : (q.feedbackWrong || "Nochmal probieren! 😅");
+  feedback.style.marginTop = "15px";
+  feedback.style.fontWeight = "bold";
+  feedback.style.fontSize = "1.2em";
+  feedback.style.color = isCorrect ? "#219821" : "#c82121";
+  feedback.style.animation = "fadeInText 0.5s";
   area.appendChild(feedback);
 }
 
-function lockAnswerButtons() {
-  document.querySelectorAll('.quiz-choice-btn, .sequence-choice-btn').forEach(btn => btn.disabled = true);
-}
-function unlockAnswerButtons() {
-  document.querySelectorAll('.quiz-choice-btn, .sequence-choice-btn').forEach(btn => btn.disabled = false);
-}
 
-function clearQuestionUI() {
-  document.getElementById("sessionTextArea").innerHTML = "";
-}
+
+
+
 
 // Den Rest deiner bestehenden Animationen, Musik, Frosch, Reward usw. kannst du beibehalten!
 
@@ -925,9 +919,8 @@ function runAnimations(anims) {
   });
 }
 
-function renderFeedbackText(isCorrect, q) {
-  // Feedback-Text (z.B. "Super gemacht!", "Oops, nochmal probieren!")
-}
+
+
 function showCheckingOverlay() {
   // Spinner/Kreise mit "Checking..." für 2–3 Sek. anzeigen
 }
