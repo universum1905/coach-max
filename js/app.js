@@ -630,7 +630,23 @@ async function renderUniversalSession(sessionJSON) {
 
   // ... Fragen/Quiz-Logik wie gehabt ...
 
-  function showQuestion(idx) {
+function showQuestion(idx) {
+  const q = questions[idx];
+  // ... dein Fragerendering, Button-Logik, Feedback usw. ...
+
+  // Wenn richtig beantwortet:
+  setTimeout(() => {
+    if (idx + 1 < questions.length) {
+      showQuestion(idx + 1);  // nächste Frage
+    } else {
+      // LETZTE Frage wurde beantwortet → jetzt Reward!
+      showUniversalRewardFromSession(sessionJSON, () => {
+        finishUniversalSession(sessionJSON);
+      });
+    }
+  }, 1200);
+}
+
     const q = questions[idx];
     clearQuestionUI();
     renderFrogProgress(idx, idx, questions.length);
@@ -651,7 +667,7 @@ async function renderUniversalSession(sessionJSON) {
       }
     });
   }
-}
+
 
 
 
