@@ -102,7 +102,7 @@
       "avatar": "momo",
       "avatarAnimation": "wiggle",
       "avatarAnimationTrigger": "correct",
-      "correctSound": "sparkle-bell.mp3",
+      "correctSound": "yay.mp3",
       "wrongSound": "fail.mp3",
       "correctAnimation": ["sparkle"],
       "wrongAnimation": ["shake"],
