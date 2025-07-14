@@ -810,29 +810,43 @@ function renderUniversalAnswerButtons(q, onSelect) {
       btn.className = "quiz-choice-btn";
       btn.innerText = choice;
       btn.onclick = function() {
-        if (solved || btn.disabled) return; // Wenn schon gelöst ODER Button deaktiviert
-        if (idx === q.correct) {
-          solved = true;
-          btn.classList.add("selected", "correct"); // RICHTIG = grün
-          playSound(q.correctSound || "yay.mp3");
-          runAnimations(q.correctAnimation || ["confetti-glow"]);
-          btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
-          renderFeedbackText(true, q);
-          setTimeout(() => onSelect(idx), 1100);
-        } else {
-          btn.classList.add("selected", "wrong"); // FALSCH = rot
-          btn.disabled = true; // Nur dieser Button
-          playSound(q.wrongSound || "fail.mp3");
-          runAnimations(q.wrongAnimation || ["shake"]);
-          renderFeedbackText(false, q);
-          // Die anderen Buttons bleiben aktiv!
-        }
-      };
-      btnBox.appendChild(btn);
-    });
-    area.appendChild(btnBox);
-    return;
+  if (solved) return;
+  if (idx === q.correct) {
+    solved = true;
+    btn.classList.add("selected");
+    playSound(q.correctSound || "yay.mp3");
+    runAnimations(q.correctAnimation || ["confetti-glow"]);
+
+    // >>> AVATAR-ANIMATION BEI RICHTIG
+    if (q.avatar && q.avatarAnimation &&
+        (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "correct" || q.avatarAnimationTrigger === "both")) {
+      playAvatarAnimation(q.avatar, q.avatarAnimation);
+    }
+
+    // Sperre alle Buttons
+    btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+    renderFeedbackText(true, q);
+    setTimeout(() => { onSelect(idx); }, 1100);
+  } else {
+    btn.classList.add("selected");
+    btn.disabled = true;
+    playSound(q.wrongSound || "fail.mp3");
+    runAnimations(q.wrongAnimation || ["shake"]);
+
+    // >>> AVATAR-ANIMATION BEI FALSCH
+    if (q.avatar && q.avatarAnimation &&
+        (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "wrong" || q.avatarAnimationTrigger === "both")) {
+      playAvatarAnimation(q.avatar, q.avatarAnimation);
+    }
+
+    renderFeedbackText(false, q);
+    // Optional: Feedback-Text wieder entfernen nach 1.5s, Buttons bleiben aktiv!
   }
+};
+	}
+  }
+}
+}
 
   // Sequenz/Color
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
@@ -858,7 +872,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
     area.appendChild(btnBox);
     return;
   }
-}
+
 
 
 
