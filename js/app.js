@@ -593,62 +593,84 @@ async function renderUniversalSession(sessionJSON) {
 
   // ---------------  
   // FRAGEN-LOGIK  
-  function showQuestion(qIdx) {
-    const q = questions[qIdx];
-    clearQuestionUI();
-    
-
-    
-    renderUniversalAnswerButtons(q, (result) => {
-      // Auswerten je nach Quiz/Sequence
-      let isCorrect;
-      if (Array.isArray(q.choices)) {
-        isCorrect = result === q.correct;
-      } else if (Array.isArray(q.colors)) {
-        isCorrect = result; // true/false
-      }
-
-      lockAnswerButtons();
-
-      // Animation/Sound/Feedback
-      const sound = isCorrect
-        ? q.correctSound || randomFrom(soundPool.correct)
-        : q.wrongSound   || randomFrom(soundPool.wrong);
-      playSound(sound);
-
-      const anims = isCorrect
-        ? (q.correctAnimation || [randomFrom(animationPool.correct)])
-        : (q.wrongAnimation   || [randomFrom(animationPool.wrong)]);
-      runAnimations(anims);
-
-      if (q.avatar && q.avatarAnimation && (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === (isCorrect ? "correct" : "wrong"))) {
-        playAvatarAnimation(q.avatar, q.avatarAnimation);
-      }
-      renderFeedbackText(isCorrect, q);
-      showCheckingOverlay();
-
-      setTimeout(() => {
-        hideCheckingOverlay();
-        if (isCorrect) {
-          if (q.reward !== undefined) showRewardPopup(q.reward);
-          setTimeout(() => {
-            // WICHTIG: qIdx + 1, nicht idx!
-            if (qIdx + 1 < questions.length) {
-              showQuestion(qIdx + 1);
-            } else {
-              // Erst NACH ALLEN Fragen Reward zeigen!
-              showUniversalRewardFromSession(sessionJSON, () => {
-                finishUniversalSession(sessionJSON);
-              });
-            }
-          }, 1400);
-        } else {
-          unlockAnswerButtons();
-        }
-      }, 1200);
-    });
+function showQuestion(qIdx) {
+  // 1. Avatar-Animation immer zurücksetzen (wichtig!)
+  const img = document.querySelector(".floating-video img.avatar");
+  if (img) {
+    img.classList.remove("avatar-bounce", "avatar-wiggle", "avatar-tada");
+    void img.offsetWidth; // Reflow, damit die Animation wirklich neu startet
   }
+
+  // 2. Alles vorbereiten für neue Frage
+  clearQuestionUI();
+  renderFrogProgress(qIdx, qIdx, questions.length);
+
+  // 3. Avatar (Bild) ins Video-Container setzen (wenn du das willst)
+  renderAvatarBox(questions[qIdx].avatar, questions[qIdx].avatarAnimation, "always");
+
+  // 4. Buttons/Frage anzeigen und Antwort-Logik:
+  renderUniversalAnswerButtons(questions[qIdx], (result) => {
+    // --- Auswerten ---
+    let isCorrect;
+    if (Array.isArray(questions[qIdx].choices)) {
+      isCorrect = result === questions[qIdx].correct;
+    } else if (Array.isArray(questions[qIdx].colors)) {
+      isCorrect = result; // true/false
+    }
+
+    lockAnswerButtons();
+
+    // Sound & Animation & Avatar
+    const sound = isCorrect
+      ? questions[qIdx].correctSound || randomFrom(soundPool.correct)
+      : questions[qIdx].wrongSound   || randomFrom(soundPool.wrong);
+    playSound(sound);
+
+    const anims = isCorrect
+      ? (questions[qIdx].correctAnimation || [randomFrom(animationPool.correct)])
+      : (questions[qIdx].wrongAnimation   || [randomFrom(animationPool.wrong)]);
+    runAnimations(anims);
+
+    // Avatar-Animation triggert nur korrekt oder falsch – und läuft nie doppelt!
+    if (
+      questions[qIdx].avatar &&
+      questions[qIdx].avatarAnimation &&
+      (
+        !questions[qIdx].avatarAnimationTrigger ||
+        questions[qIdx].avatarAnimationTrigger === (isCorrect ? "correct" : "wrong") ||
+        questions[qIdx].avatarAnimationTrigger === "both"
+      )
+    ) {
+      playAvatarAnimation(questions[qIdx].avatar, questions[qIdx].avatarAnimation);
+    }
+
+    renderFeedbackText(isCorrect, questions[qIdx]);
+    showCheckingOverlay();
+
+    setTimeout(() => {
+      hideCheckingOverlay();
+      if (isCorrect) {
+        if (questions[qIdx].reward !== undefined) showRewardPopup(questions[qIdx].reward);
+        setTimeout(() => {
+          if (qIdx + 1 < questions.length) {
+            showQuestion(qIdx + 1);
+          } else {
+            // Nach allen Fragen: Reward-Container & Next/Finish-Button
+            showUniversalRewardFromSession(sessionJSON, () => {
+              finishUniversalSession(sessionJSON);
+            });
+          }
+        }, 1400);
+      } else {
+        unlockAnswerButtons();
+        // Avatar-Animation nach Falsch ggf. zurücksetzen (optional, meist nicht nötig)
+      }
+    }, 1200);
+  });
 }
+
+}
+
 
 
 
@@ -882,15 +904,6 @@ function renderUniversalAnswerButtons(q, onSelect) {
     return;
   }
 }
-
-
-
-
-// === Hilfsfunktionen – ALLES modular für Kinder-UX ===
-
-
-
-
 
 
 
