@@ -790,9 +790,8 @@ function renderUniversalAnswerButtons(q, onSelect) {
           runAnimations(q.correctAnimation || ["confetti-glow"]);
 
           // AVATAR-ANIMATION BEI RICHTIG
-          if (q.avatar && q.avatarAnimation &&
-            (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "correct" || q.avatarAnimationTrigger === "both")) {
-            playAvatarAnimation(q.avatar, q.avatarAnimation);
+          if (q.avatar && q.avatarAnimationCorrect) {
+            playAvatarAnimation(q.avatar, q.avatarAnimationCorrect);
           }
 
           // Sperre alle Buttons
@@ -807,9 +806,8 @@ function renderUniversalAnswerButtons(q, onSelect) {
           runAnimations(q.wrongAnimation || ["shake"]);
 
           // AVATAR-ANIMATION BEI FALSCH
-          if (q.avatar && q.avatarAnimation &&
-            (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "wrong" || q.avatarAnimationTrigger === "both")) {
-            playAvatarAnimation(q.avatar, q.avatarAnimation);
+          if (q.avatar && q.avatarAnimationWrong) {
+            playAvatarAnimation(q.avatar, q.avatarAnimationWrong);
           }
 
           feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
@@ -852,9 +850,8 @@ function renderUniversalAnswerButtons(q, onSelect) {
             solved = true;
             playSound(q.correctSound || "yay.mp3");
             runAnimations(q.correctAnimation || ["confetti-glow"]);
-            if (q.avatar && q.avatarAnimation &&
-              (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "correct" || q.avatarAnimationTrigger === "both")) {
-              playAvatarAnimation(q.avatar, q.avatarAnimation);
+            if (q.avatar && q.avatarAnimationCorrect) {
+              playAvatarAnimation(q.avatar, q.avatarAnimationCorrect);
             }
             btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
             feedbackDiv.innerText = q.feedbackCorrect || "Super!";
@@ -863,9 +860,8 @@ function renderUniversalAnswerButtons(q, onSelect) {
           } else {
             playSound(q.wrongSound || "fail.mp3");
             runAnimations(q.wrongAnimation || ["shake"]);
-            if (q.avatar && q.avatarAnimation &&
-              (!q.avatarAnimationTrigger || q.avatarAnimationTrigger === "wrong" || q.avatarAnimationTrigger === "both")) {
-              playAvatarAnimation(q.avatar, q.avatarAnimation);
+            if (q.avatar && q.avatarAnimationWrong) {
+              playAvatarAnimation(q.avatar, q.avatarAnimationWrong);
             }
             feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
             feedbackDiv.style.color = "#c82121";
@@ -886,7 +882,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
     return;
   }
 }
- 
+
 
 
 
@@ -894,16 +890,6 @@ function renderUniversalAnswerButtons(q, onSelect) {
 
 
 
-function renderQuestionText(q) {
-  const area = document.getElementById('sessionTextArea');
-  // Vorherigen Frage-Text löschen (außer Buttons)
-  area.querySelectorAll('.quiz-question').forEach(e => e.remove());
-  // Frage-Text einfügen
-  const questionDiv = document.createElement('div');
-  questionDiv.className = 'quiz-question';
-  questionDiv.innerText = q.question || '';
-  area.insertBefore(questionDiv, area.firstChild);
-}
 
 
 
