@@ -528,38 +528,6 @@ function runAnimation_rainbowEmoji() {
 
 
 
-function renderVideoAvatarFromJSON(task, trigger) {
-  
-
-  // Prüfen ob Video angezeigt werden soll (z.B. nur beim ersten Anzeigen)
-  if (task.video && (!trigger || trigger === "show" || trigger === "always")) {
-    // Video einfügen
-    box.innerHTML = `
-      <video id="coachSessionVideo" width="100%" height="100%" autoplay>
-        <source src="videos/${task.video}" type="video/mp4">
-      </video>
-    `;
-    // Nach Video-Ende: Avatar-PNG + ggf. Animation
-    const vid = document.getElementById("coachSessionVideo");
-    vid.onended = function() {
-      // Avatar anzeigen
-      box.innerHTML = `<img id="coachAvatar" src="images/${task.avatar}.png" style="width:100%; border-radius:50%;">`;
-      // Avatar-Animation sofort nach Video, falls so gewünscht
-      if (task.avatarAnimation && (task.avatarAnimationTrigger === "afterVideo" || !task.avatarAnimationTrigger)) {
-        playAvatarAnimation(task.avatar, task.avatarAnimation);
-      }
-    };
-  } else {
-    // Kein Video – sofort Avatar-PNG anzeigen
-    box.innerHTML = `<img id="coachAvatar" src="images/${task.avatar}.png" style="width:100%; border-radius:50%;">`;
-    // Avatar-Animation je nach Trigger auslösen
-    if (task.avatarAnimation && (!task.avatarAnimationTrigger || task.avatarAnimationTrigger === trigger)) {
-      playAvatarAnimation(task.avatar, task.avatarAnimation);
-    }
-  }
-}
-
-
 
 // Die Animationen-Funktion bleibt wie gehabt:
 function playAvatarAnimation(avatar, animType) {
@@ -630,7 +598,7 @@ async function renderUniversalSession(sessionJSON) {
     clearQuestionUI();
     
 
-    renderAvatarBox(q.avatar, q.avatarAnimation, "always");
+    
     renderUniversalAnswerButtons(q, (result) => {
       // Auswerten je nach Quiz/Sequence
       let isCorrect;
@@ -717,7 +685,6 @@ function renderFeedbackText(isCorrect, q) {
 function renderSessionHeader(title) {
   document.getElementById("mainTitle").innerText = title || "";
 }
-function renderAvatarBox(avatar, anim, trigger) { /* Optional: Avatar über der Frage */ }
 
 
 // ... Deine bestehenden Reward, FrogBar, Musik, etc. bleiben!
@@ -926,10 +893,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
 // === Hilfsfunktionen – ALLES modular für Kinder-UX ===
 
 
-function renderAvatarBox(avatar, anim, trigger) {
-  // Zeigt Floating-Avatar-Bild oder -Animation, triggert Lottie/Animation falls angegeben
-  // ...
-}
+
 function renderQuestionText(q) {
   const area = document.getElementById('sessionTextArea');
   // Vorherigen Frage-Text löschen (außer Buttons)
