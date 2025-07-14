@@ -848,7 +848,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
           feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
           feedbackDiv.style.color = "#c82121";
 
-          // Nach 1.5s wieder Feedback ausblenden, Buttons bleiben aktiv (außer dem falschen)
+          // Nach 1.2s wieder Feedback ausblenden, Buttons bleiben aktiv (außer dem falschen)
           setTimeout(() => { feedbackDiv.innerText = ""; }, 1200);
         }
       };
@@ -919,32 +919,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
     return;
   }
 }
-
-  // Sequenz/Color
-  if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
-    const btnBox = document.createElement("div");
-    btnBox.className = "sequence-buttons";
-    let userSequence = [];
-    q.colors.forEach((color, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "sequence-choice-btn";
-      btn.innerText = color;
-      btn.onclick = function() {
-        btn.disabled = true;
-        btn.classList.add("selected");
-        userSequence.push(idx);
-        if (userSequence.length === q.solution.length) {
-          document.querySelectorAll('.sequence-choice-btn').forEach(b => b.disabled = true);
-          const isCorrect = userSequence.every((val, i) => val === q.solution[i]);
-          onSelect(isCorrect);
-        }
-      };
-      btnBox.appendChild(btn);
-    });
-    area.appendChild(btnBox);
-    return;
-  }
-
+ 
 
 
 
