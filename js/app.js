@@ -605,8 +605,7 @@ function showQuestion(qIdx) {
   clearQuestionUI();
   renderFrogProgress(qIdx, qIdx, questions.length);
 
-  // 3. Avatar (Bild) ins Video-Container setzen (wenn du das willst)
-  renderAvatarBox(questions[qIdx].avatar, questions[qIdx].avatarAnimation, "always");
+  
 
   // 4. Buttons/Frage anzeigen und Antwort-Logik:
   renderUniversalAnswerButtons(questions[qIdx], (result) => {
