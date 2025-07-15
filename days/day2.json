@@ -111,7 +111,61 @@
       "feedbackWrong": "Not quite! Try again!"
     }
   ]
+},
+{
+  "type": "universal-session",
+  "sessionType": "color-sequence",
+  "title": "Can you order the colors?",
+  "music": "focus-loop.mp3",
+  "video": "day1-test.mp4",
+  "minDuration": 60,
+  "successSticker": 4,
+  "tasks": [
+    {
+      "question": "Put the colors in rainbow order!",
+      "colors": ["blue", "yellow", "red"],
+      "solution": [2, 1, 0],            
+      "avatar": "benny",
+      "avatarAnimation": "bounce",
+      "avatarAnimationTrigger": "correct",
+      "correctSound": "yay.mp3",
+      "wrongSound": "fail.mp3",
+      "correctAnimation": ["confetti-glow"],
+      "wrongAnimation": ["shake"],
+      "feedbackCorrect": "Great job! 🌈",
+      "feedbackWrong": "Try again!"
+    },
+    {
+      "question": "Which comes first: green, orange, or purple?",
+      "colors": ["purple", "green", "orange"],
+      "solution": [1, 2, 0],            
+      "avatar": "luna",
+      "avatarAnimation": "tada",
+      "avatarAnimationTrigger": "correct",
+      "correctSound": "yay.mp3",
+      "wrongSound": "fail.mp3",
+      "correctAnimation": ["emoji-party"],
+      "wrongAnimation": ["shake"],
+      "feedbackCorrect": "Yes! Green comes first.",
+      "feedbackWrong": "Not quite! Try again."
+    },
+    {
+      "question": "Order the colors from lightest to darkest.",
+      "colors": ["pink", "yellow", "blue"],
+      "solution": [1, 0, 2],            
+      "avatar": "momo",
+      "avatarAnimation": "wiggle",
+      "avatarAnimationTrigger": "correct",
+      "correctSound": "sparkle-bell.mp3",
+      "wrongSound": "fail.mp3",
+      "correctAnimation": ["sparkle"],
+      "wrongAnimation": ["shake"],
+      "feedbackCorrect": "Perfect! Yellow is the lightest.",
+      "feedbackWrong": "Oops! Try again."
+    }
+  ]
 }
+
 
 
 ]
