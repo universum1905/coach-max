@@ -565,10 +565,17 @@ const avatarAnimations = {
 };
 
 
+
 function clearQuestionUI() {
   const area = document.getElementById("sessionTextArea");
-  if (area) area.innerHTML = "";
+  // Alle alten Buttons, Frage, Feedback entfernen
+  if (!area) return;
+  area.querySelectorAll('.quiz-choice-btn, .sequence-choice-btn, .quiz-question, .quiz-feedback, .sequence-buttons, .quiz-buttons').forEach(el => el.remove());
 }
+
+
+
+
 
 function getContrastTextColor(colorName) {
   // Simple Mapping, ggf. anpassen/erweitern!
