@@ -200,21 +200,21 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
 
   // Next-Button
   setTimeout(() => {
-    const btn = document.createElement("button");
-    btn.innerText = typeof currentSession !== "undefined" && sessions && currentSession < sessions.length - 1 ? "Next" : "Finish";
-    btn.className = "centered-next-btn";
-    btn.style.marginTop = "20px";
-    btn.onclick = () => {
-      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
-      if (typeof nextAction === "function") {
-        nextAction();
-      } else {
-        currentSession++;
-        renderSession(currentSession);
-      }
-    };
-    reward.insertAdjacentElement('afterend', btn);
-  }, 800);
+  const btn = document.createElement("button");
+  btn.innerText = typeof currentSession !== "undefined" && sessions && currentSession < sessions.length - 1 ? "Next" : "Finish";
+  btn.className = "centered-next-btn";
+  btn.style.marginTop = "20px";
+  btn.onclick = () => {
+    document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+    if (typeof nextAction === "function") {
+      nextAction();
+    } else {
+      currentSession++;
+      renderSession(currentSession);
+    }
+  };
+  reward.insertAdjacentElement('afterend', btn);
+}, 800);
 }
 
 
