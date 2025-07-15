@@ -869,45 +869,50 @@ function runAnimations(anims) {
 
 
 function showCheckingOverlay() {
-  // Vorherige Overlays entfernen
+  // Entferne evtl. vorhandene Overlay
   document.querySelectorAll('.checking-overlay').forEach(e => e.remove());
 
-  const overlay = document.createElement("div");
-  overlay.className = "checking-overlay";
-  overlay.style.position = "fixed";
-  overlay.style.top = "0";
-  overlay.style.left = "0";
-  overlay.style.width = "100vw";
-  overlay.style.height = "100vh";
-  overlay.style.background = "rgba(255,255,255,0.85)";
-  overlay.style.zIndex = "9999";
-  overlay.style.display = "flex";
-  overlay.style.justifyContent = "center";
-  overlay.style.alignItems = "center";
-  overlay.innerHTML = `
-    <div style="display:flex; flex-direction:column; align-items:center;">
-      <div class="hourglass"></div>
-      <div style="margin-top:18px; font-size:1.23em; color:#1976d2; font-weight:bold;">Checking...</div>
-    </div>
+  // Overlay bauen
+  const overlay = document.createElement('div');
+  overlay.className = 'checking-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.background = 'rgba(255,255,255,0.85)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '9999';
+
+  // Rotierende Sanduhr (SVG)
+  const spinner = document.createElement('div');
+  spinner.innerHTML = `
+    <svg width="56" height="56" viewBox="0 0 24 24" style="animation:spin 1.1s linear infinite;">
+      <path fill="#ffc107" d="M6 2v2h1v3.18c0 1.08-.28 2.13-.81 3.04l-.38.67A8.017 8.017 0 0 0 6 16.82V20H5v2h14v-2h-1v-3.18c0-1.08.28-2.13.81-3.04l.38-.67A8.017 8.017 0 0 0 18 7.18V4h1V2zm2 2h8v3.18c0 1.97-.79 3.89-2.19 5.36l-.38.67c-1.38 1.84-2.19 4.07-2.19 6.44V20h-2v-2.35c0-2.37-.81-4.6-2.19-6.44l-.38-.67C8.79 9.07 8 7.15 8 5.18zm2 2c0 1.51.62 2.98 1.76 4.12l.24.23c1.14 1.14 1.76 2.61 1.76 4.12V20h-2v-3.18c0-1.97-.79-3.89-2.19-5.36l-.38-.67C10.79 9.07 10 7.15 10 5.18z"/>
+    </svg>
   `;
+  spinner.style.marginBottom = "18px";
+  overlay.appendChild(spinner);
+
+  // Text
+  const text = document.createElement('div');
+  text.innerText = 'Checking...';
+  text.style.fontSize = '1.23rem';
+  text.style.fontWeight = 'bold';
+  text.style.color = '#444';
+  text.style.marginTop = '7px';
+  overlay.appendChild(text);
+
   document.body.appendChild(overlay);
 
-  // Sanduhr-Animation (CSS)
-  if (!document.getElementById("hourglass-style")) {
-    const style = document.createElement("style");
-    style.id = "hourglass-style";
+  // WICHTIG: Keyframes für das Drehen einbauen (falls noch nicht vorhanden)
+  if (!document.getElementById('spin-keyframes')) {
+    const style = document.createElement('style');
+    style.id = 'spin-keyframes';
     style.innerHTML = `
-      .hourglass {
-        width: 46px;
-        height: 46px;
-        border: 6px solid #ffd54f;
-        border-radius: 50%;
-        border-top: 6px solid #1976d2;
-        animation: spinHourglass 1.2s linear infinite;
-        margin-bottom: 12px;
-        box-shadow: 0 0 16px #ffd54f66;
-      }
-      @keyframes spinHourglass {
+      @keyframes spin {
         0% { transform: rotate(0deg);}
         100% { transform: rotate(360deg);}
       }
