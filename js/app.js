@@ -803,40 +803,49 @@ function renderUniversalAnswerButtons(q, onSelect) {
       const btn = document.createElement("button");
       btn.className = "quiz-choice-btn";
       btn.innerText = choice;
-      btn.onclick = function() {
+      btn.onclick = function () {
         if (solved) return;
+
+        // Show Checking Overlay (3 Sekunden)
+        showCheckingOverlay();
+
         if (idx === q.correct) {
           solved = true;
           btn.classList.add("selected", "btn-correct");
           playSound(q.correctSound || "yay.mp3");
           runAnimations(q.correctAnimation || ["confetti-glow"]);
 
-          // AVATAR-ANIMATION BEI RICHTIG
+          // Avatar-Animation bei richtig
           if (q.avatar && q.avatarAnimationCorrect) {
             playAvatarAnimation(q.avatar, q.avatarAnimationCorrect);
           }
 
           // Sperre alle Buttons
           btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
-          feedbackDiv.innerText = q.feedbackCorrect || "Super!";
-          feedbackDiv.style.color = "#218c21";
-          setTimeout(() => { onSelect(idx); }, 1100);
+
+          setTimeout(() => {
+            hideCheckingOverlay();
+            feedbackDiv.innerText = q.feedbackCorrect || "Super!";
+            feedbackDiv.style.color = "#218c21";
+            setTimeout(() => { onSelect(idx); }, 1000);
+          }, 2500); // 3 Sekunden warten
         } else {
           btn.classList.add("selected", "btn-wrong");
           btn.disabled = true;
           playSound(q.wrongSound || "fail.mp3");
           runAnimations(q.wrongAnimation || ["shake"]);
 
-          // AVATAR-ANIMATION BEI FALSCH
+          // Avatar-Animation bei falsch
           if (q.avatar && q.avatarAnimationWrong) {
             playAvatarAnimation(q.avatar, q.avatarAnimationWrong);
           }
 
-          feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
-          feedbackDiv.style.color = "#c82121";
-
-          // Nach 1.2s wieder Feedback ausblenden, Buttons bleiben aktiv (außer dem falschen)
-          setTimeout(() => { feedbackDiv.innerText = ""; }, 1200);
+          setTimeout(() => {
+            hideCheckingOverlay();
+            feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
+            feedbackDiv.style.color = "#c82121";
+            setTimeout(() => { feedbackDiv.innerText = ""; }, 1000);
+          }, 2500); // 3 Sekunden warten
         }
       };
       btnBox.appendChild(btn);
@@ -860,13 +869,16 @@ function renderUniversalAnswerButtons(q, onSelect) {
       const btn = document.createElement("button");
       btn.className = "sequence-choice-btn";
       btn.innerText = color;
-      btn.onclick = function() {
+      btn.onclick = function () {
         if (solved) return;
         btn.disabled = true;
         btn.classList.add("selected");
         userSequence.push(idx);
 
         if (userSequence.length === q.solution.length) {
+          // Show Checking Overlay (3 Sekunden)
+          showCheckingOverlay();
+
           const isCorrect = userSequence.every((val, i) => val === q.solution[i]);
           if (isCorrect) {
             solved = true;
@@ -876,25 +888,33 @@ function renderUniversalAnswerButtons(q, onSelect) {
               playAvatarAnimation(q.avatar, q.avatarAnimationCorrect);
             }
             btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
-            feedbackDiv.innerText = q.feedbackCorrect || "Super!";
-            feedbackDiv.style.color = "#218c21";
-            setTimeout(() => { onSelect(true); }, 1200);
+
+            setTimeout(() => {
+              hideCheckingOverlay();
+              feedbackDiv.innerText = q.feedbackCorrect || "Super!";
+              feedbackDiv.style.color = "#218c21";
+              setTimeout(() => { onSelect(true); }, 1000);
+            }, 2500); // 3 Sekunden warten
           } else {
             playSound(q.wrongSound || "fail.mp3");
             runAnimations(q.wrongAnimation || ["shake"]);
             if (q.avatar && q.avatarAnimationWrong) {
               playAvatarAnimation(q.avatar, q.avatarAnimationWrong);
             }
-            feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
-            feedbackDiv.style.color = "#c82121";
+
             setTimeout(() => {
-              userSequence = [];
-              feedbackDiv.innerText = "";
-              btnBox.querySelectorAll("button").forEach(b => {
-                b.disabled = false;
-                b.classList.remove("selected");
-              });
-            }, 1200);
+              hideCheckingOverlay();
+              feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
+              feedbackDiv.style.color = "#c82121";
+              setTimeout(() => {
+                userSequence = [];
+                feedbackDiv.innerText = "";
+                btnBox.querySelectorAll("button").forEach(b => {
+                  b.disabled = false;
+                  b.classList.remove("selected");
+                });
+              }, 1000);
+            }, 2500); // 3 Sekunden warten
           }
         }
       };
@@ -904,7 +924,6 @@ function renderUniversalAnswerButtons(q, onSelect) {
     return;
   }
 }
-
 
 
 
@@ -936,11 +955,35 @@ function runAnimations(anims) {
 
 
 function showCheckingOverlay() {
-  // Spinner/Kreise mit "Checking..." für 2–3 Sek. anzeigen
+  // Vorherigen Overlay entfernen, falls noch einer da ist
+  document.querySelectorAll(".checking-overlay").forEach(e => e.remove());
+
+  // Overlay erstellen
+  const overlay = document.createElement("div");
+  overlay.className = "checking-overlay";
+  overlay.style.position = "fixed";
+  overlay.style.left = "0";
+  overlay.style.top = "0";
+  overlay.style.width = "100vw";
+  overlay.style.height = "100vh";
+  overlay.style.background = "rgba(255,255,255,0.85)";
+  overlay.style.zIndex = "9999";
+  overlay.style.display = "flex";
+  overlay.style.flexDirection = "column";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+  overlay.innerHTML = `
+    <div style="font-size:2.2rem;margin-bottom:16px;">⏳</div>
+    <div style="font-size:1.3rem;color:#2196f3;font-weight:700;">Checking...</div>
+  `;
+
+  document.body.appendChild(overlay);
 }
+
 function hideCheckingOverlay() {
-  // Checking-Overlay ausblenden
+  document.querySelectorAll(".checking-overlay").forEach(e => e.remove());
 }
+
 function showRewardPopup(rewardIdx) {
   // Sticker/Puzzle/Emoji/Reward als Popup zeigen, speichern etc.
 }
