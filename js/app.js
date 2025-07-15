@@ -201,7 +201,7 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
   // Next-Button
   setTimeout(() => {
   const btn = document.createElement("button");
-  btn.innerText = typeof currentSession !== "undefined" && sessions && currentSession < sessions.length - 1 ? "Next" : "Finish";
+  btn.innerText = (typeof currentSession !== "undefined" && sessions && currentSession < sessions.length - 1) ? "Next" : "Finish";
   btn.className = "centered-next-btn";
   btn.style.marginTop = "20px";
   btn.onclick = () => {
@@ -210,7 +210,12 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
       nextAction();
     } else {
       currentSession++;
-      renderSession(currentSession);
+      if (currentSession < sessions.length) {
+        renderSession(currentSession); // nächste Session
+      } else {
+        // Alles fertig – zur Auswahlseite!
+        window.location.href = "choose.html";
+      }
     }
   };
   reward.insertAdjacentElement('afterend', btn);
