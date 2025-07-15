@@ -629,27 +629,33 @@ function showQuestion(qIdx) {
     showCheckingOverlay();
 
     setTimeout(() => {
-      hideCheckingOverlay();
-      if (isCorrect) {
-        if (questions[qIdx].reward !== undefined) showRewardPopup(questions[qIdx].reward);
-        setTimeout(() => {
-          if (qIdx + 1 < questions.length) {
-            showQuestion(qIdx + 1);
-          } else {
-            // Nach allen Fragen: Reward-Container & Next/Finish-Button
-            clearQuestionUI(); // Antworten entfernen, damit Reward nicht überlappt
-            showUniversalRewardFromSession(sessionJSON, () => {
-              finishUniversalSession(sessionJSON);
-            });
-          }
-        }, 1100);
+  hideCheckingOverlay();
+  if (isCorrect) {
+    // Optional: Einzelner Frage-Reward, falls gewünscht
+    // if (questions[qIdx].reward !== undefined) showRewardPopup(questions[qIdx].reward);
+
+    setTimeout(() => {
+      if (qIdx + 1 < questions.length) {
+        showQuestion(qIdx + 1); // Nächste Frage
       } else {
-        unlockAnswerButtons();
-        // Avatar-Animation nach Falsch ggf. zurücksetzen (optional, meist nicht nötig)
+        // Nach allen Fragen: Haupt-Reward
+        clearQuestionUI();
+        showUniversalRewardFromSession(sessionJSON, () => {
+          currentSession++;
+          renderSession(currentSession); // <---- DAS ist entscheidend!
+          // Optional: window.location.href = "choose.html"; // falls am letzten Tag
+        });
       }
-    }, 3000); // 3 Sekunden Check für jedes Quiz/Sequence
+    }, 1100);
+  } else {
+    unlockAnswerButtons();
+    // Avatar-Animation nach Falsch ggf. zurücksetzen
+  }
+}, 3000); // 3 Sekunden "Checking"
   });
 }
+
+
 }
 
 
