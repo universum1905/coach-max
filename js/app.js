@@ -738,60 +738,64 @@ function renderUniversalAnswerButtons(q, onSelect) {
   }
 
   // === MULTIPLE CHOICE (QUIZ) ===
-  if (Array.isArray(q.choices)) {
-    const btnBox = document.createElement("div");
-    btnBox.className = "quiz-buttons";
-    let solved = false;
+ if (Array.isArray(q.choices)) {
+  const btnBox = document.createElement("div");
+  btnBox.className = "quiz-buttons";
+  let solved = false;
 
-    // Feedback-Text
-    const feedbackDiv = document.createElement("div");
-    feedbackDiv.className = "quiz-feedback";
-    area.appendChild(feedbackDiv);
+  // Feedback-Text
+  const feedbackDiv = document.createElement("div");
+  feedbackDiv.className = "quiz-feedback";
+  area.appendChild(feedbackDiv);
 
-    q.choices.forEach((choice, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "quiz-choice-btn";
-      btn.innerText = choice;
-      btn.onclick = function() {
-        if (solved) return;
-        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+  q.choices.forEach((choice, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "quiz-choice-btn";
+    btn.innerText = choice;
+    btn.onclick = function() {
+      if (solved) return;
 
-        // Checking Overlay 3 Sek.
-        showCheckingOverlay();
-        setTimeout(() => {
-          hideCheckingOverlay();
+      // Nach Klick: alle Buttons sperren, damit Kind nicht mehrfach klickt während "Checking..."
+      btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-          if (idx === q.correct) {
-            solved = true;
-            btn.classList.add("selected", "btn-correct");
-            playSound(q.correctSound || "yay.mp3");
-            runAnimations(q.correctAnimation || ["confetti-glow"]);
-            if (q.avatar && q.avatarAnimationCorrect) playAvatarAnimation(q.avatar, q.avatarAnimationCorrect);
-            feedbackDiv.innerText = q.feedbackCorrect || "Great job!";
-            feedbackDiv.style.color = "#218c21";
-            setTimeout(() => { onSelect(idx); }, 1100);
-          } else {
-            btn.classList.add("selected", "btn-wrong");
-            btn.disabled = true;
-            playSound(q.wrongSound || "fail.mp3");
-            runAnimations(q.wrongAnimation || ["shake"]);
-            if (q.avatar && q.avatarAnimationWrong) playAvatarAnimation(q.avatar, q.avatarAnimationWrong);
-            feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
-            feedbackDiv.style.color = "#c82121";
-            setTimeout(() => {
-              feedbackDiv.innerText = "";
-              btnBox.querySelectorAll("button").forEach(b => {
-                if (!b.classList.contains("selected")) b.disabled = false;
-              });
-            }, 1200);
-          }
-        }, 3000); // 3 Sekunden Check
-      };
-      btnBox.appendChild(btn);
-    });
-    area.appendChild(btnBox);
-    return;
-  }
+      // Checking Overlay 3 Sekunden
+      showCheckingOverlay();
+      setTimeout(() => {
+        hideCheckingOverlay();
+
+        if (idx === q.correct) {
+          solved = true;
+          btn.classList.add("selected", "btn-correct");
+          playSound(q.correctSound || "yay.mp3");
+          runAnimations(q.correctAnimation || ["confetti-glow"]);
+          if (q.avatar && q.avatarAnimationCorrect) playAvatarAnimation(q.avatar, q.avatarAnimationCorrect);
+          feedbackDiv.innerText = q.feedbackCorrect || "Great job!";
+          feedbackDiv.style.color = "#218c21";
+          setTimeout(() => { onSelect(idx); }, 1100);
+        } else {
+          btn.classList.add("selected", "btn-wrong");
+          btn.disabled = true; // nur diesen Button deaktivieren
+          playSound(q.wrongSound || "fail.mp3");
+          runAnimations(q.wrongAnimation || ["shake"]);
+          if (q.avatar && q.avatarAnimationWrong) playAvatarAnimation(q.avatar, q.avatarAnimationWrong);
+          feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
+          feedbackDiv.style.color = "#c82121";
+
+          setTimeout(() => {
+            feedbackDiv.innerText = "";
+            // Nur Buttons OHNE "selected" wieder aktivieren!
+            btnBox.querySelectorAll("button").forEach(b => {
+              if (!b.classList.contains("selected")) b.disabled = false;
+            });
+          }, 1200);
+        }
+      }, 3000); // 3 Sekunden Check
+    };
+    btnBox.appendChild(btn);
+  });
+  area.appendChild(btnBox);
+  return;
+}
 
   // === SEQUENCE/ORDER TASK ===
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
