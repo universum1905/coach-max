@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 2; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 1; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -218,82 +218,201 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
 }
 
 
-function showUniversalRewardFromSession(sessionObj, nextAction) {
-  if (!sessionObj) return;
+function renderUniversalAnswerButtons(q, onSelect) {
+  const area = document.getElementById("sessionTextArea");
+  // Vorherige Fragen/Antworten/Feedback entfernen:
+  document.querySelectorAll('.quiz-choice-btn, .sequence-choice-btn, .quiz-question, .quiz-feedback, .sequence-example-row, .sequence-answer-row').forEach(el => el.remove());
 
-  // Kein Reward vorgesehen? Dann direkt nächste Session
-  if (
-    !("rewardType" in sessionObj) &&
-    typeof sessionObj.successSticker === "undefined" &&
-    typeof sessionObj.successPuzzle === "undefined" &&
-    typeof sessionObj.specialReward === "undefined"
-  ) {
-    if (typeof nextAction === "function") nextAction();
-    else {
-      currentSession++;
-      renderSession(currentSession);
-    }
+  // Fragetext
+  if (q.question) {
+    const questionDiv = document.createElement("div");
+    questionDiv.className = "quiz-question";
+    questionDiv.innerText = q.question;
+    area.appendChild(questionDiv);
+  }
+
+  // --- MULTIPLE CHOICE (Quiz) ---
+  if (Array.isArray(q.choices)) {
+    const btnBox = document.createElement("div");
+    btnBox.className = "quiz-buttons";
+    let solved = false;
+
+    // Feedback-Text
+    const feedbackDiv = document.createElement("div");
+    feedbackDiv.className = "quiz-feedback";
+    area.appendChild(feedbackDiv);
+
+    q.choices.forEach((choice, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "quiz-choice-btn";
+      btn.innerText = choice;
+      btn.onclick = function() {
+        if (solved) return;
+        if (idx === q.correct) {
+          solved = true;
+          btn.classList.add("selected", "btn-correct");
+          playSound(q.correctSound || "yay.mp3");
+          runAnimations(q.correctAnimation || ["confetti-glow"]);
+
+          // AVATAR-ANIMATION BEI RICHTIG
+          if (q.avatar && q.avatarAnimationCorrect) {
+            playAvatarAnimation(q.avatar, q.avatarAnimationCorrect);
+          }
+
+          // Sperre alle Buttons
+          btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+          feedbackDiv.innerText = q.feedbackCorrect || "Great job! 🎉";
+          feedbackDiv.style.color = "#218c21";
+          showCheckingOverlay();
+          setTimeout(() => {
+            hideCheckingOverlay();
+            onSelect(idx);
+          }, 3000); // 3 Sekunden Check!
+        } else {
+          btn.classList.add("selected", "btn-wrong");
+          btn.disabled = true;
+          playSound(q.wrongSound || "fail.mp3");
+          runAnimations(q.wrongAnimation || ["shake"]);
+
+          // AVATAR-ANIMATION BEI FALSCH
+          if (q.avatar && q.avatarAnimationWrong) {
+            playAvatarAnimation(q.avatar, q.avatarAnimationWrong);
+          }
+
+          feedbackDiv.innerText = q.feedbackWrong || "Try again! 😅";
+          feedbackDiv.style.color = "#c82121";
+
+          setTimeout(() => { feedbackDiv.innerText = ""; }, 1200);
+        }
+      };
+      btnBox.appendChild(btn);
+    });
+    area.appendChild(btnBox);
     return;
   }
 
-  // Reward-Type bestimmen (Fallback: "star")
-  let rewardType = sessionObj.rewardType 
-    || (typeof sessionObj.successPuzzle !== "undefined" ? "puzzle"
-    : (typeof sessionObj.specialReward !== "undefined" ? sessionObj.specialReward : "star"));
+  // --- SEQUENCE/ORDER TASK (Farben, Reihenfolge) ---
+  if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
+    // Beispiel (richtige Reihenfolge zeigen, falls vorhanden)
+    if (q.example) {
+      const exampleRow = document.createElement("div");
+      exampleRow.className = "sequence-example-row";
+      exampleRow.style.display = "flex";
+      exampleRow.style.justifyContent = "center";
+      exampleRow.style.gap = "10px";
+      exampleRow.style.marginBottom = "10px";
+      q.example.forEach(color => {
+        const c = document.createElement("div");
+        c.className = "sequence-example-color";
+        c.style.background = color;
+        c.innerText = color.charAt(0).toUpperCase() + color.slice(1);
+        c.style.color = "#fff";
+        c.style.fontWeight = "bold";
+        c.style.padding = "7px 13px";
+        c.style.borderRadius = "14px";
+        c.style.boxShadow = "0 1px 8px #0001";
+        exampleRow.appendChild(c);
+      });
+      area.appendChild(exampleRow);
+    }
 
-  // Reward-Bild festlegen (Mapping)
-  const rewardImgMap = {
-    "star":        "images/stickers/star.png",
-    "trophy":      "images/trophy.png",
-    "certificate": "images/certificate.png",
-    "party-sticker":"images/party-sticker.png",
-    "medal":       "images/medal.png"
-    // weitere Typen nach Bedarf ergänzen!
-  };
+    // Antwortplatzhalter ("leere Kreise", wie viele Farben)
+    const answerRow = document.createElement("div");
+    answerRow.className = "sequence-answer-row";
+    answerRow.style.display = "flex";
+    answerRow.style.justifyContent = "center";
+    answerRow.style.gap = "12px";
+    answerRow.style.marginBottom = "10px";
+    let answerSlots = [];
+    for (let i = 0; i < q.solution.length; i++) {
+      const slot = document.createElement("div");
+      slot.className = "sequence-slot";
+      slot.style.width = "36px";
+      slot.style.height = "36px";
+      slot.style.border = "2px dashed #bbb";
+      slot.style.borderRadius = "50%";
+      slot.style.background = "#f3f3f3";
+      slot.innerText = "";
+      answerRow.appendChild(slot);
+      answerSlots.push(slot);
+    }
+    area.appendChild(answerRow);
 
-  let imgSrc = rewardImgMap[rewardType] || rewardImgMap["star"];
+    // Feedback
+    const feedbackDiv = document.createElement("div");
+    feedbackDiv.className = "quiz-feedback";
+    area.appendChild(feedbackDiv);
 
-  // Puzzle-Teil(er) abfragen
-  if (rewardType === "puzzle" && typeof sessionObj.puzzleId !== "undefined" && typeof sessionObj.successPuzzle !== "undefined") {
-    const pieces = Array.isArray(sessionObj.successPuzzle) ? sessionObj.successPuzzle : [sessionObj.successPuzzle];
-    // Optional: Mehrere Puzzle-Teile nebeneinander/Animation anzeigen
-    imgSrc = `images/puzzles/puzzle${sessionObj.puzzleId}_piece${pieces[0]}.png`;
-    // TODO: Weitere Puzzle-Teile als Animation anzeigen (wenn nötig)
+    // Auswahlmöglichkeiten (Buttons)
+    const btnBox = document.createElement("div");
+    btnBox.className = "sequence-buttons";
+    let userSequence = [];
+    let solved = false;
+
+    q.colors.forEach((color, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "sequence-choice-btn";
+      btn.innerText = color.charAt(0).toUpperCase() + color.slice(1);
+      btn.style.background = color;
+      btn.style.color = "#fff";
+      btn.style.fontWeight = "bold";
+      btn.onclick = function() {
+        if (solved) return;
+        btn.disabled = true;
+        btn.classList.add("selected");
+        userSequence.push(idx);
+        answerSlots[userSequence.length - 1].innerText = color.charAt(0).toUpperCase() + color.slice(1);
+        answerSlots[userSequence.length - 1].style.background = color;
+        answerSlots[userSequence.length - 1].style.color = "#fff";
+        answerSlots[userSequence.length - 1].style.fontWeight = "bold";
+        if (userSequence.length === q.solution.length) {
+          // 3 Sekunden "Checking"
+          showCheckingOverlay();
+          setTimeout(() => {
+            hideCheckingOverlay();
+            const isCorrect = userSequence.every((val, i) => val === q.solution[i]);
+            if (isCorrect) {
+              solved = true;
+              playSound(q.correctSound || "yay.mp3");
+              runAnimations(q.correctAnimation || ["confetti-glow"]);
+              if (q.avatar && q.avatarAnimationCorrect) {
+                playAvatarAnimation(q.avatar, q.avatarAnimationCorrect);
+              }
+              btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+              feedbackDiv.innerText = q.feedbackCorrect || "Great job! 🎉";
+              feedbackDiv.style.color = "#218c21";
+              setTimeout(() => { onSelect(true); }, 400);
+            } else {
+              playSound(q.wrongSound || "fail.mp3");
+              runAnimations(q.wrongAnimation || ["shake"]);
+              if (q.avatar && q.avatarAnimationWrong) {
+                playAvatarAnimation(q.avatar, q.avatarAnimationWrong);
+              }
+              feedbackDiv.innerText = q.feedbackWrong || "Try again! 😅";
+              feedbackDiv.style.color = "#c82121";
+              setTimeout(() => {
+                userSequence = [];
+                feedbackDiv.innerText = "";
+                btnBox.querySelectorAll("button").forEach(b => {
+                  b.disabled = false;
+                  b.classList.remove("selected");
+                });
+                // Reset answer slots:
+                answerSlots.forEach(s => {
+                  s.innerText = "";
+                  s.style.background = "#f3f3f3";
+                  s.style.color = "#444";
+                });
+              }, 1200);
+            }
+          }, 3000);
+        }
+      };
+      btnBox.appendChild(btn);
+    });
+    area.appendChild(btnBox);
+    return;
   }
-
-  // Eigener Bildpfad aus JSON überschreibt alles
-  if (sessionObj.rewardImg) imgSrc = sessionObj.rewardImg;
-
-  // Animation/Sound für besondere Rewards
-  let rewardAnim = sessionObj.rewardAnimation || 
-    (rewardType === "party-sticker" ? "emoji-party"
-    : rewardType === "puzzle" ? "confetti-glow"
-    : rewardType === "trophy" ? "confetti-glow"
-    : "bounce");
-
-  let rewardSound = sessionObj.rewardSound ||
-    (rewardType === "party-sticker" || rewardType === "trophy" ? "applause.mp3"
-    : "yay.mp3");
-
-  // Text für das Popup
-  let rewardText = sessionObj.onCorrect
-    || (rewardType === "star" ? "Great job! You unlocked a star!"
-    : rewardType === "trophy" ? "Wow! You unlocked a trophy!"
-    : rewardType === "party-sticker" ? "You collected a party sticker!"
-    : rewardType === "medal" ? "You earned a medal!"
-    : rewardType === "puzzle" ? "You got a new puzzle piece!"
-    : "Great job!");
-
-  // Zeige das universelle Reward-Popup
-  showUniversalReward(
-    imgSrc,
-    rewardText,
-    nextAction || null,
-    sessionObj.successSticker || 0,
-    rewardType,
-    rewardAnim,
-    rewardSound
-  );
 }
 
 
@@ -993,9 +1112,13 @@ function hideCheckingOverlay() {
 function showRewardPopup(rewardIdx) {
   // Sticker/Puzzle/Emoji/Reward als Popup zeigen, speichern etc.
 }
+
+
 function finishUniversalSession(sessionJSON) {
   // Finales Reward, Fortschritt speichern, Eltern/Endscreen etc.
 }
+
+
 function stopAllSounds() {
   // Musik & Sounds stoppen
 }

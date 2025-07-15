@@ -13,51 +13,6 @@
    
   {
   "type": "universal-session",
-  "sessionType": "color-sequence",
-  "title": "Color Sequence!",
-  "music": "focus-loop.mp3",
-  "minDuration": 60,
-  "pauseBetweenTasks": 1600,
-  "video": "day1-test.mp4",
-  "avatar": "benny",                      
-  "avatarAnimation": "bounce",            
-  "avatarAnimationTrigger": "afterVideo", 
-  "correctSound": "correct.mp3",
-  "wrongSound": "wrong.mp3",
-  "tasks": [
-    {
-      "question": "Can you put the colors in the right order?",
-      "colors": ["red", "yellow", "blue"],
-      "solution": [2, 0, 1],
-      "example": ["blue", "red", "yellow"],
-      "avatar": "benny",                  
-      "avatarAnimation": "wiggle",
-      "avatarAnimationTrigger": "correct" 
-    },
-    {
-      "question": "What's the rainbow order?",
-      "colors": ["green", "purple", "orange"],
-      "solution": [1, 2, 0],
-      "example": ["purple", "orange", "green"],
-      "avatar": "benny",
-      "avatarAnimation": "tada",
-      "avatarAnimationTrigger": "correct"
-    },
-    {
-      "question": "Arrange the colors!",
-      "colors": ["pink", "blue", "yellow"],
-      "solution": [0, 2, 1],
-      "example": ["pink", "yellow", "blue"],
-      "avatar": "benny",
-      "avatarAnimation": "bounce",
-      "avatarAnimationTrigger": "wrong" 
-    }
-  ],
-  "successSticker": 2
-},
-
-{
-  "type": "universal-session",
   "sessionType": "quiz",
   "title": "Fun Animal Quiz!",
   "music": "focus-loop.mp3",
@@ -70,14 +25,14 @@
       "choices": ["Cat", "Dog", "Cow"],
       "correct": 1,
       "avatar": "benny",
-      "avatarAnimationCorrect": "bounce",   
-      "avatarAnimationWrong": "wiggle",     
+      "avatarAnimationCorrect": "bounce",      
+      "avatarAnimationWrong": "wiggle",        
       "correctSound": "yay.mp3",
       "wrongSound": "fail.mp3",
       "correctAnimation": ["confetti-glow"],
       "wrongAnimation": ["shake"],
       "reward": 0,
-      "feedbackCorrect": "Super! The dog barks!",
+      "feedbackCorrect": "Great job! The dog barks!",
       "feedbackWrong": "Oops! Try again!"
     },
     {
@@ -94,38 +49,24 @@
       "reward": 1,
       "feedbackCorrect": "Right! Cows say moo.",
       "feedbackWrong": "Nope! Try again!"
-    },
-    {
-      "question": "Which animal is the king of the jungle?",
-      "choices": ["Lion", "Elephant", "Frog"],
-      "correct": 0,
-      "avatar": "momo",
-      "avatarAnimationCorrect": "bounce",
-      "avatarAnimationWrong": "wiggle",
-      "correctSound": "yay.mp3",
-      "wrongSound": "fail.mp3",
-      "correctAnimation": ["sparkle"],
-      "wrongAnimation": ["shake"],
-      "reward": 2,
-      "feedbackCorrect": "Yay! Lion is the king!",
-      "feedbackWrong": "Not quite! Try again!"
     }
+    
   ]
 },
 {
   "type": "universal-session",
-  "sessionType": "color-sequence",
+  "sessionType": "sequence",
   "title": "Color Sequence!",
   "music": "focus-loop.mp3",
   "video": "day1-test.mp4",
   "minDuration": 60,
-  "successSticker": 2,
+  "successSticker": 4,
   "tasks": [
     {
-      "question": "Put the colors in the right order!",
-      "example": ["blue", "red", "yellow"],
+      "question": "Arrange the colors in the correct order!",
       "colors": ["red", "yellow", "blue"],
-      "solution": [2, 0, 1],
+      "solution": [2, 0, 1],               
+      "example": ["blue", "red", "yellow"],
       "avatar": "benny",
       "avatarAnimationCorrect": "bounce",
       "avatarAnimationWrong": "wiggle",
@@ -134,41 +75,10 @@
       "correctAnimation": ["confetti-glow"],
       "wrongAnimation": ["shake"],
       "reward": 0,
-      "feedbackCorrect": "Super! That’s the right order!",
+      "feedbackCorrect": "Perfect! That's the right order!",
       "feedbackWrong": "Oops! Try again!"
-    },
-    {
-      "question": "Which is the rainbow order?",
-      "example": ["purple", "orange", "green"],
-      "colors": ["green", "purple", "orange"],
-      "solution": [1, 2, 0],
-      "avatar": "luna",
-      "avatarAnimationCorrect": "tada",
-      "avatarAnimationWrong": "wiggle",
-      "correctSound": "yay.mp3",
-      "wrongSound": "fail.mp3",
-      "correctAnimation": ["emoji-party"],
-      "wrongAnimation": ["shake"],
-      "reward": 1,
-      "feedbackCorrect": "Right! That’s rainbow order.",
-      "feedbackWrong": "Nope! Try again!"
-    },
-    {
-      "question": "Arrange the colors!",
-      "example": ["pink", "yellow", "blue"],
-      "colors": ["pink", "blue", "yellow"],
-      "solution": [0, 2, 1],
-      "avatar": "momo",
-      "avatarAnimationCorrect": "bounce",
-      "avatarAnimationWrong": "wiggle",
-      "correctSound": "yay.mp3",
-      "wrongSound": "fail.mp3",
-      "correctAnimation": ["sparkle"],
-      "wrongAnimation": ["shake"],
-      "reward": 2,
-      "feedbackCorrect": "Yay! Well done!",
-      "feedbackWrong": "Not quite! Try again!"
     }
+    
   ]
 }
 
