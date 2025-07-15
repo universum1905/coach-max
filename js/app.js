@@ -552,13 +552,9 @@ function showQuestion(qIdx) {
 
   // 2. Alles vorbereiten für neue Frage
   clearQuestionUI();
-  
 
-  
-
-  // 4. Buttons/Frage anzeigen und Antwort-Logik:
+  // 3. Buttons/Frage anzeigen und Antwort-Logik:
   renderUniversalAnswerButtons(questions[qIdx], (result) => {
-    // --- Auswerten ---
     let isCorrect;
     if (Array.isArray(questions[qIdx].choices)) {
       isCorrect = result === questions[qIdx].correct;
@@ -568,7 +564,7 @@ function showQuestion(qIdx) {
 
     lockAnswerButtons();
 
-    // Sound & Animation & Avatar
+    // Sound, Animation, Avatar-Animation
     const sound = isCorrect
       ? questions[qIdx].correctSound || randomFrom(soundPool.correct)
       : questions[qIdx].wrongSound   || randomFrom(soundPool.wrong);
@@ -579,17 +575,14 @@ function showQuestion(qIdx) {
       : (questions[qIdx].wrongAnimation   || [randomFrom(animationPool.wrong)]);
     runAnimations(anims);
 
-    // Avatar-Animation triggert nur korrekt oder falsch – und läuft nie doppelt!
-    if (
-      questions[qIdx].avatar &&
-      questions[qIdx].avatarAnimation &&
-      (
-        !questions[qIdx].avatarAnimationTrigger ||
-        questions[qIdx].avatarAnimationTrigger === (isCorrect ? "correct" : "wrong") ||
-        questions[qIdx].avatarAnimationTrigger === "both"
-      )
-    ) {
-      playAvatarAnimation(questions[qIdx].avatar, questions[qIdx].avatarAnimation);
+    // Avatar-Animation (separat für correct/wrong möglich)
+    if (questions[qIdx].avatar) {
+      if (isCorrect && questions[qIdx].avatarAnimationCorrect) {
+        playAvatarAnimation(questions[qIdx].avatar, questions[qIdx].avatarAnimationCorrect);
+      }
+      if (!isCorrect && questions[qIdx].avatarAnimationWrong) {
+        playAvatarAnimation(questions[qIdx].avatar, questions[qIdx].avatarAnimationWrong);
+      }
     }
 
     renderFeedbackText(isCorrect, questions[qIdx]);
@@ -604,19 +597,19 @@ function showQuestion(qIdx) {
             showQuestion(qIdx + 1);
           } else {
             // Nach allen Fragen: Reward-Container & Next/Finish-Button
+            clearQuestionUI(); // Antworten entfernen, damit Reward nicht überlappt
             showUniversalRewardFromSession(sessionJSON, () => {
               finishUniversalSession(sessionJSON);
             });
           }
-        }, 1400);
+        }, 1100);
       } else {
         unlockAnswerButtons();
         // Avatar-Animation nach Falsch ggf. zurücksetzen (optional, meist nicht nötig)
       }
-    }, 1200);
+    }, 3000); // 3 Sekunden Check für jedes Quiz/Sequence
   });
 }
-
 }
 
 
@@ -836,30 +829,58 @@ function runAnimations(anims) {
 
 
 function showCheckingOverlay() {
-  // Vorherigen Overlay entfernen, falls noch einer da ist
-  document.querySelectorAll(".checking-overlay").forEach(e => e.remove());
+  // Vorherige Overlays entfernen
+  document.querySelectorAll('.checking-overlay').forEach(e => e.remove());
 
-  // Overlay erstellen
   const overlay = document.createElement("div");
   overlay.className = "checking-overlay";
   overlay.style.position = "fixed";
-  overlay.style.left = "0";
   overlay.style.top = "0";
+  overlay.style.left = "0";
   overlay.style.width = "100vw";
   overlay.style.height = "100vh";
   overlay.style.background = "rgba(255,255,255,0.85)";
   overlay.style.zIndex = "9999";
   overlay.style.display = "flex";
-  overlay.style.flexDirection = "column";
-  overlay.style.alignItems = "center";
   overlay.style.justifyContent = "center";
+  overlay.style.alignItems = "center";
   overlay.innerHTML = `
-    <div style="font-size:2.2rem;margin-bottom:16px;">⏳</div>
-    <div style="font-size:1.3rem;color:#2196f3;font-weight:700;">Checking...</div>
+    <div style="display:flex; flex-direction:column; align-items:center;">
+      <div class="hourglass"></div>
+      <div style="margin-top:18px; font-size:1.23em; color:#1976d2; font-weight:bold;">Checking...</div>
+    </div>
   `;
-
   document.body.appendChild(overlay);
+
+  // Sanduhr-Animation (CSS)
+  if (!document.getElementById("hourglass-style")) {
+    const style = document.createElement("style");
+    style.id = "hourglass-style";
+    style.innerHTML = `
+      .hourglass {
+        width: 46px;
+        height: 46px;
+        border: 6px solid #ffd54f;
+        border-radius: 50%;
+        border-top: 6px solid #1976d2;
+        animation: spinHourglass 1.2s linear infinite;
+        margin-bottom: 12px;
+        box-shadow: 0 0 16px #ffd54f66;
+      }
+      @keyframes spinHourglass {
+        0% { transform: rotate(0deg);}
+        100% { transform: rotate(360deg);}
+      }
+    `;
+    document.head.appendChild(style);
+  }
 }
+
+
+function hideCheckingOverlay() {
+  document.querySelectorAll('.checking-overlay').forEach(e => e.remove());
+}
+
 
 function hideCheckingOverlay() {
   document.querySelectorAll(".checking-overlay").forEach(e => e.remove());
