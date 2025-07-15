@@ -1004,9 +1004,7 @@ function stopAllSounds() {
 function clearMainUI() {
   // Hauptbereich komplett leeren
 }
-function clearQuestionUI() {
-  // Frage-Bereich leeren
-}
+
 function randomFrom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
