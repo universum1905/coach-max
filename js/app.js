@@ -512,6 +512,46 @@ function getContrastTextColor(colorName) {
   return "#fff";
 }
 
+function showUniversalRewardFromSession(sessionObj, nextAction) {
+  if (!sessionObj) return;
+
+  // Reward-Type bestimmen (Fallback: "star")
+  let rewardType = sessionObj.rewardType 
+    || (typeof sessionObj.successPuzzle !== "undefined" ? "puzzle"
+    : (typeof sessionObj.specialReward !== "undefined" ? sessionObj.specialReward : "star"));
+
+  // Reward-Bild festlegen (Mapping)
+  const rewardImgMap = {
+    "star":        "images/stickers/star.png",
+    "trophy":      "images/trophy.png",
+    "certificate": "images/certificate.png",
+    "party-sticker":"images/party-sticker.png",
+    "medal":       "images/medal.png"
+  };
+
+  let imgSrc = rewardImgMap[rewardType] || rewardImgMap["star"];
+
+  // Eigener Bildpfad aus JSON überschreibt alles
+  if (sessionObj.rewardImg) imgSrc = sessionObj.rewardImg;
+
+  // Text für das Popup
+  let rewardText = sessionObj.onCorrect
+    || (rewardType === "star" ? "Great job!"
+    : rewardType === "trophy" ? "Wow! You unlocked a trophy!"
+    : rewardType === "party-sticker" ? "You got a party sticker!"
+    : rewardType === "medal" ? "You earned a medal!"
+    : rewardType === "puzzle" ? "A new puzzle piece!"
+    : "Great job!");
+
+  // Zeige das universelle Reward-Popup
+  showUniversalReward(
+    imgSrc,
+    rewardText,
+    nextAction || null,
+    sessionObj.successSticker || 0,
+    rewardType
+  );
+}
 
 // --- Universal Renderer Entry ---
 // UNIVERSAL SESSION RENDERER: Quiz + Sequence (Color/Order)
