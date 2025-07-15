@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 3; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 2; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -277,11 +277,11 @@ function showUniversalRewardFromSession(sessionObj, nextAction) {
 
   // Text für das Popup
   let rewardText = sessionObj.onCorrect
-    || (rewardType === "star" ? "Super gemacht!" 
-    : rewardType === "trophy" ? "Wow! Pokal freigeschaltet!"
-    : rewardType === "party-sticker" ? "Partysticker gesammelt!"
-    : rewardType === "medal" ? "Du hast eine Medaille verdient!"
-    : rewardType === "puzzle" ? "Ein neues Puzzleteil!" 
+    || (rewardType === "star" ? "Great job! You unlocked a star!"
+    : rewardType === "trophy" ? "Wow! You unlocked a trophy!"
+    : rewardType === "party-sticker" ? "You collected a party sticker!"
+    : rewardType === "medal" ? "You earned a medal!"
+    : rewardType === "puzzle" ? "You got a new puzzle piece!"
     : "Great job!");
 
   // Zeige das universelle Reward-Popup
@@ -711,8 +711,8 @@ function renderFeedbackText(isCorrect, q) {
   const feedback = document.createElement("div");
   feedback.className = "quiz-feedback";
   feedback.innerText = isCorrect
-    ? (q.feedbackCorrect || "Super gemacht! 🎉")
-    : (q.feedbackWrong || "Nochmal probieren! 😅");
+  ? (q.feedbackCorrect || "Great job! 🎉")
+  : (q.feedbackWrong || "Try again! 😅");
   feedback.style.marginTop = "15px";
   feedback.style.fontWeight = "bold";
   feedback.style.fontSize = "1.2em";
