@@ -570,6 +570,20 @@ function clearQuestionUI() {
   if (area) area.innerHTML = "";
 }
 
+function getContrastTextColor(colorName) {
+  // Simple Mapping, ggf. anpassen/erweitern!
+  const darkColors = [
+    "blue", "purple", "indigo", "navy", "green", "red", "teal", "brown", "black", "darkblue", "darkviolet"
+  ];
+  const lightColors = [
+    "yellow", "white", "lightyellow", "lightgrey", "lightgray", "beige", "gold"
+  ];
+  if (lightColors.includes(colorName.toLowerCase())) return "#222";
+  if (darkColors.includes(colorName.toLowerCase())) return "#fff";
+  // Default: mittlerer Kontrast
+  return "#fff";
+}
+
 
 // --- Universal Renderer Entry ---
 // UNIVERSAL SESSION RENDERER: Quiz + Sequence (Color/Order)
@@ -850,12 +864,12 @@ function renderUniversalAnswerButtons(q, onSelect) {
   area.appendChild(feedbackDiv);
 
   q.colors.forEach((color, idx) => {
-    const btn = document.createElement("button");
-    btn.className = "sequence-choice-btn";
-    btn.innerText = color.charAt(0).toUpperCase() + color.slice(1);
-    btn.style.background = color;
-    btn.style.color = "#444";
-    btn.onclick = function() {
+  const btn = document.createElement("button");
+  btn.className = "sequence-choice-btn";
+  btn.innerText = color;
+  btn.style.background = color; // Hintergrund
+  btn.style.color = getContrastTextColor(color); // Textfarbe passend
+      btn.onclick = function() {
       if (solved) return;
       btn.disabled = true;
       btn.classList.add("selected");
