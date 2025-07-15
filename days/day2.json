@@ -10,79 +10,73 @@
         { "line": "Let’s have fun together!", "duration": 2 }
       ]
     },
-   
-  {
-  "type": "universal-session",
-  "sessionType": "quiz",
-  "title": "Fun Animal Quiz!",
-  "music": "focus-loop.mp3",
-  "video": "day1-test.mp4",
-  "minDuration": 60,
-  "successSticker": 3,
-  "questions": [
     {
-      "question": "Which animal barks?",
-      "choices": ["Cat", "Dog", "Cow"],
-      "correct": 1,
-      "avatar": "benny",
-      "avatarAnimationCorrect": "bounce",      
-      "avatarAnimationWrong": "wiggle",        
-      "correctSound": "yay.mp3",
-      "wrongSound": "fail.mp3",
-      "correctAnimation": ["confetti-glow"],
-      "wrongAnimation": ["shake"],
-      "reward": 0,
-      "feedbackCorrect": "Great job! The dog barks!",
-      "feedbackWrong": "Oops! Try again!"
+      "type": "universal-session",
+      "sessionType": "quiz",
+      "title": "Fun Animal Quiz!",
+      "music": "focus-loop.mp3",
+      "video": "day1-test.mp4",
+      "minDuration": 60,
+      "successSticker": 3,
+      "questions": [
+        {
+          "question": "Which animal barks?",
+          "choices": ["Cat", "Dog", "Cow"],
+          "correct": 1,
+          "avatar": "benny",
+          "avatarAnimationCorrect": "bounce",
+          "avatarAnimationWrong": "wiggle",
+          "correctSound": "yay.mp3",
+          "wrongSound": "fail.mp3",
+          "correctAnimation": ["confetti-glow"],
+          "wrongAnimation": ["shake"],
+          "reward": 0,
+          "feedbackCorrect": "Great job! The dog barks!",
+          "feedbackWrong": "Oops! Try again!"
+        },
+        {
+          "question": "Which animal says 'Moo'?",
+          "choices": ["Duck", "Cow", "Sheep"],
+          "correct": 1,
+          "avatar": "luna",
+          "avatarAnimationCorrect": "tada",
+          "avatarAnimationWrong": "wiggle",
+          "correctSound": "yay.mp3",
+          "wrongSound": "fail.mp3",
+          "correctAnimation": ["emoji-party"],
+          "wrongAnimation": ["shake"],
+          "reward": 1,
+          "feedbackCorrect": "Right! Cows say moo.",
+          "feedbackWrong": "Nope! Try again!"
+        }
+      ]
     },
     {
-      "question": "Which animal says 'Moo'?",
-      "choices": ["Duck", "Cow", "Sheep"],
-      "correct": 1,
-      "avatar": "luna",
-      "avatarAnimationCorrect": "tada",
-      "avatarAnimationWrong": "wiggle",
-      "correctSound": "yay.mp3",
-      "wrongSound": "fail.mp3",
-      "correctAnimation": ["emoji-party"],
-      "wrongAnimation": ["shake"],
-      "reward": 1,
-      "feedbackCorrect": "Right! Cows say moo.",
-      "feedbackWrong": "Nope! Try again!"
+      "type": "universal-session",
+      "sessionType": "sequence",
+      "title": "Color Sequence!",
+      "music": "focus-loop.mp3",
+      "video": "day1-test.mp4",
+      "minDuration": 60,
+      "successSticker": 4,
+      "tasks": [
+        {
+          "question": "Arrange the colors in the correct order!",
+          "colors": ["red", "yellow", "blue"],
+          "solution": [2, 0, 1],
+          "example": ["blue", "red", "yellow"],
+          "avatar": "benny",
+          "avatarAnimationCorrect": "bounce",
+          "avatarAnimationWrong": "wiggle",
+          "correctSound": "yay.mp3",
+          "wrongSound": "fail.mp3",
+          "correctAnimation": ["confetti-glow"],
+          "wrongAnimation": ["shake"],
+          "reward": 0,
+          "feedbackCorrect": "Perfect! That's the right order!",
+          "feedbackWrong": "Oops! Try again!"
+        }
+      ]
     }
-    
   ]
-},
-{
-  "type": "universal-session",
-  "sessionType": "sequence",
-  "title": "Color Sequence!",
-  "music": "focus-loop.mp3",
-  "video": "day1-test.mp4",
-  "minDuration": 60,
-  "successSticker": 4,
-  "tasks": [
-    {
-      "question": "Arrange the colors in the correct order!",
-      "colors": ["red", "yellow", "blue"],
-      "solution": [2, 0, 1],               
-      "example": ["blue", "red", "yellow"],
-      "avatar": "benny",
-      "avatarAnimationCorrect": "bounce",
-      "avatarAnimationWrong": "wiggle",
-      "correctSound": "yay.mp3",
-      "wrongSound": "fail.mp3",
-      "correctAnimation": ["confetti-glow"],
-      "wrongAnimation": ["shake"],
-      "reward": 0,
-      "feedbackCorrect": "Perfect! That's the right order!",
-      "feedbackWrong": "Oops! Try again!"
-    }
-    
-  ]
-}
-
-
-
-]
 }
