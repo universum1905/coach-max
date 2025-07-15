@@ -564,6 +564,13 @@ const avatarAnimations = {
   "momo-party": "animations/momo-party.json"
 };
 
+
+function clearQuestionUI() {
+  const area = document.getElementById("sessionTextArea");
+  if (area) area.innerHTML = "";
+}
+
+
 // --- Universal Renderer Entry ---
 // UNIVERSAL SESSION RENDERER: Quiz + Sequence (Color/Order)
 // === UNIVERSAL SESSION ENGINE – COACH MAX ===
