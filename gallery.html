@@ -1,3 +1,59 @@
-<!-- Galerie-Seite -->
-<h1>🎨 My Drawings</h1>
-<div id="galleryGrid"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎨 My Gallery – Coach Max</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background: url('images/backgrounds/2.png') repeat;
+      background-size: cover;
+      text-align: center;
+      padding: 24px 12px;
+    }
+    #galleryGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 16px;
+      max-width: 680px;
+      margin: 24px auto;
+    }
+    .drawing-img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      border: 3px solid #ffd54f;
+      border-radius: 18px;
+      box-shadow: 0 2px 10px #81d4fa88;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="text-3xl font-bold mb-4">🎨 My Gallery</h1>
+  <p class="text-gray-700 mb-6">Here are your saved drawings from all days!</p>
+  <div id="galleryGrid"></div>
+
+  <a href="choose.html" class="bg-yellow-300 text-blue-900 font-bold px-6 py-2 rounded-xl shadow hover:bg-yellow-400 transition">
+    ← Back to Coach Max
+  </a>
+
+  <script>
+    const grid = document.getElementById("galleryGrid");
+    for (let i = 1; i <= 100; i++) {
+      const data = localStorage.getItem(`drawingDay${i}`);
+      if (data) {
+        const img = document.createElement("img");
+        img.src = data;
+        img.alt = `Drawing from Day ${i}`;
+        img.className = "drawing-img";
+        img.title = `Day ${i}`;
+        grid.appendChild(img);
+      }
+    }
+  </script>
+</body>
+</html>
