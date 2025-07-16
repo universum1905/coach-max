@@ -1609,33 +1609,58 @@ else if (s.type === "drawing") {
   });
 
   // PNG Export
-  const saveBtn = document.createElement("button");
-  saveBtn.innerText = "📤 Save Drawing";
-  saveBtn.style.marginTop = "12px";
-  saveBtn.style.padding = "10px 20px";
-  saveBtn.style.borderRadius = "20px";
-  saveBtn.style.background = "#ffe082";
-  saveBtn.style.fontWeight = "bold";
-  saveBtn.style.boxShadow = "0 2px 10px #ffd54f88";
-  saveBtn.onclick = () => {
+  // Save Drawing Button
+const saveBtn = document.createElement("button");
+saveBtn.innerText = "📤 Save Drawing";
+saveBtn.className = "centered-next-btn";
+saveBtn.style.marginTop = "18px";
+saveBtn.onclick = () => {
+  // Temporäres Merged-Canvas erzeugen
+  const mergedCanvas = document.createElement("canvas");
+  mergedCanvas.width = canvas.width;
+  mergedCanvas.height = canvas.height;
+  const mergedCtx = mergedCanvas.getContext("2d");
+
+  // Hintergrund zuerst zeichnen
+  const background = new Image();
+  background.onload = () => {
+    mergedCtx.drawImage(background, 0, 0, mergedCanvas.width, mergedCanvas.height);
+    mergedCtx.drawImage(canvas, 0, 0);
+
+    const dataUrl = mergedCanvas.toDataURL("image/png");
     const link = document.createElement("a");
     link.download = "my-drawing.png";
-    link.href = canvas.toDataURL();
+    link.href = dataUrl;
     link.click();
   };
-  textArea.appendChild(saveBtn);
+  background.src = s.canvasTemplate || "";
+};
+textArea.appendChild(saveBtn);
 
-  // Finish Button
-  const finishBtn = document.createElement("button");
-  finishBtn.innerText = "Finish Drawing";
-  finishBtn.className = "centered-next-btn";
-  finishBtn.style.marginTop = "24px";
-  finishBtn.onclick = () => {
-    new Audio("audio/yay.mp3").play();
-    if (music) {
-      music.pause();
-      music.currentTime = 0;
-    }
+// Finish Drawing Button
+const finishBtn = document.createElement("button");
+finishBtn.innerText = "Finish Drawing";
+finishBtn.style.marginTop = "80px";
+finishBtn.className = "centered-next-btn";
+finishBtn.onclick = () => {
+  new Audio("audio/yay.mp3").play();
+  if (music) {
+    music.pause();
+    music.currentTime = 0;
+  }
+
+  // Bild mit Hintergrund speichern (auch für Galerie)
+  const mergedCanvas = document.createElement("canvas");
+  mergedCanvas.width = canvas.width;
+  mergedCanvas.height = canvas.height;
+  const mergedCtx = mergedCanvas.getContext("2d");
+
+  const background = new Image();
+  background.onload = () => {
+    mergedCtx.drawImage(background, 0, 0, mergedCanvas.width, mergedCanvas.height);
+    mergedCtx.drawImage(canvas, 0, 0);
+    const dataUrl = mergedCanvas.toDataURL("image/png");
+    localStorage.setItem(`drawingDay${currentDay}`, dataUrl);
 
     const rewardColor = s.rewardConditions?.color || "#ff4081";
     const rewardBrush = s.rewardConditions?.brushSize || 6;
@@ -1651,9 +1676,10 @@ else if (s.type === "drawing") {
       giveReward ? (s.successSticker || 0) : 0
     );
   };
-  textArea.appendChild(finishBtn);
+  background.src = s.canvasTemplate || "";
+};
+textArea.appendChild(finishBtn);
 }
-
   
   
   // ==== Modul: STORY ====
