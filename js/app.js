@@ -1860,7 +1860,7 @@ document.addEventListener("visibilitychange", () => {
 
 // === Fensterladen: Setup alles ===
 window.onload = function() {
-  ...
+  
 };
 
 
