@@ -1465,6 +1465,7 @@ else if (s.type === "drawing") {
   clearTimeouts();
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
@@ -1474,214 +1475,234 @@ else if (s.type === "drawing") {
   heading.style.textAlign = "center";
   textArea.appendChild(heading);
 
-  // Musik
   let music = null;
   if (s.music) {
     music = new Audio("audio/" + s.music);
     music.loop = true;
     music.volume = 0.2;
-    music.play();
   }
 
-  // Avatar
   if (s.avatar) showAvatarInVideoBox(null, s.avatar);
 
-  // Canvas + Vorlage
-  const canvasBox = document.createElement("div");
-  canvasBox.style.position = "relative";
-  canvasBox.style.width = "320px";
-  canvasBox.style.height = "320px";
-  canvasBox.style.margin = "20px auto";
-  canvasBox.style.border = "3px dashed #ffd54f";
-  canvasBox.style.borderRadius = "18px";
-  canvasBox.style.background = "#fffbe6";
-  canvasBox.style.boxShadow = "0 2px 12px #81d4fa88";
-
-  const canvas = document.createElement("canvas");
-  canvas.width = 320;
-  canvas.height = 320;
-  canvas.style.position = "absolute";
-  canvas.style.left = "0";
-  canvas.style.top = "0";
-  canvas.style.zIndex = "2";
-
-  const bgImg = document.createElement("img");
-  bgImg.src = s.canvasTemplate || "";
-  bgImg.style.position = "absolute";
-  bgImg.style.left = "0";
-  bgImg.style.top = "0";
-  bgImg.style.width = "100%";
-  bgImg.style.height = "100%";
-  bgImg.style.objectFit = "contain";
-  bgImg.style.zIndex = "1";
-  bgImg.style.opacity = "0.4";
-
-  canvasBox.appendChild(bgImg);
-  canvasBox.appendChild(canvas);
-  textArea.appendChild(canvasBox);
-
-  // Zeichenlogik
-  const ctx = canvas.getContext("2d");
-  ctx.lineCap = "round";
-  let currentColor = s.colorOptions?.[0] || "#ff4081";
-  let brushSize = s.brushSizes?.[1] || 6;
-  ctx.lineWidth = brushSize;
-  ctx.strokeStyle = currentColor;
-
-  let drawing = false;
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-    return { x, y };
-  }
-  canvas.addEventListener("mousedown", (e) => {
-    drawing = true;
-    const { x, y } = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
+  playSessionVideoIfNeeded(s, () => {
+    if (music) music.play();
+    renderDrawingCanvasAndToolbar();
   });
-  canvas.addEventListener("mousemove", (e) => {
-    if (drawing) {
-      const { x, y } = getPos(e);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    }
-  });
-  canvas.addEventListener("mouseup", () => drawing = false);
-  canvas.addEventListener("mouseout", () => drawing = false);
-  canvas.addEventListener("touchstart", (e) => {
-    drawing = true;
-    const { x, y } = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  });
-  canvas.addEventListener("touchmove", (e) => {
-    e.preventDefault();
-    if (drawing) {
-      const { x, y } = getPos(e);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    }
-  }, { passive: false });
-  canvas.addEventListener("touchend", () => drawing = false);
 
-  // Toolbar
-  const toolbar = document.createElement("div");
-  toolbar.style.display = "flex";
-  toolbar.style.flexWrap = "wrap";
-  toolbar.style.justifyContent = "center";
-  toolbar.style.gap = "12px";
-  toolbar.style.margin = "16px auto 14px auto";
-  textArea.appendChild(toolbar);
+  function renderDrawingCanvasAndToolbar() {
+    const canvasBox = document.createElement("div");
+    canvasBox.style.position = "relative";
+    canvasBox.style.width = "300px";
+    canvasBox.style.height = "300px";
+    canvasBox.style.margin = "18px auto";
+    canvasBox.style.border = "3px dashed #ffd54f";
+    canvasBox.style.borderRadius = "18px";
+    canvasBox.style.background = "#fffbe6";
+    canvasBox.style.boxShadow = "0 2px 12px #81d4fa88";
 
-  // Farbwahl
-  (s.colorOptions || ["#ff4081", "#4caf50", "#2196f3", "#ffeb3b", "#9c27b0", "#000000"]).forEach(color => {
-    const btn = document.createElement("button");
-    btn.style.width = "32px";
-    btn.style.height = "32px";
-    btn.style.borderRadius = "50%";
-    btn.style.background = color;
-    btn.style.border = "2px solid #fff";
-    btn.style.boxShadow = "0 2px 6px #ccc";
-    btn.onclick = () => {
-      currentColor = color;
-      ctx.strokeStyle = currentColor;
+    const canvas = document.createElement("canvas");
+    canvas.width = 300;
+    canvas.height = 300;
+    canvas.style.position = "absolute";
+    canvas.style.left = "0";
+    canvas.style.top = "0";
+    canvas.style.zIndex = "2";
+
+    const bgImg = document.createElement("img");
+    bgImg.src = s.canvasTemplate || "";
+    bgImg.style.position = "absolute";
+    bgImg.style.left = "0";
+    bgImg.style.top = "0";
+    bgImg.style.width = "100%";
+    bgImg.style.height = "100%";
+    bgImg.style.objectFit = "contain";
+    bgImg.style.zIndex = "1";
+    bgImg.style.opacity = "0.4";
+
+    canvasBox.appendChild(bgImg);
+    canvasBox.appendChild(canvas);
+    textArea.appendChild(canvasBox);
+
+    const ctx = canvas.getContext("2d");
+    ctx.lineCap = "round";
+    let currentColor = s.colorOptions?.[0] || "#ff4081";
+    let brushSize = s.brushSizes?.[1] || 8;
+    ctx.lineWidth = brushSize;
+    ctx.strokeStyle = currentColor;
+
+    const bg = new Image();
+    bg.src = s.canvasTemplate || "";
+    bg.onload = () => {
+      ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
     };
-    toolbar.appendChild(btn);
-  });
 
-  // Pinselgröße
-  (s.brushSizes || [3, 6, 10]).forEach(size => {
-    const btn = document.createElement("button");
-    btn.innerText = `🖌️ ${size}`;
-    btn.style.padding = "4px 12px";
-    btn.style.borderRadius = "12px";
-    btn.style.border = "1px solid #ccc";
-    btn.style.fontWeight = "bold";
-    btn.style.background = "#fff";
-    btn.style.cursor = "pointer";
-    btn.onclick = () => {
-      brushSize = size;
-      ctx.lineWidth = brushSize;
+    let drawing = false;
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+      const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+      return { x, y };
+    }
+    canvas.addEventListener("mousedown", (e) => {
+      drawing = true;
+      const { x, y } = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    });
+    canvas.addEventListener("mousemove", (e) => {
+      if (drawing) {
+        const { x, y } = getPos(e);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+    });
+    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mouseout", () => drawing = false);
+    canvas.addEventListener("touchstart", (e) => {
+      drawing = true;
+      const { x, y } = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    });
+    canvas.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      if (drawing) {
+        const { x, y } = getPos(e);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+    }, { passive: false });
+    canvas.addEventListener("touchend", () => drawing = false);
+
+    // Toolbar
+    const toolbar = document.createElement("div");
+    toolbar.style.display = "flex";
+    toolbar.style.flexDirection = "column";
+    toolbar.style.alignItems = "center";
+    toolbar.style.gap = "14px";
+    toolbar.style.marginTop = "20px";
+    textArea.appendChild(toolbar);
+
+    // Farben
+    const colorRow = document.createElement("div");
+    colorRow.style.display = "flex";
+    colorRow.style.flexWrap = "nowrap";
+    colorRow.style.gap = "12px";
+    colorRow.style.overflowX = "auto";
+    (s.colorOptions || ["#ff4081", "#4caf50", "#2196f3", "#ffeb3b", "#9c27b0", "#000000"]).forEach(color => {
+      const btn = document.createElement("button");
+      btn.style.width = "32px";
+      btn.style.height = "32px";
+      btn.style.borderRadius = "50%";
+      btn.style.background = color;
+      btn.style.border = "2px solid #fff";
+      btn.style.boxShadow = "0 2px 6px #ccc";
+      btn.onclick = () => {
+        currentColor = color;
+        ctx.strokeStyle = currentColor;
+      };
+      colorRow.appendChild(btn);
+    });
+    toolbar.appendChild(colorRow);
+
+    // Pinselgrößen
+    const brushRow = document.createElement("div");
+    brushRow.style.display = "flex";
+    brushRow.style.gap = "12px";
+    (s.brushSizes || [3, 6, 10]).forEach(size => {
+      const btn = document.createElement("button");
+      btn.innerText = `🖌️ ${size}`;
+      btn.style.padding = "6px 12px";
+      btn.style.borderRadius = "12px";
+      btn.style.border = "1px solid #ccc";
+      btn.style.fontWeight = "bold";
+      btn.style.background = "#fff";
+      btn.style.cursor = "pointer";
+      btn.onclick = () => {
+        brushSize = size;
+        ctx.lineWidth = brushSize;
+      };
+      brushRow.appendChild(btn);
+    });
+    toolbar.appendChild(brushRow);
+
+    // Save Drawing
+    const saveBtn = document.createElement("button");
+    saveBtn.innerText = "📤 Save Drawing";
+    saveBtn.className = "centered-next-btn";
+    saveBtn.onclick = () => {
+      const mergedCanvas = document.createElement("canvas");
+      mergedCanvas.width = canvas.width;
+      mergedCanvas.height = canvas.height;
+      const mergedCtx = mergedCanvas.getContext("2d");
+      const background = new Image();
+      background.onload = () => {
+        mergedCtx.drawImage(background, 0, 0, canvas.width, canvas.height);
+        mergedCtx.drawImage(canvas, 0, 0);
+        const dataUrl = mergedCanvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.download = "my-drawing.png";
+        link.href = dataUrl;
+        link.click();
+      };
+      background.src = s.canvasTemplate || "";
     };
-    toolbar.appendChild(btn);
-  });
+    toolbar.appendChild(saveBtn);
 
-  // PNG Export
-  // Save Drawing Button
-const saveBtn = document.createElement("button");
-saveBtn.innerText = "📤 Save Drawing";
-saveBtn.className = "centered-next-btn";
-saveBtn.style.marginTop = "18px";
-saveBtn.onclick = () => {
-  // Temporäres Merged-Canvas erzeugen
-  const mergedCanvas = document.createElement("canvas");
-  mergedCanvas.width = canvas.width;
-  mergedCanvas.height = canvas.height;
-  const mergedCtx = mergedCanvas.getContext("2d");
+    // Reset
+    const resetBtn = document.createElement("button");
+    resetBtn.innerText = "🔁 Reset Drawing";
+    resetBtn.className = "centered-next-btn";
+    resetBtn.onclick = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (bg.complete) ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+    };
+    toolbar.appendChild(resetBtn);
 
-  // Hintergrund zuerst zeichnen
-  const background = new Image();
-  background.onload = () => {
-    mergedCtx.drawImage(background, 0, 0, mergedCanvas.width, mergedCanvas.height);
-    mergedCtx.drawImage(canvas, 0, 0);
+    // Finish
+    const finishBtn = document.createElement("button");
+    finishBtn.innerText = "✅ Finish Drawing";
+    finishBtn.className = "centered-next-btn";
+    finishBtn.onclick = () => {
+      new Audio("audio/yay.mp3").play();
+      if (music) {
+        music.pause();
+        music.currentTime = 0;
+      }
 
-    const dataUrl = mergedCanvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.download = "my-drawing.png";
-    link.href = dataUrl;
-    link.click();
-  };
-  background.src = s.canvasTemplate || "";
-};
-textArea.appendChild(saveBtn);
+      const mergedCanvas = document.createElement("canvas");
+      mergedCanvas.width = canvas.width;
+      mergedCanvas.height = canvas.height;
+      const mergedCtx = mergedCanvas.getContext("2d");
+      const background = new Image();
+      background.onload = () => {
+        mergedCtx.drawImage(background, 0, 0, canvas.width, canvas.height);
+        mergedCtx.drawImage(canvas, 0, 0);
+        const dataUrl = mergedCanvas.toDataURL("image/png");
+        localStorage.setItem(`drawingDay${currentDay}`, dataUrl);
 
-// Finish Drawing Button
-const finishBtn = document.createElement("button");
-finishBtn.innerText = "Finish Drawing";
-finishBtn.style.marginTop = "80px";
-finishBtn.className = "centered-next-btn";
-finishBtn.onclick = () => {
-  new Audio("audio/yay.mp3").play();
-  if (music) {
-    music.pause();
-    music.currentTime = 0;
+        const rewardColor = s.rewardConditions?.color || "#ff4081";
+        const rewardBrush = s.rewardConditions?.brushSize || 8;
+        const giveReward = (currentColor === rewardColor && brushSize === rewardBrush);
+
+        showUniversalReward(
+          "🎨",
+          s.onFinish || "Beautiful drawing!",
+          () => {
+            currentSession++;
+            renderSession(currentSession);
+          },
+          giveReward ? (s.successSticker || 0) : 0
+        );
+      };
+      background.src = s.canvasTemplate || "";
+    };
+    toolbar.appendChild(finishBtn);
   }
-
-  // Bild mit Hintergrund speichern (auch für Galerie)
-  const mergedCanvas = document.createElement("canvas");
-  mergedCanvas.width = canvas.width;
-  mergedCanvas.height = canvas.height;
-  const mergedCtx = mergedCanvas.getContext("2d");
-
-  const background = new Image();
-  background.onload = () => {
-    mergedCtx.drawImage(background, 0, 0, mergedCanvas.width, mergedCanvas.height);
-    mergedCtx.drawImage(canvas, 0, 0);
-    const dataUrl = mergedCanvas.toDataURL("image/png");
-    localStorage.setItem(`drawingDay${currentDay}`, dataUrl);
-
-    const rewardColor = s.rewardConditions?.color || "#ff4081";
-    const rewardBrush = s.rewardConditions?.brushSize || 6;
-    const giveReward = (currentColor === rewardColor && brushSize === rewardBrush);
-
-    showUniversalReward(
-      "🎨",
-      s.onFinish || "Beautiful drawing!",
-      () => {
-        currentSession++;
-        renderSession(currentSession);
-      },
-      giveReward ? (s.successSticker || 0) : 0
-    );
-  };
-  background.src = s.canvasTemplate || "";
-};
-textArea.appendChild(finishBtn);
 }
-  
-  
+
+
+
   // ==== Modul: STORY ====
 
  else if (s.type === "story") {
