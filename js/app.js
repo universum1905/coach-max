@@ -797,60 +797,115 @@ function renderUniversalAnswerButtons(q, onSelect) {
   }
 
   // --- MULTIPLE CHOICE (Quiz) ---
-  if (Array.isArray(q.choices)) {
-    const btnBox = document.createElement("div");
-    btnBox.className = "quiz-buttons";
-    let solved = false;
+  if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
+  // 1. Beispiel/Vorlage anzeigen (optional)
+  if (Array.isArray(q.example)) {
+    const exampleBox = document.createElement("div");
+    exampleBox.className = "sequence-example-row";
+    exampleBox.style.display = "flex";
+    exampleBox.style.justifyContent = "center";
+    exampleBox.style.gap = "12px";
+    exampleBox.style.margin = "12px 0 18px 0";
+    q.example.forEach(color => {
+      const dot = document.createElement("div");
+      dot.style.width = "28px";
+      dot.style.height = "28px";
+      dot.style.borderRadius = "50%";
+      dot.style.background = color;
+      dot.style.border = "2.5px solid #fffbe6";
+      dot.style.boxShadow = "0 2px 8px #ddd";
+      exampleBox.appendChild(dot);
+    });
+    area.appendChild(exampleBox);
+  }
 
-    // Feedback-Text
-    const feedbackDiv = document.createElement("div");
-    feedbackDiv.className = "quiz-feedback";
-    area.appendChild(feedbackDiv);
+  // 2. Antwortreihe (leere Kreise)
+  const answerRow = document.createElement("div");
+  answerRow.className = "sequence-answer-row";
+  answerRow.style.display = "flex";
+  answerRow.style.justifyContent = "center";
+  answerRow.style.gap = "14px";
+  answerRow.style.marginBottom = "20px";
+  let userSequence = [];
+  for (let i = 0; i < q.solution.length; i++) {
+    const emptyDot = document.createElement("div");
+    emptyDot.className = "sequence-answer-dot";
+    emptyDot.style.width = "36px";
+    emptyDot.style.height = "36px";
+    emptyDot.style.borderRadius = "50%";
+    emptyDot.style.background = "#e3f2fd";
+    emptyDot.style.border = "2.5px dashed #ffd54f";
+    emptyDot.style.boxShadow = "0 2px 8px #ffd54faa";
+    answerRow.appendChild(emptyDot);
+  }
+  area.appendChild(answerRow);
 
-    q.choices.forEach((choice, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "quiz-choice-btn";
-      btn.innerText = choice;
-      btn.onclick = function() {
-        if (solved) return;
-		btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+  // 3. Auswahl-Buttons
+  const btnBox = document.createElement("div");
+  btnBox.className = "sequence-buttons";
+  let solved = false;
 
-        // Checking Overlay 3 Sek.
+  // Feedback-Text
+  const feedbackDiv = document.createElement("div");
+  feedbackDiv.className = "quiz-feedback";
+  area.appendChild(feedbackDiv);
+
+  q.colors.forEach((color, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "sequence-choice-btn";
+    btn.innerText = color;
+    btn.style.background = color;
+    btn.style.color = getContrastTextColor(color);
+    btn.onclick = function () {
+      if (solved) return;
+      btn.disabled = true;
+      btn.classList.add("selected");
+      userSequence.push(idx);
+
+      // Kreise füllen
+      const filledDot = answerRow.children[userSequence.length - 1];
+      if (filledDot) filledDot.style.background = color;
+
+      if (userSequence.length === q.solution.length) {
+        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
         showCheckingOverlay();
         setTimeout(() => {
           hideCheckingOverlay();
-
-          if (idx === q.correct) {
+          const isCorrect = userSequence.every((val, i) => val === q.solution[i]);
+          if (isCorrect) {
             solved = true;
-            btn.classList.add("selected", "btn-correct");
             playSound(q.correctSound || "yay.mp3");
             runAnimations(q.correctAnimation || ["confetti-glow"]);
             if (q.avatar && q.avatarAnimationCorrect) playAvatarAnimation(q.avatar, q.avatarAnimationCorrect);
             feedbackDiv.innerText = q.feedbackCorrect || "Great job!";
             feedbackDiv.style.color = "#218c21";
-            setTimeout(() => { onSelect(idx); }, 1100);
+            setTimeout(() => { onSelect(true); }, 1100);
           } else {
-            btn.classList.add("selected", "btn-wrong");
-            btn.disabled = true;
             playSound(q.wrongSound || "fail.mp3");
             runAnimations(q.wrongAnimation || ["shake"]);
             if (q.avatar && q.avatarAnimationWrong) playAvatarAnimation(q.avatar, q.avatarAnimationWrong);
             feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
             feedbackDiv.style.color = "#c82121";
             setTimeout(() => {
+              userSequence = [];
               feedbackDiv.innerText = "";
+              for (let i = 0; i < answerRow.children.length; i++) {
+                answerRow.children[i].style.background = "#e3f2fd";
+              }
               btnBox.querySelectorAll("button").forEach(b => {
-                if (!b.classList.contains("selected")) b.disabled = false;
+                b.disabled = false;
+                b.classList.remove("selected");
               });
             }, 1200);
           }
-        }, 3000); // 3 Sekunden Check
-      };
-      btnBox.appendChild(btn);
-    });
-    area.appendChild(btnBox);
-    return;
-  }
+        }, 3000);
+      }
+    };
+    btnBox.appendChild(btn);
+  });
+  area.appendChild(btnBox);
+  return;
+}
 
   // --- SEQUENCE/ORDER AUFGABE (z.B. Farben sortieren) ---
   if (Array.isArray(q.colors) && Array.isArray(q.solution)) {
