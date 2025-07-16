@@ -557,6 +557,8 @@ function showUniversalRewardFromSession(sessionObj, nextAction) {
     rewardType
   );
 }
+
+
 let currentMusic = null;
 
 function stopAllSounds() {
@@ -666,10 +668,14 @@ function showQuestion(qIdx) {
         // Nach allen Fragen: Haupt-Reward
         clearQuestionUI();
         showUniversalRewardFromSession(sessionJSON, () => {
-          currentSession++;
-          renderSession(currentSession); // <---- DAS ist entscheidend!
-          // Optional: window.location.href = "choose.html"; // falls am letzten Tag
-        });
+  currentSession++;
+  if (currentSession < sessions.length) {
+    renderSession(currentSession); // normale nächste Session
+  } else {
+    // ALLE Sessions vorbei → jetzt zur Auswahl/Abschluss
+    window.location.href = "choose.html";
+  }
+});
       }
     }, 1100);
   } else {
