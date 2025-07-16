@@ -813,8 +813,7 @@ function renderUniversalAnswerButtons(q, onSelect) {
       btn.innerText = choice;
       btn.onclick = function() {
         if (solved) return;
-		solved = true;
-        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+		btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
         // Checking Overlay 3 Sek.
         showCheckingOverlay();
