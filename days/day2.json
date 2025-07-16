@@ -83,9 +83,15 @@
   "avatar": "momo",
   "video": "day1-test.mp4",
   "music": "focus-loop.mp3",
-  "canvasTemplate": "images/templates/bunny-outline.png",
-  "onFinish": "Wow! What a masterpiece! Here’s your sticker!",
-  "successSticker": 1
+  "canvasTemplate": "images/templates/bunny.png",
+  "colorOptions": ["#ff4081", "#4caf50", "#2196f3", "#ffeb3b", "#9c27b0", "#000000"],
+  "brushSizes": [3, 6, 10],
+  "rewardConditions": {
+    "color": "#ff4081",
+    "brushSize": 6
+  },
+  "onFinish": "Wow! What a masterpiece! Here's your sticker!",
+  "successSticker": 3
 }
 	
   ]
