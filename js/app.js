@@ -1479,7 +1479,138 @@ else if (s.type === "universal-session") {
   return;
 }
 
+else if (s.type === "drawing") {
+  clearTimeouts();
+  renderFrogProgress(lastSessionIdx, idx);
+  document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
+  const textArea = document.getElementById("sessionTextArea");
+  textArea.innerHTML = "";
 
+  const heading = document.createElement("h2");
+  heading.className = "session-heading";
+  heading.innerText = "Let’s draw together!";
+  heading.style.textAlign = "center";
+  textArea.appendChild(heading);
+
+  // Hintergrundmusik
+  let music = null;
+  if (s.music) {
+    music = new Audio("audio/" + s.music);
+    music.loop = true;
+    music.volume = 0.2;
+    music.play();
+  }
+
+  // Video unten rechts
+  playSessionVideoIfNeeded(s, () => showDrawingCanvas());
+
+  function showDrawingCanvas() {
+    if (s.avatar) showAvatarInVideoBox(null, s.avatar);
+
+    const canvasBox = document.createElement("div");
+    canvasBox.style.position = "relative";
+    canvasBox.style.width = "300px";
+    canvasBox.style.height = "300px";
+    canvasBox.style.margin = "24px auto 12px auto";
+    canvasBox.style.border = "2px dashed #ffd54f";
+    canvasBox.style.borderRadius = "18px";
+    canvasBox.style.overflow = "hidden";
+    canvasBox.style.background = "#fffbe6";
+    canvasBox.style.boxShadow = "0 2px 12px #b3e5fc88";
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 300;
+    canvas.height = 300;
+    canvas.style.position = "absolute";
+    canvas.style.left = "0";
+    canvas.style.top = "0";
+    canvas.style.zIndex = "2";
+
+    const bg = new Image();
+    bg.src = s.canvasTemplate || "";
+    bg.onload = () => {
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(bg, 0, 0, 300, 300);
+    };
+
+    const bgImg = document.createElement("img");
+    bgImg.src = s.canvasTemplate || "";
+    bgImg.style.position = "absolute";
+    bgImg.style.left = "0";
+    bgImg.style.top = "0";
+    bgImg.style.width = "100%";
+    bgImg.style.height = "100%";
+    bgImg.style.objectFit = "contain";
+    bgImg.style.zIndex = "1";
+    bgImg.style.opacity = "0.5";
+
+    canvasBox.appendChild(bgImg);
+    canvasBox.appendChild(canvas);
+    textArea.appendChild(canvasBox);
+
+    // Zeichenlogik
+    const ctx = canvas.getContext("2d");
+    ctx.lineCap = "round";
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#ff4081";
+
+    let drawing = false;
+    canvas.addEventListener("mousedown", (e) => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+    canvas.addEventListener("mousemove", (e) => {
+      if (drawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+      }
+    });
+    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mouseout", () => drawing = false);
+
+    // Touch support
+    canvas.addEventListener("touchstart", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      ctx.beginPath();
+      ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      drawing = true;
+    });
+    canvas.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      if (drawing) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        ctx.stroke();
+      }
+    }, { passive: false });
+    canvas.addEventListener("touchend", () => drawing = false);
+
+    // Finish Button
+    const finishBtn = document.createElement("button");
+    finishBtn.className = "centered-next-btn";
+    finishBtn.innerText = "Finish Drawing";
+    finishBtn.onclick = () => {
+      new Audio("audio/yay.mp3").play();
+      if (music) {
+        music.pause();
+        music.currentTime = 0;
+      }
+      showUniversalReward(
+        "🎨", 
+        s.onFinish || "Beautiful artwork!",
+        () => {
+          currentSession++;
+          renderSession(currentSession);
+        },
+        s.successSticker || 0
+      );
+    };
+    textArea.appendChild(finishBtn);
+  }
+}
 
 
   // ==== Modul: STORY ====
