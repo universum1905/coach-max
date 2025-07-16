@@ -1324,7 +1324,45 @@ function showAvatarInVideoBox(videoBox, avatarName, avatarClass = "avatar") {
 }
 
 
+function playSessionVideoIfNeeded(session, callback = () => {}, autoRemove = true) {
+  if (!session.video) {
+    callback();
+    return;
+  }
 
+  const existing = document.querySelector(".floating-video");
+  if (existing) existing.remove();
+
+  const videoBox = document.createElement("div");
+  videoBox.className = "floating-video";
+  videoBox.style.position = "fixed";
+  videoBox.style.bottom = "16px";
+  videoBox.style.right = "16px";
+  videoBox.style.zIndex = "50";
+  videoBox.style.borderRadius = "16px";
+  videoBox.style.overflow = "hidden";
+  videoBox.style.boxShadow = "0 0 12px #0003";
+  videoBox.style.backgroundColor = "#000";
+
+  const video = document.createElement("video");
+  video.src = "videos/" + session.video;
+  video.autoplay = true;
+  video.playsInline = true;
+  video.controls = false;
+  video.muted = false;
+  video.style.width = "180px";
+  video.style.height = "auto";
+  video.style.display = "block";
+  video.style.borderRadius = "16px";
+
+  video.onended = () => {
+    if (autoRemove) videoBox.remove();
+    callback();
+  };
+
+  videoBox.appendChild(video);
+  document.body.appendChild(videoBox);
+}
 
 
 
@@ -1485,9 +1523,10 @@ else if (s.type === "drawing") {
   if (s.avatar) showAvatarInVideoBox(null, s.avatar);
 
   playSessionVideoIfNeeded(s, () => {
-    if (music) music.play();
-    renderDrawingCanvasAndToolbar();
-  });
+  if (music) music.play();
+  renderDrawingCanvasAndToolbar();
+}, true);  // Container wird automatisch entfernt
+  
 
   function renderDrawingCanvasAndToolbar() {
     const canvasBox = document.createElement("div");
