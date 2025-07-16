@@ -913,54 +913,45 @@ function renderUniversalAnswerButtons(q, onSelect) {
       btn.style.background = color; // Hintergrund
       btn.style.color = getContrastTextColor(color); // Textfarbe passend
       btn.onclick = function() {
-        if (solved) return;
-        btn.disabled = true;
-        btn.classList.add("selected");
-        userSequence.push(idx);
+  if (solved) return;
 
-        // Antwortring füllen:
-        const filledDot = answerRow.children[userSequence.length - 1];
-        if (filledDot) filledDot.style.background = color;
+  // Nur diesen Button deaktivieren
+  btn.disabled = true;
 
-        if (userSequence.length === q.solution.length) {
-          // Nach n Klicks alles sperren
-          btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+  // Checking-Overlay 3 Sek.
+  showCheckingOverlay();
+  setTimeout(() => {
+    hideCheckingOverlay();
 
-          // Checking-Overlay 3 Sekunden!
-          showCheckingOverlay();
-          setTimeout(() => {
-            hideCheckingOverlay();
-            const isCorrect = userSequence.every((val, i) => val === q.solution[i]);
-            if (isCorrect) {
-              solved = true;
-              playSound(q.correctSound || "yay.mp3");
-              runAnimations(q.correctAnimation || ["confetti-glow"]);
-              if (q.avatar && q.avatarAnimationCorrect) playAvatarAnimation(q.avatar, q.avatarAnimationCorrect);
-              feedbackDiv.innerText = q.feedbackCorrect || "Great job!";
-              feedbackDiv.style.color = "#218c21";
-              setTimeout(() => { onSelect(true); }, 1100);
-            } else {
-              playSound(q.wrongSound || "fail.mp3");
-              runAnimations(q.wrongAnimation || ["shake"]);
-              if (q.avatar && q.avatarAnimationWrong) playAvatarAnimation(q.avatar, q.avatarAnimationWrong);
-              feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
-              feedbackDiv.style.color = "#c82121";
-              setTimeout(() => {
-                userSequence = [];
-                feedbackDiv.innerText = "";
-                // Kreise wieder leeren:
-                for (let i = 0; i < answerRow.children.length; i++) {
-                  answerRow.children[i].style.background = "#e3f2fd";
-                }
-                btnBox.querySelectorAll("button").forEach(b => {
-                  b.disabled = false;
-                  b.classList.remove("selected");
-                });
-              }, 1200);
-            }
-          }, 3000); // <--- 3 Sekunden warten
-        }
-      };
+    if (idx === q.correct) {
+      solved = true;
+      btn.classList.add("selected", "btn-correct");
+      playSound(q.correctSound || "yay.mp3");
+      runAnimations(q.correctAnimation || ["confetti-glow"]);
+      if (q.avatar && q.avatarAnimationCorrect) playAvatarAnimation(q.avatar, q.avatarAnimationCorrect);
+      feedbackDiv.innerText = q.feedbackCorrect || "Great job!";
+      feedbackDiv.style.color = "#218c21";
+      // Alle Buttons sperren
+      btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+      setTimeout(() => { onSelect(idx); }, 1100);
+    } else {
+      btn.classList.add("selected", "btn-wrong");
+      playSound(q.wrongSound || "fail.mp3");
+      runAnimations(q.wrongAnimation || ["shake"]);
+      if (q.avatar && q.avatarAnimationWrong) playAvatarAnimation(q.avatar, q.avatarAnimationWrong);
+      feedbackDiv.innerText = q.feedbackWrong || "Oops! Try again!";
+      feedbackDiv.style.color = "#c82121";
+      // Jetzt, nach Feedback, andere Buttons wieder aktiv machen!
+      setTimeout(() => {
+        feedbackDiv.innerText = "";
+        btnBox.querySelectorAll("button").forEach(b => {
+          // Nur der FALSCH gewählte bleibt deaktiviert!
+          if (!b.classList.contains("selected")) b.disabled = false;
+        });
+      }, 1200);
+    }
+  }, 3000);
+};
       btnBox.appendChild(btn);
     });
     area.appendChild(btnBox);
