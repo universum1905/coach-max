@@ -590,15 +590,20 @@ async function renderUniversalSession(sessionJSON) {
   });
 
   // Musik wie gehabt...
-  if (sessionJSON.music) {
-    currentMusic = new Audio("audio/" + sessionJSON.music);
-    currentMusic.loop = true;
-    currentMusic.volume = 0.22;
-    currentMusic.play();
-    window.addEventListener("beforeunload", () => { currentMusic.pause(); });
-    window.addEventListener("blur", () => { currentMusic.pause(); });
-    window.addEventListener("focus", () => { if (currentMusic) currentMusic.play(); });
+  let music = null;
+if (sessionJSON.music) {
+  if (window._currentSessionMusic) {
+    try { window._currentSessionMusic.pause(); window._currentSessionMusic.currentTime = 0; } catch(e){}
   }
+  music = new Audio("audio/" + sessionJSON.music);
+  music.loop = true;
+  music.volume = 0.22;
+  music.play();
+  window._currentSessionMusic = music;
+  window.addEventListener("beforeunload", () => { music.pause(); });
+  window.addEventListener("blur", () => { music.pause(); });
+  window.addEventListener("focus", () => { if (music) music.play(); });
+}
 
   // ---------------  
   // FRAGEN-LOGIK  
