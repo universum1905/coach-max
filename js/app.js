@@ -1614,13 +1614,68 @@ else if (s.type === "drawing") {
     const btn = document.createElement("button");
     btn.innerText = `🖌️ ${size}`;
     btn.style.padding = "4px 12px";
-    btn.style.borderRadius =
-  // ==== Modul: STORY ====
+    btn.style.borderRadius = "12px";
+    btn.style.border = "1px solid #ccc";
+    btn.style.fontWeight = "bold";
+    btn.style.background = "#fff";
+    btn.style.cursor = "pointer";
+    btn.onclick = () => {
+      brushSize = size;
+      ctx.lineWidth = brushSize;
+    };
+    toolbar.appendChild(btn);
+  });
+
+  // PNG Export
+  const saveBtn = document.createElement("button");
+  saveBtn.innerText = "📤 Save Drawing";
+  saveBtn.style.marginTop = "12px";
+  saveBtn.style.padding = "10px 20px";
+  saveBtn.style.borderRadius = "20px";
+  saveBtn.style.background = "#ffe082";
+  saveBtn.style.fontWeight = "bold";
+  saveBtn.style.boxShadow = "0 2px 10px #ffd54f88";
+  saveBtn.onclick = () => {
+    const link = document.createElement("a");
+    link.download = "my-drawing.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  };
+  textArea.appendChild(saveBtn);
+
+  // Finish Button
+  const finishBtn = document.createElement("button");
+  finishBtn.innerText = "Finish Drawing";
+  finishBtn.className = "centered-next-btn";
+  finishBtn.style.marginTop = "24px";
+  finishBtn.onclick = () => {
+    new Audio("audio/yay.mp3").play();
+    if (music) {
+      music.pause();
+      music.currentTime = 0;
+    }
+
+    const rewardColor = s.rewardConditions?.color || "#ff4081";
+    const rewardBrush = s.rewardConditions?.brushSize || 6;
+    const giveReward = (currentColor === rewardColor && brushSize === rewardBrush);
+
+    showUniversalReward(
+      "🎨",
+      s.onFinish || "Beautiful drawing!",
+      () => {
+        currentSession++;
+        renderSession(currentSession);
+      },
+      giveReward ? (s.successSticker || 0) : 0
+    );
+  };
+  textArea.appendChild(finishBtn);
+}
+
   
-}
-}
-}
- 
+  
+  // ==== Modul: STORY ====
+
  else if (s.type === "story") {
   // 0) Aufräumen & Fortschritt
   clearTimeouts();
