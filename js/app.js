@@ -1110,42 +1110,24 @@ introMusic.loop = true;
 introMusic.volume = 0.18;
 
 // Fortschrittsbalken (Frosch)
-function renderFrogProgress(fromIdx, toIdx, total) {
-  const bar = document.getElementById("progressFrogBar");
-  bar.innerHTML = "";
-  const barTrack = document.createElement("div");
-  barTrack.className = "frog-bar-track";
-  bar.appendChild(barTrack);
-  const spots = [];
-  for (let i = 0; i < total; i++) {
-    spots[i] = document.createElement("div");
-    spots[i].className = "frog-bar-spot" + (i < toIdx ? " frog-bar-done" : "") + (i === toIdx ? " active" : "");
-    barTrack.appendChild(spots[i]);
-  }
-  // Frosch-Bild
-  const frog = document.createElement("img");
-  frog.src = "images/frog.png";
-  frog.alt = "Frog";
-  frog.id = "jumpingFrog";
-  barTrack.appendChild(frog);
+function renderFrogProgress(lastIdx, currentIdx) {
+  const spots = document.querySelectorAll(".frog-bar-spot");
+  const frog = document.getElementById("jumpingFrog");
+  if (!spots || !spots.length || !frog) return;
 
-  // Frosch-Startposition auf fromIdx
-  const startSpot = spots[fromIdx] || spots[0];
-  const endSpot = spots[toIdx] || spots[0];
-  frog.style.position = "absolute";
-  frog.style.transition = "none";
-  frog.style.left = startSpot.offsetLeft + (startSpot.offsetWidth - frog.offsetWidth) / 2 + "px";
+  // bestehender Fortschritts-Code
+  spots.forEach((el, i) => {
+    el.classList.remove("active");
+    if (i < currentIdx) el.classList.add("frog-bar-done");
+    if (i === currentIdx) el.classList.add("active");
+  });
 
-  setTimeout(() => {
-    frog.style.transition = "left 0.5s cubic-bezier(.39,1.35,.51,1.01)";
-    frog.style.left = endSpot.offsetLeft + (endSpot.offsetWidth - frog.offsetWidth) / 2 + "px";
+  const active = spots[currentIdx];
+  if (active) {
+    frog.style.left = active.offsetLeft + "px";
     frog.style.animation = "frogHop 0.45s";
-    frog.addEventListener("animationend", () => { frog.style.animation = ""; }, { once: true });
-    frogSound.currentTime = 0;
-    frogSound.play();
-  }, 30);
+  }
 }
-
 
 // Welcome: Tap, Musik, Animation
 function showWelcome(onFinish) {
