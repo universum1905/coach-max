@@ -557,6 +557,22 @@ function showUniversalRewardFromSession(sessionObj, nextAction) {
     rewardType
   );
 }
+let currentMusic = null;
+
+function stopAllSounds() {
+  // Stoppt die Musik, falls sie läuft!
+  if (currentMusic) {
+    try { currentMusic.pause(); currentMusic.currentTime = 0; } catch(e) {}
+    currentMusic = null;
+  }
+  // Alle Session-Sounds stoppen
+  if (window.allSessionAudio && Array.isArray(window.allSessionAudio)) {
+    window.allSessionAudio.forEach(a => { try { a.pause(); a.currentTime = 0; } catch(e){} });
+    window.allSessionAudio = [];
+  }
+}
+
+
 
 // --- Universal Renderer Entry ---
 // UNIVERSAL SESSION RENDERER: Quiz + Sequence (Color/Order)
@@ -574,15 +590,14 @@ async function renderUniversalSession(sessionJSON) {
   });
 
   // Musik wie gehabt...
-  let music = null;
   if (sessionJSON.music) {
-    music = new Audio("audio/" + sessionJSON.music);
-    music.loop = true;
-    music.volume = 0.22;
-    music.play();
-    window.addEventListener("beforeunload", () => { music.pause(); });
-    window.addEventListener("blur", () => { music.pause(); });
-    window.addEventListener("focus", () => { if (music) music.play(); });
+    currentMusic = new Audio("audio/" + sessionJSON.music);
+    currentMusic.loop = true;
+    currentMusic.volume = 0.22;
+    currentMusic.play();
+    window.addEventListener("beforeunload", () => { currentMusic.pause(); });
+    window.addEventListener("blur", () => { currentMusic.pause(); });
+    window.addEventListener("focus", () => { if (currentMusic) currentMusic.play(); });
   }
 
   // ---------------  
