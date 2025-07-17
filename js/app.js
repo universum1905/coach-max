@@ -1744,18 +1744,12 @@ else if (s.type === "drawing") {
 
 else if (s.sessionSubType === "memory") {
   const textArea = document.getElementById("sessionTextArea");
-  textArea.innerHTML = "";
 
-  if (s.avatar || s.video) showAvatarInVideoBox(s.video, s.avatar);
-
-  let music = null;
-  if (s.music) {
-    music = new Audio("audio/" + s.music);
-    music.loop = true;
-    music.volume = 0.3;
-    music.play();
-    window.currentMusic = music;
-  }
+  // Optional: Überschrift
+  const heading = document.createElement("h2");
+  heading.textContent = s.title || "Find the matching pairs!";
+  heading.className = "session-heading";
+  textArea.appendChild(heading);
 
   const gridSize = (s.gridSize || "3x2").split("x");
   const rows = parseInt(gridSize[1]);
@@ -1837,9 +1831,9 @@ else if (s.sessionSubType === "memory") {
             matched.push(i1, i2);
             new Audio("audio/success.wav").play();
             if (matched.length === cards.length) {
-              if (music) {
-                music.pause();
-                music.currentTime = 0;
+              if (window.currentMusic) {
+                window.currentMusic.pause();
+                window.currentMusic.currentTime = 0;
               }
               showUniversalReward(
                 "🧠",
