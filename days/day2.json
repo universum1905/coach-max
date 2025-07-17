@@ -79,6 +79,23 @@
       ]
     },
 	{
+  "type": "memory",
+  "avatar": "momo",
+  "video": "day1-test.mp4",
+  "music": "focus-loop.mp3",
+  "memoryImages": [
+    "images/animals/cat.png",
+    "images/animals/dog.png",
+    "images/animals/lion.png"
+  ],
+  "cardBack": "images/cards/back.png",
+  "gridSize": "3x2",
+  "shuffle": true,
+  "successSticker": 5,
+  "onFinish": "Well done! You found all the animal pairs!"
+},	
+	
+	{
   "type": "drawing",
   "avatar": "momo",
   "video": "day1-test.mp4",
