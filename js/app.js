@@ -1714,6 +1714,9 @@ else if (s.type === "drawing") {
 
 
 
+
+
+// === Memory Session ===
 else if (s.type === "memory") {
   clearTimeouts();
   if (window.currentMusic) {
@@ -1721,7 +1724,6 @@ else if (s.type === "memory") {
     window.currentMusic = null;
   }
 
-  // Dynamische Frog-Bar aktualisieren
   const track = document.querySelector(".frog-bar-track");
   track.innerHTML = "";
   sessions.forEach(() => {
@@ -1738,7 +1740,6 @@ else if (s.type === "memory") {
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Musik vorbereiten
   let music = null;
   if (s.music) {
     music = new Audio("audio/" + s.music);
@@ -1747,57 +1748,23 @@ else if (s.type === "memory") {
     window.currentMusic = music;
   }
 
-  // Video-Container unten rechts
-  const videoBox = document.createElement("div");
-  videoBox.className = "floating-video";
-  videoBox.style.position = "fixed";
-  videoBox.style.bottom = "16px";
-  videoBox.style.right = "16px";
-  videoBox.style.zIndex = "50";
-  videoBox.style.borderRadius = "16px";
-  videoBox.style.overflow = "hidden";
-  videoBox.style.boxShadow = "0 0 12px #0003";
-  videoBox.style.backgroundColor = "#000";
-
-  const video = document.createElement("video");
-  video.src = "videos/" + s.video;
-  video.autoplay = true;
-  video.playsInline = true;
-  video.controls = false;
-  video.muted = false;
-  video.style.width = "180px";
-  video.style.height = "auto";
-  video.style.display = "block";
-  video.style.borderRadius = "16px";
-
-  video.onended = () => {
-    video.remove();
-    const avatar = document.createElement("img");
-    avatar.src = "images/avatars/" + (s.avatar || "momo") + ".png";
-    avatar.style.width = "180px";
-    avatar.style.animation = "bounce 2s infinite";
-    videoBox.appendChild(avatar);
-  };
-
-  videoBox.appendChild(video);
-  document.body.appendChild(videoBox);
+  if (s.avatar || s.video) showAvatarInVideoBox(s.video, s.avatar);
 
   if (music) music.play();
 
-  // Grid-Einstellungen
   const gridSize = (s.gridSize || "3x2").split("x");
   const rows = parseInt(gridSize[1]);
   const cols = parseInt(gridSize[0]);
   const totalCards = rows * cols;
-  const cardBack = s.cardBack || "images/cards/back.png";
+  const cardBack = s.cardBack || "images/cards/cardBack-rounded.png";
 
   let pairs = s.memoryImages || [];
   if (pairs.length * 2 !== totalCards) {
-    console.warn("Anzahl der Karten stimmt nicht zum Grid:", totalCards);
+    console.warn("Memory image count mismatch with grid size");
     pairs = pairs.slice(0, totalCards / 2);
   }
 
-  const cards = pairs.concat(pairs); // Duplizieren
+  const cards = pairs.concat(pairs);
   if (s.shuffle !== false) {
     for (let i = cards.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -1829,7 +1796,7 @@ else if (s.type === "memory") {
     front.style.width = "100%";
     front.style.height = "100%";
     front.style.objectFit = "contain";
-    front.style.borderRadius = "8px";
+    front.style.borderRadius = "12px";
     front.style.position = "absolute";
     front.style.top = "0";
     front.style.left = "0";
@@ -1841,7 +1808,7 @@ else if (s.type === "memory") {
     back.style.width = "100%";
     back.style.height = "100%";
     back.style.objectFit = "contain";
-    back.style.borderRadius = "8px";
+    back.style.borderRadius = "12px";
     back.style.position = "absolute";
     back.style.top = "0";
     back.style.left = "0";
@@ -1871,7 +1838,7 @@ else if (s.type === "memory") {
               }
               showUniversalReward(
                 "🧠",
-                s.onFinish || "Super gemacht!",
+                s.onFinish || "Well done!",
                 () => {
                   currentSession++;
                   renderSession(currentSession);
@@ -1889,7 +1856,6 @@ else if (s.type === "memory") {
     });
   });
 }
-
 
 
 
@@ -2035,7 +2001,17 @@ else if (s.type === "memory") {
 }
 
 
-
+// === Pause and resume music on tab switch ===
+let resumeMusicOnReturn = false;
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && window.currentMusic && !window.currentMusic.paused) {
+    window.currentMusic.pause();
+    resumeMusicOnReturn = true;
+  } else if (!document.hidden && resumeMusicOnReturn && window.currentMusic) {
+    window.currentMusic.play();
+    resumeMusicOnReturn = false;
+  }
+});
 
 // === Fensterladen: Setup alles ===
 window.onload = function() {
