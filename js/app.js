@@ -1332,14 +1332,42 @@ window.addEventListener("orientationchange", handleOrientation);
 window.addEventListener("resize", handleOrientation);
 
 
-function showAvatarInVideoBox(videoBox, avatarName, avatarClass = "avatar") {
-  if (!videoBox) return;
-  videoBox.innerHTML = "";
-  const avatarImg = document.createElement('img');
-  avatarImg.src = `images/${avatarName}.png`;
-  avatarImg.alt = capitalize(avatarName);
-  avatarImg.className = avatarClass;
-  videoBox.appendChild(avatarImg);
+function showAvatarInVideoBox(videoName, avatarName) {
+  const existingBox = document.querySelector(".floating-video");
+  if (existingBox) existingBox.remove();
+
+  const box = document.createElement("div");
+  box.className = "floating-video";
+  box.style.position = "fixed";
+  box.style.bottom = "16px";
+  box.style.right = "16px";
+  box.style.zIndex = "50";
+  box.style.borderRadius = "16px";
+  box.style.overflow = "hidden";
+  box.style.boxShadow = "0 0 12px #0003";
+  box.style.backgroundColor = "#000";
+
+  const video = document.createElement("video");
+  video.src = "videos/" + videoName;
+  video.autoplay = true;
+  video.playsInline = true;
+  video.controls = false;
+  video.muted = false;
+  video.style.width = "180px";
+  video.style.display = "block";
+  video.style.borderRadius = "16px";
+
+  video.onended = () => {
+    video.remove();
+    const avatar = document.createElement("img");
+    avatar.src = "images/" + (avatarName || "momo") + ".png";
+    avatar.style.width = "180px";
+    avatar.style.animation = "bounce 2s infinite";
+    box.appendChild(avatar);
+  };
+
+  box.appendChild(video);
+  document.body.appendChild(box);
 }
 
 
