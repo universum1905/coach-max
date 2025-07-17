@@ -714,8 +714,12 @@ function renderFeedbackText(isCorrect, q) {
   area.appendChild(feedback);
 }
 
-
-
+// === Musik beim Tabwechsel pausieren ===
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && window.currentMusic) {
+    window.currentMusic.pause();
+  }
+});
 
 
 
@@ -1109,6 +1113,21 @@ const introMusic = new Audio("audio/counting-benny-bg.mp3");
 introMusic.loop = true;
 introMusic.volume = 0.18;
 
+
+// dynamischer Fortschrittsbalken (Frosch)
+const track = document.querySelector(".frog-bar-track");
+track.innerHTML = "";
+sessions.forEach(() => {
+  const spot = document.createElement("div");
+  spot.className = "frog-bar-spot";
+  track.appendChild(spot);
+});
+const frog = document.createElement("img");
+frog.src = "images/frog.png";
+frog.id = "jumpingFrog";
+track.appendChild(frog);
+
+
 // Fortschrittsbalken (Frosch)
 function renderFrogProgress(lastIdx, currentIdx) {
   const spots = document.querySelectorAll(".frog-bar-spot");
@@ -1364,6 +1383,7 @@ function playSessionVideoIfNeeded(session, callback = () => {}, autoRemove = tru
   document.body.appendChild(videoBox);
 }
 
+
 // Session mit Video, Play-Overlay, animiertem Text und fixiertem Next-Button
 function renderSession(idx) {
   const s = sessions[idx]; // <-- Das MUSS als allererstes kommen!
@@ -1499,6 +1519,24 @@ else if (s.type === "universal-session") {
 
 else if (s.type === "drawing") {
   clearTimeouts();
+  if (window.currentMusic) {
+    window.currentMusic.pause();
+    window.currentMusic = null;
+  }
+
+  // Froschbalken dynamisch
+  const track = document.querySelector(".frog-bar-track");
+  track.innerHTML = "";
+  sessions.forEach(() => {
+    const spot = document.createElement("div");
+    spot.className = "frog-bar-spot";
+    track.appendChild(spot);
+  });
+  const frog = document.createElement("img");
+  frog.src = "images/frog.png";
+  frog.id = "jumpingFrog";
+  track.appendChild(frog);
+
   renderFrogProgress(lastSessionIdx, idx);
   document.querySelectorAll(".floating-video, .centered-next-btn").forEach(el => el.remove());
   const textArea = document.getElementById("sessionTextArea");
@@ -1607,48 +1645,13 @@ else if (s.type === "drawing") {
     toolbar.style.marginTop = "20px";
     textArea.appendChild(toolbar);
 
-    const colorRow = document.createElement("div");
-    colorRow.style.display = "flex";
-    colorRow.style.gap = "10px";
-    (s.colorOptions || ["#ff4081", "#4caf50", "#2196f3", "#ffeb3b", "#9c27b0", "#000"]).forEach(color => {
-      const btn = document.createElement("button");
-      btn.style.width = "32px";
-      btn.style.height = "32px";
-      btn.style.borderRadius = "50%";
-      btn.style.background = color;
-      btn.style.border = "2px solid #fff";
-      btn.onclick = () => {
-        currentColor = color;
-        ctx.strokeStyle = currentColor;
-      };
-      colorRow.appendChild(btn);
-    });
-    toolbar.appendChild(colorRow);
-
-    const brushRow = document.createElement("div");
-    brushRow.style.display = "flex";
-    brushRow.style.gap = "12px";
-    (s.brushSizes || [3, 6, 10]).forEach(size => {
-      const btn = document.createElement("button");
-      btn.innerText = `🖌️ ${size}`;
-      btn.style.padding = "4px 12px";
-      btn.style.borderRadius = "12px";
-      btn.onclick = () => {
-        brushSize = size;
-        ctx.lineWidth = brushSize;
-      };
-      brushRow.appendChild(btn);
-    });
-    toolbar.appendChild(brushRow);
-
-    const createBtn = (label, onClick) => {
+    function createBtn(label, onClick) {
       const btn = document.createElement("button");
       btn.innerText = label;
       btn.className = "centered-next-btn";
-      btn.style.marginTop = "10px";
       btn.onclick = onClick;
       return btn;
-    };
+    }
 
     toolbar.appendChild(createBtn("🔁 Reset Drawing", () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1708,6 +1711,7 @@ else if (s.type === "drawing") {
     }));
   });
 }
+
 
 
   // ==== Modul: STORY ====
@@ -1851,12 +1855,8 @@ else if (s.type === "drawing") {
 
 }
 
-// === Musik beim Tabwechsel pausieren ===
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden && window.currentMusic) {
-    window.currentMusic.pause();
-  }
-});
+
+
 
 // === Fensterladen: Setup alles ===
 window.onload = function() {
