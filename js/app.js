@@ -583,16 +583,26 @@ function stopAllSounds() {
 async function renderUniversalSession(sessionJSON) {
   stopAllSounds();
   clearMainUI();
-   renderFrogProgress(currentSession, currentSession, sessions.length);
+   const track = document.querySelector(".frog-bar-track");
+track.innerHTML = "";
+sessions.forEach(() => {
+  const spot = document.createElement("div");
+  spot.className = "frog-bar-spot";
+  track.appendChild(spot);
+});
+const frog = document.createElement("img");
+frog.src = "images/frog.png";
+frog.id = "jumpingFrog";
+track.appendChild(frog);
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
   renderSessionHeader(sessionJSON.title || "");
 
   renderUniversalVideoBox(sessionJSON, () => {
-  if (sessionJSON.type === "memory") {
-    renderMemoryGame(sessionJSON);
-  } else if (questions.length > 0) {
-    showQuestion(0);
-  }
+  if (sessionJSON.sessionSubType === "memory") {
+  renderMemoryGame(sessionJSON);
+} else if (questions.length > 0) {
+  showQuestion(0);
+}
 });
 
   // Musik wie gehabt...
@@ -1262,6 +1272,8 @@ function renderFrogProgress(lastIdx, currentIdx) {
     frog.style.animation = "frogHop 0.45s";
   }
 }
+
+
 
 // Welcome: Tap, Musik, Animation
 function showWelcome(onFinish) {
