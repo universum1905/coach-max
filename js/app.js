@@ -602,18 +602,18 @@ renderFrogProgress(currentSession, currentSession, sessions.length);
 
   renderUniversalVideoBox(sessionJSON, () => {
   if (sessionJSON.sessionSubType === "memory") {
-    // Nur bei memory: VideoBox fixieren (nicht global in der Funktion selbst!)
     const videoBox = document.querySelector(".floating-video");
     if (videoBox) {
       videoBox.style.position = "fixed";
       videoBox.style.bottom = "12px";
       videoBox.style.right = "12px";
-      videoBox.style.zIndex = "10";
+      videoBox.style.zIndex = "1000";
+      videoBox.style.width = "120px";
+      videoBox.style.height = "120px";
     }
 
     renderMemoryGame(sessionJSON);
     console.log("DOM-Check:", document.getElementById("sessionTextArea").innerHTML);
-
   } else if (questions.length > 0) {
     showQuestion(0);
   }
