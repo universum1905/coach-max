@@ -761,7 +761,15 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
     return;
   }
   const videoBox = document.createElement('div');
-  videoBox.className = "floating-video";
+videoBox.className = "floating-video";
+
+// Positionierung sicherstellen – damit Memory-Spiel nicht blockiert wird
+videoBox.style.position = "absolute";
+videoBox.style.bottom = "12px";
+videoBox.style.right = "12px";
+videoBox.style.width = "160px";
+videoBox.style.height = "160px";
+videoBox.style.zIndex = "10";
 
   const videoElement = document.createElement('video');
   videoElement.src = "videos/" + sessionJSON.video;
