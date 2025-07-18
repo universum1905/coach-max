@@ -1260,9 +1260,8 @@ track.appendChild(frog);
 function renderFrogProgress(lastIdx, currentIdx) {
   const spots = document.querySelectorAll(".frog-bar-spot");
   const frog = document.getElementById("jumpingFrog");
-  if (!spots || !spots.length || !frog) return;
+  if (!spots.length || !frog) return;
 
-  // bestehender Fortschritts-Code
   spots.forEach((el, i) => {
     el.classList.remove("active");
     if (i < currentIdx) el.classList.add("frog-bar-done");
@@ -1273,10 +1272,9 @@ function renderFrogProgress(lastIdx, currentIdx) {
   if (active) {
     frog.style.left = active.offsetLeft + "px";
     frog.style.animation = "frogHop 0.45s";
+    playSound("frog-hop.mp3"); // ✅ Quak-Sound beim Sprung
   }
 }
-
-
 
 // Welcome: Tap, Musik, Animation
 function showWelcome(onFinish) {
