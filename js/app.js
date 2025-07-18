@@ -601,14 +601,14 @@ renderFrogProgress(currentSession, currentSession, sessions.length);
   renderSessionHeader(sessionJSON.title || "");
 
   renderUniversalVideoBox(sessionJSON, () => {
+  const delay = sessionJSON.sessionSubType === "memory" ? 600 : 100;
   setTimeout(() => {
     if (sessionJSON.sessionSubType === "memory") {
-      // 👇 Hier wichtig: KEIN clearMainUI mehr!
       renderMemoryGame(sessionJSON);
     } else if (questions.length > 0) {
       showQuestion(0);
     }
-  }, 500); // kleine Pause, damit Avatar im Video-Container zuerst erscheint
+  }, delay);
 });
 
   // Musik wie gehabt...
