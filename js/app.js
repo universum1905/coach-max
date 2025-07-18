@@ -1745,7 +1745,7 @@ else if (s.type === "drawing") {
 else if (s.type === "memory") {
   clearTimeouts();
 
-  // Froschbalken vorbereiten
+  // Fortschrittsbalken mit Frosch
   const track = document.querySelector(".frog-bar-track");
   track.innerHTML = "";
   sessions.forEach(() => {
@@ -1759,11 +1759,11 @@ else if (s.type === "memory") {
   track.appendChild(frog);
   renderFrogProgress(lastSessionIdx, idx);
 
-  // Textbereich leeren
+  // Textbereich vorbereiten
   const textArea = document.getElementById("sessionTextArea");
   textArea.innerHTML = "";
 
-  // Video und Avatar anzeigen
+  // Videobox und Avatar korrekt anzeigen
   if (s.avatar || s.video) showAvatarInVideoBox(s.video, s.avatar);
 
   // Musik starten
@@ -1775,16 +1775,22 @@ else if (s.type === "memory") {
     window.currentMusic = music;
   }
 
-  // Grid-Parameter vorbereiten
+  // Überschrift
+  const heading = document.createElement("h2");
+  heading.textContent = s.title || "Find the matching pairs!";
+  heading.className = "session-heading";
+  textArea.appendChild(heading);
+
+  // Memory-Grid vorbereiten
   const gridSize = (s.gridSize || "3x2").split("x");
   const rows = parseInt(gridSize[1]);
   const cols = parseInt(gridSize[0]);
   const totalCards = rows * cols;
   const cardBack = s.cardBack || "images/cards/cardBack-rounded.png";
-  let pairs = s.memoryImages || [];
 
+  let pairs = s.memoryImages || [];
   if (pairs.length * 2 !== totalCards) {
-    console.warn("Anzahl Bilder passt nicht zur Grid-Größe");
+    console.warn("Memory image count mismatch with grid size");
     pairs = pairs.slice(0, totalCards / 2);
   }
 
@@ -1796,13 +1802,7 @@ else if (s.type === "memory") {
     }
   }
 
-  // Titel anzeigen
-  const heading = document.createElement("h2");
-  heading.textContent = s.title || "Find the matching pairs!";
-  heading.className = "session-heading";
-  textArea.appendChild(heading);
-
-  // Grid erzeugen
+  // Grid anzeigen
   const grid = document.createElement("div");
   grid.style.display = "grid";
   grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
@@ -1868,7 +1868,7 @@ else if (s.type === "memory") {
               }
               showUniversalReward(
                 "🧠",
-                s.onFinish || "Great job!",
+                s.onFinish || "Super gemacht!",
                 () => {
                   currentSession++;
                   renderSession(currentSession);
