@@ -765,6 +765,7 @@ function renderSessionHeader(title) {
 
 // VIDEO unten rechts: universell für alle Sessions
 function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
+  // Entferne alte Video-Container
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
 
   if (!sessionJSON.video) {
@@ -772,6 +773,7 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
     return;
   }
 
+  // Neuen Container bauen
   const videoBox = document.createElement("div");
   videoBox.className = "floating-video";
 
@@ -779,15 +781,17 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   videoElement.src = "videos/" + sessionJSON.video;
   videoElement.setAttribute("controls", "true");
   videoElement.setAttribute("controlsList", "nodownload");
-  videoElement.autoplay = false;
-  videoElement.muted = false;
   videoElement.playsInline = true;
   videoElement.poster = "images/video-placeholder.png";
   videoElement.style.width = "100%";
   videoElement.style.height = "100%";
+  videoElement.style.borderRadius = "50%";
   videoElement.style.objectFit = "cover";
+  videoElement.style.display = "block";
+
   videoBox.appendChild(videoElement);
 
+  // Play-Button Overlay
   const playBtn = document.createElement("button");
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
@@ -814,20 +818,27 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
     videoElement.style.pointerEvents = "none";
   });
 
+  // 📌 Avatarbild korrekt anzeigen, aber NICHT das ganze HTML überschreiben!
   videoElement.addEventListener("ended", () => {
-    videoBox.innerHTML = `<img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png">`;
+    // Erst Video entfernen
+    videoElement.remove();
+    playBtn.remove();
+
+    // Dann Avatarbild rein
+    const avatar = document.createElement("img");
+    avatar.src = `images/${sessionJSON.avatar || 'luna'}.png`;
+    avatar.className = "avatar";
+    videoBox.appendChild(avatar);
+
+    // Jetzt Callback (Fragen, Memory usw.)
     if (typeof onEndedCallback === "function") {
-      setTimeout(() => {
-        onEndedCallback();
-      }, 400);
+      setTimeout(() => onEndedCallback(), 400);
     }
   });
 
   videoBox.appendChild(playBtn);
   document.body.appendChild(videoBox);
 }
-
-
 // UNIVERSAL BUTTONS für beide Fragetypen
 function renderUniversalAnswerButtons(q, onSelect) {
   const area = document.getElementById("sessionTextArea");
