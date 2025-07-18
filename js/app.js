@@ -765,6 +765,7 @@ function renderSessionHeader(title) {
 
 // VIDEO unten rechts: universell für alle Sessions
 function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
+  // Vorherige Videos entfernen
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
 
   if (!sessionJSON.video) {
@@ -772,6 +773,7 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
     return;
   }
 
+  // Neues Videobox-Element erstellen
   const videoBox = document.createElement('div');
   videoBox.className = "floating-video";
 
@@ -787,8 +789,10 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   videoElement.style.height = "100%";
   videoElement.style.objectFit = "cover";
   videoElement.style.display = "block";
+
   videoBox.appendChild(videoElement);
 
+  // Play-Button erstellen
   const playBtn = document.createElement('button');
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
@@ -802,38 +806,35 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   playBtn.onclick = function () {
     videoElement.play();
     playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
   };
 
-  videoElement.addEventListener("play", () => {
+  videoElement.addEventListener('play', () => {
     playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
   });
 
-  videoElement.addEventListener("pause", () => {
+  videoElement.addEventListener('pause', () => {
     playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
   });
 
-  videoElement.addEventListener("ended", () => {
-    // Statt .innerHTML → alten Video entfernen, Avatar einfügen:
-    videoBox.innerHTML = ""; // Nur Video entfernen
-    const avatar = document.createElement("img");
-    avatar.className = "avatar";
-    avatar.src = "images/" + (sessionJSON.avatar || "luna") + ".png";
-    avatar.style.width = "100%";
-    avatar.style.height = "100%";
-    avatar.style.borderRadius = "50%";
-    avatar.style.objectFit = "contain";
-    videoBox.appendChild(avatar);
+  videoElement.addEventListener('ended', () => {
+    // Avatar nach dem Video anzeigen
+    videoBox.innerHTML = `
+      <img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png" style="width:100%;height:100%;border-radius:50%;">
+    `;
+    videoBox.style.pointerEvents = "none";
 
+    // Callback für nächste Interaktion
     if (typeof onEndedCallback === "function") {
-      setTimeout(() => { onEndedCallback(); }, 400);
+      setTimeout(() => { onEndedCallback(); }, 400); // leichte Verzögerung
     }
   });
 
   videoBox.appendChild(playBtn);
   document.body.appendChild(videoBox);
 }
-
-
 
 // UNIVERSAL BUTTONS für beide Fragetypen
 function renderUniversalAnswerButtons(q, onSelect) {
