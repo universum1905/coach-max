@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const DEV_MODE = true;    // Auf true setzen für Entwicklung, auf false für Produktion
-let DEV_START_SESSION = 3; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
+let DEV_START_SESSION = 3 und; // 0 = Intro, 1 = Breathing, 2 = Counting, usw.
 
 
 
@@ -588,8 +588,12 @@ async function renderUniversalSession(sessionJSON) {
   renderSessionHeader(sessionJSON.title || "");
 
   renderUniversalVideoBox(sessionJSON, () => {
-    if (questions.length > 0) showQuestion(0);
-  });
+  if (sessionJSON.type === "memory") {
+    renderMemoryGame(sessionJSON);
+  } else if (questions.length > 0) {
+    showQuestion(0);
+  }
+});
 
   // Musik wie gehabt...
   let music = null;
@@ -1742,46 +1746,14 @@ else if (s.type === "drawing") {
 }
 
 
-else if (s.type === "memory") {
-  clearTimeouts();
-
-  // Fortschrittsbalken mit Frosch
-  const track = document.querySelector(".frog-bar-track");
-  track.innerHTML = "";
-  sessions.forEach(() => {
-    const spot = document.createElement("div");
-    spot.className = "frog-bar-spot";
-    track.appendChild(spot);
-  });
-  const frog = document.createElement("img");
-  frog.src = "images/frog.png";
-  frog.id = "jumpingFrog";
-  track.appendChild(frog);
-  renderFrogProgress(lastSessionIdx, idx);
-
-  // Textbereich vorbereiten
+function renderMemoryGame(s) {
   const textArea = document.getElementById("sessionTextArea");
-  textArea.innerHTML = "";
 
-  // Videobox und Avatar korrekt anzeigen
-  if (s.avatar || s.video) showAvatarInVideoBox(s.video, s.avatar);
-
-  // Musik starten
-  if (s.music) {
-    const music = new Audio("audio/" + s.music);
-    music.loop = true;
-    music.volume = 0.3;
-    music.play();
-    window.currentMusic = music;
-  }
-
-  // Überschrift
   const heading = document.createElement("h2");
   heading.textContent = s.title || "Find the matching pairs!";
   heading.className = "session-heading";
   textArea.appendChild(heading);
 
-  // Memory-Grid vorbereiten
   const gridSize = (s.gridSize || "3x2").split("x");
   const rows = parseInt(gridSize[1]);
   const cols = parseInt(gridSize[0]);
@@ -1802,7 +1774,6 @@ else if (s.type === "memory") {
     }
   }
 
-  // Grid anzeigen
   const grid = document.createElement("div");
   grid.style.display = "grid";
   grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
@@ -1862,9 +1833,9 @@ else if (s.type === "memory") {
             matched.push(i1, i2);
             new Audio("audio/success.wav").play();
             if (matched.length === cards.length) {
-              if (window.currentMusic) {
-                window.currentMusic.pause();
-                window.currentMusic.currentTime = 0;
+              if (window._currentSessionMusic) {
+                window._currentSessionMusic.pause();
+                window._currentSessionMusic.currentTime = 0;
               }
               showUniversalReward(
                 "🧠",
@@ -1886,8 +1857,6 @@ else if (s.type === "memory") {
     });
   });
 }
-
-
   // ==== Modul: STORY ====
 
  else if (s.type === "story") {
