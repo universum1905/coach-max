@@ -761,15 +761,7 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
     return;
   }
   const videoBox = document.createElement('div');
-videoBox.className = "floating-video";
-
-// Positionierung sicherstellen – damit Memory-Spiel nicht blockiert wird
-videoBox.style.position = "absolute";
-videoBox.style.bottom = "12px";
-videoBox.style.right = "12px";
-videoBox.style.width = "160px";
-videoBox.style.height = "160px";
-videoBox.style.zIndex = "10";
+  videoBox.className = "floating-video";
 
   const videoElement = document.createElement('video');
   videoElement.src = "videos/" + sessionJSON.video;
@@ -1129,9 +1121,9 @@ function renderMemoryGame(s) {
   const textArea = document.getElementById("sessionTextArea");
   if (!textArea) return;
 
-  // Nur das Grid löschen – nicht die Überschrift
-  const oldGrid = textArea.querySelector(".memory-grid");
-  if (oldGrid) oldGrid.remove();
+  textArea.innerHTML = ""; // ← Wichtig: alten Inhalt löschen
+  textArea.style.position = "relative";
+  textArea.style.zIndex = "5";
 
   const heading = document.createElement("h2");
   heading.textContent = s.title || "Find the matching pairs!";
