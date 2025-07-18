@@ -765,7 +765,7 @@ function renderSessionHeader(title) {
 
 // VIDEO unten rechts: universell für alle Sessions
 function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
-  // Vorherige Videos entfernen
+  // Entfernen von vorherigen Video-Containern
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
 
   if (!sessionJSON.video) {
@@ -773,11 +773,12 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
     return;
   }
 
-  // Neues Videobox-Element erstellen
-  const videoBox = document.createElement('div');
+  // Neues Video-Container-Element erstellen
+  const videoBox = document.createElement("div");
   videoBox.className = "floating-video";
 
-  const videoElement = document.createElement('video');
+  // Video-Element erstellen
+  const videoElement = document.createElement("video");
   videoElement.src = "videos/" + sessionJSON.video;
   videoElement.setAttribute("controls", "true");
   videoElement.setAttribute("controlsList", "nodownload");
@@ -789,11 +790,10 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   videoElement.style.height = "100%";
   videoElement.style.objectFit = "cover";
   videoElement.style.display = "block";
-
   videoBox.appendChild(videoElement);
 
   // Play-Button erstellen
-  const playBtn = document.createElement('button');
+  const playBtn = document.createElement("button");
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
   playBtn.innerHTML = `
@@ -803,32 +803,41 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
     </svg>
   `;
 
+  // Play-Button klicken
   playBtn.onclick = function () {
     videoElement.play();
     playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
   };
 
-  videoElement.addEventListener('play', () => {
+  // Play und Pause EventListener
+  videoElement.addEventListener("play", () => {
     playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
   });
 
-  videoElement.addEventListener('pause', () => {
+  videoElement.addEventListener("pause", () => {
     playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
   });
 
-  videoElement.addEventListener('ended', () => {
+  // Video endet
+  videoElement.addEventListener("ended", () => {
     // Avatar nach dem Video anzeigen
-    videoBox.innerHTML = `
-      <img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png" style="width:100%;height:100%;border-radius:50%;">
-    `;
-    videoBox.style.pointerEvents = "none";
+    videoBox.innerHTML = ""; // Vorheriges Video entfernen
 
-    // Callback für nächste Interaktion
+    // Avatarbild in Video-Box anzeigen
+    const avatar = document.createElement("img");
+    avatar.className = "avatar";
+    avatar.src = "images/" + (sessionJSON.avatar || "luna") + ".png";
+    avatar.style.width = "100%";
+    avatar.style.height = "100%";
+    avatar.style.borderRadius = "50%";
+    avatar.style.objectFit = "contain";
+    videoBox.appendChild(avatar);
+
+    // Callback nach Video-Ende
     if (typeof onEndedCallback === "function") {
-      setTimeout(() => { onEndedCallback(); }, 400); // leichte Verzögerung
+      setTimeout(() => {
+        onEndedCallback(); // Call next action after a short delay
+      }, 400); // Kleine Verzögerung für das Avatarbild
     }
   });
 
