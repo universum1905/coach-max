@@ -801,9 +801,12 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   });
   videoElement.addEventListener('ended', () => {
     // Avatar nach Video anzeigen:
-    videoBox.innerHTML = `<img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png">`;
-	videoBox.style.pointerEvents = "none";
-videoBox.style.zIndex = "1"; // damit UI drüber ist
+    videoBox.innerHTML = `
+  <div style="display:flex;justify-content:center;align-items:center;height:100%;">
+    <img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png" style="width:120px;height:120px;border-radius:50%;">
+  </div>`;
+videoBox.style.pointerEvents = "none";
+videoBox.style.zIndex = "1";
     // GANZ WICHTIG: Callback aufrufen, damit die Fragen angezeigt werden!
     if (typeof onEndedCallback === "function") {
       setTimeout(() => { onEndedCallback(); }, 400); // Kurze Pause fürs Avatar-Bild
