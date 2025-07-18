@@ -603,6 +603,7 @@ renderFrogProgress(currentSession, currentSession, sessions.length);
   renderUniversalVideoBox(sessionJSON, () => {
   if (sessionJSON.sessionSubType === "memory") {
   renderMemoryGame(sessionJSON);
+  console.log("DOM-Check:", document.getElementById("sessionTextArea").innerHTML);
 } else if (questions.length > 0) {
   showQuestion(0);
 }
