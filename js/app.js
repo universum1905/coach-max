@@ -816,9 +816,6 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
 
   videoElement.addEventListener("ended", () => {
     videoBox.innerHTML = `<img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png">`;
-    videoBox.style.pointerEvents = "none";
-    videoBox.style.zIndex = "40";
-
     if (typeof onEndedCallback === "function") {
       setTimeout(() => {
         onEndedCallback();
