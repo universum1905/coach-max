@@ -1113,10 +1113,13 @@ function randomFrom(arr) {
 
 
 function renderMemoryGame(s) {
+  console.log("MemoryGame wurde gestartet!");
   const textArea = document.getElementById("sessionTextArea");
   if (!textArea) return;
 
-  textArea.innerHTML = ""; // ⬅️ Wichtig: alten Inhalt (z. B. Überschrift) entfernen
+  // Nur das Grid löschen – nicht die Überschrift
+  const oldGrid = textArea.querySelector(".memory-grid");
+  if (oldGrid) oldGrid.remove();
 
   const heading = document.createElement("h2");
   heading.textContent = s.title || "Find the matching pairs!";
