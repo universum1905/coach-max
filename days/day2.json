@@ -79,21 +79,21 @@
       ]
     },
 	{
-  "type": "universal-session",
-  "sessionSubType": "memory",
+  "type": "memory",
   "video": "day1-test.mp4",
   "avatar": "momo",
   "music": "focus-loop.mp3",
   "gridSize": "3x2",
   "cardBack": "images/cards/back.png",
   "shuffle": true,
+  "title": "Can you find all the animal pairs?",
   "memoryImages": [
     "images/animals/cat.png",
     "images/animals/dog.png",
     "images/animals/fox.png"
   ],
-  "successSticker": 1,
-  "onFinish": "You matched all the animals!"
+  "successSticker": 2,
+  "onFinish": "Nice job! All pairs found!"
 },	
 	
 	{
