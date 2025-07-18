@@ -601,22 +601,14 @@ renderFrogProgress(currentSession, currentSession, sessions.length);
   renderSessionHeader(sessionJSON.title || "");
 
   renderUniversalVideoBox(sessionJSON, () => {
-  if (sessionJSON.sessionSubType === "memory") {
-    const videoBox = document.querySelector(".floating-video");
-    if (videoBox) {
-      videoBox.style.position = "fixed";
-      videoBox.style.bottom = "12px";
-      videoBox.style.right = "12px";
-      videoBox.style.zIndex = "1000";
-      videoBox.style.width = "120px";
-      videoBox.style.height = "120px";
+  setTimeout(() => {
+    if (sessionJSON.sessionSubType === "memory") {
+      // 👇 Hier wichtig: KEIN clearMainUI mehr!
+      renderMemoryGame(sessionJSON);
+    } else if (questions.length > 0) {
+      showQuestion(0);
     }
-
-    renderMemoryGame(sessionJSON);
-    console.log("DOM-Check:", document.getElementById("sessionTextArea").innerHTML);
-  } else if (questions.length > 0) {
-    showQuestion(0);
-  }
+  }, 500); // kleine Pause, damit Avatar im Video-Container zuerst erscheint
 });
 
   // Musik wie gehabt...
@@ -765,20 +757,19 @@ function renderSessionHeader(title) {
 
 // VIDEO unten rechts: universell für alle Sessions
 function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
-  // Entfernen von vorherigen Video-Containern
+  // Vorherige Videobox entfernen
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
 
+  // Kein Video? Dann direkt weiter
   if (!sessionJSON.video) {
     if (typeof onEndedCallback === "function") onEndedCallback();
     return;
   }
 
-  // Neues Video-Container-Element erstellen
-  const videoBox = document.createElement("div");
+  const videoBox = document.createElement('div');
   videoBox.className = "floating-video";
 
-  // Video-Element erstellen
-  const videoElement = document.createElement("video");
+  const videoElement = document.createElement('video');
   videoElement.src = "videos/" + sessionJSON.video;
   videoElement.setAttribute("controls", "true");
   videoElement.setAttribute("controlsList", "nodownload");
@@ -790,10 +781,11 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   videoElement.style.height = "100%";
   videoElement.style.objectFit = "cover";
   videoElement.style.display = "block";
+
   videoBox.appendChild(videoElement);
 
-  // Play-Button erstellen
-  const playBtn = document.createElement("button");
+  // Play-Overlay wie gehabt
+  const playBtn = document.createElement('button');
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
   playBtn.innerHTML = `
@@ -802,47 +794,34 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
       <polygon points="22,16 46,30 22,44" fill="#383838"/>
     </svg>
   `;
-
-  // Play-Button klicken
-  playBtn.onclick = function () {
+  playBtn.onclick = function() {
     videoElement.play();
     playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
   };
 
-  // Play und Pause EventListener
-  videoElement.addEventListener("play", () => {
+  videoElement.addEventListener('play', () => {
     playBtn.style.display = "none";
+    videoElement.style.pointerEvents = "auto";
   });
 
-  videoElement.addEventListener("pause", () => {
+  videoElement.addEventListener('pause', () => {
     playBtn.style.display = "";
+    videoElement.style.pointerEvents = "none";
   });
 
-  // Video endet
-  videoElement.addEventListener("ended", () => {
-    // Avatar nach dem Video anzeigen
-    videoBox.innerHTML = ""; // Vorheriges Video entfernen
-
-    // Avatarbild in Video-Box anzeigen
-    const avatar = document.createElement("img");
-    avatar.className = "avatar";
-    avatar.src = "images/" + (sessionJSON.avatar || "luna") + ".png";
-    avatar.style.width = "100%";
-    avatar.style.height = "100%";
-    avatar.style.borderRadius = "50%";
-    avatar.style.objectFit = "contain";
-    videoBox.appendChild(avatar);
-
-    // Callback nach Video-Ende
+  videoElement.addEventListener('ended', () => {
+    // Avatar anstelle des Videos einfügen (Box bleibt!)
+    videoBox.innerHTML = `
+      <img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png" style="width:100%;height:100%;border-radius:50%;object-fit:contain;">
+    `;
     if (typeof onEndedCallback === "function") {
-      setTimeout(() => {
-        onEndedCallback(); // Call next action after a short delay
-      }, 400); // Kleine Verzögerung für das Avatarbild
+      setTimeout(() => { onEndedCallback(); }, 400);
     }
   });
 
   videoBox.appendChild(playBtn);
-  document.body.appendChild(videoBox);
+  document.body.appendChild(videoBox); // ⬅️ Wichtig: nicht in sessionTextArea!
 }
 
 // UNIVERSAL BUTTONS für beide Fragetypen
@@ -1141,7 +1120,7 @@ function randomFrom(arr) {
 function renderMemoryGame(s) {
   console.log("MemoryGame wurde gestartet!");
   const textArea = document.getElementById("sessionTextArea");
-  if (!textArea) return;
+if (!textArea || !textArea.closest("#mainContent")) return;
 
   textArea.innerHTML = ""; // ← Wichtig: alten Inhalt löschen
   textArea.style.position = "relative";
