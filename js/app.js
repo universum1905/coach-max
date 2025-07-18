@@ -765,34 +765,31 @@ function renderSessionHeader(title) {
 
 // VIDEO unten rechts: universell für alle Sessions
 function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
-  // Entferne alte Video-Container
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
-
   if (!sessionJSON.video) {
     if (typeof onEndedCallback === "function") onEndedCallback();
     return;
   }
 
-  // Neuen Container bauen
-  const videoBox = document.createElement("div");
+  const videoBox = document.createElement('div');
   videoBox.className = "floating-video";
 
-  const videoElement = document.createElement("video");
+  const videoElement = document.createElement('video');
   videoElement.src = "videos/" + sessionJSON.video;
   videoElement.setAttribute("controls", "true");
   videoElement.setAttribute("controlsList", "nodownload");
+  videoElement.autoplay = false;
+  videoElement.muted = false;
   videoElement.playsInline = true;
   videoElement.poster = "images/video-placeholder.png";
   videoElement.style.width = "100%";
   videoElement.style.height = "100%";
-  videoElement.style.borderRadius = "50%";
   videoElement.style.objectFit = "cover";
   videoElement.style.display = "block";
-
+  videoElement.style.pointerEvents = "auto";
   videoBox.appendChild(videoElement);
 
-  // Play-Button Overlay
-  const playBtn = document.createElement("button");
+  const playBtn = document.createElement('button');
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
   playBtn.innerHTML = `
@@ -801,44 +798,34 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
       <polygon points="22,16 46,30 22,44" fill="#383838"/>
     </svg>
   `;
-
   playBtn.onclick = function () {
     videoElement.play();
     playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
   };
 
-  videoElement.addEventListener("play", () => {
+  videoElement.addEventListener('play', () => {
     playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
   });
-
-  videoElement.addEventListener("pause", () => {
+  videoElement.addEventListener('pause', () => {
     playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
   });
 
-  // 📌 Avatarbild korrekt anzeigen, aber NICHT das ganze HTML überschreiben!
-  videoElement.addEventListener("ended", () => {
-    // Erst Video entfernen
-    videoElement.remove();
-    playBtn.remove();
+  videoElement.addEventListener('ended', () => {
+    // Zeige Avatar im fixierten Container
+    videoBox.innerHTML = `<img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png">`;
+    videoBox.style.pointerEvents = "none";
 
-    // Dann Avatarbild rein
-    const avatar = document.createElement("img");
-    avatar.src = `images/${sessionJSON.avatar || 'luna'}.png`;
-    avatar.className = "avatar";
-    videoBox.appendChild(avatar);
-
-    // Jetzt Callback (Fragen, Memory usw.)
+    // Callback starten
     if (typeof onEndedCallback === "function") {
-      setTimeout(() => onEndedCallback(), 400);
+      setTimeout(() => { onEndedCallback(); }, 400);
     }
   });
 
   videoBox.appendChild(playBtn);
   document.body.appendChild(videoBox);
 }
+
+
 // UNIVERSAL BUTTONS für beide Fragetypen
 function renderUniversalAnswerButtons(q, onSelect) {
   const area = document.getElementById("sessionTextArea");
