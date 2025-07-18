@@ -602,11 +602,21 @@ renderFrogProgress(currentSession, currentSession, sessions.length);
 
   renderUniversalVideoBox(sessionJSON, () => {
   if (sessionJSON.sessionSubType === "memory") {
-  renderMemoryGame(sessionJSON);
-  console.log("DOM-Check:", document.getElementById("sessionTextArea").innerHTML);
-} else if (questions.length > 0) {
-  showQuestion(0);
-}
+    // Nur bei memory: VideoBox fixieren (nicht global in der Funktion selbst!)
+    const videoBox = document.querySelector(".floating-video");
+    if (videoBox) {
+      videoBox.style.position = "fixed";
+      videoBox.style.bottom = "12px";
+      videoBox.style.right = "12px";
+      videoBox.style.zIndex = "10";
+    }
+
+    renderMemoryGame(sessionJSON);
+    console.log("DOM-Check:", document.getElementById("sessionTextArea").innerHTML);
+
+  } else if (questions.length > 0) {
+    showQuestion(0);
+  }
 });
 
   // Musik wie gehabt...
