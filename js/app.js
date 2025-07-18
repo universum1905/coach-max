@@ -761,14 +761,6 @@ function renderMemoryGame(s) {
 
   textArea.innerHTML = "";
 
-  // Überschrift (nur aus JSON)
-  if (s.title) {
-    const heading = document.createElement("h2");
-    heading.textContent = s.title;
-    heading.className = "session-heading";
-    textArea.appendChild(heading);
-  }
-
   const gridSize = (s.gridSize || "3x2").split("x");
   const rows = parseInt(gridSize[1]);
   const cols = parseInt(gridSize[0]);

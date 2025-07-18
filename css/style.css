@@ -128,7 +128,7 @@ html, body {
   height: 160px;
   border-radius: 50%;
   overflow: hidden;
-  z-index: 40;
+  z-index: 4;
   box-shadow: 0 6px 32px #b2ebf2, 0 2px 24px #fbc02d;
   background: #fff;
   display: flex;
