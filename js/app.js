@@ -1110,6 +1110,9 @@ function randomFrom(arr) {
 
 function renderMemoryGame(s) {
   const textArea = document.getElementById("sessionTextArea");
+  if (!textArea) return;
+
+  textArea.innerHTML = ""; // ⬅️ Wichtig: alten Inhalt (z. B. Überschrift) entfernen
 
   const heading = document.createElement("h2");
   heading.textContent = s.title || "Find the matching pairs!";
