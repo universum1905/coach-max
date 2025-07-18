@@ -754,6 +754,112 @@ function renderSessionHeader(title) {
 // ... Deine bestehenden Reward, FrogBar, Musik, etc. bleiben!
 
 
+function renderMemoryGame(s) {
+  console.log("MemoryGame wurde gestartet!");
+  const textArea = document.getElementById("sessionTextArea");
+  if (!textArea || !textArea.closest("#mainContent")) return;
+
+  textArea.innerHTML = "";
+
+  // Überschrift (nur aus JSON)
+  if (s.title) {
+    const heading = document.createElement("h2");
+    heading.textContent = s.title;
+    heading.className = "session-heading";
+    textArea.appendChild(heading);
+  }
+
+  const gridSize = (s.gridSize || "3x2").split("x");
+  const rows = parseInt(gridSize[1]);
+  const cols = parseInt(gridSize[0]);
+  const totalCards = rows * cols;
+  const cardBack = s.cardBack || "images/cards/cardBack-rounded.png";
+
+  let pairs = s.memoryImages || [];
+  if (pairs.length * 2 !== totalCards) {
+    console.warn("Memory image count mismatch with grid size");
+    pairs = pairs.slice(0, totalCards / 2);
+  }
+
+  const cards = pairs.concat(pairs);
+  if (s.shuffle !== false) {
+    for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+  }
+
+  const grid = document.createElement("div");
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  grid.style.gap = "12px";
+  grid.style.margin = "32px auto";
+  grid.style.maxWidth = "360px";
+  textArea.appendChild(grid);
+
+  let flipped = [];
+  let matched = [];
+
+  cards.forEach((imgPath, index) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "memory-card";
+
+    const front = document.createElement("img");
+    front.src = imgPath;
+    front.className = "front";
+
+    const back = document.createElement("img");
+    back.src = cardBack;
+    back.className = "back";
+
+    wrapper.appendChild(front);
+    wrapper.appendChild(back);
+    grid.appendChild(wrapper);
+
+    wrapper.addEventListener("click", () => {
+      if (flipped.length === 2 || matched.includes(index) || flipped.includes(index)) return;
+
+      wrapper.classList.add("flipped");
+      flipped.push(index);
+
+      if (flipped.length === 2) {
+        const [i1, i2] = flipped;
+        const same = cards[i1] === cards[i2];
+        setTimeout(() => {
+          if (same) {
+            matched.push(i1, i2);
+            new Audio("audio/success.wav").play();
+            if (matched.length === cards.length) {
+              if (window._currentSessionMusic) {
+                window._currentSessionMusic.pause();
+                window._currentSessionMusic.currentTime = 0;
+              }
+              showUniversalReward(
+                "🧠",
+                s.onFinish || "Super gemacht!",
+                () => {
+                  currentSession++;
+                  renderSession(currentSession);
+                },
+                s.successSticker || 0
+              );
+            }
+          } else {
+            grid.children[i1].classList.remove("flipped");
+            grid.children[i2].classList.remove("flipped");
+          }
+          flipped = [];
+        }, 800);
+      }
+    });
+  });
+}
+
+
+
+
+
+
 
 // VIDEO unten rechts: universell für alle Sessions
 function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
@@ -1114,113 +1220,6 @@ function clearMainUI() {
 function randomFrom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
-
-
-
-function renderMemoryGame(s) {
-  console.log("MemoryGame wurde gestartet!");
-  const textArea = document.getElementById("sessionTextArea");
-  if (!textArea || !textArea.closest("#mainContent")) return;
-
-  textArea.innerHTML = "";
-
-  // Überschrift (nur aus JSON)
-  if (s.title) {
-    const heading = document.createElement("h2");
-    heading.textContent = s.title;
-    heading.className = "session-heading";
-    textArea.appendChild(heading);
-  }
-
-  const gridSize = (s.gridSize || "3x2").split("x");
-  const rows = parseInt(gridSize[1]);
-  const cols = parseInt(gridSize[0]);
-  const totalCards = rows * cols;
-  const cardBack = s.cardBack || "images/cards/cardBack-rounded.png";
-
-  let pairs = s.memoryImages || [];
-  if (pairs.length * 2 !== totalCards) {
-    console.warn("Memory image count mismatch with grid size");
-    pairs = pairs.slice(0, totalCards / 2);
-  }
-
-  const cards = pairs.concat(pairs);
-  if (s.shuffle !== false) {
-    for (let i = cards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [cards[i], cards[j]] = [cards[j], cards[i]];
-    }
-  }
-
-  const grid = document.createElement("div");
-  grid.style.display = "grid";
-  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-  grid.style.gap = "12px";
-  grid.style.margin = "32px auto";
-  grid.style.maxWidth = "360px";
-  textArea.appendChild(grid);
-
-  let flipped = [];
-  let matched = [];
-
-  cards.forEach((imgPath, index) => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "memory-card";
-
-    const front = document.createElement("img");
-    front.src = imgPath;
-    front.className = "front";
-
-    const back = document.createElement("img");
-    back.src = cardBack;
-    back.className = "back";
-
-    wrapper.appendChild(front);
-    wrapper.appendChild(back);
-    grid.appendChild(wrapper);
-
-    wrapper.addEventListener("click", () => {
-      if (flipped.length === 2 || matched.includes(index) || flipped.includes(index)) return;
-
-      wrapper.classList.add("flipped");
-      flipped.push(index);
-
-      if (flipped.length === 2) {
-        const [i1, i2] = flipped;
-        const same = cards[i1] === cards[i2];
-        setTimeout(() => {
-          if (same) {
-            matched.push(i1, i2);
-            new Audio("audio/success.wav").play();
-            if (matched.length === cards.length) {
-              if (window._currentSessionMusic) {
-                window._currentSessionMusic.pause();
-                window._currentSessionMusic.currentTime = 0;
-              }
-              showUniversalReward(
-                "🧠",
-                s.onFinish || "Super gemacht!",
-                () => {
-                  currentSession++;
-                  renderSession(currentSession);
-                },
-                s.successSticker || 0
-              );
-            }
-          } else {
-            grid.children[i1].classList.remove("flipped");
-            grid.children[i2].classList.remove("flipped");
-          }
-          flipped = [];
-        }, 800);
-      }
-    });
-  });
-}
-
-
-
-
 
 
 // Musik & Sound
