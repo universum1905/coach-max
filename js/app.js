@@ -583,6 +583,7 @@ function stopAllSounds() {
 async function renderUniversalSession(sessionJSON) {
   stopAllSounds();
   clearMainUI();
+  document.getElementById("mainContent").style.display = "block";
    const track = document.querySelector(".frog-bar-track");
 track.innerHTML = "";
 sessions.forEach(() => {
@@ -590,6 +591,7 @@ sessions.forEach(() => {
   spot.className = "frog-bar-spot";
   track.appendChild(spot);
 });
+renderFrogProgress(currentSession, currentSession, sessions.length);
 const frog = document.createElement("img");
 frog.src = "images/frog.png";
 frog.id = "jumpingFrog";
