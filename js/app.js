@@ -765,14 +765,19 @@ function renderSessionHeader(title) {
 
 // VIDEO unten rechts: universell für alle Sessions
 function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
+  // Alte Video-Boxen entfernen
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
+
   if (!sessionJSON.video) {
     if (typeof onEndedCallback === "function") onEndedCallback();
     return;
   }
+
+  // Box erstellen
   const videoBox = document.createElement('div');
   videoBox.className = "floating-video";
 
+  // Video
   const videoElement = document.createElement('video');
   videoElement.src = "videos/" + sessionJSON.video;
   videoElement.setAttribute("controls", "true");
@@ -781,9 +786,14 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   videoElement.muted = false;
   videoElement.playsInline = true;
   videoElement.poster = "images/video-placeholder.png";
+  videoElement.style.width = "100%";
+  videoElement.style.height = "100%";
+  videoElement.style.objectFit = "cover";
+  videoElement.style.display = "block";
+
   videoBox.appendChild(videoElement);
 
-  // Play-Overlay wie gehabt:
+  // Play-Button
   const playBtn = document.createElement('button');
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
@@ -798,39 +808,37 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
     playBtn.style.display = "none";
     videoElement.style.pointerEvents = "auto";
   };
+
   videoElement.addEventListener('play', () => {
     playBtn.style.display = "none";
     videoElement.style.pointerEvents = "auto";
   });
+
   videoElement.addEventListener('pause', () => {
     playBtn.style.display = "";
     videoElement.style.pointerEvents = "none";
   });
+
   videoElement.addEventListener('ended', () => {
-  // Nur Inhalt ersetzen, nicht den Container selbst löschen
-  videoBox.innerHTML = ""; // Inhalt leeren
+    // VIDEO entfernen, Avatar zeigen – Container bleibt erhalten
+    videoBox.innerHTML = ""; // nur Inhalt leeren
 
-  const avatarImg = document.createElement("img");
-  avatarImg.className = "avatar";
-  avatarImg.src = `images/${sessionJSON.avatar || 'luna'}.png`;
+    const avatarImg = document.createElement("img");
+    avatarImg.className = "avatar";
+    avatarImg.src = `images/${sessionJSON.avatar || 'luna'}.png`;
+    avatarImg.style.pointerEvents = "none";
 
-  videoBox.appendChild(avatarImg);
-  videoBox.style.pointerEvents = "none";
+    videoBox.appendChild(avatarImg);
 
-  // Callback nach kurzer Pause
-  if (typeof onEndedCallback === "function") {
-    setTimeout(() => { onEndedCallback(); }, 400);
-  }
-});
+    // Callback starten
+    if (typeof onEndedCallback === "function") {
+      setTimeout(() => { onEndedCallback(); }, 400);
+    }
+  });
+
   videoBox.appendChild(playBtn);
-
   document.body.appendChild(videoBox);
-
-  // Falls KEIN Video da ist, sofort Callback (damit es weitergeht)
-  // if (!sessionJSON.video && typeof onEndedCallback === "function") onEndedCallback();
 }
-
-
 
 // UNIVERSAL BUTTONS für beide Fragetypen
 function renderUniversalAnswerButtons(q, onSelect) {
