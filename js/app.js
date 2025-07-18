@@ -591,11 +591,12 @@ sessions.forEach(() => {
   spot.className = "frog-bar-spot";
   track.appendChild(spot);
 });
-renderFrogProgress(currentSession, currentSession, sessions.length);
+
 const frog = document.createElement("img");
 frog.src = "images/frog.png";
 frog.id = "jumpingFrog";
 track.appendChild(frog);
+renderFrogProgress(currentSession, currentSession, sessions.length);
   const questions = sessionJSON.questions || sessionJSON.tasks || [];
   renderSessionHeader(sessionJSON.title || "");
 
