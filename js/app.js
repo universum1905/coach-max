@@ -781,10 +781,6 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   videoElement.muted = false;
   videoElement.playsInline = true;
   videoElement.poster = "images/video-placeholder.png";
-  videoElement.style.width = "100%";
-  videoElement.style.height = "100%";
-  videoElement.style.objectFit = "cover";
-  videoElement.style.display = "block";
   videoBox.appendChild(videoElement);
 
   // Play-Overlay wie gehabt:
@@ -812,12 +808,7 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
   });
   videoElement.addEventListener('ended', () => {
     // Avatar nach Video anzeigen:
-    videoBox.innerHTML = `
-  <div style="display:flex;justify-content:center;align-items:center;height:100%;">
-    <img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png" style="width:120px;height:120px;border-radius:50%;">
-  </div>`;
-videoBox.style.pointerEvents = "none";
-videoBox.style.zIndex = "1";
+    videoBox.innerHTML = `<img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png">`;
     // GANZ WICHTIG: Callback aufrufen, damit die Fragen angezeigt werden!
     if (typeof onEndedCallback === "function") {
       setTimeout(() => { onEndedCallback(); }, 400); // Kurze Pause fürs Avatar-Bild
