@@ -1120,11 +1120,17 @@ function randomFrom(arr) {
 function renderMemoryGame(s) {
   console.log("MemoryGame wurde gestartet!");
   const textArea = document.getElementById("sessionTextArea");
-if (!textArea || !textArea.closest("#mainContent")) return;
+  if (!textArea || !textArea.closest("#mainContent")) return;
 
-  textArea.innerHTML = ""; // ← Wichtig: alten Inhalt löschen
-  textArea.style.position = "relative";
-  textArea.style.zIndex = "5";
+  textArea.innerHTML = "";
+
+  // Überschrift (nur aus JSON)
+  if (s.title) {
+    const heading = document.createElement("h2");
+    heading.textContent = s.title;
+    heading.className = "session-heading";
+    textArea.appendChild(heading);
+  }
 
   const gridSize = (s.gridSize || "3x2").split("x");
   const rows = parseInt(gridSize[1]);
@@ -1159,33 +1165,15 @@ if (!textArea || !textArea.closest("#mainContent")) return;
 
   cards.forEach((imgPath, index) => {
     const wrapper = document.createElement("div");
-    wrapper.style.position = "relative";
-    wrapper.style.width = "100%";
-    wrapper.style.aspectRatio = "1 / 1";
-    wrapper.style.cursor = "pointer";
+    wrapper.className = "memory-card";
 
     const front = document.createElement("img");
     front.src = imgPath;
-    front.style.width = "100%";
-    front.style.height = "100%";
-    front.style.objectFit = "contain";
-    front.style.borderRadius = "12px";
-    front.style.position = "absolute";
-    front.style.top = "0";
-    front.style.left = "0";
-    front.style.zIndex = "2";
-    front.style.opacity = "0";
+    front.className = "front";
 
     const back = document.createElement("img");
     back.src = cardBack;
-    back.style.width = "100%";
-    back.style.height = "100%";
-    back.style.objectFit = "contain";
-    back.style.borderRadius = "12px";
-    back.style.position = "absolute";
-    back.style.top = "0";
-    back.style.left = "0";
-    back.style.zIndex = "1";
+    back.className = "back";
 
     wrapper.appendChild(front);
     wrapper.appendChild(back);
@@ -1194,7 +1182,7 @@ if (!textArea || !textArea.closest("#mainContent")) return;
     wrapper.addEventListener("click", () => {
       if (flipped.length === 2 || matched.includes(index) || flipped.includes(index)) return;
 
-      front.style.opacity = "1";
+      wrapper.classList.add("flipped");
       flipped.push(index);
 
       if (flipped.length === 2) {
@@ -1220,8 +1208,8 @@ if (!textArea || !textArea.closest("#mainContent")) return;
               );
             }
           } else {
-            grid.children[i1].children[0].style.opacity = "0";
-            grid.children[i2].children[0].style.opacity = "0";
+            grid.children[i1].classList.remove("flipped");
+            grid.children[i2].classList.remove("flipped");
           }
           flipped = [];
         }, 800);
@@ -1229,9 +1217,6 @@ if (!textArea || !textArea.closest("#mainContent")) return;
     });
   });
 }
- 
-
-
 
 
 
