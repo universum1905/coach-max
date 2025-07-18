@@ -807,13 +807,21 @@ function renderUniversalVideoBox(sessionJSON, onEndedCallback) {
     videoElement.style.pointerEvents = "none";
   });
   videoElement.addEventListener('ended', () => {
-    // Avatar nach Video anzeigen:
-    videoBox.innerHTML = `<img class="avatar" src="images/${sessionJSON.avatar || 'luna'}.png">`;
-    // GANZ WICHTIG: Callback aufrufen, damit die Fragen angezeigt werden!
-    if (typeof onEndedCallback === "function") {
-      setTimeout(() => { onEndedCallback(); }, 400); // Kurze Pause fürs Avatar-Bild
-    }
-  });
+  // Nur Inhalt ersetzen, nicht den Container selbst löschen
+  videoBox.innerHTML = ""; // Inhalt leeren
+
+  const avatarImg = document.createElement("img");
+  avatarImg.className = "avatar";
+  avatarImg.src = `images/${sessionJSON.avatar || 'luna'}.png`;
+
+  videoBox.appendChild(avatarImg);
+  videoBox.style.pointerEvents = "none";
+
+  // Callback nach kurzer Pause
+  if (typeof onEndedCallback === "function") {
+    setTimeout(() => { onEndedCallback(); }, 400);
+  }
+});
   videoBox.appendChild(playBtn);
 
   document.body.appendChild(videoBox);
