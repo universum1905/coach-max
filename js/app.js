@@ -64,7 +64,6 @@ function stopAllSounds() {
 /* ==== COACH MAX APP.JS – STEP 2: SESSIONS LADEN & INITIALISIERUNG ==== */
 
 // Tag ermitteln & JSON laden (siehe Schritt 1)
-let currentDay = getDayParam();
 const jsonURL = `days/day${currentDay}.json`;
 
 // Globale Session-Variablen (aus Schritt 1)
