@@ -1,165 +1,85 @@
 {
-    "day": 1,
-    "sessions": [
+  "day": 1,
+  "sessions": [
+    {
+      "type": "intro",
+      "avatar": "luna",
+      "title": "Welcome to Day 1!",
+      "text": [
         {
-            "id": 1,
-            "type": "intro",
-            "avatar": "luna",
-            "title": "Welcome to Day 1!",
-            "text": [
-                {
-                    "line": "Hi there, I’m Luna! Welcome to Day 1 of our learning adventure.",
-                    "duration": 5
-                },
-                {
-                    "line": "I’m so glad you’re here!",
-                    "duration": 3
-                },
-                {
-                    "line": "Today we’ll count together, rhyme, and meet some friendly animals.",
-                    "duration": 5
-                },
-                {
-                    "line": "Don’t worry, I’ll guide you every step of the way.",
-                    "duration": 4
-                },
-                {
-                    "line": "Just relax, take a deep breath, and get ready for some fun!",
-                    "duration": 5
-                },
-                {
-                    "line": "When you’re ready, tap Next to begin.",
-                    "duration": 4
-                },
-                {
-                    "line": "Let’s make today awesome—you’re a superstar!",
-                    "duration": 4
-                }
-            ],
-            "video": "day1-intro.mp4",
-            "duration": 30,
-            "animation": "welcome_rainbow"
+          "line": "Hi there, I’m Luna! Welcome to Day 1 of our learning adventure.",
+          "duration": 5
         },
         {
-  "type": "memory",
-  "title": "Memory Game!",
-  "video": "day1-test.mp4",
-  "music": "focus-loop.mp3",
-  "minDuration": 60,
-  "pauseBetweenPairs": 1800,
-  "cards": [
-    { "img": "images/animals/cat.png",   "pairId": 1 },
-    { "img": "images/animals/cat.png",   "pairId": 1 },
-    { "img": "images/animals/dog.png",   "pairId": 2 },
-    { "img": "images/animals/dog.png",   "pairId": 2 },
-    { "img": "images/animals/lion.png",  "pairId": 3 },
-    { "img": "images/animals/lion.png",  "pairId": 3 },
-    { "img": "images/animals/fox.png",   "pairId": 4 },
-    { "img": "images/animals/fox.png",   "pairId": 4 }
-  ],
-  "successSticker": 2,
-  "rewardType": "star",
-  "onCorrect": "You found all the pairs!"
-},
-
-        {
-  "type": "counting",
-  "title": "Counting Time!",
-  "video": "day1-test.mp4",
-  "music": "focus-loop.mp3",
-  "minDuration": 60,
-  "pauseBetweenQuestions": 1800,
-  "items": [
-    { "image": "images/animals/cat.png", "label": "Cat", "number": 3 },
-    { "image": "images/animals/dog.png", "label": "Dog", "number": 5 },
-    { "image": "images/animals/lion.png", "label": "Lion", "number": 2 }
-  ],
-  "successSticker": 1,
-  "rewardType": "star",
-  "onCorrect": "You counted perfectly!"
-},
-
-        {
-            "type": "animals",
-            "avatar": "momo",
-            "video": "day1-animals.mp4",
-            "music": "focus-loop.mp3",
-            "sound": "dog-bark.mp3",
-            "repeats": 3,
-            "text": [
-                "I have four paws and a wagging tail.",
-                "I love to chase balls and go for walks.",
-                "I say woof woof loudly when I see my friends."
-            ],
-            "timings": [
-                0,
-                4,
-                8
-            ],
-            "choices": [
-                "images/animals/cat.png",
-                "images/animals/dog.png",
-                "images/animals/bear.png"
-            ],
-            "correct": 1,
-            "onCorrect": "I am a dog 🐶",
-            "onWrong": "Oops, that’s not right. Try again!"
+          "line": "I’m so glad you’re here!",
+          "duration": 3
         },
         {
-  "type": "rhyme",
-  "title": "Find the Rhymes!",
-  "video": "day1-test.mp4",
-  "music": "focus-loop.mp3",
-  "minDuration": 60,
-  "pauseAfterCorrect": 1700,
-  "questions": [
-    {
-      "question": "What rhymes with cat?",
-      "choices": ["hat", "dog", "bird"],
-      "correct": 0,
-      "onCorrect": "Great! Hat rhymes with cat.",
-      "onWrong": "Try again!"
-    },
-    {
-      "question": "What rhymes with sun?",
-      "choices": ["run", "shoe", "mouse"],
-      "correct": 0,
-      "onCorrect": "Well done! Run rhymes with sun.",
-      "onWrong": "Try again!"
-    },
-    {
-      "question": "What rhymes with tree?",
-      "choices": ["bee", "ball", "fish"],
-      "correct": 0,
-      "onCorrect": "Super! Bee rhymes with tree.",
-      "onWrong": "Try again!"
-    }
-  ],
-  "successSticker": 5,
-  "rewardType": "star"
-}
-,
-
+          "line": "Today we’ll count together, rhyme, and meet some friendly animals.",
+          "duration": 5
+        },
         {
-            "type": "story",
-            "avatar": "luna",
-            "video": "day1-story.mp4",
-            "title": "Luna's Big Adventure",
-            "story": [
-                "One sunny morning, Luna the little cat saw a shiny star in her garden.",
-                "Curious, she ran to Benny the dog. “Let’s find the star together!” said Luna.",
-                "They searched and giggled, then found the sparkling star under a flower.",
-                "Luna learned: Adventures are more fun with friends!"
-            ],
-            "images": [
-                "images/story1-scene1.png",
-                "images/story1-scene2.png"
-            ],
-            "onFinish": "Great listening! See you tomorrow for another adventure!",
-            "successPuzzle": [
-                0
-            ],
-            "puzzleId": 1
+          "line": "Don’t worry, I’ll guide you every step of the way.",
+          "duration": 4
+        },
+        {
+          "line": "Just relax, take a deep breath, and get ready for some fun!",
+          "duration": 5
+        },
+        {
+          "line": "When you’re ready, tap Next to begin.",
+          "duration": 4
+        },
+        {
+          "line": "Let’s make today awesome—you’re a superstar!",
+          "duration": 4
         }
-    ]
+      ],
+      "video": "day1-intro.mp4"
+    },
+    {
+      "type": "counting",
+      "title": "How many animals do you see?",
+      "questions": [
+        {
+          "num": 2,
+          "img": "images/dog.png",
+          "choices": [1, 2, 3],
+          "correct": 1,
+          "correctSound": "yay.mp3",
+          "wrongSound": "fail.mp3",
+          "correctAnimation": ["confetti-glow"],
+          "wrongAnimation": ["shake"],
+          "feedbackCorrect": "Great job! 🎉",
+          "feedbackWrong": "Try again!"
+        },
+        {
+          "num": 4,
+          "img": "images/cat.png",
+          "choices": [2, 4, 5],
+          "correct": 1,
+          "correctSound": "yay.mp3",
+          "wrongSound": "fail.mp3",
+          "correctAnimation": ["emoji-party"],
+          "wrongAnimation": ["shake"],
+          "feedbackCorrect": "Yes! That's right! 😻",
+          "feedbackWrong": "Not quite. Count again!"
+        },
+        {
+          "num": 1,
+          "img": "images/bird.png",
+          "choices": [1, 2, 3],
+          "correct": 0,
+          "correctSound": "sparkle-bell.mp3",
+          "wrongSound": "wrong.mp3",
+          "correctAnimation": ["sparkle"],
+          "wrongAnimation": ["shake"],
+          "feedbackCorrect": "Only one bird! 🐦",
+          "feedbackWrong": "Oops! Look again."
+        }
+      ],
+      "successSticker": 2,
+      "onFinish": "Awesome! You finished counting!"
+    }
+  ]
 }
