@@ -672,87 +672,98 @@ function renderCountingSession(s, idx) {
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
 
-  // 1) Überschrift bleibt automatisch gesetzt (durch renderSessionHeader)
-  // 2) Die eigentliche Aufgabe: Zahl und Tier anzeigen, Buttons für Auswahl
-
-  // Lade Aufgaben (numbers/animals), z.B. [{num:1,img:'images/dog.png', correct:true}, ...]
-  const questions = Array.isArray(s.questions) ? s.questions : [
-    { num: 1, img: "images/dog.png", choices: [1,2,3], correct: 0 },
-    { num: 2, img: "images/cat.png", choices: [2,3,4], correct: 0 },
-    { num: 3, img: "images/bird.png", choices: [2,3,4], correct: 1 }
-  ];
+  // Lade Fragen
+  const questions = Array.isArray(s.questions) ? s.questions : [];
 
   let qIdx = 0;
-  let correctCount = 0;
 
   function showQuestion() {
     textArea.innerHTML = "";
-
     const q = questions[qIdx];
-    // Zahl als große Ziffer
-    const numDiv = document.createElement('div');
-    numDiv.style.fontSize = "2.8rem";
-    numDiv.style.fontWeight = "bold";
-    numDiv.style.color = "#1976d2";
-    numDiv.style.margin = "12px 0 18px 0";
-    numDiv.textContent = q.num;
-    textArea.appendChild(numDiv);
 
-    // Tierbild (optional)
-    if (q.img) {
-      const animalImg = document.createElement('img');
-      animalImg.src = q.img;
-      animalImg.style.width = "88px";
-      animalImg.style.height = "88px";
-      animalImg.style.objectFit = "contain";
-      animalImg.style.display = "block";
-      animalImg.style.margin = "0 auto 18px auto";
-      textArea.appendChild(animalImg);
+    // Tierbilder: Z. B. 2 Hunde nebeneinander anzeigen
+    if (q.img && q.num > 0) {
+      const animalBox = document.createElement('div');
+      animalBox.style.display = "flex";
+      animalBox.style.justifyContent = "center";
+      animalBox.style.gap = "16px";
+      for (let i = 0; i < q.num; i++) {
+        const img = document.createElement('img');
+        img.src = q.img;
+        img.style.width = "72px";
+        img.style.height = "72px";
+        img.style.objectFit = "contain";
+        img.style.margin = "8px 0";
+        animalBox.appendChild(img);
+      }
+      textArea.appendChild(animalBox);
     }
 
-    // Auswahl-Buttons
+    // Fragetext
+    const qDiv = document.createElement('div');
+    qDiv.style.fontSize = "1.4rem";
+    qDiv.style.fontWeight = "bold";
+    qDiv.style.color = "#1976d2";
+    qDiv.style.margin = "10px 0 16px 0";
+    qDiv.textContent = s.title || "How many animals do you see?";
+    textArea.appendChild(qDiv);
+
+    // Buttons
     const btnBox = document.createElement('div');
     btnBox.className = "animals-buttons";
+    let solved = false;
+    let wrongTries = 0;
+
     q.choices.forEach((val, i) => {
       const btn = document.createElement('button');
       btn.textContent = val;
       btn.onclick = () => {
-        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
-        const isCorrect = (i === q.correct);
-        playSound(isCorrect ? "yay.mp3" : "fail.mp3");
-        btn.classList.add(isCorrect ? "btn-correct" : "btn-wrong");
+        // **Nie nach erster falscher Antwort blockieren!**
+        if (solved) return;
+        if (i === q.correct) {
+          solved = true;
+          btn.classList.add("btn-correct");
+          runAnimations(["confetti-glow"]);
+          playSound(q.correctSound || "yay.mp3");
+          // Feedback
+          const feedback = document.createElement("div");
+          feedback.className = "quiz-feedback";
+          feedback.innerText = q.feedbackCorrect || "Great job!";
+          feedback.style.color = "#219821";
+          textArea.appendChild(feedback);
 
-        // Kurze visuelle Animation
-        runAnimations([isCorrect ? "confetti-glow" : "shake"]);
-        // Feedback-Text
-        const feedback = document.createElement("div");
-        feedback.className = "quiz-feedback";
-        feedback.innerText = isCorrect ? "Great job! 🎉" : "Oops! Try again!";
-        feedback.style.color = isCorrect ? "#219821" : "#c82121";
-        feedback.style.fontWeight = "bold";
-        feedback.style.fontSize = "1.16rem";
-        feedback.style.margin = "13px 0 0 0";
-        textArea.appendChild(feedback);
+          setTimeout(() => {
+            qIdx++;
+            if (qIdx < questions.length) {
+              showQuestion();
+            } else {
+              showUniversalReward(
+                "images/stickers/star.png",
+                s.onFinish || "You counted like a pro!",
+                () => { currentSession++; renderSession(currentSession); },
+                s.successSticker || 0
+              );
+            }
+          }, 1200);
+        } else {
+          btn.classList.add("btn-wrong");
+          runAnimations(["shake"]);
+          playSound(q.wrongSound || "fail.mp3");
+          wrongTries++;
+          // Feedback (optional)
+          const feedback = document.createElement("div");
+          feedback.className = "quiz-feedback";
+          feedback.innerText = q.feedbackWrong || "Try again!";
+          feedback.style.color = "#c82121";
+          textArea.appendChild(feedback);
 
-        if (isCorrect) correctCount++;
-
-        setTimeout(() => {
-          qIdx++;
-          if (qIdx < questions.length) {
-            showQuestion();
-          } else {
-            // Nach letzter Frage: Reward!
-            showUniversalReward(
-              "images/stickers/star.png",
-              s.onFinish || "You counted like a pro!",
-              () => {
-                currentSession++;
-                renderSession(currentSession);
-              },
-              s.successSticker || 0
-            );
-          }
-        }, 1400);
+          // **Andere Buttons NICHT sperren, damit Kind weiter probieren kann**
+          setTimeout(() => {
+            btn.classList.remove("btn-wrong");
+            // Feedback wieder entfernen
+            if (feedback && feedback.parentNode) feedback.parentNode.removeChild(feedback);
+          }, 1000);
+        }
       };
       btnBox.appendChild(btn);
     });
