@@ -794,7 +794,57 @@ function renderCountingSession(s, idx) {
 
 
 function runAnimations(anims) {
-  // Hier können Konfetti, Shake usw. Animationen eingebunden werden.
-  // Placeholder, damit kein Fehler entsteht.
-  // Du kannst die Funktion später anpassen.
+  anims.forEach(anim => {
+    if (anim === "confetti-glow") runAnimation_confettiGlow();
+    if (anim === "emoji-party") runAnimation_emojiParty();
+    if (anim === "sparkle") runAnimation_sparkle();
+    if (anim === "shake") runAnimation_shake();
+    // Füge weitere Animationen hinzu, wie du sie brauchst
+  });
+}
+
+function runAnimation_confettiGlow() {
+  // Einfache Konfetti-Animation (Demo!)
+  const confettiBox = document.createElement("div");
+  confettiBox.className = "confetti-overlay";
+  document.body.appendChild(confettiBox);
+
+  for (let i = 0; i < 25; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.animationDelay = (Math.random() * 0.8) + "s";
+    confettiBox.appendChild(piece);
+  }
+  setTimeout(() => confettiBox.remove(), 1600);
+}
+
+function runAnimation_emojiParty() {
+  const emojiList = ["🥳", "🎉", "⭐️", "👏", "🎈", "😻", "🐸", "🌈"];
+  for (let i = 0; i < 14; i++) {
+    const emoji = document.createElement("div");
+    emoji.className = "party-emoji";
+    emoji.innerText = emojiList[Math.floor(Math.random()*emojiList.length)];
+    emoji.style.left = Math.random() * 90 + "vw";
+    emoji.style.top = (60 + Math.random()*30) + "vh";
+    emoji.style.fontSize = (1.9 + Math.random()*1.8) + "rem";
+    emoji.style.animationDelay = (Math.random()*0.7) + "s";
+    document.body.appendChild(emoji);
+    setTimeout(() => emoji.remove(), 1800);
+  }
+}
+
+function runAnimation_shake(selector = ".centered-next-btn, .animals-buttons button, .reward-animated") {
+  document.querySelectorAll(selector).forEach(el => {
+    el.classList.add("shake");
+    setTimeout(() => el.classList.remove("shake"), 500);
+  });
+}
+
+function runAnimation_sparkle() {
+  const sparkle = document.createElement("div");
+  sparkle.className = "sparkle-anim";
+  sparkle.innerHTML = "✨✨✨";
+  document.body.appendChild(sparkle);
+  setTimeout(() => sparkle.remove(), 1300);
 }
