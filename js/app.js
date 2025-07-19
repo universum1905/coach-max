@@ -517,20 +517,57 @@ function renderIntroSession(s, idx) {
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
 
-  // ... (Avatare, Emojis, linesBox erzeugen) ...
+  // Überschrift bleibt automatisch gesetzt (durch renderSessionHeader)
 
+  // Avatare-Row unter der Überschrift (Momo & Benny)
+  const avatarRow = document.createElement('div');
+  avatarRow.style.display = "flex";
+  avatarRow.style.justifyContent = "center";
+  avatarRow.style.alignItems = "center";
+  avatarRow.style.gap = "22px";
+  avatarRow.style.marginBottom = "12px";
+
+  const momoImg = document.createElement('img');
+  momoImg.src = "images/momo.png";
+  momoImg.alt = "Momo";
+  momoImg.className = "intro-avatar-small";
+
+  const bennyImg = document.createElement('img');
+  bennyImg.src = "images/benny.png";
+  bennyImg.alt = "Benny";
+  bennyImg.className = "intro-avatar-small";
+
+  avatarRow.appendChild(momoImg);
+  avatarRow.appendChild(bennyImg);
+  textArea.appendChild(avatarRow);
+
+  // Emojis als untere Box (optional)
+  const emojiBox = document.createElement('div');
+  emojiBox.className = "intro-emojis";
+  emojiBox.innerHTML = "🤩&nbsp;🎉&nbsp;⭐&nbsp;👏";
+  textArea.appendChild(emojiBox);
+
+  // Container für animierte Textzeilen
   const linesBox = document.createElement('div');
   linesBox.className = "animated-lines";
   textArea.appendChild(linesBox);
 
-  // Video-Referenz holen
+  // Musik abspielen, wenn im JSON vorhanden
+  if (s.music) {
+    try {
+      let introMusic = new Audio("audio/" + s.music);
+      introMusic.loop = false;
+      introMusic.volume = 0.18;
+      introMusic.play();
+      window.currentMusic = introMusic;
+    } catch (e) {}
+  }
+
+  // ==== Synchronisierung: Nur beim Video-Play Text starten ====
   const floatingBox = document.querySelector('.floating-video');
   const video = floatingBox ? floatingBox.querySelector('video') : null;
 
-  // Animierte Textzeilen zeigen – NUR wenn das Video startet
-  let started = false;
-  let videoDone = false;
-  let textDone = false;
+  let started = false, videoDone = false, textDone = false;
 
   function showAnimatedTextsSync(onComplete) {
     let idx = 0;
@@ -542,9 +579,11 @@ function renderIntroSession(s, idx) {
         p.innerText = t.line;
         linesBox.appendChild(p);
         textTimeouts.push(setTimeout(() => {
+          // Text nach oben „schieben“ (alte Zeilen entfernen)
+          if (linesBox.childNodes.length > 4) linesBox.removeChild(linesBox.firstChild);
           idx++;
           showNextLine();
-        }, t.duration * 1000));
+        }, (t.duration || 2) * 1000));
       } else if (typeof onComplete === "function") {
         onComplete();
       }
@@ -558,6 +597,7 @@ function renderIntroSession(s, idx) {
       btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
       btn.className = "centered-next-btn";
       btn.onclick = () => {
+        if (window.currentMusic) { try { window.currentMusic.pause(); } catch(e){} }
         currentSession++;
         renderSession(currentSession);
       };
@@ -579,12 +619,18 @@ function renderIntroSession(s, idx) {
       videoDone = true;
       tryShowNextBtn();
     });
+    // **Auto-Play Text auch, wenn Video schon abgespielt ist (z. B. DEV-Mode)**
+    if (!video.paused && !started) {
+      started = true;
+      showAnimatedTextsSync(() => {
+        textDone = true;
+        tryShowNextBtn();
+      });
+    }
   } else {
-    // Falls kein Video vorhanden ist, Text sofort starten
+    // Wenn kein Video da ist: Sofort starten
     showAnimatedTextsSync(() => {
-      textDone = true;
-      videoDone = true;
-      tryShowNextBtn();
+      textDone = true; videoDone = true; tryShowNextBtn();
     });
   }
 }
