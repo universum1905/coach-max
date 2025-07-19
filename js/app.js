@@ -310,7 +310,6 @@ function renderSession(idx) {
   lastSessionIdx = idx;
   clearTimeouts();
   stopAllSounds();
-  // Entferne alle Floating-Video, Next-Buttons, Reward-Container usw.
   document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
   const textArea = document.getElementById("sessionTextArea");
   if (textArea) textArea.innerHTML = "";
@@ -321,12 +320,19 @@ function renderSession(idx) {
   // Überschrift setzen (oben im Content-Bereich)
   renderSessionHeader(s.title || "");
 
-  // Universal: Video-/Avatar-Box anzeigen (unten rechts) und nach Video-Ende Spielfeld aufbauen
+  // *** HIER SPEZIALFALL FÜR INTRO & STORY ***
+  if (s.type === "intro" || s.type === "story") {
+    // Video + Text/Musik sollen SYNCHRON laufen, daher
+    renderFloatingVideo(s); // Video-Container einfügen
+    renderIntroSession(s, idx); // (Oder renderStorySession bei "story")
+    // -> In renderIntroSession kümmerst du dich um das synchrone Starten bei video.play
+    return;
+  }
+
+  // Für alle anderen Sessions bleibt der Standard:  
   renderFloatingVideo(s, () => {
-    // ---- NACH Video-Ende: Das Spielfeld/Session-UI anzeigen (je nach Typ) ----
-    // Die folgende Struktur bleibt für alle Module gleich!
-    if      (s.type === "intro")       renderIntroSession(s, idx);
-    else if (s.type === "breathing")   renderBreathingSession(s, idx);
+    // ---- NACH Video-Ende: Das Spielfeld/Session-UI anzeigen ----
+    if      (s.type === "breathing")   renderBreathingSession(s, idx);
     else if (s.type === "counting")    renderCountingSession(s, idx);
     else if (s.type === "memory")      renderMemorySession(s, idx);
     else if (s.type === "drawing")     renderDrawingSession(s, idx);
@@ -335,7 +341,6 @@ function renderSession(idx) {
     else if (s.type === "chatgpt-quiz")renderChatGPTQuizSession(s, idx);
     else if (s.type === "sequence")    renderSequenceSession(s, idx);
     else if (s.type === "shadow")      renderShadowSession(s, idx);
-    else if (s.type === "story")       renderStorySession(s, idx);
     else                              renderUnknownSession(s, idx);
   });
 }
