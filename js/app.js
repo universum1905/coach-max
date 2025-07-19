@@ -762,3 +762,8 @@ function renderCountingSession(s, idx) {
   showQuestion();
 }
 
+function runAnimations(anims) {
+  // Hier können Konfetti, Shake usw. Animationen eingebunden werden.
+  // Placeholder, damit kein Fehler entsteht.
+  // Du kannst die Funktion später anpassen.
+}
