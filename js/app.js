@@ -693,10 +693,7 @@ function renderCountingSession(s, idx) {
 
     // Fragetext
     const qDiv = document.createElement('div');
-    qDiv.style.fontSize = "1.5rem";
-    qDiv.style.fontWeight = "bold";
-    qDiv.style.color = "#1976d2";
-    qDiv.style.margin = "10px 0 16px 0";
+    qDiv.className = "quiz-question";
     qDiv.textContent = s.title || "How many animals do you see?";
     textArea.appendChild(qDiv);
 
@@ -706,6 +703,7 @@ function renderCountingSession(s, idx) {
       animalBox.style.display = "flex";
       animalBox.style.justifyContent = "center";
       animalBox.style.gap = "16px";
+      animalBox.style.margin = "10px 0";
       for (let i = 0; i < q.num; i++) {
         const img = document.createElement('img');
         img.src = q.img;
@@ -721,36 +719,25 @@ function renderCountingSession(s, idx) {
 
     // Buttons
     const btnBox = document.createElement('div');
-    btnBox.className = "animals-buttons";
-    btnBox.style.marginTop = "20px";
+    btnBox.className = "quiz-buttons";
     let solved = false;
 
     q.choices.forEach((val, i) => {
       const btn = document.createElement('button');
       btn.textContent = val;
       btn.className = "quiz-choice-btn";
-      btn.style.fontSize = "1.2rem";
-      btn.style.padding = "0.9em 2.2em";
-      btn.style.background = "linear-gradient(90deg, #ffe082 70%, #81d4fa 100%)";
-      btn.style.margin = "0 6px";
-      btn.style.borderRadius = "18px";
-      btn.style.transition = "transform 0.15s, box-shadow 0.22s";
       btn.onclick = function () {
         if (solved || btn.disabled) return;
 
-        // Bei falscher Antwort: nur diesen Button rot & deaktivieren
+        // Falsche Antwort
         if (i !== q.correct) {
           btn.disabled = true;
-          btn.style.background = "#ffd1d1";
-          btn.style.color = "#b71c1c";
-          btn.style.border = "2px solid #ff6060";
-          btn.style.boxShadow = "0 0 12px #ffadad88";
+          btn.classList.add("wrong");
           playSound(q.wrongSound || "fail.mp3");
-          runAnimations(["shake"]);
-          // Avatar-Animation bei Misserfolg
+          runAnimations(q.wrongAnimation || ["shake"]);
           if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
 
-          // Feedback-Text anzeigen und nach kurzer Zeit wieder entfernen
+          // Feedback-Text
           const feedback = document.createElement("div");
           feedback.className = "quiz-feedback";
           feedback.innerText = q.feedbackWrong || "Try again!";
@@ -764,24 +751,16 @@ function renderCountingSession(s, idx) {
           return;
         }
 
-        // RICHTIGE Antwort!
+        // Richtige Antwort!
         solved = true;
         btn.disabled = true;
-        btn.classList.add("btn-correct");
-        btn.style.background = "#b9f6ca";
-        btn.style.color = "#267323";
-        btn.style.border = "2px solid #39c839";
-        btn.style.boxShadow = "0 0 16px #adffad88";
-        btn.style.transform = "scale(1.08)";
+        btn.classList.add("correct");
         runAnimations(q.correctAnimation || ["confetti-glow"]);
         playSound(q.correctSound || "yay.mp3");
-        // Avatar-Animation bei Erfolg
         if (s.avatar) playAvatarAnimation(s.avatar, "tada");
-
-        // Buttons deaktivieren
         btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-        // Feedback-Text anzeigen
+        // Feedback
         const feedback = document.createElement("div");
         feedback.className = "quiz-feedback";
         feedback.innerText = q.feedbackCorrect || "Great job! 🎉";
@@ -795,9 +774,7 @@ function renderCountingSession(s, idx) {
           if (qIdx < questions.length) {
             showQuestion();
           } else {
-            // Musik aus
             if (countingMusic) { try { countingMusic.pause(); countingMusic.currentTime = 0; } catch (e) {} }
-            // Reward und Weiterleitung
             showUniversalReward(
               "images/stickers/star.png",
               s.onFinish || "You counted like a pro!",
