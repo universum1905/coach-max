@@ -67,7 +67,7 @@ function stopAllSounds() {
 
 
 // Globale Session-Variablen (aus Schritt 1)
-let sessions = [];
+
 let currentSession = 0;
 
 // Fortschrittsbalken (Frosch)
