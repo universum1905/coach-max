@@ -40,10 +40,11 @@
     {
       "type": "counting",
       "title": "How many animals do you see?",
-      "questions": [
+      "video": "day1-test.mp4"
+	  "questions": [
         {
           "num": 2,
-          "img": "images/dog.png",
+          "img": "images/animals/dog.png",
           "choices": [1, 2, 3],
           "correct": 1,
           "correctSound": "yay.mp3",
@@ -55,7 +56,7 @@
         },
         {
           "num": 4,
-          "img": "images/cat.png",
+          "img": "images/animals/cat.png",
           "choices": [2, 4, 5],
           "correct": 1,
           "correctSound": "yay.mp3",
@@ -67,14 +68,14 @@
         },
         {
           "num": 1,
-          "img": "images/bird.png",
+          "img": "images/animals/fox.png",
           "choices": [1, 2, 3],
           "correct": 0,
-          "correctSound": "sparkle-bell.mp3",
+          "correctSound": "correct.mp3",
           "wrongSound": "wrong.mp3",
           "correctAnimation": ["sparkle"],
           "wrongAnimation": ["shake"],
-          "feedbackCorrect": "Only one bird! 🐦",
+          "feedbackCorrect": "Only one fox! 🐦",
           "feedbackWrong": "Oops! Look again."
         }
       ],
