@@ -517,8 +517,6 @@ function renderIntroSession(s, idx) {
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
 
-  // Überschrift bleibt automatisch gesetzt (durch renderSessionHeader)
-
   // Avatare-Row unter der Überschrift (Momo & Benny)
   const avatarRow = document.createElement('div');
   avatarRow.style.display = "flex";
@@ -552,23 +550,16 @@ function renderIntroSession(s, idx) {
   linesBox.className = "animated-lines";
   textArea.appendChild(linesBox);
 
-  // Musik abspielen, wenn im JSON vorhanden
-  if (s.music) {
-    try {
-      let introMusic = new Audio("audio/" + s.music);
-      introMusic.loop = false;
-      introMusic.volume = 0.18;
-      introMusic.play();
-      window.currentMusic = introMusic;
-    } catch (e) {}
-  }
+  // Musik-Objekt initialisieren (damit wir stoppen können)
+  let introMusic = null;
 
-  // ==== Synchronisierung: Nur beim Video-Play Text starten ====
+  // Holt das Video-Element aus dem .floating-video-Container
   const floatingBox = document.querySelector('.floating-video');
   const video = floatingBox ? floatingBox.querySelector('video') : null;
 
   let started = false, videoDone = false, textDone = false;
 
+  // Text-Animation (wie gehabt)
   function showAnimatedTextsSync(onComplete) {
     let idx = 0;
     function showNextLine() {
@@ -579,7 +570,6 @@ function renderIntroSession(s, idx) {
         p.innerText = t.line;
         linesBox.appendChild(p);
         textTimeouts.push(setTimeout(() => {
-          // Text nach oben „schieben“ (alte Zeilen entfernen)
           if (linesBox.childNodes.length > 4) linesBox.removeChild(linesBox.firstChild);
           idx++;
           showNextLine();
@@ -597,7 +587,7 @@ function renderIntroSession(s, idx) {
       btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
       btn.className = "centered-next-btn";
       btn.onclick = () => {
-        if (window.currentMusic) { try { window.currentMusic.pause(); } catch(e){} }
+        if (introMusic) { try { introMusic.pause(); } catch(e){} }
         currentSession++;
         renderSession(currentSession);
       };
@@ -605,10 +595,23 @@ function renderIntroSession(s, idx) {
     }
   }
 
+  // **Hier ist die entscheidende Logik:**  
+  // Musik & Text laufen LOS, sobald das Video startet (durch Play/Autoplay)
   if (video) {
     video.addEventListener('play', () => {
       if (!started) {
         started = true;
+        // Musik abspielen, falls im JSON
+        if (s.music) {
+          try {
+            introMusic = new Audio("audio/" + s.music);
+            introMusic.loop = false;
+            introMusic.volume = 0.18;
+            introMusic.play();
+            window.currentMusic = introMusic;
+          } catch (e) {}
+        }
+        // Text-Animation sofort starten
         showAnimatedTextsSync(() => {
           textDone = true;
           tryShowNextBtn();
@@ -619,18 +622,39 @@ function renderIntroSession(s, idx) {
       videoDone = true;
       tryShowNextBtn();
     });
-    // **Auto-Play Text auch, wenn Video schon abgespielt ist (z. B. DEV-Mode)**
+
+    // Falls das Video schon läuft (Autoplay/DEV), direkt starten!
     if (!video.paused && !started) {
       started = true;
+      if (s.music) {
+        try {
+          introMusic = new Audio("audio/" + s.music);
+          introMusic.loop = false;
+          introMusic.volume = 0.18;
+          introMusic.play();
+          window.currentMusic = introMusic;
+        } catch (e) {}
+      }
       showAnimatedTextsSync(() => {
         textDone = true;
         tryShowNextBtn();
       });
     }
   } else {
-    // Wenn kein Video da ist: Sofort starten
+    // Kein Video: Musik & Text sofort
+    if (s.music) {
+      try {
+        introMusic = new Audio("audio/" + s.music);
+        introMusic.loop = false;
+        introMusic.volume = 0.18;
+        introMusic.play();
+        window.currentMusic = introMusic;
+      } catch (e) {}
+    }
     showAnimatedTextsSync(() => {
-      textDone = true; videoDone = true; tryShowNextBtn();
+      textDone = true;
+      videoDone = true;
+      tryShowNextBtn();
     });
   }
 }
