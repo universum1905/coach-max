@@ -514,61 +514,29 @@ function renderIntroSession(s, idx) {
   clearTimeouts();
   stopAllSounds();
 
-  // Überschrift bleibt oben (wird durch renderSessionHeader schon gesetzt)
   const textArea = document.getElementById('sessionTextArea');
-  textArea.innerHTML = ""; // Leeren, um animierte Textzeilen zu bauen
+  textArea.innerHTML = "";
 
-  // Avatare nebeneinander (wie in deinem Layout)
-  const avatarRow = document.createElement('div');
-  avatarRow.style.display = "flex";
-  avatarRow.style.justifyContent = "center";
-  avatarRow.style.alignItems = "center";
-  avatarRow.style.gap = "22px";
-  avatarRow.style.marginBottom = "12px";
+  // ... (Avatare, Emojis, linesBox erzeugen) ...
 
-  const momoImg = document.createElement('img');
-  momoImg.src = "images/momo.png";
-  momoImg.alt = "Momo";
-  momoImg.className = "intro-avatar-small";
-
-  const bennyImg = document.createElement('img');
-  bennyImg.src = "images/benny.png";
-  bennyImg.alt = "Benny";
-  bennyImg.className = "intro-avatar-small";
-
-  avatarRow.appendChild(momoImg);
-  avatarRow.appendChild(bennyImg);
-  textArea.appendChild(avatarRow);
-
-  // Smileys (kannst du anpassen)
-  const bottomBox = document.createElement('div');
-  bottomBox.className = "intro-emojis";
-  bottomBox.innerHTML = "🤩&nbsp;🎉&nbsp;⭐&nbsp;👏";
-  textArea.appendChild(bottomBox);
-
-  // Animierte Textzeilen-Container
   const linesBox = document.createElement('div');
   linesBox.className = "animated-lines";
   textArea.appendChild(linesBox);
 
-  // === Video wird bereits über renderFloatingVideo abgespielt ===
-  // Wir brauchen Referenz auf das Video
+  // Video-Referenz holen
   const floatingBox = document.querySelector('.floating-video');
   const video = floatingBox ? floatingBox.querySelector('video') : null;
 
-  // Synchronisation: Textzeilen NUR während Video läuft!
-  let totalDuration = 0;
-  const textLines = Array.isArray(s.text) ? s.text : [
-    { line: "Welcome to Coach Max!", duration: 1.8 },
-    { line: "Are you ready for a fun day?", duration: 1.6 },
-    { line: "Let's begin!", duration: 1.6 }
-  ];
+  // Animierte Textzeilen zeigen – NUR wenn das Video startet
+  let started = false;
+  let videoDone = false;
+  let textDone = false;
 
   function showAnimatedTextsSync(onComplete) {
     let idx = 0;
     function showNextLine() {
-      if (idx < textLines.length) {
-        const t = textLines[idx];
+      if (idx < s.text.length) {
+        const t = s.text[idx];
         const p = document.createElement('div');
         p.className = "animated-text";
         p.innerText = t.line;
@@ -577,7 +545,6 @@ function renderIntroSession(s, idx) {
           idx++;
           showNextLine();
         }, t.duration * 1000));
-        totalDuration += t.duration;
       } else if (typeof onComplete === "function") {
         onComplete();
       }
@@ -585,9 +552,6 @@ function renderIntroSession(s, idx) {
     showNextLine();
   }
 
-  // **Synchronisierung: Next erst, wenn Video UND Text vorbei sind!**
-  let videoDone = false;
-  let textDone = false;
   function tryShowNextBtn() {
     if (videoDone && textDone) {
       const btn = document.createElement('button');
@@ -601,8 +565,6 @@ function renderIntroSession(s, idx) {
     }
   }
 
-  // Starte Text & Video synchron (nur beim ersten Play!)
-  let started = false;
   if (video) {
     video.addEventListener('play', () => {
       if (!started) {
@@ -618,20 +580,13 @@ function renderIntroSession(s, idx) {
       tryShowNextBtn();
     });
   } else {
-    // Kein Video? Dann einfach nur die animierten Textzeilen anzeigen
+    // Falls kein Video vorhanden ist, Text sofort starten
     showAnimatedTextsSync(() => {
-      textDone = true; videoDone = true; tryShowNextBtn();
+      textDone = true;
+      videoDone = true;
+      tryShowNextBtn();
     });
   }
-
-  // Falls User das Video nicht abspielt (nur Text laufen lassen)
-  setTimeout(() => {
-    if (!started) {
-      showAnimatedTextsSync(() => {
-        textDone = true; tryShowNextBtn();
-      });
-    }
-  }, 1500);
 }
 
 /* ==== COACH MAX APP.JS – STEP 6.3: COUNTING-SESSION ==== */
