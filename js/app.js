@@ -848,3 +848,16 @@ function runAnimation_sparkle() {
   document.body.appendChild(sparkle);
   setTimeout(() => sparkle.remove(), 1300);
 }
+
+function playAvatarAnimation(avatarName, animType) {
+  // Holt das Avatar-Bild aus dem Floating-Video-Container
+  const img = document.querySelector(".floating-video img.avatar");
+  if (!img) return;
+  img.classList.remove("avatar-bounce", "avatar-wiggle", "avatar-tada");
+  if (animType === "bounce") img.classList.add("avatar-bounce");
+  if (animType === "wiggle") img.classList.add("avatar-wiggle");
+  if (animType === "tada")   img.classList.add("avatar-tada");
+  if (animType !== "bounce") {
+    setTimeout(() => img.classList.remove("avatar-wiggle", "avatar-tada"), 1500);
+  }
+}
