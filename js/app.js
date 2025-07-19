@@ -68,7 +68,7 @@ function stopAllSounds() {
 
 // Globale Session-Variablen (aus Schritt 1)
 
-let currentSession = 0;
+
 
 // Fortschrittsbalken (Frosch)
 function renderFrogProgress(lastIdx, currentIdx, totalSessions = null) {
