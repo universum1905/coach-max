@@ -672,16 +672,35 @@ function renderCountingSession(s, idx) {
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
 
-  // Lade Fragen
-  const questions = Array.isArray(s.questions) ? s.questions : [];
+  // Musik abspielen, falls im JSON vorhanden
+  let countingMusic = null;
+  if (s.music) {
+    try {
+      countingMusic = new Audio("audio/" + s.music);
+      countingMusic.loop = false;
+      countingMusic.volume = 0.2;
+      countingMusic.play();
+      window.currentMusic = countingMusic;
+    } catch (e) {}
+  }
 
+  const questions = Array.isArray(s.questions) ? s.questions : [];
   let qIdx = 0;
 
   function showQuestion() {
     textArea.innerHTML = "";
     const q = questions[qIdx];
 
-    // Tierbilder: Z. B. 2 Hunde nebeneinander anzeigen
+    // Fragetext
+    const qDiv = document.createElement('div');
+    qDiv.style.fontSize = "1.5rem";
+    qDiv.style.fontWeight = "bold";
+    qDiv.style.color = "#1976d2";
+    qDiv.style.margin = "10px 0 16px 0";
+    qDiv.textContent = s.title || "How many animals do you see?";
+    textArea.appendChild(qDiv);
+
+    // Tierbilder nebeneinander anzeigen
     if (q.img && q.num > 0) {
       const animalBox = document.createElement('div');
       animalBox.style.display = "flex";
@@ -694,76 +713,99 @@ function renderCountingSession(s, idx) {
         img.style.height = "72px";
         img.style.objectFit = "contain";
         img.style.margin = "8px 0";
+        img.style.borderRadius = "14px";
         animalBox.appendChild(img);
       }
       textArea.appendChild(animalBox);
     }
 
-    // Fragetext
-    const qDiv = document.createElement('div');
-    qDiv.style.fontSize = "1.4rem";
-    qDiv.style.fontWeight = "bold";
-    qDiv.style.color = "#1976d2";
-    qDiv.style.margin = "10px 0 16px 0";
-    qDiv.textContent = s.title || "How many animals do you see?";
-    textArea.appendChild(qDiv);
-
     // Buttons
     const btnBox = document.createElement('div');
     btnBox.className = "animals-buttons";
+    btnBox.style.marginTop = "20px";
     let solved = false;
-    let wrongTries = 0;
 
     q.choices.forEach((val, i) => {
       const btn = document.createElement('button');
       btn.textContent = val;
-      btn.onclick = () => {
-        // **Nie nach erster falscher Antwort blockieren!**
-        if (solved) return;
-        if (i === q.correct) {
-          solved = true;
-          btn.classList.add("btn-correct");
-          runAnimations(["confetti-glow"]);
-          playSound(q.correctSound || "yay.mp3");
-          // Feedback
-          const feedback = document.createElement("div");
-          feedback.className = "quiz-feedback";
-          feedback.innerText = q.feedbackCorrect || "Great job!";
-          feedback.style.color = "#219821";
-          textArea.appendChild(feedback);
+      btn.className = "quiz-choice-btn";
+      btn.style.fontSize = "1.2rem";
+      btn.style.padding = "0.9em 2.2em";
+      btn.style.background = "linear-gradient(90deg, #ffe082 70%, #81d4fa 100%)";
+      btn.style.margin = "0 6px";
+      btn.style.borderRadius = "18px";
+      btn.style.transition = "transform 0.15s, box-shadow 0.22s";
+      btn.onclick = function () {
+        if (solved || btn.disabled) return;
 
-          setTimeout(() => {
-            qIdx++;
-            if (qIdx < questions.length) {
-              showQuestion();
-            } else {
-              showUniversalReward(
-                "images/stickers/star.png",
-                s.onFinish || "You counted like a pro!",
-                () => { currentSession++; renderSession(currentSession); },
-                s.successSticker || 0
-              );
-            }
-          }, 1200);
-        } else {
-          btn.classList.add("btn-wrong");
-          runAnimations(["shake"]);
+        // Bei falscher Antwort: nur diesen Button rot & deaktivieren
+        if (i !== q.correct) {
+          btn.disabled = true;
+          btn.style.background = "#ffd1d1";
+          btn.style.color = "#b71c1c";
+          btn.style.border = "2px solid #ff6060";
+          btn.style.boxShadow = "0 0 12px #ffadad88";
           playSound(q.wrongSound || "fail.mp3");
-          wrongTries++;
-          // Feedback (optional)
+          runAnimations(["shake"]);
+          // Avatar-Animation bei Misserfolg
+          if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
+
+          // Feedback-Text anzeigen und nach kurzer Zeit wieder entfernen
           const feedback = document.createElement("div");
           feedback.className = "quiz-feedback";
           feedback.innerText = q.feedbackWrong || "Try again!";
           feedback.style.color = "#c82121";
+          feedback.style.marginTop = "12px";
           textArea.appendChild(feedback);
-
-          // **Andere Buttons NICHT sperren, damit Kind weiter probieren kann**
           setTimeout(() => {
-            btn.classList.remove("btn-wrong");
-            // Feedback wieder entfernen
-            if (feedback && feedback.parentNode) feedback.parentNode.removeChild(feedback);
-          }, 1000);
+            if (feedback.parentNode) feedback.parentNode.removeChild(feedback);
+          }, 950);
+
+          return;
         }
+
+        // RICHTIGE Antwort!
+        solved = true;
+        btn.disabled = true;
+        btn.classList.add("btn-correct");
+        btn.style.background = "#b9f6ca";
+        btn.style.color = "#267323";
+        btn.style.border = "2px solid #39c839";
+        btn.style.boxShadow = "0 0 16px #adffad88";
+        btn.style.transform = "scale(1.08)";
+        runAnimations(q.correctAnimation || ["confetti-glow"]);
+        playSound(q.correctSound || "yay.mp3");
+        // Avatar-Animation bei Erfolg
+        if (s.avatar) playAvatarAnimation(s.avatar, "tada");
+
+        // Buttons deaktivieren
+        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+
+        // Feedback-Text anzeigen
+        const feedback = document.createElement("div");
+        feedback.className = "quiz-feedback";
+        feedback.innerText = q.feedbackCorrect || "Great job! 🎉";
+        feedback.style.color = "#219821";
+        feedback.style.marginTop = "12px";
+        textArea.appendChild(feedback);
+
+        setTimeout(() => {
+          feedback.remove();
+          qIdx++;
+          if (qIdx < questions.length) {
+            showQuestion();
+          } else {
+            // Musik aus
+            if (countingMusic) { try { countingMusic.pause(); countingMusic.currentTime = 0; } catch (e) {} }
+            // Reward und Weiterleitung
+            showUniversalReward(
+              "images/stickers/star.png",
+              s.onFinish || "You counted like a pro!",
+              () => { window.location.href = "choose.html"; },
+              s.successSticker || 0
+            );
+          }
+        }, 1100);
       };
       btnBox.appendChild(btn);
     });
@@ -772,6 +814,7 @@ function renderCountingSession(s, idx) {
 
   showQuestion();
 }
+
 
 function runAnimations(anims) {
   // Hier können Konfetti, Shake usw. Animationen eingebunden werden.
