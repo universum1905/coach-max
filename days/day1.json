@@ -4,6 +4,7 @@
     {
       "type": "intro",
       "avatar": "luna",
+	  "music": "focus-loop.mp3",
       "title": "Welcome to Day 1!",
       "text": [
         {
@@ -40,7 +41,8 @@
     {
       "type": "counting",
       "title": "How many animals do you see?",
-      "video": "day1-test.mp4"
+      "video": "day1-test.mp4",
+	  "music": "focus-loop.mp3",
 	  "questions": [
         {
           "num": 2,
