@@ -2,7 +2,7 @@
 
 // Entwicklungsmodus aktivieren/deaktivieren
 const DEV_MODE = true;              // true = DEV, false = PROD
-let DEV_START_SESSION = 0;          // Session, die im DEV-Modus zuerst geladen wird (z.B. 0 = Intro)
+let DEV_START_SESSION = 1;          // Session, die im DEV-Modus zuerst geladen wird (z.B. 0 = Intro)
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
