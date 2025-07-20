@@ -115,7 +115,7 @@ function renderSession(idx) {
   gameContainer.style.margin = "0 auto";
   gameContainer.style.position = "relative";
   gameContainer.style.zIndex = "3";
-  textArea.appendChild(gameContainer);
+  container.appendChild(gameContainer);
 
   // Spezialfall: Intro & Story – synchron!
   // renderSession:
@@ -391,12 +391,12 @@ function renderIntroSession(s, idx, gameContainer) {
   const emojiBox = document.createElement('div');
   emojiBox.className = "intro-emojis";
   emojiBox.innerHTML = "🤩&nbsp;🎉&nbsp;⭐&nbsp;👏";
-  textArea.appendChild(emojiBox);
+  container.appendChild(emojiBox);
 
   // Container für animierte Textzeilen
   const linesBox = document.createElement('div');
   linesBox.className = "animated-lines";
-  textArea.appendChild(linesBox);
+  container.appendChild(linesBox);
 
   // Musik-Objekt initialisieren (damit wir stoppen können)
   let introMusic = null;
@@ -543,7 +543,7 @@ if (s.music) {
     const qDiv = document.createElement('div');
     qDiv.className = "quiz-question";
     qDiv.textContent = s.title || "How many animals do you see?";
-    textArea.appendChild(qDiv);
+    container.appendChild(qDiv);
 
     // Tierbilder nebeneinander anzeigen
     if (q.img && q.num > 0) {
@@ -562,7 +562,7 @@ if (s.music) {
         img.style.borderRadius = "14px";
         animalBox.appendChild(img);
       }
-      textArea.appendChild(animalBox);
+      container.appendChild(animalBox);
     }
 
     // Buttons
@@ -591,7 +591,7 @@ if (s.music) {
           feedback.innerText = q.feedbackWrong || "Try again!";
           feedback.style.color = "#c82121";
           feedback.style.marginTop = "12px";
-          textArea.appendChild(feedback);
+          container.appendChild(feedback);
           setTimeout(() => {
             if (feedback.parentNode) feedback.parentNode.removeChild(feedback);
           }, 950);
@@ -614,7 +614,7 @@ if (s.music) {
         feedback.innerText = q.feedbackCorrect || "Great job! 🎉";
         feedback.style.color = "#219821";
         feedback.style.marginTop = "12px";
-        textArea.appendChild(feedback);
+        container.appendChild(feedback);
 
         setTimeout(() => {
           feedback.remove();
@@ -634,7 +634,7 @@ if (s.music) {
       };
       btnBox.appendChild(btn);
     });
-    textArea.appendChild(btnBox);
+    container.appendChild(btnBox);
   }
 
   showQuestion();
