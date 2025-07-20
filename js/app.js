@@ -115,7 +115,7 @@ function renderSession(idx) {
   gameContainer.style.margin = "0 auto";
   gameContainer.style.position = "relative";
   gameContainer.style.zIndex = "3";
-  container.appendChild(gameContainer);
+  textArea.appendChild(gameContainer);
 
   // Spezialfall: Intro & Story – synchron!
   // renderSession:
