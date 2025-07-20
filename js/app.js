@@ -2,7 +2,7 @@
 
 // Entwicklungsmodus aktivieren/deaktivieren
 const DEV_MODE = true;              // true = DEV, false = PROD
-let DEV_START_SESSION = 1;          // Session, die im DEV-Modus zuerst geladen wird (z.B. 0 = Intro)
+let DEV_START_SESSION = 2;          // Session, die im DEV-Modus zuerst geladen wird (z.B. 0 = Intro)
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
@@ -791,6 +791,142 @@ function renderCountingSession(s, idx) {
 
   showQuestion();
 }
+
+
+function renderMemorySession(s, idx) {
+  clearTimeouts();
+  stopAllSounds();
+  const textArea = document.getElementById('sessionTextArea');
+  textArea.innerHTML = "";
+
+  // Musik abspielen (optional)
+  let memoryMusic = null;
+  if (s.music) {
+    try {
+      memoryMusic = new Audio("audio/" + s.music);
+      memoryMusic.loop = false;
+      memoryMusic.volume = 0.2;
+      memoryMusic.play();
+      window.currentMusic = memoryMusic;
+    } catch (e) {}
+  }
+
+  // Überschrift
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.textContent = s.title || "Find the animal pairs!";
+  heading.style.textAlign = "center";
+  textArea.appendChild(heading);
+
+  // Karten vorbereiten
+  const gridSize = (s.gridSize || "3x2").split("x");
+  const rows = parseInt(gridSize[1]);
+  const cols = parseInt(gridSize[0]);
+  const totalCards = rows * cols;
+  const cardBack = s.cardBack || "images/cards/cardBack-rounded.png";
+
+  let pairs = s.memoryImages || [];
+  if (pairs.length * 2 !== totalCards) {
+    pairs = pairs.slice(0, totalCards / 2); // Fallback, falls ungleich
+  }
+  const cards = pairs.concat(pairs); // Paare bilden
+
+  // Karten mischen
+  for (let i = cards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cards[i], cards[j]] = [cards[j], cards[i]];
+  }
+
+  // Spielfeld anzeigen
+  const grid = document.createElement("div");
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  grid.style.gap = "12px";
+  grid.style.margin = "32px auto";
+  grid.style.maxWidth = "360px";
+  textArea.appendChild(grid);
+
+  let flipped = [];
+  let matched = [];
+
+  cards.forEach((imgPath, index) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "memory-card";
+    wrapper.style.position = "relative";
+    wrapper.style.aspectRatio = "1/1";
+    wrapper.style.cursor = "pointer";
+
+    const front = document.createElement("img");
+    front.src = imgPath;
+    front.className = "front";
+
+    const back = document.createElement("img");
+    back.src = cardBack;
+    back.className = "back";
+
+    wrapper.appendChild(front);
+    wrapper.appendChild(back);
+    grid.appendChild(wrapper);
+
+    wrapper.addEventListener("click", () => {
+      if (
+        flipped.length === 2 ||
+        matched.includes(index) ||
+        flipped.includes(index) ||
+        wrapper.classList.contains("flipped")
+      )
+        return;
+
+      wrapper.classList.add("flipped");
+      flipped.push(index);
+
+      if (flipped.length === 2) {
+        const [i1, i2] = flipped;
+        const same = cards[i1] === cards[i2];
+
+        setTimeout(() => {
+          if (same) {
+            matched.push(i1, i2);
+            runAnimations(["confetti-glow", "emoji-party"]);
+            playSound("yay.mp3");
+            if (s.avatar) playAvatarAnimation(s.avatar, "tada");
+            if (matched.length === cards.length) {
+              if (memoryMusic) {
+                memoryMusic.pause();
+                memoryMusic.currentTime = 0;
+              }
+              showUniversalReward(
+                "images/stickers/star.png",
+                s.onFinish || "Super gemacht!",
+                () => {
+                  currentSession++;
+                  renderSession(currentSession);
+                },
+                s.successSticker || 0
+              );
+            }
+          } else {
+            grid.children[i1].classList.remove("flipped");
+            grid.children[i2].classList.remove("flipped");
+            runAnimations(["shake"]);
+            playSound("fail.mp3");
+            if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
+          }
+          flipped = [];
+        }, 800);
+      }
+    });
+  });
+}
+
+
+
+
+
+
+
+
+
 
 
 function runAnimations(anims) {
