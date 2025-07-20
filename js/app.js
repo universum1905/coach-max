@@ -617,10 +617,11 @@ if (s.music) {
     const q = questions[qIdx];
 
     // Fragetext
-    const qDiv = document.createElement('div');
-    qDiv.className = "quiz-question";
-    qDiv.textContent = s.title || "How many animals do you see?";
-    container.appendChild(qDiv);
+    // Fragetext
+const qDiv = document.createElement('div');
+qDiv.className = "quiz-question";
+qDiv.textContent = q.question || "How many animals do you see?";
+container.appendChild(qDiv);
 
     // Tierbilder nebeneinander anzeigen
     if (q.img && q.num > 0) {
@@ -694,28 +695,25 @@ if (s.music) {
         container.appendChild(feedback);
 
         setTimeout(() => {
-          feedback.remove();
-          qIdx++;
-          if (qIdx < questions.length) {
-            showQuestion();
-          } else {
-            if (countingMusic) { try { countingMusic.pause(); countingMusic.currentTime = 0; } catch (e) {} }
-            showUniversalReward(
-              "images/stickers/star.png",
-              s.onFinish || "You counted like a pro!",
-              () => { window.location.href = "choose.html"; },
-              s.successSticker || 0
-            );
-          }
-        }, 1100);
-      };
-      btnBox.appendChild(btn);
-    });
-    container.appendChild(btnBox);
+  feedback.remove();
+  qIdx++;
+  if (qIdx < questions.length) {
+    showQuestion();
+  } else {
+    if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+    showUniversalReward(
+      s, // Das komplette Session-Objekt!
+      () => { window.location.href = "choose.html"; }
+    );
   }
-
-  showQuestion();
+}, 1100);
 }
+}
+}
+}
+}
+
+
 
 
 // HINWEIS: Diese Funktion ersetzt deinen bisherigen renderMemorySession!
