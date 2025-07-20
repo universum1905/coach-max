@@ -295,7 +295,7 @@ window.onload = async function() {
 };
 
 // Immer ganz oben im Code behalten!
-let textTimeouts = [];
+
 function clearTimeouts() {
   if (Array.isArray(textTimeouts)) {
     textTimeouts.forEach(t => clearTimeout(t));
