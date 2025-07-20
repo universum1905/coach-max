@@ -514,8 +514,7 @@ function renderCountingSession(s, idx) {
   stopAllSounds();
   
   container.innerHTML = "";
-// ...
-container.appendChild(irgendwas);
+
 
 
 
