@@ -362,7 +362,7 @@ function renderIntroSession(s, idx, container) {
   // ... alle Elemente via container.appendChild(...)
 
 
-container.appendChild(irgendwas);
+
 
 
   // Avatare-Row unter der Überschrift (Momo & Benny)
