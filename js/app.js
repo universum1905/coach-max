@@ -356,10 +356,9 @@ function renderUnknownSession(s, idx) {
 /* ==== COACH MAX APP.JS – STEP 5: REWARD-SYSTEM, NEXT-BUTTON, STICKER, PUZZLE ==== */
 
 // Universeller Reward-Container
-function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = null, stickerIdx = 0, rewardType = "star") {
-  // Alle Sounds stoppen
+function showUniversalReward(sessionObj, nextAction = null) {
+  // sessionObj = das aktuelle Sessions-JSON-Objekt
   stopAllSounds();
-  // Alte Reward-Container entfernen
   document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
 
   // Popup bauen
@@ -380,8 +379,11 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
   reward.style.minWidth = "260px";
   reward.style.maxWidth = "92vw";
 
-  // Bild oder Text (z. B. Stern, Puzzle, Emoji)
+  // Bild/Emoji je nach Reward-Type
   let rewardImg;
+  const rewardType = sessionObj.rewardType || 
+      (typeof sessionObj.successPuzzle !== "undefined" ? "puzzle" : "star");
+
   if (rewardType === "star") {
     rewardImg = document.createElement("img");
     rewardImg.src = "images/stickers/star.png";
@@ -393,43 +395,37 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
     reward.appendChild(rewardImg);
   } else if (rewardType === "puzzle") {
     rewardImg = document.createElement("img");
-    rewardImg.src = typeof imgSrcOrText === "string" ? imgSrcOrText : "images/puzzles/piece.png";
+    rewardImg.src = typeof sessionObj.rewardImg === "string" ? sessionObj.rewardImg : "images/puzzles/piece.png";
     rewardImg.style.width = "94px";
     rewardImg.style.height = "94px";
     rewardImg.style.borderRadius = "18px";
     rewardImg.style.margin = "0 0 10px 0";
     rewardImg.className = "reward-animated";
     reward.appendChild(rewardImg);
-    // Glitzer/Glanz (optional)
     const rewardAnim = document.createElement("div");
     rewardAnim.className = "reward-sparkle";
     rewardAnim.innerText = "✨";
     rewardAnim.style.fontSize = "2.7rem";
     reward.appendChild(rewardAnim);
-  } else if (rewardType === "trophy") {
-    rewardImg = document.createElement("img");
-    rewardImg.src = "images/trophy.png";
-    rewardImg.style.width = "100px";
-    rewardImg.style.height = "90px";
-    rewardImg.style.margin = "0 0 14px 0";
-    rewardImg.className = "reward-animated";
-    reward.appendChild(rewardImg);
-  }
-  // Text, Emoji oder andere Typen können leicht ergänzt werden…
-
-  // Feedback-Text
-  if (typeof correctTextStr === "string" && correctTextStr.length > 0) {
-    const correctText = document.createElement("div");
-    correctText.className = "animals-correct-text";
-    correctText.innerText = correctTextStr;
-    correctText.style.marginBottom = "11px";
-    correctText.style.fontSize = "1.18rem";
-    correctText.style.color = "#444";
-    correctText.style.textAlign = "center";
-    reward.appendChild(correctText);
   }
 
-  // Yay & Reward-Text
+  // === Überschrift / Feedback dynamisch ===
+  // 1. OnFinish aus JSON, sonst feedbackCorrect, sonst fallback-Text
+  let mainText = sessionObj.onFinish 
+    || sessionObj.finalRewardText 
+    || sessionObj.feedbackCorrect 
+    || "Great job!";
+
+  const feedbackDiv = document.createElement("div");
+  feedbackDiv.className = "animals-correct-text";
+  feedbackDiv.innerText = mainText;
+  feedbackDiv.style.marginBottom = "11px";
+  feedbackDiv.style.fontSize = "1.18rem";
+  feedbackDiv.style.color = "#444";
+  feedbackDiv.style.textAlign = "center";
+  reward.appendChild(feedbackDiv);
+
+  // (Optional) Zusatz-Animation/Emoji
   const yay = document.createElement("div");
   yay.textContent = {
     "star": "🎉 Yay! You unlocked a Star!",
@@ -445,7 +441,7 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
 
   document.body.appendChild(reward);
 
-  // ==== Speicherlogik/Unlocks ====
+  // === Speicherlogik wie gehabt ...
   if (rewardType === "puzzle" && typeof unlockPuzzlePiece === "function") {
     if (typeof sessions === "object" && sessions[currentSession]) {
       const s = sessions[currentSession];
@@ -454,7 +450,7 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
       pieces.forEach(pieceIdx => unlockPuzzlePiece(puzzleId, pieceIdx));
     }
   } else if (rewardType === "star" && typeof unlockSticker === "function") {
-    unlockSticker(stickerIdx);
+    unlockSticker(sessionObj.successSticker || 0);
   } else if (rewardType === "trophy") {
     localStorage.setItem(`trophyDay${currentDay}`, "1");
   }
@@ -468,24 +464,19 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
     if (!window.allSessionAudio) window.allSessionAudio = [];
     window.allSessionAudio.push(rewardAudio);
   } catch(e){}
-  
 
-// ==== Finish-Button: IMMER zu choose.html ====
-setTimeout(() => {
-  const btn = document.createElement("button");
-  btn.innerText = "Finish";
-  btn.className = "centered-next-btn";
-  btn.onclick = () => {
-    // Alle Popups schließen
-    document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
-    // Immer zur Auswahlseite
-    window.location.href = "choose.html";
-  };
-  reward.insertAdjacentElement('afterend', btn);
-}, 800);
+  // Finish-Button: Immer zu choose.html
+  setTimeout(() => {
+    const btn = document.createElement("button");
+    btn.innerText = "Finish";
+    btn.className = "centered-next-btn";
+    btn.onclick = () => {
+      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+      window.location.href = "choose.html";
+    };
+    reward.insertAdjacentElement('afterend', btn);
+  }, 800);
 }
-
-
 
 // Sticker speichern
 function unlockSticker(idx) {
