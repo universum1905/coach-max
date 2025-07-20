@@ -505,7 +505,7 @@ container.appendChild(irgendwas);
       tryShowNextBtn();
     });
   }
-
+}
 
 /* ==== COACH MAX APP.JS – STEP 6.3: COUNTING-SESSION ==== */
 
