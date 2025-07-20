@@ -811,13 +811,6 @@ function renderMemorySession(s, idx) {
     } catch (e) {}
   }
 
-  // Überschrift
-  const heading = document.createElement('h2');
-  heading.className = "session-heading";
-  heading.textContent = s.title || "Find the animal pairs!";
-  heading.style.textAlign = "center";
-  textArea.appendChild(heading);
-
   // Karten vorbereiten
   const gridSize = (s.gridSize || "3x2").split("x");
   const rows = parseInt(gridSize[1]);
