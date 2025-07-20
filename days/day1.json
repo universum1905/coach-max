@@ -113,21 +113,20 @@
             "successSticker": 2,
             "onFinish": "Awesome! You finished counting!"
         },
-		
-		{
-  "type": "memory",
-  "title": "Find the animal pairs!",
-  "avatar": "momo",
-  "music": "focus-loop.mp3",
-  "gridSize": "3x2",
-  "cardBack": "images/cards/back.png",
-  "memoryImages": [
-    "images/animals/dog.png",
-    "images/animals/cat.png",
-    "images/animals/fox.png"
-  ],
-  "successSticker": 3,
-  "onFinish": "Great job! You found all pairs!"
-}
+        {
+            "type": "memory",
+            "title": "Find the animal pairs!",
+            "avatar": "momo",
+            "music": "focus-loop.mp3",
+            "gridSize": "3x2",
+            "cardBack": "images/cards/back.png",
+            "memoryImages": [
+                "images/animals/dog.png",
+                "images/animals/cat.png",
+                "images/animals/fox.png"
+            ],
+            "successSticker": 3,
+            "onFinish": "Great job! You found all pairs!"
+        }
     ]
 }
