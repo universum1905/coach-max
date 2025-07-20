@@ -354,13 +354,13 @@ function unlockPuzzlePiece(puzzleId, pieceIdx) {
 
 /* ==== COACH MAX APP.JS – STEP 6.1: INTRO-SESSION MIT VIDEO & ANIMIERTEM TEXT ==== */
 
-function renderIntroSession(s, idx) {
+function renderIntroSession(s, idx, container) {
   clearTimeouts();
   stopAllSounds();
+  container.innerHTML = "";
+  // ... alle Elemente via container.appendChild(...)
+}
 
-  
-container.innerHTML = "";
-// ...
 container.appendChild(irgendwas);
 
 
