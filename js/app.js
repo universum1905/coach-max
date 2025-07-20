@@ -52,9 +52,10 @@ function clearTimeouts() {
 
 // Musik & Sounds stoppen (z.B. bei Sessionwechsel oder Tab-Wechsel)
 function stopAllSounds() {
-  if (currentMusic) {
-    try { currentMusic.pause(); currentMusic.currentTime = 0; } catch(e) {}
-    currentMusic = null;
+  // Musik & Sounds stoppen
+  if (window.currentMusic) {
+    try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
+    window.currentMusic = null;
   }
   if (window.allSessionAudio && Array.isArray(window.allSessionAudio)) {
     window.allSessionAudio.forEach(a => { try { a.pause(); a.currentTime = 0; } catch(e){} });
@@ -312,16 +313,23 @@ function renderSession(idx) {
   stopAllSounds();
   document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
   
-  const textArea = document.getElementById("sessionTextArea");
-if (textArea) textArea.innerHTML = ""; // Leert das Spielfeld
-
-// Zentrale Überschrift (nur EINMAL erzeugen!)
+  // In renderSession:
+const textArea = document.getElementById("sessionTextArea");
+if (textArea) textArea.innerHTML = "";
 if (s.title) {
   const heading = document.createElement('h2');
   heading.className = "session-heading";
   heading.innerText = s.title;
   textArea.appendChild(heading);
 }
+
+// Dann ein spezielles Div für das Spielfeld:
+const gameContainer = document.createElement("div");
+gameContainer.id = "gameContainer"; // oder z.B. "memoryGameContainer"
+textArea.appendChild(gameContainer);
+
+// Dann übergibst du dieses gameContainer-Element an dein Modul!
+renderMemorySession(s, idx, gameContainer);
 
   // Fortschrittsbalken (Frosch) immer aktualisieren
   renderFrogProgress(idx, idx, sessions.length);
@@ -799,7 +807,12 @@ function renderMemorySession(s, idx) {
   
   // Im jeweiligen render...Session(s, idx):
 const textArea = document.getElementById('sessionTextArea');
-textArea.innerHTML = ""; // Leert das Spielfeld
+function renderMemorySession(s, idx, container) {
+  // KEIN textArea.innerHTML mehr!
+  // Nur in 'container' arbeiten:
+  container.innerHTML = ""; // Wenn du willst, falls es nochmal benutzt wird.
+  // ... alle Karten, Buttons usw. in 'container' bauen ...
+}
 
 
 
@@ -814,11 +827,23 @@ textArea.innerHTML = ""; // Leert das Spielfeld
 }
 
 // DAS ist die eigentliche Spielfeld-Logik (wie "showQuestion" bei Counting)
-function renderMemoryField(s, idx) {
-  // Step 1: Session-Bereich leeren
-  // Im jeweiligen render...Session(s, idx):
-const textArea = document.getElementById('sessionTextArea');
-textArea.innerHTML = ""; // Leert das Spielfeld
+function renderMemoryField(s, idx, memoryContainer) {
+  // KEIN textArea.innerHTML mehr hier!
+  // Wenn du willst, kannst du memoryContainer.innerHTML = ""; machen, falls du reloadest.
+
+  // ... ab jetzt alles wie gehabt, ABER nur in memoryContainer bauen ...
+
+  // Beispiel:
+  // (Optional) Musik abspielen
+  // ... restlicher Code ...
+
+  // Memory-Grid:
+  const grid = document.createElement("div");
+  // ... Style wie gehabt ...
+  memoryContainer.appendChild(grid);
+
+  // ... alles weitere wie gehabt ...
+}
 
 
 
