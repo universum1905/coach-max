@@ -1,7 +1,7 @@
 /* ==== COACH MAX UNIVERSAL SESSION TEMPLATE ==== */
 
 // ==== 1. Grundvariablen und Setup ====
-let sessions = [], currentSession = 0, lastSessionIdx = 0;
+let sessions = [], currentSession = 1, lastSessionIdx = 0;
 let textTimeouts = [];
 let currentDay = 1;
 let currentMusic = null;
@@ -510,7 +510,7 @@ function renderIntroSession(s, idx, container) {
 
 /* ==== COACH MAX APP.JS – STEP 6.3: COUNTING-SESSION ==== */
 
-function renderCountingSession(s, idx) {
+function renderCountingSession(s, idx, container) {
   clearTimeouts();
   stopAllSounds();
   
