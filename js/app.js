@@ -46,15 +46,56 @@ function renderSessionHeader(title) {
   header.innerText = title || "";
 }
 
+
+function renderFrogProgress(currentIdx, _, totalSessions = null) {
+  const track = document.querySelector(".frog-bar-track");
+  if (!track) return;
+  track.innerHTML = "";
+
+  const numSpots = totalSessions || sessions.length;
+  for (let i = 0; i < numSpots; i++) {
+    const spot = document.createElement("div");
+    spot.className = "frog-bar-spot";
+    if (i < currentIdx) spot.classList.add("frog-bar-done");
+    if (i === currentIdx) spot.classList.add("active");
+    track.appendChild(spot);
+  }
+
+  let frog = document.getElementById("jumpingFrog");
+  if (!frog) {
+    frog = document.createElement("img");
+    frog.src = "images/frog.png";
+    frog.id = "jumpingFrog";
+    // ...dein Style...
+    track.appendChild(frog);
+  }
+
+  const spots = track.querySelectorAll(".frog-bar-spot");
+  const active = spots[currentIdx];
+  if (active) {
+    frog.style.left = active.offsetLeft + "px";
+    frog.style.animation = "frogHop 0.45s";
+    playSound("frog-hop.mp3");
+  }
+}
+
 // ==== 4. Floating Video universal ====
 function renderFloatingVideo(sessionObj, onVideoEndedCallback) {
+  // Alte Videoboxen entfernen
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
+
+  // Kein Video? -> Direkt Callback
   if (!sessionObj.video) {
+    window.currentVideo = null; // <- Wichtig, reset!
     if (typeof onVideoEndedCallback === "function") onVideoEndedCallback();
     return;
   }
+
+  // Floating Video-Container erstellen
   const videoBox = document.createElement("div");
   videoBox.className = "floating-video";
+
+  // Videoelement erstellen
   const videoElement = document.createElement("video");
   videoElement.src = "videos/" + sessionObj.video;
   videoElement.setAttribute("controls", "true");
@@ -67,6 +108,9 @@ function renderFloatingVideo(sessionObj, onVideoEndedCallback) {
   videoElement.style.height = "100%";
   videoElement.style.objectFit = "cover";
   videoBox.appendChild(videoElement);
+
+  // GLOBAL setzen, damit Tab-Event funktioniert!
+  window.currentVideo = videoElement;
 
   // Play-Overlay
   const playBtn = document.createElement('button');
@@ -81,12 +125,27 @@ function renderFloatingVideo(sessionObj, onVideoEndedCallback) {
   videoElement.addEventListener('play', () => { playBtn.style.display = "none"; });
   videoElement.addEventListener('pause', () => { playBtn.style.display = ""; });
   videoElement.addEventListener('ended', () => {
+    // Nach Video: Avatar einblenden (Box bleibt)
     videoBox.innerHTML = `<img class="avatar" src="images/${sessionObj.avatar || 'luna'}.png" style="width:100%;height:100%;border-radius:50%;object-fit:contain;">`;
+    window.currentVideo = null; // Video ist durch!
     if (typeof onVideoEndedCallback === "function") setTimeout(() => onVideoEndedCallback(), 400);
   });
   videoBox.appendChild(playBtn);
+
   document.body.appendChild(videoBox);
 }
+
+// Tabwechsel: Musik & Video pausieren
+document.addEventListener("visibilitychange", function() {
+  if (window.currentMusic) {
+    if (document.hidden) window.currentMusic.pause();
+    else window.currentMusic.play();
+  }
+  if (window.currentVideo) {
+    if (document.hidden) window.currentVideo.pause();
+    // else window.currentVideo.play(); // <-- Nur wenn du willst!
+  }
+});
 
 // ==== 5. Haupt-Session-Renderer ====
 function renderSession(idx) {
@@ -102,6 +161,10 @@ function renderSession(idx) {
 
   // Überschrift immer nur HIER!
   renderSessionHeader(s.title || "");
+    
+// Hier direkt nach dem Aufbau der Session:
+renderFrogProgress(currentSession, currentSession, sessions.length);
+
 
   // Zentraler Spielfeld-Container (Game/Quiz/Memory etc.)
   const gameContainer = document.createElement("div");
