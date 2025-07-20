@@ -816,9 +816,7 @@ if (s.title) {
 
   renderFrogProgress(idx, idx, sessions.length);
 
-  // Überschrift aus JSON
-  renderSessionHeader(s.title || "");
-
+  
   // Video universal (mit Callback!)
   renderFloatingVideo(s, () => {
     // Nach Video-Ende: Kartenfeld anzeigen
@@ -866,15 +864,6 @@ if (window.innerWidth < 600) {
 }
 // Füge ihn in die zentrale Session-Area ein
 textArea.appendChild(memoryContainer);
-
-  // (Optional) Füge eine Überschrift ein
-  if (s.title) {
-    const heading = document.createElement('h2');
-    heading.className = "session-heading";
-    heading.innerText = s.title;
-    heading.style.marginBottom = "18px";
-    memoryContainer.appendChild(heading);
-  }
 
   // (Optional) Musik abspielen
   let memoryMusic = null;
