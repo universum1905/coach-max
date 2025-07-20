@@ -1,58 +1,21 @@
-/* ==== COACH MAX APP.JS – STEP 1: GRUNDGERÜST ==== */
+/* ==== COACH MAX UNIVERSAL SESSION TEMPLATE ==== */
 
-// Entwicklungsmodus aktivieren/deaktivieren
-const DEV_MODE = true;              // true = DEV, false = PROD
-let DEV_START_SESSION = 2;          // Session, die im DEV-Modus zuerst geladen wird (z.B. 0 = Intro)
+// ==== 1. Grundvariablen und Setup ====
+let sessions = [], currentSession = 0, lastSessionIdx = 0;
+let textTimeouts = [];
+let currentDay = 1;
+let currentMusic = null;
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
   return parseInt(params.get("day")) || 1;
 }
-let currentDay = getDayParam();
+currentDay = getDayParam();
 const jsonURL = `days/day${currentDay}.json`;
 
-// Globale Variablen für Sessions & Ablauf
-let sessions = [];
-let currentSession = 0; 
-let lastSessionIdx = 0;
-
-// Zeitsteuerung für animierte Texte etc.
-let textTimeouts = [];
-
-// Für Musik & Video
-let currentMusic = null;
-let videoElement = null;
-
-// Audio-Pool (für universelle Sounds)
-window.allSessionAudio = [];
-
-// Sticker/Puzzle-Status im LocalStorage (freigeschaltete Sticker etc.)
-const stickerImages = [
-  "images/stickers/star.png",
-  "images/stickers/party.png",
-  "images/stickers/butterfly.png",
-  "images/stickers/trophy.png",
-  "images/stickers/medal.png"
-];
-
-// Fortschritts-Frosch
-let frogSound = null;
-
-// Helper für Capitalize
-function capitalize(word) {
-  if (!word) return "";
-  return word.charAt(0).toUpperCase() + word.slice(1);
-}
-
-// Timeout-Reset
-function clearTimeouts() {
-  textTimeouts.forEach(t => clearTimeout(t));
-  textTimeouts = [];
-}
-
-// Musik & Sounds stoppen (z.B. bei Sessionwechsel oder Tab-Wechsel)
+// ==== 2. Musik-/Sound-Handling ====
+// Stoppt ALLE laufenden Sounds zentral
 function stopAllSounds() {
-  // Musik & Sounds stoppen
   if (window.currentMusic) {
     try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
     window.currentMusic = null;
@@ -62,191 +25,36 @@ function stopAllSounds() {
     window.allSessionAudio = [];
   }
 }
-/* ==== COACH MAX APP.JS – STEP 2: SESSIONS LADEN & INITIALISIERUNG ==== */
-
-// Tag ermitteln & JSON laden (siehe Schritt 1)
-
-
-// Globale Session-Variablen (aus Schritt 1)
-
-
-
-// Fortschrittsbalken (Frosch)
-function renderFrogProgress(lastIdx, currentIdx, totalSessions = null) {
-  // Froschbalken-Container
-  const track = document.querySelector(".frog-bar-track");
-  if (!track) return;
-  track.innerHTML = "";
-
-  // Spots/Kreise
-  const numSpots = totalSessions || sessions.length;
-  for (let i = 0; i < numSpots; i++) {
-    const spot = document.createElement("div");
-    spot.className = "frog-bar-spot";
-    if (i < currentIdx) spot.classList.add("frog-bar-done");
-    if (i === currentIdx) spot.classList.add("active");
-    track.appendChild(spot);
+// Musik auch bei Tab-Wechsel pausieren
+document.addEventListener("visibilitychange", function() {
+  if (window.currentMusic) {
+    if (document.hidden) window.currentMusic.pause();
+    else window.currentMusic.play();
   }
+});
 
-  // Frosch-Icon
-  let frog = document.getElementById("jumpingFrog");
-  if (!frog) {
-    frog = document.createElement("img");
-    frog.src = "images/frog.png";
-    frog.id = "jumpingFrog";
-    frog.style.position = "absolute";
-    frog.style.bottom = "22px";
-    frog.style.left = "0";
-    frog.style.width = "44px";
-    frog.style.height = "44px";
-    frog.style.objectFit = "contain";
-    frog.style.zIndex = "2";
-    frog.style.transition = "left 0.5s cubic-bezier(.39,1.35,.51,1.01)";
-    frog.style.animation = "frogHop 0.45s";
-    track.appendChild(frog);
-  }
-
-  // Frosch springen lassen zu aktuellem Spot
-  const spots = track.querySelectorAll(".frog-bar-spot");
-  const active = spots[currentIdx];
-  if (active) {
-    frog.style.left = active.offsetLeft + "px";
-    frog.style.animation = "frogHop 0.45s";
-    playSound("frog-hop.mp3");
-  }
-}
-
-// Welcome-Screen
-function showWelcome(onFinish) {
-  const welcomeArea = document.getElementById('welcomeArea');
-  welcomeArea.innerHTML = '';
-
-  // Hinweis: Tap to Start
-  const tapHint = document.createElement('div');
-  tapHint.className = "welcome-tap-hint";
-  tapHint.innerText = "Tap anywhere to start!";
-  welcomeArea.appendChild(tapHint);
-
-  welcomeArea.onclick = function() {
-    tapHint.style.opacity = 0;
-    setTimeout(() => {
-      welcomeArea.removeChild(tapHint);
-      startWelcomeAnimation();
-    }, 350);
-    welcomeArea.onclick = null;
-  };
-
-  // Welcome Animation mit mehreren Zeilen
-  function startWelcomeAnimation() {
-    const lines = [
-      `🎉 Welcome to Coach Max – Day ${currentDay}!`,
-      "Ready for a day full of fun and learning?",
-      "Every tap brings you closer to today’s secret sticker!",
-      "Let’s jump right in!"
-    ];
-    const linesDiv = document.createElement('div');
-    linesDiv.className = "welcome-lines";
-    welcomeArea.appendChild(linesDiv);
-
-    let idx = 0;
-    function showNextLine() {
-      if (idx < lines.length) {
-        const line = document.createElement('div');
-        line.className = "welcome-anim-line";
-        line.innerHTML = lines[idx];
-        linesDiv.appendChild(line);
-        setTimeout(() => line.classList.add("animated"), 80);
-        idx++;
-        setTimeout(showNextLine, 950);
-      }
-    }
-    showNextLine();
-
-    setTimeout(() => {
-      welcomeArea.style.opacity = 0;
-      setTimeout(() => {
-        welcomeArea.style.display = "none";
-        document.getElementById("mainContent").style.display = "";
-        if (typeof onFinish === "function") onFinish();
-      }, 900);
-    }, 5200);
-  }
-}
-
-// Musik/Sound abspielen
-function playSound(soundFile) {
-  const audio = new Audio("audio/" + soundFile);
-  audio.volume = 0.7;
-  audio.play();
-  if (!window.allSessionAudio) window.allSessionAudio = [];
-  window.allSessionAudio.push(audio);
-}
-
-// ==== Initialisierung beim Laden der Seite ====
-window.onload = async function() {
-  document.getElementById('mainContent').style.display = '';
-  try {
-    const res = await fetch(jsonURL);
-    if (!res.ok) throw new Error("Fehler beim Laden des JSON: " + res.statusText);
-    const data = await res.json();
-    sessions = data.sessions;
-    currentDay = data.day || 1;
-
-    document.title = `Coach Max – Day ${currentDay}`;
-    currentSession = DEV_MODE ? DEV_START_SESSION : 0;
-
-    if (DEV_MODE) {
-      document.getElementById("welcomeArea").style.display = "none";
-      document.getElementById("mainContent").style.display = "";
-      renderSession(currentSession);
-    } else {
-      showWelcome(() => {
-        renderSession(currentSession);
-      });
-    }
-  } catch (e) {
-    console.error("Fehler beim Initialisieren:", e);
-    document.body.innerHTML = `<div style="color:red;font-size:1.4em;">Fehler beim Initialisieren:<br>${e.message}</div>`;
-  }
-};
-/* ==== COACH MAX APP.JS – STEP 3: Überschrift, Video-/Avatar-Container, Progressbar ==== */
-
-// --- Überschrift für jede Session (zentriert oben im Contentbereich) ---
+// ==== 3. Überschrift zentriert OBEN, nur einmal! ====
 function renderSessionHeader(title) {
-  // Passe den Selektor ggf. an, falls du eine andere ID verwendest!
   let header = document.getElementById("mainTitle");
   if (!header) {
     header = document.createElement("h2");
     header.id = "mainTitle";
     header.className = "session-heading";
-    // Füge die Überschrift ganz oben in den Content-Bereich ein
     const content = document.getElementById("sessionTextArea") || document.body;
     content.insertAdjacentElement("afterbegin", header);
   }
   header.innerText = title || "";
-  header.style.textAlign = "center";
-  header.style.width = "100%";
-  header.style.display = "block";
 }
 
-
-// --- Universeller Video-/Avatar-Container unten rechts (fixiert & rund) ---
-// (Du kannst diese Funktion überall dort verwenden, wo du ein Video/Avatar brauchst)
+// ==== 4. Floating Video universal ====
 function renderFloatingVideo(sessionObj, onVideoEndedCallback) {
-  // Entferne vorherige Videoboxen
   document.querySelectorAll(".floating-video").forEach(el => el.remove());
-
-  // Kein Video? Dann direkt Callback (z.B. für reine Avatar-Sessions)
   if (!sessionObj.video) {
     if (typeof onVideoEndedCallback === "function") onVideoEndedCallback();
     return;
   }
-
-  // Container erstellen (CSS sorgt für rund & fixiert)
   const videoBox = document.createElement("div");
   videoBox.className = "floating-video";
-
-  // Videoelement erstellen
   const videoElement = document.createElement("video");
   videoElement.src = "videos/" + sessionObj.video;
   videoElement.setAttribute("controls", "true");
@@ -258,120 +66,92 @@ function renderFloatingVideo(sessionObj, onVideoEndedCallback) {
   videoElement.style.width = "100%";
   videoElement.style.height = "100%";
   videoElement.style.objectFit = "cover";
-  videoElement.style.display = "block";
   videoBox.appendChild(videoElement);
 
-  // Play-Overlay-Button (wie bei dir)
+  // Play-Overlay
   const playBtn = document.createElement('button');
   playBtn.className = "custom-play-btn";
   playBtn.title = "Play";
-  playBtn.innerHTML = `
-    <svg viewBox="0 0 60 60">
-      <circle cx="30" cy="30" r="28" fill="none"/>
-      <polygon points="22,16 46,30 22,44" fill="#383838"/>
-    </svg>
-  `;
+  playBtn.innerHTML = `<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="28" fill="none"/><polygon points="22,16 46,30 22,44" fill="#383838"/></svg>`;
   playBtn.onclick = function() {
     videoElement.play();
     playBtn.style.display = "none";
     videoElement.style.pointerEvents = "auto";
   };
-  videoElement.addEventListener('play', () => {
-    playBtn.style.display = "none";
-    videoElement.style.pointerEvents = "auto";
-  });
-  videoElement.addEventListener('pause', () => {
-    playBtn.style.display = "";
-    videoElement.style.pointerEvents = "none";
-  });
+  videoElement.addEventListener('play', () => { playBtn.style.display = "none"; });
+  videoElement.addEventListener('pause', () => { playBtn.style.display = ""; });
   videoElement.addEventListener('ended', () => {
-    // Avatar anstelle des Videos einfügen (Box bleibt!)
-    videoBox.innerHTML = `
-      <img class="avatar" src="images/${sessionObj.avatar || 'luna'}.png" style="width:100%;height:100%;border-radius:50%;object-fit:contain;">
-    `;
-    if (typeof onVideoEndedCallback === "function") {
-      setTimeout(() => { onVideoEndedCallback(); }, 400);
-    }
+    videoBox.innerHTML = `<img class="avatar" src="images/${sessionObj.avatar || 'luna'}.png" style="width:100%;height:100%;border-radius:50%;object-fit:contain;">`;
+    if (typeof onVideoEndedCallback === "function") setTimeout(() => onVideoEndedCallback(), 400);
   });
-
   videoBox.appendChild(playBtn);
-  document.body.appendChild(videoBox); // immer unten rechts & fixiert (dank CSS)
+  document.body.appendChild(videoBox);
 }
-// --- Fortschrittsbalken bleibt wie in Schritt 2 (renderFrogProgress), brauchst du hier nicht duplizieren ---
-// Wird immer über die Funktion renderFrogProgress(...) aktualisiert (siehe oben)
 
-/* ==== COACH MAX APP.JS – STEP 4: UNIVERSALER SESSION-TEMPLATE-LOADER ==== */
-
-/**
- * Steuert, welche Session (Intro, Memory, Drawing, Quiz, etc.) wie gerendert wird.
- * Alles wird über Typen im JSON gesteuert.
- */
+// ==== 5. Haupt-Session-Renderer ====
 function renderSession(idx) {
   const s = sessions[idx];
   lastSessionIdx = idx;
   clearTimeouts();
   stopAllSounds();
   document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
-  
-  // In renderSession:
-const textArea = document.getElementById("sessionTextArea");
-if (textArea) textArea.innerHTML = "";
-if (s.title) {
-  const heading = document.createElement('h2');
-  heading.className = "session-heading";
-  heading.innerText = s.title;
-  textArea.appendChild(heading);
-}
 
-// Dann ein spezielles Div für das Spielfeld:
-const gameContainer = document.createElement("div");
-gameContainer.id = "gameContainer"; // oder z.B. "memoryGameContainer"
-textArea.appendChild(gameContainer);
-
-// Dann übergibst du dieses gameContainer-Element an dein Modul!
-renderMemorySession(s, idx, gameContainer);
-
-  // Fortschrittsbalken (Frosch) immer aktualisieren
-  renderFrogProgress(idx, idx, sessions.length);
-
- 
-
-  // Spezialfall: Intro & Story synchron!
-if (s.type === "intro" || s.type === "story") {
-  renderFloatingVideo(s); // Video sofort (ohne Callback)
-  if (s.type === "intro")  renderIntroSession(s, idx);
-  else                     renderStorySession(s, idx);
-  return;
-}
-
-// Für ALLE anderen Sessions (auch Memory)  
-renderFloatingVideo(s, () => {
-  if      (s.type === "breathing")   renderBreathingSession(s, idx);
-  else if (s.type === "counting")    renderCountingSession(s, idx);
-  else if (s.type === "memory")      renderMemoryField(s, idx);  // ACHTUNG! Direkt das Feld!
-  else if (s.type === "drawing")     renderDrawingSession(s, idx);
-  else if (s.type === "animals")     renderAnimalsSession(s, idx);
-  else if (s.type === "rhyme")       renderRhymeSession(s, idx);
-  else if (s.type === "chatgpt-quiz")renderChatGPTQuizSession(s, idx);
-  else if (s.type === "sequence")    renderSequenceSession(s, idx);
-  else if (s.type === "shadow")      renderShadowSession(s, idx);
-  else                              renderUnknownSession(s, idx);
-});
-}
-
-// Fallback, falls ein Session-Typ nicht erkannt wird:
-function renderUnknownSession(s, idx) {
+  // Nur das Spielfeld leeren, Überschrift bleibt!
   const textArea = document.getElementById("sessionTextArea");
-  if (textArea) {
-    textArea.innerHTML = `<div style="color:red;font-weight:bold;font-size:1.3em;padding:2em;">
-      Sorry, this session type (<b>${s.type}</b>) is not implemented yet!
-    </div>`;
+  if (textArea) textArea.innerHTML = "";
+
+  // Überschrift immer nur HIER!
+  renderSessionHeader(s.title || "");
+
+  // Zentraler Spielfeld-Container (Game/Quiz/Memory etc.)
+  const gameContainer = document.createElement("div");
+  gameContainer.id = "gameContainer";
+  gameContainer.style.display = "flex";
+  gameContainer.style.flexDirection = "column";
+  gameContainer.style.alignItems = "center";
+  gameContainer.style.justifyContent = "center";
+  gameContainer.style.width = "100%";
+  gameContainer.style.maxWidth = "370px";
+  gameContainer.style.margin = "0 auto";
+  gameContainer.style.position = "relative";
+  gameContainer.style.zIndex = "3";
+  textArea.appendChild(gameContainer);
+
+  // Spezialfall: Intro & Story – synchron!
+  if (s.type === "intro" || s.type === "story") {
+    renderFloatingVideo(s); // Video sofort
+    if (s.type === "intro") renderIntroSession(s, idx, gameContainer);
+    else renderStorySession(s, idx, gameContainer);
+    return;
   }
+  // Alle anderen: Erst nach Video das Spielfeld
+  renderFloatingVideo(s, () => {
+    if      (s.type === "breathing")   renderBreathingSession(s, idx, gameContainer);
+    else if (s.type === "counting")    renderCountingSession(s, idx, gameContainer);
+    else if (s.type === "memory")      renderMemoryField(s, idx, gameContainer);
+    else if (s.type === "drawing")     renderDrawingSession(s, idx, gameContainer);
+    else if (s.type === "animals")     renderAnimalsSession(s, idx, gameContainer);
+    else if (s.type === "rhyme")       renderRhymeSession(s, idx, gameContainer);
+    else if (s.type === "chatgpt-quiz")renderChatGPTQuizSession(s, idx, gameContainer);
+    else if (s.type === "sequence")    renderSequenceSession(s, idx, gameContainer);
+    else if (s.type === "shadow")      renderShadowSession(s, idx, gameContainer);
+    else                              renderUnknownSession(s, idx, gameContainer);
+  });
 }
 
-/* ==== COACH MAX APP.JS – STEP 5: REWARD-SYSTEM, NEXT-BUTTON, STICKER, PUZZLE ==== */
+// ==== 6. Beispiel-Module ====
+function renderMemoryField(s, idx, container) {
+  container.innerHTML = ""; // Nur das eigene Feld leeren!
+  // ... Memory-Grid & Spiellogik NUR in container bauen ...
+}
 
-// Universeller Reward-Container
+function renderCountingSession(s, idx, container) {
+  container.innerHTML = ""; // Nur das eigene Feld leeren!
+  // ... Counting-Logik NUR in container bauen ...
+}
+// Usw. für alle weiteren Module
+
+// ==== 7. Universeller Reward ====
 function showUniversalReward(sessionObj, nextAction = null) {
   // sessionObj = das aktuelle Sessions-JSON-Objekt
   stopAllSounds();
@@ -493,6 +273,55 @@ function showUniversalReward(sessionObj, nextAction = null) {
     reward.insertAdjacentElement('afterend', btn);
   }, 800);
 }
+
+
+
+// ==== 8. Initialisierung ====
+window.onload = async function() {
+  document.getElementById('mainContent').style.display = '';
+  try {
+    const res = await fetch(jsonURL);
+    if (!res.ok) throw new Error("Fehler beim Laden des JSON: " + res.statusText);
+    const data = await res.json();
+    sessions = data.sessions;
+    currentDay = data.day || 1;
+    document.title = `Coach Max – Day ${currentDay}`;
+    currentSession = 0;
+    renderSession(currentSession);
+  } catch (e) {
+    console.error("Fehler beim Initialisieren:", e);
+    document.body.innerHTML = `<div style="color:red;font-size:1.4em;">Fehler beim Initialisieren:<br>${e.message}</div>`;
+  }
+};
+
+// ==== 9. Helper: Animationen, Sound usw. ====
+// ... z.B. runAnimations, playAvatarAnimation wie gehabt ...
+
+// ==== 10. Optional: renderIntroSession/renderMemoryField etc. ====
+// Wichtig: Diese Funktionen arbeiten **ausschließlich** im gameContainer!
+
+
+
+
+
+
+
+
+
+
+// Fallback, falls ein Session-Typ nicht erkannt wird:
+function renderUnknownSession(s, idx) {
+  const textArea = document.getElementById("sessionTextArea");
+  if (textArea) {
+    textArea.innerHTML = `<div style="color:red;font-weight:bold;font-size:1.3em;padding:2em;">
+      Sorry, this session type (<b>${s.type}</b>) is not implemented yet!
+    </div>`;
+  }
+}
+
+/* ==== COACH MAX APP.JS – STEP 5: REWARD-SYSTEM, NEXT-BUTTON, STICKER, PUZZLE ==== */
+
+
 
 // Sticker speichern
 function unlockSticker(idx) {
@@ -680,16 +509,18 @@ textArea.innerHTML = ""; // Leert das Spielfeld
 
 
   // Musik abspielen, falls im JSON vorhanden
-  let countingMusic = null;
-  if (s.music) {
-    try {
-      countingMusic = new Audio("audio/" + s.music);
-      countingMusic.loop = false;
-      countingMusic.volume = 0.2;
-      countingMusic.play();
-      window.currentMusic = countingMusic;
-    } catch (e) {}
-  }
+  if (window.currentMusic) {
+  try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
+  window.currentMusic = null;
+}
+if (s.music) {
+  try {
+    window.currentMusic = new Audio("audio/" + s.music);
+    window.currentMusic.loop = false;
+    window.currentMusic.volume = 0.2;
+    window.currentMusic.play();
+  } catch (e) {}
+}
 
   const questions = Array.isArray(s.questions) ? s.questions : [];
   let qIdx = 0;
@@ -874,16 +705,18 @@ if (window.innerWidth < 600) {
 textArea.appendChild(memoryContainer);
 
   // (Optional) Musik abspielen
-  let memoryMusic = null;
-  if (s.music) {
-    try {
-      memoryMusic = new Audio("audio/" + s.music);
-      memoryMusic.loop = false;
-      memoryMusic.volume = 0.2;
-      memoryMusic.play();
-      window.currentMusic = memoryMusic;
-    } catch (e) {}
-  }
+  if (window.currentMusic) {
+  try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
+  window.currentMusic = null;
+}
+if (s.music) {
+  try {
+    window.currentMusic = new Audio("audio/" + s.music);
+    window.currentMusic.loop = false;
+    window.currentMusic.volume = 0.2;
+    window.currentMusic.play();
+  } catch (e) {}
+}
 
   // Step 3: Spielfeld erstellen
   const gridSize = (s.gridSize || "3x2").split("x");
