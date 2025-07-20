@@ -340,15 +340,20 @@ function showUniversalReward(sessionObj, nextAction = null) {
 
   // Finish-Button: Immer zu choose.html
   setTimeout(() => {
-    const btn = document.createElement("button");
-    btn.innerText = "Finish";
-    btn.className = "centered-next-btn";
-    btn.onclick = () => {
-      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+  const btn = document.createElement("button");
+  btn.className = "centered-next-btn";
+  btn.innerText = (currentSession < sessions.length - 1) ? "Next" : "Finish";
+  btn.onclick = () => {
+    document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+    if (currentSession < sessions.length - 1) {
+      currentSession++;
+      renderSession(currentSession);
+    } else {
       window.location.href = "choose.html";
-    };
-    reward.insertAdjacentElement('afterend', btn);
-  }, 800);
+    }
+  };
+  document.body.appendChild(btn);
+}, 800);
 }
 
 
