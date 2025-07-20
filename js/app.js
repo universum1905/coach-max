@@ -355,7 +355,7 @@ function unlockPuzzlePiece(puzzleId, pieceIdx) {
 
 /* ==== COACH MAX APP.JS – STEP 6.1: INTRO-SESSION MIT VIDEO & ANIMIERTEM TEXT ==== */
 
-function renderIntroSession(s, idx, container) {
+function renderIntroSession(s, idx, gameContainer) {
   clearTimeouts();
   stopAllSounds();
   container.innerHTML = "";
@@ -385,7 +385,7 @@ function renderIntroSession(s, idx, container) {
 
   avatarRow.appendChild(momoImg);
   avatarRow.appendChild(bennyImg);
-  textArea.appendChild(avatarRow);
+  container.appendChild(avatarRow);
 
   // Emojis als untere Box (optional)
   const emojiBox = document.createElement('div');
