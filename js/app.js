@@ -468,29 +468,24 @@ function showUniversalReward(imgSrcOrText, correctTextStr = "", nextAction = nul
     if (!window.allSessionAudio) window.allSessionAudio = [];
     window.allSessionAudio.push(rewardAudio);
   } catch(e){}
+  
 
-  // Next-Button (Next oder Finish)
-  setTimeout(() => {
-    const btn = document.createElement("button");
-    btn.innerText = (typeof currentSession !== "undefined" && sessions && currentSession < sessions.length - 1) ? "Next" : "Finish";
-    btn.className = "centered-next-btn";
-    btn.onclick = () => {
-      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
-      if (typeof nextAction === "function") {
-        nextAction();
-      } else {
-        currentSession++;
-        if (currentSession < sessions.length) {
-          renderSession(currentSession);
-        } else {
-          // Alles fertig – zurück zur Auswahlseite
-          window.location.href = "choose.html";
-        }
-      }
-    };
-    reward.insertAdjacentElement('afterend', btn);
-  }, 800);
+// ==== Finish-Button: IMMER zu choose.html ====
+setTimeout(() => {
+  const btn = document.createElement("button");
+  btn.innerText = "Finish";
+  btn.className = "centered-next-btn";
+  btn.onclick = () => {
+    // Alle Popups schließen
+    document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+    // Immer zur Auswahlseite
+    window.location.href = "choose.html";
+  };
+  reward.insertAdjacentElement('afterend', btn);
+}, 800);
 }
+
+
 
 // Sticker speichern
 function unlockSticker(idx) {
