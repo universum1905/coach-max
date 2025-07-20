@@ -35,6 +35,17 @@ document.addEventListener("visibilitychange", function() {
   }
 });
 
+function playSound(soundFile) {
+  try {
+    const audio = new Audio("audio/" + soundFile);
+    audio.volume = 0.75;
+    audio.play();
+    if (!window.allSessionAudio) window.allSessionAudio = [];
+    window.allSessionAudio.push(audio);
+  } catch(e){}
+}
+
+
 // ==== 3. Überschrift zentriert OBEN, nur einmal! ====
 function renderSessionHeader(title) {
   let header = document.getElementById("mainTitle");
