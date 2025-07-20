@@ -320,29 +320,27 @@ function renderSession(idx) {
   // Überschrift setzen (oben im Content-Bereich)
   renderSessionHeader(s.title || "");
 
-  // *** HIER SPEZIALFALL FÜR INTRO & STORY ***
-  if (s.type === "intro" || s.type === "story") {
-    // Video + Text/Musik sollen SYNCHRON laufen, daher
-    renderFloatingVideo(s); // Video-Container einfügen
-    renderIntroSession(s, idx); // (Oder renderStorySession bei "story")
-    // -> In renderIntroSession kümmerst du dich um das synchrone Starten bei video.play
-    return;
-  }
+  // Spezialfall: Intro & Story synchron!
+if (s.type === "intro" || s.type === "story") {
+  renderFloatingVideo(s); // Video sofort (ohne Callback)
+  if (s.type === "intro")  renderIntroSession(s, idx);
+  else                     renderStorySession(s, idx);
+  return;
+}
 
-  // Für alle anderen Sessions bleibt der Standard:  
-  renderFloatingVideo(s, () => {
-    // ---- NACH Video-Ende: Das Spielfeld/Session-UI anzeigen ----
-    if      (s.type === "breathing")   renderBreathingSession(s, idx);
-    else if (s.type === "counting")    renderCountingSession(s, idx);
-    else if (s.type === "memory")      renderMemorySession(s, idx);
-    else if (s.type === "drawing")     renderDrawingSession(s, idx);
-    else if (s.type === "animals")     renderAnimalsSession(s, idx);
-    else if (s.type === "rhyme")       renderRhymeSession(s, idx);
-    else if (s.type === "chatgpt-quiz")renderChatGPTQuizSession(s, idx);
-    else if (s.type === "sequence")    renderSequenceSession(s, idx);
-    else if (s.type === "shadow")      renderShadowSession(s, idx);
-    else                              renderUnknownSession(s, idx);
-  });
+// Für ALLE anderen Sessions (auch Memory)  
+renderFloatingVideo(s, () => {
+  if      (s.type === "breathing")   renderBreathingSession(s, idx);
+  else if (s.type === "counting")    renderCountingSession(s, idx);
+  else if (s.type === "memory")      renderMemoryField(s, idx);  // ACHTUNG! Direkt das Feld!
+  else if (s.type === "drawing")     renderDrawingSession(s, idx);
+  else if (s.type === "animals")     renderAnimalsSession(s, idx);
+  else if (s.type === "rhyme")       renderRhymeSession(s, idx);
+  else if (s.type === "chatgpt-quiz")renderChatGPTQuizSession(s, idx);
+  else if (s.type === "sequence")    renderSequenceSession(s, idx);
+  else if (s.type === "shadow")      renderShadowSession(s, idx);
+  else                              renderUnknownSession(s, idx);
+});
 }
 
 // Fallback, falls ein Session-Typ nicht erkannt wird:
@@ -814,6 +812,7 @@ function renderMemorySession(s, idx) {
 
 // DAS ist die eigentliche Spielfeld-Logik (wie "showQuestion" bei Counting)
 function renderMemoryField(s, idx) {
+  console.log('>>> MemoryField gerufen');
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = ""; // Nur das Spielfeld anzeigen
 
