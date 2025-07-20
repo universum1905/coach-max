@@ -793,24 +793,29 @@ function renderCountingSession(s, idx) {
 }
 
 
+// HINWEIS: Diese Funktion ersetzt deinen bisherigen renderMemorySession!
 function renderMemorySession(s, idx) {
   clearTimeouts();
   stopAllSounds();
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
 
-// Keine Überschrift hart codieren!
-const heading = document.createElement('h2');
-heading.className = "session-heading";
-heading.textContent = s.title || "";
-heading.style.textAlign = "center";
-textArea.appendChild(heading);
+  renderFrogProgress(idx, idx, sessions.length);
 
-// Video falls vorhanden (dynamisch)
-if (s.video) {
-  // Dein Videocode für die Session...
+  // Überschrift aus JSON
+  renderSessionHeader(s.title || "");
+
+  // Video universal (mit Callback!)
+  renderFloatingVideo(s, () => {
+    // Nach Video-Ende: Kartenfeld anzeigen
+    renderMemoryField(s, idx);
+  });
 }
 
+// DAS ist die eigentliche Spielfeld-Logik (wie "showQuestion" bei Counting)
+function renderMemoryField(s, idx) {
+  const textArea = document.getElementById('sessionTextArea');
+  textArea.innerHTML = ""; // Nur das Spielfeld anzeigen
 
   // Musik abspielen (optional)
   let memoryMusic = null;
@@ -824,7 +829,7 @@ if (s.video) {
     } catch (e) {}
   }
 
-  // Karten vorbereiten
+  // Karten-Setup
   const gridSize = (s.gridSize || "3x2").split("x");
   const rows = parseInt(gridSize[1]);
   const cols = parseInt(gridSize[0]);
@@ -833,17 +838,17 @@ if (s.video) {
 
   let pairs = s.memoryImages || [];
   if (pairs.length * 2 !== totalCards) {
-    pairs = pairs.slice(0, totalCards / 2); // Fallback, falls ungleich
+    pairs = pairs.slice(0, totalCards / 2); // Notfalls abschneiden
   }
-  const cards = pairs.concat(pairs); // Paare bilden
+  const cards = pairs.concat(pairs);
 
-  // Karten mischen
+  // Karten mischen (Fisher-Yates)
   for (let i = cards.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [cards[i], cards[j]] = [cards[j], cards[i]];
   }
 
-  // Spielfeld anzeigen
+  // Spielfeld
   const grid = document.createElement("div");
   grid.style.display = "grid";
   grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
@@ -924,8 +929,6 @@ if (s.video) {
     });
   });
 }
-
-
 
 
 
