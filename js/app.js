@@ -503,8 +503,18 @@ function renderIntroSession(s, idx) {
   clearTimeouts();
   stopAllSounds();
 
-  const textArea = document.getElementById('sessionTextArea');
-  textArea.innerHTML = "";
+  
+// Im jeweiligen render...Session(s, idx):
+const textArea = document.getElementById('sessionTextArea');
+textArea.innerHTML = ""; // Leert das Spielfeld
+
+// Die Überschrift kommt IMMER aus dem JSON:
+if (s.title) {
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.innerText = s.title;
+  textArea.appendChild(heading);
+}
 
   // Avatare-Row unter der Überschrift (Momo & Benny)
   const avatarRow = document.createElement('div');
@@ -653,8 +663,18 @@ function renderIntroSession(s, idx) {
 function renderCountingSession(s, idx) {
   clearTimeouts();
   stopAllSounds();
-  const textArea = document.getElementById('sessionTextArea');
-  textArea.innerHTML = "";
+  
+  // Im jeweiligen render...Session(s, idx):
+const textArea = document.getElementById('sessionTextArea');
+textArea.innerHTML = ""; // Leert das Spielfeld
+
+// Die Überschrift kommt IMMER aus dem JSON:
+if (s.title) {
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.innerText = s.title;
+  textArea.appendChild(heading);
+}
 
   // Musik abspielen, falls im JSON vorhanden
   let countingMusic = null;
@@ -781,8 +801,18 @@ function renderCountingSession(s, idx) {
 function renderMemorySession(s, idx) {
   clearTimeouts();
   stopAllSounds();
-  const textArea = document.getElementById('sessionTextArea');
-  textArea.innerHTML = "";
+  
+  // Im jeweiligen render...Session(s, idx):
+const textArea = document.getElementById('sessionTextArea');
+textArea.innerHTML = ""; // Leert das Spielfeld
+
+// Die Überschrift kommt IMMER aus dem JSON:
+if (s.title) {
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.innerText = s.title;
+  textArea.appendChild(heading);
+}
 
   renderFrogProgress(idx, idx, sessions.length);
 
