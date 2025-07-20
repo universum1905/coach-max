@@ -816,19 +816,31 @@ function renderMemoryField(s, idx) {
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
 
-  // Step 2: Erstelle einen eigenen Container für Memory
-  let memoryContainer = document.createElement("div");
-  memoryContainer.id = "memoryGameContainer";
-  memoryContainer.style.display = "flex";
-  memoryContainer.style.flexDirection = "column";
-  memoryContainer.style.alignItems = "center";
-  memoryContainer.style.justifyContent = "center";
-  memoryContainer.style.width = "100%";
-  memoryContainer.style.minHeight = "330px";
-  memoryContainer.style.margin = "0 auto";
-  memoryContainer.style.position = "relative";
-  memoryContainer.style.zIndex = "3";
-  textArea.appendChild(memoryContainer);
+ // Erstelle und style den Memory-Hauptcontainer:
+let memoryContainer = document.createElement("div");
+memoryContainer.id = "memoryGameContainer";
+memoryContainer.style.display = "flex";
+memoryContainer.style.flexDirection = "column";
+memoryContainer.style.alignItems = "center";
+memoryContainer.style.justifyContent = "center";
+memoryContainer.style.width = "100%";
+memoryContainer.style.maxWidth = "370px";
+memoryContainer.style.minHeight = "330px";
+memoryContainer.style.margin = "0 auto";
+memoryContainer.style.position = "relative";
+memoryContainer.style.zIndex = "3";
+memoryContainer.style.boxSizing = "border-box";
+memoryContainer.style.background = "rgba(255,255,246,0.98)";
+memoryContainer.style.borderRadius = "24px";
+memoryContainer.style.boxShadow = "0 4px 22px #ffd54f44";
+// responsive: auf kleinen Screens breiter
+
+if (window.innerWidth < 600) {
+  memoryContainer.style.maxWidth = "96vw";
+  memoryContainer.style.minHeight = "44vw";
+}
+// Füge ihn in die zentrale Session-Area ein
+textArea.appendChild(memoryContainer);
 
   // (Optional) Füge eine Überschrift ein
   if (s.title) {
