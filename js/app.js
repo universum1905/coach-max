@@ -311,14 +311,22 @@ function renderSession(idx) {
   clearTimeouts();
   stopAllSounds();
   document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
+  
   const textArea = document.getElementById("sessionTextArea");
-  if (textArea) textArea.innerHTML = "";
+if (textArea) textArea.innerHTML = ""; // Leert das Spielfeld
+
+// Zentrale Überschrift (nur EINMAL erzeugen!)
+if (s.title) {
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.innerText = s.title;
+  textArea.appendChild(heading);
+}
 
   // Fortschrittsbalken (Frosch) immer aktualisieren
   renderFrogProgress(idx, idx, sessions.length);
 
-  // Überschrift setzen (oben im Content-Bereich)
-  renderSessionHeader(s.title || "");
+ 
 
   // Spezialfall: Intro & Story synchron!
 if (s.type === "intro" || s.type === "story") {
@@ -508,13 +516,6 @@ function renderIntroSession(s, idx) {
 const textArea = document.getElementById('sessionTextArea');
 textArea.innerHTML = ""; // Leert das Spielfeld
 
-// Die Überschrift kommt IMMER aus dem JSON:
-if (s.title) {
-  const heading = document.createElement('h2');
-  heading.className = "session-heading";
-  heading.innerText = s.title;
-  textArea.appendChild(heading);
-}
 
   // Avatare-Row unter der Überschrift (Momo & Benny)
   const avatarRow = document.createElement('div');
@@ -668,13 +669,7 @@ function renderCountingSession(s, idx) {
 const textArea = document.getElementById('sessionTextArea');
 textArea.innerHTML = ""; // Leert das Spielfeld
 
-// Die Überschrift kommt IMMER aus dem JSON:
-if (s.title) {
-  const heading = document.createElement('h2');
-  heading.className = "session-heading";
-  heading.innerText = s.title;
-  textArea.appendChild(heading);
-}
+
 
   // Musik abspielen, falls im JSON vorhanden
   let countingMusic = null;
@@ -806,13 +801,7 @@ function renderMemorySession(s, idx) {
 const textArea = document.getElementById('sessionTextArea');
 textArea.innerHTML = ""; // Leert das Spielfeld
 
-// Die Überschrift kommt IMMER aus dem JSON:
-if (s.title) {
-  const heading = document.createElement('h2');
-  heading.className = "session-heading";
-  heading.innerText = s.title;
-  textArea.appendChild(heading);
-}
+
 
   renderFrogProgress(idx, idx, sessions.length);
 
@@ -831,13 +820,7 @@ function renderMemoryField(s, idx) {
 const textArea = document.getElementById('sessionTextArea');
 textArea.innerHTML = ""; // Leert das Spielfeld
 
-// Die Überschrift kommt IMMER aus dem JSON:
-if (s.title) {
-  const heading = document.createElement('h2');
-  heading.className = "session-heading";
-  heading.innerText = s.title;
-  textArea.appendChild(heading);
-}
+
 
  // Erstelle und style den Memory-Hauptcontainer:
 let memoryContainer = document.createElement("div");
