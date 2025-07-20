@@ -294,6 +294,8 @@ window.onload = async function() {
   }
 };
 
+// Immer ganz oben im Code behalten!
+let textTimeouts = [];
 function clearTimeouts() {
   if (Array.isArray(textTimeouts)) {
     textTimeouts.forEach(t => clearTimeout(t));
@@ -357,9 +359,9 @@ function renderIntroSession(s, idx) {
   stopAllSounds();
 
   
-// Im jeweiligen render...Session(s, idx):
-
-textArea.innerHTML = ""; // Leert das Spielfeld
+container.innerHTML = "";
+// ...
+container.appendChild(irgendwas);
 
 
   // Avatare-Row unter der Überschrift (Momo & Benny)
@@ -510,9 +512,9 @@ function renderCountingSession(s, idx) {
   clearTimeouts();
   stopAllSounds();
   
-  // Im jeweiligen render...Session(s, idx):
-
-textArea.innerHTML = ""; // Leert das Spielfeld
+  container.innerHTML = "";
+// ...
+container.appendChild(irgendwas);
 
 
 
@@ -640,93 +642,29 @@ if (s.music) {
 
 
 // HINWEIS: Diese Funktion ersetzt deinen bisherigen renderMemorySession!
-function renderMemorySession(s, idx) {
+function renderMemoryField(s, idx, container) {
+  // Aufräumen
+  container.innerHTML = "";
   clearTimeouts();
   stopAllSounds();
-  
-  // Im jeweiligen render...Session(s, idx):
 
-function renderMemorySession(s, idx, container) {
-  // KEIN textArea.innerHTML mehr!
-  // Nur in 'container' arbeiten:
-  container.innerHTML = ""; // Wenn du willst, falls es nochmal benutzt wird.
-  // ... alle Karten, Buttons usw. in 'container' bauen ...
-}
-
-
-
-  renderFrogProgress(idx, idx, sessions.length);
-
-  
-  // Video universal (mit Callback!)
-  renderFloatingVideo(s, () => {
-    // Nach Video-Ende: Kartenfeld anzeigen
-    renderMemoryField(s, idx);
-  });
-}
-
-// DAS ist die eigentliche Spielfeld-Logik (wie "showQuestion" bei Counting)
-function renderMemoryField(s, idx, memoryContainer) {
-  // KEIN textArea.innerHTML mehr hier!
-  // Wenn du willst, kannst du memoryContainer.innerHTML = ""; machen, falls du reloadest.
-
-  // ... ab jetzt alles wie gehabt, ABER nur in memoryContainer bauen ...
-
-  // Beispiel:
-  // (Optional) Musik abspielen
-  // ... restlicher Code ...
-
-  // Memory-Grid:
-  const grid = document.createElement("div");
-  // ... Style wie gehabt ...
-  memoryContainer.appendChild(grid);
-
-  // ... alles weitere wie gehabt ...
-}
-
-
-
- // Erstelle und style den Memory-Hauptcontainer:
-let memoryContainer = document.createElement("div");
-memoryContainer.id = "memoryGameContainer";
-memoryContainer.style.display = "flex";
-memoryContainer.style.flexDirection = "column";
-memoryContainer.style.alignItems = "center";
-memoryContainer.style.justifyContent = "center";
-memoryContainer.style.width = "100%";
-memoryContainer.style.maxWidth = "370px";
-memoryContainer.style.minHeight = "330px";
-memoryContainer.style.margin = "0 auto";
-memoryContainer.style.position = "relative";
-memoryContainer.style.zIndex = "3";
-memoryContainer.style.boxSizing = "border-box";
-memoryContainer.style.background = "rgba(255,255,246,0.98)";
-memoryContainer.style.borderRadius = "24px";
-memoryContainer.style.boxShadow = "0 4px 22px #ffd54f44";
-// responsive: auf kleinen Screens breiter
-
-if (window.innerWidth < 600) {
-  memoryContainer.style.maxWidth = "96vw";
-  memoryContainer.style.minHeight = "44vw";
-}
-// Füge ihn in die zentrale Session-Area ein
-textArea.appendChild(memoryContainer);
-
-  // (Optional) Musik abspielen
+  // Musik abspielen (wenn im JSON)
+  let memoryMusic = null;
   if (window.currentMusic) {
-  try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
-  window.currentMusic = null;
-}
-if (s.music) {
-  try {
-    window.currentMusic = new Audio("audio/" + s.music);
-    window.currentMusic.loop = false;
-    window.currentMusic.volume = 0.2;
-    window.currentMusic.play();
-  } catch (e) {}
-}
+    try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
+    window.currentMusic = null;
+  }
+  if (s.music) {
+    try {
+      memoryMusic = new Audio("audio/" + s.music);
+      memoryMusic.loop = false;
+      memoryMusic.volume = 0.2;
+      memoryMusic.play();
+      window.currentMusic = memoryMusic;
+    } catch (e) {}
+  }
 
-  // Step 3: Spielfeld erstellen
+  // Memory-Grid Setup
   const gridSize = (s.gridSize || "3x2").split("x");
   const rows = parseInt(gridSize[1]);
   const cols = parseInt(gridSize[0]);
@@ -739,13 +677,13 @@ if (s.music) {
   }
   const cards = pairs.concat(pairs);
 
-  // Karten mischen
+  // Karten mischen (Fisher-Yates)
   for (let i = cards.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [cards[i], cards[j]] = [cards[j], cards[i]];
   }
 
-  // Memory-Grid
+  // Grid-Container
   const grid = document.createElement("div");
   grid.className = "memory-grid";
   grid.style.display = "grid";
@@ -758,8 +696,9 @@ if (s.music) {
   grid.style.background = "rgba(255,255,246,0.97)";
   grid.style.borderRadius = "22px";
   grid.style.boxShadow = "0 4px 22px #ffd54f44";
-  memoryContainer.appendChild(grid);
+  container.appendChild(grid);
 
+  // Karten-Logik
   let flipped = [];
   let matched = [];
 
@@ -770,29 +709,44 @@ if (s.music) {
     wrapper.style.aspectRatio = "1/1";
     wrapper.style.cursor = "pointer";
     wrapper.style.background = "#fffbe6";
+    wrapper.style.borderRadius = "18px";
+    wrapper.style.transition = "box-shadow 0.18s";
+    wrapper.style.boxShadow = "0 2px 12px #ffd54f44";
 
+    // Vorder- und Rückseite
     const front = document.createElement("img");
     front.src = imgPath;
     front.className = "front";
+    front.style.display = "none";
+    front.style.width = "100%";
+    front.style.height = "100%";
+    front.style.borderRadius = "16px";
 
     const back = document.createElement("img");
     back.src = cardBack;
     back.className = "back";
+    back.style.display = "block";
+    back.style.width = "100%";
+    back.style.height = "100%";
+    back.style.borderRadius = "16px";
+    back.style.boxShadow = "0 1px 7px #fbc02d55";
 
     wrapper.appendChild(front);
     wrapper.appendChild(back);
     grid.appendChild(wrapper);
 
+    // Flip-Logik
     wrapper.addEventListener("click", () => {
       if (
         flipped.length === 2 ||
         matched.includes(index) ||
         flipped.includes(index) ||
         wrapper.classList.contains("flipped")
-      )
-        return;
+      ) return;
 
       wrapper.classList.add("flipped");
+      front.style.display = "block";
+      back.style.display = "none";
       flipped.push(index);
 
       if (flipped.length === 2) {
@@ -805,24 +759,27 @@ if (s.music) {
             runAnimations(["confetti-glow", "emoji-party"]);
             playSound("yay.mp3");
             if (s.avatar) playAvatarAnimation(s.avatar, "tada");
+
             if (matched.length === cards.length) {
               if (memoryMusic) {
                 memoryMusic.pause();
                 memoryMusic.currentTime = 0;
               }
-              showUniversalReward(
-                "images/stickers/star.png",
-                s.onFinish || "Super gemacht!",
-                () => {
-                  currentSession++;
-                  renderSession(currentSession);
-                },
-                s.successSticker || 0
-              );
+              setTimeout(() => {
+                showUniversalReward(
+                  s,
+                  () => { window.location.href = "choose.html"; }
+                );
+              }, 600);
             }
           } else {
-            grid.children[i1].classList.remove("flipped");
-            grid.children[i2].classList.remove("flipped");
+            // zurückdrehen
+            [i1, i2].forEach(idx => {
+              const card = grid.children[idx];
+              card.classList.remove("flipped");
+              card.querySelector('.front').style.display = "none";
+              card.querySelector('.back').style.display = "block";
+            });
             runAnimations(["shake"]);
             playSound("fail.mp3");
             if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
@@ -832,6 +789,7 @@ if (s.music) {
       }
     });
   });
+}
 
 
 
