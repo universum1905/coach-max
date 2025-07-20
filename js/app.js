@@ -615,7 +615,7 @@ function renderCountingSession(s, idx, container) {
     // Fragetext (ohne Überschrift – die ist schon global!)
     const qDiv = document.createElement('div');
     qDiv.className = "quiz-question";
-    qDiv.textContent = q.question || "How many animals do you see?";
+    
     container.appendChild(qDiv);
 
     // Tierbilder nebeneinander anzeigen
@@ -719,6 +719,8 @@ function renderCountingSession(s, idx, container) {
 
   showQuestion();
 }
+
+
 
 // HINWEIS: Diese Funktion ersetzt deinen bisherigen renderMemorySession!
 function renderMemoryField(s, idx, container) {
