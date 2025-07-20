@@ -114,20 +114,29 @@
             "onFinish": "Awesome! You finished counting!"
         },
         {
-            "type": "memory",
-            "title": "Find the animal pairs!",
-			"video": "day1-test.mp4",
-            "avatar": "momo",
-            "music": "focus-loop.mp3",
-            "gridSize": "3x2",
-            "cardBack": "images/cards/back.png",
-            "memoryImages": [
-                "images/animals/dog.png",
-                "images/animals/cat.png",
-                "images/animals/fox.png"
-            ],
-            "successSticker": 3,
-            "onFinish": "Great job! You found all pairs!"
-        }
+  "type": "memory",
+  "title": "Find the animal pairs!",
+  "video": "day1-test.mp4",
+  "avatar": "momo",
+  "music": "focus-loop.mp3",
+  "gridSize": "3x2",
+  "cardBack": "images/cards/back.png",
+  "memoryImages": [
+    "images/animals/dog.png",
+    "images/animals/cat.png",
+    "images/animals/fox.png"
+  ],
+  "successSticker": 3,
+  "onFinish": "Awesome! You found all pairs!",
+  "correctAnimation": ["confetti-glow", "emoji-party", "sparkle"],
+  "wrongAnimation": ["shake", "red-flash"],
+  "correctSound": "yay.mp3",
+  "wrongSound": "fail.mp3",
+  "feedbackCorrect": "Yay! You made a match! 🎉",
+  "feedbackWrong": "Oops! Try again!",
+  "finalRewardAnimation": ["confetti-glow", "sparkle", "bounce"],
+  "finalRewardSound": "applause.mp3",
+  "finalRewardText": "You did it! Superstar! 🥳"
+}
     ]
 }
