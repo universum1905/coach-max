@@ -829,8 +829,17 @@ if (s.title) {
 // DAS ist die eigentliche Spielfeld-Logik (wie "showQuestion" bei Counting)
 function renderMemoryField(s, idx) {
   // Step 1: Session-Bereich leeren
-  const textArea = document.getElementById('sessionTextArea');
-  textArea.innerHTML = "";
+  // Im jeweiligen render...Session(s, idx):
+const textArea = document.getElementById('sessionTextArea');
+textArea.innerHTML = ""; // Leert das Spielfeld
+
+// Die Überschrift kommt IMMER aus dem JSON:
+if (s.title) {
+  const heading = document.createElement('h2');
+  heading.className = "session-heading";
+  heading.innerText = s.title;
+  textArea.appendChild(heading);
+}
 
  // Erstelle und style den Memory-Hauptcontainer:
 let memoryContainer = document.createElement("div");
