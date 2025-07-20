@@ -612,11 +612,11 @@ function renderCountingSession(s, idx, container) {
     container.innerHTML = "";
     const q = questions[qIdx];
 
-    // Fragetext
+    // Fragetext (ohne Überschrift – die ist schon global!)
     const qDiv = document.createElement('div');
-qDiv.className = "quiz-question";
-qDiv.textContent = q.question || "How many animals do you see?";
-container.appendChild(qDiv);
+    qDiv.className = "quiz-question";
+    qDiv.textContent = q.question || "How many animals do you see?";
+    container.appendChild(qDiv);
 
     // Tierbilder nebeneinander anzeigen
     if (q.img && q.num > 0) {
@@ -695,10 +695,19 @@ container.appendChild(qDiv);
           if (qIdx < questions.length) {
             showQuestion();
           } else {
-            if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+            if (window.currentMusic) {
+              try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
+            }
             showUniversalReward(
-              s, // Das komplette Session-Objekt!
-              () => { window.location.href = "choose.html"; }
+              s,
+              () => {
+                if (currentSession < sessions.length - 1) {
+                  currentSession++;
+                  renderSession(currentSession);
+                } else {
+                  window.location.href = "choose.html";
+                }
+              }
             );
           }
         }, 1100);
@@ -710,7 +719,6 @@ container.appendChild(qDiv);
 
   showQuestion();
 }
-
 
 // HINWEIS: Diese Funktion ersetzt deinen bisherigen renderMemorySession!
 function renderMemoryField(s, idx, container) {
