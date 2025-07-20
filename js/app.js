@@ -537,7 +537,7 @@ if (s.music) {
   let qIdx = 0;
 
   function showQuestion() {
-    textArea.innerHTML = "";
+    container.innerHTML = "";
     const q = questions[qIdx];
 
     // Fragetext
