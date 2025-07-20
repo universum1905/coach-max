@@ -118,12 +118,13 @@ function renderSession(idx) {
   textArea.appendChild(gameContainer);
 
   // Spezialfall: Intro & Story – synchron!
-  if (s.type === "intro" || s.type === "story") {
-    renderFloatingVideo(s); // Video sofort
-    if (s.type === "intro") renderIntroSession(s, idx, gameContainer);
-    else renderStorySession(s, idx, gameContainer);
-    return;
-  }
+  // renderSession:
+if (s.type === "intro" || s.type === "story") {
+  renderFloatingVideo(s);
+  if (s.type === "intro")  renderIntroSession(s, idx, gameContainer);
+  else                     renderStorySession(s, idx, gameContainer);
+  return;
+}
   // Alle anderen: Erst nach Video das Spielfeld
   renderFloatingVideo(s, () => {
     if      (s.type === "breathing")   renderBreathingSession(s, idx, gameContainer);
@@ -359,7 +360,7 @@ function renderIntroSession(s, idx, container) {
   stopAllSounds();
   container.innerHTML = "";
   // ... alle Elemente via container.appendChild(...)
-}
+
 
 container.appendChild(irgendwas);
 
