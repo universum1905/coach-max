@@ -799,6 +799,19 @@ function renderMemorySession(s, idx) {
   const textArea = document.getElementById('sessionTextArea');
   textArea.innerHTML = "";
 
+// Keine Überschrift hart codieren!
+const heading = document.createElement('h2');
+heading.className = "session-heading";
+heading.textContent = s.title || "";
+heading.style.textAlign = "center";
+textArea.appendChild(heading);
+
+// Video falls vorhanden (dynamisch)
+if (s.video) {
+  // Dein Videocode für die Session...
+}
+
+
   // Musik abspielen (optional)
   let memoryMusic = null;
   if (s.music) {
