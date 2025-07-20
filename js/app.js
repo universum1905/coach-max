@@ -591,7 +591,7 @@ function renderCountingSession(s, idx, container) {
   stopAllSounds();
   container.innerHTML = "";
 
-  // Musik abspielen, falls im JSON vorhanden
+  // Musik
   if (window.currentMusic) {
     try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
     window.currentMusic = null;
@@ -612,10 +612,10 @@ function renderCountingSession(s, idx, container) {
     container.innerHTML = "";
     const q = questions[qIdx];
 
-    // Fragetext (ohne Überschrift – die ist schon global!)
+    // ** Fragetext pro Frage **
     const qDiv = document.createElement('div');
     qDiv.className = "quiz-question";
-    
+    qDiv.textContent = q.question || "How many animals do you see?";
     container.appendChild(qDiv);
 
     // Tierbilder nebeneinander anzeigen
@@ -650,7 +650,7 @@ function renderCountingSession(s, idx, container) {
       btn.onclick = function () {
         if (solved || btn.disabled) return;
 
-        // Falsche Antwort
+        // Falsch
         if (i !== q.correct) {
           btn.disabled = true;
           btn.classList.add("wrong");
@@ -658,7 +658,7 @@ function renderCountingSession(s, idx, container) {
           runAnimations(q.wrongAnimation || ["shake"]);
           if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
 
-          // Feedback-Text
+          // Feedback
           const feedback = document.createElement("div");
           feedback.className = "quiz-feedback";
           feedback.innerText = q.feedbackWrong || "Try again!";
@@ -668,11 +668,10 @@ function renderCountingSession(s, idx, container) {
           setTimeout(() => {
             if (feedback.parentNode) feedback.parentNode.removeChild(feedback);
           }, 950);
-
           return;
         }
 
-        // Richtige Antwort!
+        // Richtig!
         solved = true;
         btn.disabled = true;
         btn.classList.add("correct");
@@ -699,7 +698,7 @@ function renderCountingSession(s, idx, container) {
               try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
             }
             showUniversalReward(
-              s,
+              s, // Session-Objekt
               () => {
                 if (currentSession < sessions.length - 1) {
                   currentSession++;
@@ -719,8 +718,6 @@ function renderCountingSession(s, idx, container) {
 
   showQuestion();
 }
-
-
 
 // HINWEIS: Diese Funktion ersetzt deinen bisherigen renderMemorySession!
 function renderMemoryField(s, idx, container) {
