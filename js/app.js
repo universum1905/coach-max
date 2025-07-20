@@ -614,9 +614,9 @@ function renderCountingSession(s, idx, container) {
 
     // Fragetext
     const qDiv = document.createElement('div');
-    qDiv.className = "quiz-question";
-    qDiv.textContent = q.question || s.title || "How many animals do you see?";
-    container.appendChild(qDiv);
+qDiv.className = "quiz-question";
+qDiv.textContent = q.question || "How many animals do you see?";
+container.appendChild(qDiv);
 
     // Tierbilder nebeneinander anzeigen
     if (q.img && q.num > 0) {
