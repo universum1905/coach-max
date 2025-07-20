@@ -589,25 +589,21 @@ function renderIntroSession(s, idx, container) {
 function renderCountingSession(s, idx, container) {
   clearTimeouts();
   stopAllSounds();
-  
   container.innerHTML = "";
-
-
-
 
   // Musik abspielen, falls im JSON vorhanden
   if (window.currentMusic) {
-  try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
-  window.currentMusic = null;
-}
-if (s.music) {
-  try {
-    window.currentMusic = new Audio("audio/" + s.music);
-    window.currentMusic.loop = false;
-    window.currentMusic.volume = 0.2;
-    window.currentMusic.play();
-  } catch (e) {}
-}
+    try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
+    window.currentMusic = null;
+  }
+  if (s.music) {
+    try {
+      window.currentMusic = new Audio("audio/" + s.music);
+      window.currentMusic.loop = false;
+      window.currentMusic.volume = 0.2;
+      window.currentMusic.play();
+    } catch (e) {}
+  }
 
   const questions = Array.isArray(s.questions) ? s.questions : [];
   let qIdx = 0;
@@ -617,11 +613,10 @@ if (s.music) {
     const q = questions[qIdx];
 
     // Fragetext
-    // Fragetext
-const qDiv = document.createElement('div');
-qDiv.className = "quiz-question";
-qDiv.textContent = q.question || "How many animals do you see?";
-container.appendChild(qDiv);
+    const qDiv = document.createElement('div');
+    qDiv.className = "quiz-question";
+    qDiv.textContent = q.question || s.title || "How many animals do you see?";
+    container.appendChild(qDiv);
 
     // Tierbilder nebeneinander anzeigen
     if (q.img && q.num > 0) {
@@ -695,25 +690,26 @@ container.appendChild(qDiv);
         container.appendChild(feedback);
 
         setTimeout(() => {
-  feedback.remove();
-  qIdx++;
-  if (qIdx < questions.length) {
-    showQuestion();
-  } else {
-    if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
-    showUniversalReward(
-      s, // Das komplette Session-Objekt!
-      () => { window.location.href = "choose.html"; }
-    );
+          feedback.remove();
+          qIdx++;
+          if (qIdx < questions.length) {
+            showQuestion();
+          } else {
+            if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+            showUniversalReward(
+              s, // Das komplette Session-Objekt!
+              () => { window.location.href = "choose.html"; }
+            );
+          }
+        }, 1100);
+      };
+      btnBox.appendChild(btn);
+    });
+    container.appendChild(btnBox);
   }
-}, 1100);
-}
-}
-}
-}
-}
 
-
+  showQuestion();
+}
 
 
 // HINWEIS: Diese Funktion ersetzt deinen bisherigen renderMemorySession!
