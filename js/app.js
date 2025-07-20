@@ -1,10 +1,12 @@
 /* ==== COACH MAX UNIVERSAL SESSION TEMPLATE ==== */
 
-// ==== 1. Grundvariablen und Setup ====
-let sessions = [], currentSession = 1, lastSessionIdx = 0;
+let sessions = [], currentSession = 0, lastSessionIdx = 0;
 let textTimeouts = [];
 let currentDay = 1;
 let currentMusic = null;
+
+const DEV_MODE = true;              // false = Live, true = Test/Entwickler
+const DEV_START_SESSION = 1;        // Index: 0 = erste Session (Intro), 1 = zweite Session, 2 = dritte usw.
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
@@ -350,7 +352,7 @@ window.onload = async function() {
     sessions = data.sessions;
     currentDay = data.day || 1;
     document.title = `Coach Max – Day ${currentDay}`;
-    currentSession = 0;
+    currentSession = DEV_MODE ? DEV_START_SESSION : 0;
     renderSession(currentSession);
   } catch (e) {
     console.error("Fehler beim Initialisieren:", e);
