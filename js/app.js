@@ -294,6 +294,14 @@ window.onload = async function() {
   }
 };
 
+function clearTimeouts() {
+  if (Array.isArray(textTimeouts)) {
+    textTimeouts.forEach(t => clearTimeout(t));
+    textTimeouts = [];
+  }
+}
+
+
 // ==== 9. Helper: Animationen, Sound usw. ====
 // ... z.B. runAnimations, playAvatarAnimation wie gehabt ...
 
@@ -350,7 +358,7 @@ function renderIntroSession(s, idx) {
 
   
 // Im jeweiligen render...Session(s, idx):
-const textArea = document.getElementById('sessionTextArea');
+
 textArea.innerHTML = ""; // Leert das Spielfeld
 
 
@@ -503,7 +511,7 @@ function renderCountingSession(s, idx) {
   stopAllSounds();
   
   // Im jeweiligen render...Session(s, idx):
-const textArea = document.getElementById('sessionTextArea');
+
 textArea.innerHTML = ""; // Leert das Spielfeld
 
 
@@ -637,7 +645,7 @@ function renderMemorySession(s, idx) {
   stopAllSounds();
   
   // Im jeweiligen render...Session(s, idx):
-const textArea = document.getElementById('sessionTextArea');
+
 function renderMemorySession(s, idx, container) {
   // KEIN textArea.innerHTML mehr!
   // Nur in 'container' arbeiten:
