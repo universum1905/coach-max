@@ -355,7 +355,7 @@ function unlockPuzzlePiece(puzzleId, pieceIdx) {
 
 /* ==== COACH MAX APP.JS – STEP 6.1: INTRO-SESSION MIT VIDEO & ANIMIERTEM TEXT ==== */
 
-function renderIntroSession(s, idx, gameContainer) {
+function renderIntroSession(s, idx, container) {
   clearTimeouts();
   stopAllSounds();
   container.innerHTML = "";
@@ -506,6 +506,7 @@ function renderIntroSession(s, idx, gameContainer) {
     });
   }
 }
+
 
 /* ==== COACH MAX APP.JS – STEP 6.3: COUNTING-SESSION ==== */
 
