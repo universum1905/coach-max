@@ -812,11 +812,34 @@ function renderMemorySession(s, idx) {
 
 // DAS ist die eigentliche Spielfeld-Logik (wie "showQuestion" bei Counting)
 function renderMemoryField(s, idx) {
-  console.log('>>> MemoryField gerufen');
+  // Step 1: Session-Bereich leeren
   const textArea = document.getElementById('sessionTextArea');
-  textArea.innerHTML = ""; // Nur das Spielfeld anzeigen
+  textArea.innerHTML = "";
 
-  // Musik abspielen (optional)
+  // Step 2: Erstelle einen eigenen Container für Memory
+  let memoryContainer = document.createElement("div");
+  memoryContainer.id = "memoryGameContainer";
+  memoryContainer.style.display = "flex";
+  memoryContainer.style.flexDirection = "column";
+  memoryContainer.style.alignItems = "center";
+  memoryContainer.style.justifyContent = "center";
+  memoryContainer.style.width = "100%";
+  memoryContainer.style.minHeight = "330px";
+  memoryContainer.style.margin = "0 auto";
+  memoryContainer.style.position = "relative";
+  memoryContainer.style.zIndex = "3";
+  textArea.appendChild(memoryContainer);
+
+  // (Optional) Füge eine Überschrift ein
+  if (s.title) {
+    const heading = document.createElement('h2');
+    heading.className = "session-heading";
+    heading.innerText = s.title;
+    heading.style.marginBottom = "18px";
+    memoryContainer.appendChild(heading);
+  }
+
+  // (Optional) Musik abspielen
   let memoryMusic = null;
   if (s.music) {
     try {
@@ -828,7 +851,7 @@ function renderMemoryField(s, idx) {
     } catch (e) {}
   }
 
-  // Karten-Setup
+  // Step 3: Spielfeld erstellen
   const gridSize = (s.gridSize || "3x2").split("x");
   const rows = parseInt(gridSize[1]);
   const cols = parseInt(gridSize[0]);
@@ -837,24 +860,30 @@ function renderMemoryField(s, idx) {
 
   let pairs = s.memoryImages || [];
   if (pairs.length * 2 !== totalCards) {
-    pairs = pairs.slice(0, totalCards / 2); // Notfalls abschneiden
+    pairs = pairs.slice(0, totalCards / 2);
   }
   const cards = pairs.concat(pairs);
 
-  // Karten mischen (Fisher-Yates)
+  // Karten mischen
   for (let i = cards.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [cards[i], cards[j]] = [cards[j], cards[i]];
   }
 
-  // Spielfeld
+  // Memory-Grid
   const grid = document.createElement("div");
+  grid.className = "memory-grid";
   grid.style.display = "grid";
   grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-  grid.style.gap = "12px";
-  grid.style.margin = "32px auto";
-  grid.style.maxWidth = "360px";
-  textArea.appendChild(grid);
+  grid.style.gap = "14px";
+  grid.style.margin = "0 auto";
+  grid.style.maxWidth = "340px";
+  grid.style.width = "100%";
+  grid.style.padding = "12px";
+  grid.style.background = "rgba(255,255,246,0.97)";
+  grid.style.borderRadius = "22px";
+  grid.style.boxShadow = "0 4px 22px #ffd54f44";
+  memoryContainer.appendChild(grid);
 
   let flipped = [];
   let matched = [];
@@ -865,6 +894,7 @@ function renderMemoryField(s, idx) {
     wrapper.style.position = "relative";
     wrapper.style.aspectRatio = "1/1";
     wrapper.style.cursor = "pointer";
+    wrapper.style.background = "#fffbe6";
 
     const front = document.createElement("img");
     front.src = imgPath;
@@ -928,8 +958,6 @@ function renderMemoryField(s, idx) {
     });
   });
 }
-
-
 
 
 
