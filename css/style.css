@@ -79,8 +79,8 @@ html, body {
 .animated-text {
   width: 100%;
   box-sizing: border-box;
-  font-size: 1.3rem;
-  margin: 12px 0 0 0;
+  font-size: 1.22rem;            /* Aus dem zweiten Block (oder 1.3rem wenn dir das besser gefällt) */
+  margin: 0 0 17px 0;            /* Aus dem zweiten Block, sieht harmonischer aus */
   background: none;
   border-radius: 0;
   box-shadow: none;
@@ -439,12 +439,6 @@ html, body {
   animation: glitterShine 3.5s linear infinite;
 }
 
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(1.5deg); }
-  50% { transform: rotate(-1.5deg); }
-  75% { transform: rotate(0.8deg); }
-}
 .chatgpt-question {
   font-size: 1.6rem;
   font-weight: bold;
@@ -524,16 +518,6 @@ html, body {
   left: 0;
   transform: translateY(-50%);
   pointer-events: none;
-}
-@keyframes reward-glow {
-  0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 8px #fff176) brightness(1.1);
-  }
-  50% {
-    transform: scale(1.12);
-    filter: drop-shadow(0 0 14px #ffe082) brightness(1.4);
-  }
 }
 
 .reward-animated {
@@ -621,12 +605,6 @@ html, body {
   border-radius: 50%;
   border: 5px solid #ffd54f;
   box-shadow: 0 2px 32px #ffd54faa, 0 0 32px #aeea00aa;
-}
-
-.animated-text {
-  text-align: center;
-  font-size: 1.22rem;
-  margin: 0 0 17px 0;
 }
 
 
@@ -739,28 +717,8 @@ html, body {
 .avatar-wiggle { animation: wiggle 1.1s both;}
 .avatar-tada   { animation: tada 0.9s both;}
 
-.quiz-choice-btn, .sequence-choice-btn {
-  min-width: 180px;
-  max-width: 340px;
-  padding: 1.2em 0.7em;
-  font-size: 1.28rem;
-  font-weight: bold;
-  border: none;
-  background: linear-gradient(90deg, #ffe082 70%, #81d4fa 100%);
-  border-radius: 18px;
-  box-shadow: 0 4px 18px #b3e5fc77;
-  text-align: center;
-  transition: background 0.22s, box-shadow 0.22s, transform 0.13s;
-  cursor: pointer;
-  margin: 0;
-  margin-bottom: 6px;
-}
-.quiz-choice-btn:active, .sequence-choice-btn:active,
-.quiz-choice-btn.selected, .sequence-choice-btn.selected {
-  background: #b2dfdb;
-  box-shadow: 0 2px 10px #ffd54faa;
-  transform: scale(0.96);
-}
+
+
 #videoAvatarBox {
   width: 160px;
   height: 160px;
@@ -809,56 +767,8 @@ html, body {
   max-width: 340px;
 }
 
-.quiz-choice-btn, .sequence-choice-btn {
-  width: 100%;
-  min-width: 120px;
-  max-width: 340px;
-  padding: 1em 0.7em;
-  font-size: 1.13rem;
-  font-weight: 700;
-  border: none;
-  background: linear-gradient(90deg, #fffde7 60%, #e3f2fd 100%);
-  border-radius: 17px;
-  box-shadow: 0 2px 10px #81d4fa55;
-  text-align: center;
-  transition: background 0.22s, transform 0.15s, box-shadow 0.14s;
-  cursor: pointer;
-  margin: 0;
-}
 
-.quiz-choice-btn.selected,
-.sequence-choice-btn.selected {
-  border: 2px solid #ffd54f;
-  background: #b2ff59;
-  color: #444;
-  box-shadow: 0 0 16px #b2ff59cc;
-}
 
-.quiz-choice-btn:disabled,
-.sequence-choice-btn:disabled {
-  opacity: 0.63;
-  cursor: not-allowed;
-}
-
-/* Nur EINMAL korrekt/falsch! */
-.quiz-choice-btn.correct {
-  background: #b9f6ca !important;
-  color: #267323 !important;
-  border: 2px solid #39c839 !important;
-  font-weight: bold;
-  box-shadow: 0 0 16px #adffad66;
-}
-.quiz-choice-btn.wrong {
-  background: #ffd1d1 !important;
-  color: #b71c1c !important;
-  border: 2px solid #ff6060 !important;
-  font-weight: bold;
-  box-shadow: 0 0 16px #ffadad66;
-}
-
-.quiz-choice-btn.selected {
-  border: 2px solid #ffd54f;
-}
 .session-heading,
 #mainTitle {
   text-align: center !important;
@@ -986,21 +896,7 @@ html, body {
   0% { transform: rotate(0deg);}
   100% { transform: rotate(360deg);}
 }
-.quiz-choice-btn.selected {
-  background: #ffe47a;
-  color: #383838;
-  border-color: #ffd600;
-}
-.quiz-choice-btn.correct {
-  background: #5cf379;
-  color: #12451d;
-  border-color: #18c934;
-}
-.quiz-choice-btn.wrong {
-  background: #ff6d6d;
-  color: #fff;
-  border-color: #d32f2f;
-}
+
 .puzzle-complete-popup {
   animation: popupBounce 0.65s cubic-bezier(.38,2.2,.7,.9);
 }
@@ -1008,4 +904,55 @@ html, body {
   0% { transform: scale(0.7) translate(-50%,-50%);}
   65% { transform: scale(1.06) translate(-50%,-50%);}
   100% { transform: scale(1) translate(-50%,-50%);}
+}
+.quiz-choice-btn, .sequence-choice-btn {
+  width: 100%;
+  min-width: 120px;
+  max-width: 340px;
+  padding: 1.1em 0.7em;
+  font-size: 1.21rem;
+  font-family: 'Comic Neue', 'Baloo 2', Arial, sans-serif;
+  font-weight: bold;
+  border: none;
+  border-radius: 19px;
+  background: linear-gradient(90deg, #fffde7 60%, #ffe082 100%);
+  color: #383838;
+  box-shadow: 0 4px 18px #81d4fa55, 0 2px 12px #ffd54faa;
+  text-align: center;
+  margin: 0 0 12px 0;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.12s, color 0.14s;
+  cursor: pointer;
+  outline: none;
+  letter-spacing: 0.01em;
+}
+
+.quiz-choice-btn.selected,
+.sequence-choice-btn.selected {
+  background: #ffe47a;
+  color: #383838;
+  border: 2.3px solid #ffd600;
+  transform: scale(0.96);
+  box-shadow: 0 0 16px #ffe082bb;
+}
+
+.quiz-choice-btn.correct,
+.sequence-choice-btn.correct {
+  background: #b9f6ca !important;
+  color: #267323 !important;
+  border: 2.3px solid #39c839 !important;
+  box-shadow: 0 0 18px #8ae67a99;
+}
+
+.quiz-choice-btn.wrong,
+.sequence-choice-btn.wrong {
+  background: #ffd1d1 !important;
+  color: #b71c1c !important;
+  border: 2.3px solid #ff6060 !important;
+  box-shadow: 0 0 14px #ffadad88;
+}
+
+.quiz-choice-btn:disabled,
+.sequence-choice-btn:disabled {
+  opacity: 0.64;
+  cursor: not-allowed;
 }
