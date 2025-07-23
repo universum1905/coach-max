@@ -972,3 +972,17 @@ html, body {
   0% { transform: rotate(0deg);}
   100% { transform: rotate(360deg);}
 }
+
+.universal-spinner .spinner-animation {
+  width: 36px;
+  height: 36px;
+  border: 5px solid #ffd54f;
+  border-top: 5px solid #00bfa5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
