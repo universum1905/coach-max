@@ -881,56 +881,54 @@ function renderCountingSession(s, idx, container) {
       btn.textContent = val;
       btn.className = "quiz-choice-btn";
       btn.onclick = function () {
-        if (solved || btn.disabled) return;
-        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+  if (solved || btn.disabled) return;
+  btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-        // Prüfen ob richtig
-        const isCorrect = (i === q.correct);
+  const isCorrect = (i === q.correct);
 
-        // Feedback vorbereiten
-        const feedback = document.createElement("div");
-        feedback.className = "quiz-feedback";
-        feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
-        feedback.style.color = isCorrect ? "#219821" : "#c82121";
-        feedback.style.marginTop = "12px";
-        container.appendChild(feedback);
+  // Feedback anzeigen
+  const feedback = document.createElement("div");
+  feedback.className = "quiz-feedback";
+  feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
+  feedback.style.color = isCorrect ? "#219821" : "#c82121";
+  feedback.style.marginTop = "12px";
+  container.appendChild(feedback);
 
-        // Sound/Animation
-        playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
-        runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
-        if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
+  playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+  runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+  if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
 
-        // UNIVERSAL SPINNER nach JEDEM Klick!
-        showUniversalSpinner(container, 3000, "Checking…", () => {
-          feedback.remove();
+  // --- HIER SPINNER EINBLENDEN & erst nach Ablauf alles machen ---
+  showUniversalSpinner(container, 3000, "Checking…", () => {
+    feedback.remove();
 
-          if (isCorrect) {
-            solved = true;
-            qIdx++;
-            if (qIdx < questions.length) {
-              showQuestion();
+    if (isCorrect) {
+      solved = true;
+      qIdx++;
+      if (qIdx < questions.length) {
+        showQuestion();
+      } else {
+        if (window.currentMusic) {
+          try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
+        }
+        showUniversalReward(
+          s,
+          () => {
+            if (currentSession < sessions.length - 1) {
+              currentSession++;
+              renderSession(currentSession);
             } else {
-              if (window.currentMusic) {
-                try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
-              }
-              showUniversalReward(
-                s, // Session-Objekt
-                () => {
-                  if (currentSession < sessions.length - 1) {
-                    currentSession++;
-                    renderSession(currentSession);
-                  } else {
-                    window.location.href = "choose.html";
-                  }
-                }
-              );
+              window.location.href = "choose.html";
             }
-          } else {
-            // Falsche Buttons deaktiviert lassen, andere aktivieren:
-            btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
           }
-        });
-      };
+        );
+      }
+    } else {
+      // Falsche Buttons deaktiviert lassen, andere aktivieren:
+      btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
+    }
+  });
+};
       btnBox.appendChild(btn);
     });
     container.appendChild(btnBox);
@@ -1189,6 +1187,7 @@ function showAnswerFeedback(container, text, color = "#219821", duration = 3000,
 }
 
 function showUniversalSpinner(container, ms = 3000, text = "Checking…", cb = null) {
+  console.log('spinner!')
   // Entfernt alte Spinner
   container.querySelectorAll('.universal-spinner').forEach(e => e.remove());
   const spinner = document.createElement('div');
