@@ -1204,3 +1204,23 @@ function showAnswerFeedback(container, text, color = "#219821", duration = 3000,
     if (typeof callback === "function") callback();
   }, duration);
 }
+
+function showSpinner(container, ms = 3000, callback) {
+  // Entferne evtl. alte Spinner
+  container.querySelectorAll(".universal-spinner").forEach(e => e.remove());
+  // Spinner-Element
+  const spinner = document.createElement("div");
+  spinner.className = "universal-spinner";
+  spinner.innerHTML = `
+    <div style="margin: 24px auto; display:flex; flex-direction:column; align-items:center;">
+      <div class="spinner-animation"></div>
+      <div style="margin-top:8px;color:#ffa000;font-size:1rem;">Checking...</div>
+    </div>
+  `;
+  container.appendChild(spinner);
+
+  setTimeout(() => {
+    spinner.remove();
+    if (typeof callback === "function") callback();
+  }, ms);
+}
