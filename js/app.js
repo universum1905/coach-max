@@ -20,6 +20,25 @@ let sessionStartTime = 0;
 const minSessionDuration = 60 * 1000; // 1 Minute (kannst du beliebig ändern)
 
 
+// ==== KI/TTS-Limit-Logik (pro Tag und Session, z. B. 1000 Zeichen) ====
+function canUseTTS(sessionIndex) {
+  let key = `ttsUsed_day${currentDay}_session${sessionIndex}`;
+  let alreadyDone = localStorage.getItem(key);
+  let charCount = parseInt(localStorage.getItem(`ttsCharCount_day${currentDay}`) || "0");
+  if (alreadyDone || charCount >= 1000) return false;
+  return true;
+}
+function registerTTS(sessionIndex, text) {
+  let key = `ttsUsed_day${currentDay}_session${sessionIndex}`;
+  localStorage.setItem(key, "1");
+  let charCount = parseInt(localStorage.getItem(`ttsCharCount_day${currentDay}`) || "0");
+  charCount += text.length;
+  localStorage.setItem(`ttsCharCount_day${currentDay}`, charCount);
+}
+
+
+
+
 function tryShowNextButtonOrWait(callback) {
   let now = Date.now();
   let remaining = minSessionDuration - (now - sessionStartTime);
@@ -322,11 +341,14 @@ function renderUniversalQuizSession(s, idx, container) {
   const questions = Array.isArray(s.questions) ? s.questions : [];
   let qIdx = 0;
 
+  // --- NEU: TTS/KI-Limit prüfen (falls aktiviert) ---
+  const ttsAllowed = (typeof canUseTTS === "function") ? canUseTTS(idx) : false;
+
   function showQuestion() {
     container.innerHTML = "";
     const q = questions[qIdx];
 
-    // FRAGE – falls vorhanden
+    // Frage
     if (q.question) {
       const qDiv = document.createElement('div');
       qDiv.className = "quiz-question";
@@ -334,7 +356,7 @@ function renderUniversalQuizSession(s, idx, container) {
       container.appendChild(qDiv);
     }
 
-    // Optional: Bild (z. B. bei counting, animals, etc.)
+    // Bild(er) (z. B. für Zählaufgaben)
     if (q.img && q.num > 0) {
       const imgBox = document.createElement('div');
       imgBox.style.display = "flex";
@@ -353,7 +375,7 @@ function renderUniversalQuizSession(s, idx, container) {
       }
       container.appendChild(imgBox);
     } else if (q.img) {
-      // Einfaches Einzelbild (z. B. für Quiz-Fragen)
+      // Einzelbild (z. B. für Quiz-Fragen)
       const img = document.createElement('img');
       img.src = q.img;
       img.style.width = "110px";
@@ -375,11 +397,11 @@ function renderUniversalQuizSession(s, idx, container) {
       btn.onclick = function () {
         if (solved || btn.disabled) return;
 
-        // 1. Sofort gelb markieren:
+        // 1. Auswahl gelb
         btn.classList.add("selected");
         btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-        // 2. Spinner zeigen, danach Feedback!
+        // 2. Spinner anzeigen – nach 3 Sek. auswerten
         showUniversalSpinner(container, 3000, "Checking…", () => {
           btn.classList.remove("selected");
           const isCorrect = (i === q.correct);
@@ -388,6 +410,11 @@ function renderUniversalQuizSession(s, idx, container) {
             btn.classList.add("correct");
           } else {
             btn.classList.add("wrong");
+          }
+
+          // Optional: TTS/KI-Feedback (wenn aktiviert und nicht Wiederholung)
+          if (ttsAllowed && isCorrect && typeof registerTTS === "function") {
+            registerTTS(idx, q.feedbackCorrect || "Great job! 🎉");
           }
 
           // Feedback
@@ -411,26 +438,26 @@ function renderUniversalQuizSession(s, idx, container) {
                 showQuestion();
               } else {
                 if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+                // Jetzt: NICHT sofort Reward – sondern Zeit prüfen!
                 tryShowNextButtonOrWait(() => {
-  showUniversalReward(
-    s,
-    () => {
-      if (currentSession < sessions.length - 1) {
-        currentSession++;
-        renderSession(currentSession);
-      } else {
-        window.location.href = "choose.html";
-      }
-    }
-  );
-});
+                  showUniversalReward(
+                    s,
+                    () => {
+                      if (currentSession < sessions.length - 1) {
+                        currentSession++;
+                        renderSession(currentSession);
+                      } else {
+                        window.location.href = "choose.html";
+                      }
+                    }
+                  );
+                });
               }
             } else {
-              // Falsche Buttons deaktiviert lassen, andere aktivieren:
+              // Nur nicht-rote Buttons wieder aktivieren (rot bleibt disabled)
               btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
-              // Der falsche Button bleibt rot und disabled!
             }
-          }, 1100); // Feedback-Zeit
+          }, 1100); // Feedback-Zeit (kinderfreundlich kurz)
         });
       };
       btnBox.appendChild(btn);
@@ -444,11 +471,8 @@ function renderUniversalQuizSession(s, idx, container) {
 
 
 
-
-
 // ==== 7. Universeller Reward ====
 function showUniversalReward(sessionObj, nextAction = null) {
-  // sessionObj = das aktuelle Sessions-JSON-Objekt
   stopAllSounds();
   document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
 
@@ -472,7 +496,7 @@ function showUniversalReward(sessionObj, nextAction = null) {
 
   // Bild/Emoji je nach Reward-Type
   let rewardImg;
-  const rewardType = sessionObj.rewardType || 
+  const rewardType = sessionObj.rewardType ||
       (typeof sessionObj.successPuzzle !== "undefined" ? "puzzle" : "star");
 
   if (rewardType === "star") {
@@ -501,7 +525,6 @@ function showUniversalReward(sessionObj, nextAction = null) {
   }
 
   // === Überschrift / Feedback dynamisch ===
-  // 1. OnFinish aus JSON, sonst feedbackCorrect, sonst fallback-Text
   let mainText = sessionObj.onFinish 
     || sessionObj.finalRewardText 
     || sessionObj.feedbackCorrect 
@@ -516,7 +539,7 @@ function showUniversalReward(sessionObj, nextAction = null) {
   feedbackDiv.style.textAlign = "center";
   reward.appendChild(feedbackDiv);
 
-  // (Optional) Zusatz-Animation/Emoji
+  // Zusatz-Animation/Emoji
   const yay = document.createElement("div");
   yay.textContent = {
     "star": "🎉 Yay! You unlocked a Star!",
@@ -539,6 +562,39 @@ function showUniversalReward(sessionObj, nextAction = null) {
       const puzzleId = s.puzzleId || 1;
       const pieces = Array.isArray(s.successPuzzle) ? s.successPuzzle : [s.successPuzzle];
       pieces.forEach(pieceIdx => unlockPuzzlePiece(puzzleId, pieceIdx));
+
+      // --- Puzzle Complete: Alle Teile gesammelt? ---
+      const key = `puzzle${puzzleId}Pieces`;
+      const totalPieces = 8; // Passe ggf. an!
+      const unlocked = JSON.parse(localStorage.getItem(key) || "[]");
+      if (unlocked.length >= totalPieces) {
+        setTimeout(() => {
+          const completePopup = document.createElement("div");
+          completePopup.className = "puzzle-complete-popup";
+          completePopup.style.position = "fixed";
+          completePopup.style.top = "50%";
+          completePopup.style.left = "50%";
+          completePopup.style.transform = "translate(-50%, -50%)";
+          completePopup.style.background = "#fffde4";
+          completePopup.style.padding = "44px 38px";
+          completePopup.style.borderRadius = "36px";
+          completePopup.style.boxShadow = "0 10px 38px #ffe082b8, 0 2px 16px #90caf9";
+          completePopup.style.display = "flex";
+          completePopup.style.flexDirection = "column";
+          completePopup.style.alignItems = "center";
+          completePopup.style.zIndex = "9000";
+          completePopup.innerHTML = `
+            <img src="images/puzzles/trophy.png" style="width:92px;height:92px;margin-bottom:18px;">
+            <div style="font-size:2rem;color:#ffa000;font-weight:bold;text-align:center;margin-bottom:7px;">Puzzle Complete!</div>
+            <div style="font-size:1.17rem;color:#444;text-align:center;margin-bottom:21px;">You finished the puzzle!<br>Get ready for a new one tomorrow.</div>
+            <button class="centered-next-btn" style="font-size:1.15em;padding:10px 30px;margin-top:10px;">OK</button>
+          `;
+          document.body.appendChild(completePopup);
+          completePopup.querySelector("button").onclick = () => completePopup.remove();
+          playSound("fanfare.mp3");
+          runAnimations(["confetti-glow", "emoji-party"]);
+        }, 500);
+      }
     }
   } else if (rewardType === "star" && typeof unlockSticker === "function") {
     unlockSticker(sessionObj.successSticker || 0);
@@ -556,25 +612,23 @@ function showUniversalReward(sessionObj, nextAction = null) {
     window.allSessionAudio.push(rewardAudio);
   } catch(e){}
 
-  // Finish-Button: Immer zu choose.html
+  // Finish-Button (mit Zeit-Logik): Immer zu choose.html oder next session
   tryShowNextButtonOrWait(() => {
-  const btn = document.createElement("button");
-  btn.innerText = (currentSession < sessions.length - 1) ? "Next" : "Finish";
-  btn.className = "centered-next-btn";
-  btn.onclick = () => {
-    document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
-    if (currentSession < sessions.length - 1) {
-      currentSession++;
-      renderSession(currentSession);
-    } else {
-      window.location.href = "choose.html";
-    }
-  };
-  reward.insertAdjacentElement('afterend', btn);
-});
+    const btn = document.createElement("button");
+    btn.innerText = (currentSession < sessions.length - 1) ? "Next" : "Finish";
+    btn.className = "centered-next-btn";
+    btn.onclick = () => {
+      document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
+      if (currentSession < sessions.length - 1) {
+        currentSession++;
+        renderSession(currentSession);
+      } else {
+        window.location.href = "choose.html";
+      }
+    };
+    reward.insertAdjacentElement('afterend', btn);
+  });
 }
-
-
 
 // ==== 8. Initialisierung ====
 window.onload = async function() {
