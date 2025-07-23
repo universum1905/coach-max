@@ -375,45 +375,28 @@ function renderUniversalQuizSession(s, idx, container) {
       btn.onclick = function () {
         if (solved || btn.disabled) return;
 
-        // 3 Sekunden Feedback nach JEDEM Klick
         btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-        if (i !== q.correct) {
-          btn.classList.add("wrong");
-          playSound(q.wrongSound || "fail.mp3");
-          runAnimations(q.wrongAnimation || ["shake"]);
-          if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
+        const isCorrect = (i === q.correct);
 
-          // Feedback
-          const feedback = document.createElement("div");
-          feedback.className = "quiz-feedback";
-          feedback.innerText = q.feedbackWrong || "Try again!";
-          feedback.style.color = "#c82121";
-          feedback.style.marginTop = "12px";
-          container.appendChild(feedback);
+        // Feedback anzeigen
+        const feedback = document.createElement("div");
+        feedback.className = "quiz-feedback";
+        feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
+        feedback.style.color = isCorrect ? "#219821" : "#c82121";
+        feedback.style.marginTop = "12px";
+        container.appendChild(feedback);
 
-          setTimeout(() => {
-            if (feedback.parentNode) feedback.parentNode.removeChild(feedback);
-            btnBox.querySelectorAll("button").forEach(b => b.disabled = false);
-          }, 3000);
+        playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+        runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+        if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
 
-        } else {
-          solved = true;
-          btn.classList.add("correct");
-          runAnimations(q.correctAnimation || ["confetti-glow"]);
-          playSound(q.correctSound || "yay.mp3");
-          if (s.avatar) playAvatarAnimation(s.avatar, "tada");
+        // --- UNIVERSALER SPINNER ---
+        showUniversalSpinner(container, 3000, "Checking…", () => {
+          feedback.remove();
 
-          // Feedback
-          const feedback = document.createElement("div");
-          feedback.className = "quiz-feedback";
-          feedback.innerText = q.feedbackCorrect || "Great job! 🎉";
-          feedback.style.color = "#219821";
-          feedback.style.marginTop = "12px";
-          container.appendChild(feedback);
-
-          setTimeout(() => {
-            feedback.remove();
+          if (isCorrect) {
+            solved = true;
             qIdx++;
             if (qIdx < questions.length) {
               showQuestion();
@@ -431,8 +414,11 @@ function renderUniversalQuizSession(s, idx, container) {
                 }
               );
             }
-          }, 3000);
-        }
+          } else {
+            // Falsche Buttons deaktiviert lassen, andere aktivieren:
+            btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
+          }
+        });
       };
       btnBox.appendChild(btn);
     });
@@ -441,8 +427,6 @@ function renderUniversalQuizSession(s, idx, container) {
 
   showQuestion();
 }
-
-
 
 
 
