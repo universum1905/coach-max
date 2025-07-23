@@ -827,7 +827,7 @@ function renderCountingSession(s, idx, container) {
   stopAllSounds();
   container.innerHTML = "";
 
-  // Musik abspielen, falls im JSON vorhanden
+  // Musik
   if (window.currentMusic) {
     try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
     window.currentMusic = null;
@@ -846,15 +846,16 @@ function renderCountingSession(s, idx, container) {
 
   function showQuestion() {
     container.innerHTML = "";
+
     const q = questions[qIdx];
 
-    // Fragetext (OHNE Überschrift – die ist global!)
-    // Du kannst hier aber noch eine Unterzeile machen falls nötig (z.B. für "How many dogs?")
+    // Frage (ohne Überschrift – die ist schon oben!)
+    // Du kannst hier spezifische Fragen aus dem JSON nehmen:
     if (q.question) {
-      const subQ = document.createElement('div');
-      subQ.className = "quiz-subquestion";
-      subQ.textContent = q.question;
-      container.appendChild(subQ);
+      const qDiv = document.createElement('div');
+      qDiv.className = "quiz-question";
+      qDiv.textContent = q.question;
+      container.appendChild(qDiv);
     }
 
     // Tierbilder nebeneinander anzeigen
@@ -877,7 +878,7 @@ function renderCountingSession(s, idx, container) {
       container.appendChild(animalBox);
     }
 
-    // Antwortbuttons
+    // Antwort-Buttons
     const btnBox = document.createElement('div');
     btnBox.className = "quiz-buttons";
     let solved = false;
@@ -888,72 +889,54 @@ function renderCountingSession(s, idx, container) {
       btn.className = "quiz-choice-btn";
       btn.onclick = function () {
         if (solved || btn.disabled) return;
-
-        // Falsche Antwort
-        if (i !== q.correct) {
-          btn.disabled = true;
-          btn.classList.add("wrong");
-          playSound(q.wrongSound || "fail.mp3");
-          runAnimations(q.wrongAnimation || ["shake"]);
-          if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
-
-          // Feedback und Spinner anzeigen
-          const feedback = document.createElement("div");
-          feedback.className = "quiz-feedback";
-          feedback.innerText = q.feedbackWrong || "Try again!";
-          feedback.style.color = "#c82121";
-          feedback.style.marginTop = "12px";
-          container.appendChild(feedback);
-
-          showSpinner(container, 3000, () => {
-            feedback.remove();
-            btn.classList.remove("wrong");
-            btn.disabled = false;
-          });
-
-          return;
-        }
-
-        // Richtige Antwort!
-        solved = true;
-        btn.disabled = true;
-        btn.classList.add("correct");
-        runAnimations(q.correctAnimation || ["confetti-glow"]);
-        playSound(q.correctSound || "yay.mp3");
-        if (s.avatar) playAvatarAnimation(s.avatar, "tada");
         btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-        // Feedback
+        // Prüfen ob richtig
+        const isCorrect = (i === q.correct);
+
+        // Feedback vorbereiten
         const feedback = document.createElement("div");
         feedback.className = "quiz-feedback";
-        feedback.innerText = q.feedbackCorrect || "Great job! 🎉";
-        feedback.style.color = "#219821";
+        feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
+        feedback.style.color = isCorrect ? "#219821" : "#c82121";
         feedback.style.marginTop = "12px";
         container.appendChild(feedback);
 
-        // Nach 3s nächste Frage oder Reward
-        setTimeout(() => {
+        // Sound/Animation
+        playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+        runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+        if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
+
+        // UNIVERSAL SPINNER nach JEDEM Klick!
+        showUniversalSpinner(container, 3000, "Checking…", () => {
           feedback.remove();
-          qIdx++;
-          if (qIdx < questions.length) {
-            showQuestion();
-          } else {
-            if (window.currentMusic) {
-              try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
-            }
-            showUniversalReward(
-              s,
-              () => {
-                if (currentSession < sessions.length - 1) {
-                  currentSession++;
-                  renderSession(currentSession);
-                } else {
-                  window.location.href = "choose.html";
-                }
+
+          if (isCorrect) {
+            solved = true;
+            qIdx++;
+            if (qIdx < questions.length) {
+              showQuestion();
+            } else {
+              if (window.currentMusic) {
+                try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
               }
-            );
+              showUniversalReward(
+                s, // Session-Objekt
+                () => {
+                  if (currentSession < sessions.length - 1) {
+                    currentSession++;
+                    renderSession(currentSession);
+                  } else {
+                    window.location.href = "choose.html";
+                  }
+                }
+              );
+            }
+          } else {
+            // Falsche Buttons deaktiviert lassen, andere aktivieren:
+            btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
           }
-        }, 3000); // Auch bei richtig: 3 Sekunden warten!
+        });
       };
       btnBox.appendChild(btn);
     });
@@ -962,6 +945,7 @@ function renderCountingSession(s, idx, container) {
 
   showQuestion();
 }
+
 
 // HINWEIS: Diese Funktion ersetzt deinen bisherigen renderMemorySession!
 function renderMemoryField(s, idx, container) {
@@ -1211,22 +1195,52 @@ function showAnswerFeedback(container, text, color = "#219821", duration = 3000,
   }, duration);
 }
 
-function showSpinner(container, ms = 3000, callback) {
-  // Entferne evtl. alte Spinner
-  container.querySelectorAll(".universal-spinner").forEach(e => e.remove());
-  // Spinner-Element
-  const spinner = document.createElement("div");
-  spinner.className = "universal-spinner";
+function showUniversalSpinner(container, ms = 3000, text = "Checking…", cb = null) {
+  // Entfernt alte Spinner
+  container.querySelectorAll('.universal-spinner').forEach(e => e.remove());
+  const spinner = document.createElement('div');
+  spinner.className = 'universal-spinner';
   spinner.innerHTML = `
-    <div style="margin: 24px auto; display:flex; flex-direction:column; align-items:center;">
-      <div class="spinner-animation"></div>
-      <div style="margin-top:8px;color:#ffa000;font-size:1rem;">Checking...</div>
-    </div>
+    <div class="spinner-ring"></div>
+    <div style="text-align:center; font-size:1.08em; margin-top:13px;">${text}</div>
   `;
+  spinner.style.display = "flex";
+  spinner.style.flexDirection = "column";
+  spinner.style.alignItems = "center";
+  spinner.style.justifyContent = "center";
+  spinner.style.position = "absolute";
+  spinner.style.left = "50%";
+  spinner.style.top = "48%";
+  spinner.style.transform = "translate(-50%,-50%)";
+  spinner.style.zIndex = "200";
+  spinner.style.background = "rgba(255,255,240,0.90)";
+  spinner.style.borderRadius = "24px";
+  spinner.style.padding = "36px 38px 26px";
+  spinner.style.boxShadow = "0 4px 22px #ffd54f44";
   container.appendChild(spinner);
-
+  // Einmaliges CSS
+  if (!document.getElementById('universalSpinnerCSS')) {
+    const style = document.createElement('style');
+    style.id = 'universalSpinnerCSS';
+    style.innerHTML = `
+      .spinner-ring {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #7ec1ff;
+        border-radius: 50%;
+        width: 56px; height: 56px;
+        animation: spin 1.1s linear infinite;
+        margin: 0 auto;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg);}
+        100% { transform: rotate(360deg);}
+      }
+      .universal-spinner { pointer-events:none; }
+    `;
+    document.head.appendChild(style);
+  }
   setTimeout(() => {
     spinner.remove();
-    if (typeof callback === "function") callback();
+    if (typeof cb === "function") cb();
   }, ms);
 }
