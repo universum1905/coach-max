@@ -821,7 +821,7 @@ function renderIntroSession(s, idx, container) {
 
 /* ==== COACH MAX APP.JS – STEP 6.3: COUNTING-SESSION ==== */
 
-function renderCountingSession(s, idx, container) {
+function renderCountingSession(s, idx, container1) {
   clearTimeouts();
   stopAllSounds();
   container.innerHTML = "";
@@ -894,15 +894,15 @@ function renderCountingSession(s, idx, container) {
           if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
 
           // Feedback
-          const feedback = document.createElement("div");
-          feedback.className = "quiz-feedback";
-          feedback.innerText = q.feedbackWrong || "Try again!";
-          feedback.style.color = "#c82121";
-          feedback.style.marginTop = "12px";
-          container.appendChild(feedback);
-          setTimeout(() => {
-            if (feedback.parentNode) feedback.parentNode.removeChild(feedback);
-          }, 950);
+          showAnswerFeedback(
+  container,
+  q.feedbackWrong || "Try again!",
+  "#c82121",
+  3000,
+  () => {
+    // hier dein Code nach Ablauf (z.B. Buttons wieder aktivieren)
+  }
+);
           return;
         }
 
@@ -953,6 +953,141 @@ function renderCountingSession(s, idx, container) {
 
   showQuestion();
 }
+
+function renderCountingSession(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // Musik abspielen
+  if (window.currentMusic) {
+    try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
+    window.currentMusic = null;
+  }
+  if (s.music) {
+    try {
+      window.currentMusic = new Audio("audio/" + s.music);
+      window.currentMusic.loop = false;
+      window.currentMusic.volume = 0.2;
+      window.currentMusic.play();
+    } catch (e) {}
+  }
+
+  const questions = Array.isArray(s.questions) ? s.questions : [];
+  let qIdx = 0;
+
+  function showQuestion() {
+    container.innerHTML = "";
+    const q = questions[qIdx];
+
+    // Fragetext pro Frage (NICHT die globale Überschrift)
+    const qDiv = document.createElement('div');
+    qDiv.className = "quiz-question";
+    qDiv.textContent = q.question || "";
+    if (qDiv.textContent) container.appendChild(qDiv);
+
+    // Tierbilder nebeneinander anzeigen
+    if (q.img && q.num > 0) {
+      const animalBox = document.createElement('div');
+      animalBox.style.display = "flex";
+      animalBox.style.justifyContent = "center";
+      animalBox.style.gap = "16px";
+      animalBox.style.margin = "10px 0";
+      for (let i = 0; i < q.num; i++) {
+        const img = document.createElement('img');
+        img.src = q.img;
+        img.style.width = "72px";
+        img.style.height = "72px";
+        img.style.objectFit = "contain";
+        img.style.margin = "8px 0";
+        img.style.borderRadius = "14px";
+        animalBox.appendChild(img);
+      }
+      container.appendChild(animalBox);
+    }
+
+    // Antwort-Buttons
+    const btnBox = document.createElement('div');
+    btnBox.className = "quiz-buttons";
+    let solved = false;
+
+    q.choices.forEach((val, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = val;
+      btn.className = "quiz-choice-btn";
+      btn.onclick = function () {
+        if (solved || btn.disabled) return;
+
+        // Falsche Antwort
+        if (i !== q.correct) {
+          btn.disabled = true;
+          btn.classList.add("wrong");
+          playSound(q.wrongSound || "fail.mp3");
+          runAnimations(q.wrongAnimation || ["shake"]);
+          if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
+
+          // Spinner + Feedback für 3 Sek, dann Buttons wieder aktivieren
+          showAnswerFeedback(
+            container,
+            q.feedbackWrong || "Try again!",
+            "#c82121",
+            3000,
+            () => {
+              btn.classList.remove("wrong");
+              btn.disabled = false;
+              btnBox.querySelectorAll("button").forEach(b => b.disabled = false);
+            }
+          );
+          return;
+        }
+
+        // Richtige Antwort!
+        solved = true;
+        btn.disabled = true;
+        btn.classList.add("correct");
+        runAnimations(q.correctAnimation || ["confetti-glow"]);
+        playSound(q.correctSound || "yay.mp3");
+        if (s.avatar) playAvatarAnimation(s.avatar, "tada");
+        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+
+        // Spinner + Feedback für 3 Sek, dann nächste Frage oder Reward
+        showAnswerFeedback(
+          container,
+          q.feedbackCorrect || "Great job! 🎉",
+          "#219821",
+          3000,
+          () => {
+            qIdx++;
+            if (qIdx < questions.length) {
+              showQuestion();
+            } else {
+              if (window.currentMusic) {
+                try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
+              }
+              showUniversalReward(
+                s,
+                () => {
+                  if (currentSession < sessions.length - 1) {
+                    currentSession++;
+                    renderSession(currentSession);
+                  } else {
+                    window.location.href = "choose.html";
+                  }
+                }
+              );
+            }
+          }
+        );
+      };
+      btnBox.appendChild(btn);
+    });
+    container.appendChild(btnBox);
+  }
+
+  showQuestion();
+}
+
+
 
 // HINWEIS: Diese Funktion ersetzt deinen bisherigen renderMemorySession!
 function renderMemoryField(s, idx, container) {
@@ -1178,4 +1313,26 @@ function playAvatarAnimation(avatarName, animType) {
   if (animType !== "bounce") {
     setTimeout(() => img.classList.remove("avatar-wiggle", "avatar-tada"), 1500);
   }
+}
+
+function showAnswerFeedback(container, text, color = "#219821", duration = 3000, callback = null) {
+  // Alte Feedbacks entfernen
+  container.querySelectorAll('.quiz-feedback').forEach(fb => fb.remove());
+  const feedback = document.createElement("div");
+  feedback.className = "quiz-feedback";
+  feedback.innerText = text;
+  feedback.style.color = color;
+  feedback.style.marginTop = "12px";
+
+  // Spinner
+  const spinner = document.createElement('div');
+  spinner.className = "wait-spinner";
+  feedback.appendChild(spinner);
+
+  container.appendChild(feedback);
+
+  setTimeout(() => {
+    feedback.remove();
+    if (typeof callback === "function") callback();
+  }, duration);
 }
