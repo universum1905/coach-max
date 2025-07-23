@@ -373,53 +373,54 @@ function renderUniversalQuizSession(s, idx, container) {
       btn.textContent = val;
       btn.className = "quiz-choice-btn";
       btn.onclick = function () {
-        if (solved || btn.disabled) return;
+  if (solved || btn.disabled) return;
 
-        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+  btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-        const isCorrect = (i === q.correct);
+  // Spinner zuerst, dann Feedback!
+  showUniversalSpinner(container, 3000, "Checking…", () => {
+    const isCorrect = (i === q.correct);
 
-        // Feedback anzeigen
-        const feedback = document.createElement("div");
-        feedback.className = "quiz-feedback";
-        feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
-        feedback.style.color = isCorrect ? "#219821" : "#c82121";
-        feedback.style.marginTop = "12px";
-        container.appendChild(feedback);
+    // Feedback anzeigen
+    const feedback = document.createElement("div");
+    feedback.className = "quiz-feedback";
+    feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
+    feedback.style.color = isCorrect ? "#219821" : "#c82121";
+    feedback.style.marginTop = "12px";
+    container.appendChild(feedback);
 
-        playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
-        runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
-        if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
+    playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+    runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+    if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
 
-        // --- UNIVERSALER SPINNER ---
-        showUniversalSpinner(container, 3000, "Checking…", () => {
-          feedback.remove();
-
-          if (isCorrect) {
-            solved = true;
-            qIdx++;
-            if (qIdx < questions.length) {
-              showQuestion();
-            } else {
-              if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
-              showUniversalReward(
-                s,
-                () => {
-                  if (currentSession < sessions.length - 1) {
-                    currentSession++;
-                    renderSession(currentSession);
-                  } else {
-                    window.location.href = "choose.html";
-                  }
-                }
-              );
+    setTimeout(() => {
+      feedback.remove();
+      if (isCorrect) {
+        solved = true;
+        qIdx++;
+        if (qIdx < questions.length) {
+          showQuestion();
+        } else {
+          if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+          showUniversalReward(
+            s,
+            () => {
+              if (currentSession < sessions.length - 1) {
+                currentSession++;
+                renderSession(currentSession);
+              } else {
+                window.location.href = "choose.html";
+              }
             }
-          } else {
-            // Falsche Buttons deaktiviert lassen, andere aktivieren:
-            btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
-          }
-        });
-      };
+          );
+        }
+      } else {
+        // Falsche Buttons deaktiviert lassen, andere aktivieren:
+        btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
+      }
+    }, 1100); // Feedback-Zeit (kürzer, sonst zu lang für Kinder)
+  });
+};
       btnBox.appendChild(btn);
     });
     container.appendChild(btnBox);
