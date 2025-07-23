@@ -446,17 +446,10 @@ function renderUniversalQuizSession(s, idx, container) {
 
 
 
-// ==== 6. Beispiel-Module ====
-function renderMemoryField(s, idx, container) {
-  container.innerHTML = ""; // Nur das eigene Feld leeren!
-  // ... Memory-Grid & Spiellogik NUR in container bauen ...
-}
 
-function renderCountingSession(s, idx, container) {
-  container.innerHTML = ""; // Nur das eigene Feld leeren!
-  // ... Counting-Logik NUR in container bauen ...
-}
-// Usw. für alle weiteren Module
+
+
+
 
 // ==== 7. Universeller Reward ====
 function showUniversalReward(sessionObj, nextAction = null) {
