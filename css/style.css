@@ -791,7 +791,7 @@ html, body {
   margin: 13px 0 0 0;
   transition: color 0.2s;
 }
-@keyframes spin { 100% { transform: rotate(360deg); } }
+
 .drawing-toolbar {
   display: flex;
   flex-direction: column;
@@ -878,10 +878,7 @@ html, body {
   vertical-align: middle;
   box-shadow: 0 2px 12px #ffe08255;
 }
-@keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
-}
+
 
 .universal-spinner .spinner-animation {
   width: 36px;
