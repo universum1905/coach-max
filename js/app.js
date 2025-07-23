@@ -411,17 +411,19 @@ function renderUniversalQuizSession(s, idx, container) {
                 showQuestion();
               } else {
                 if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
-                showUniversalReward(
-                  s,
-                  () => {
-                    if (currentSession < sessions.length - 1) {
-                      currentSession++;
-                      renderSession(currentSession);
-                    } else {
-                      window.location.href = "choose.html";
-                    }
-                  }
-                );
+                tryShowNextButtonOrWait(() => {
+  showUniversalReward(
+    s,
+    () => {
+      if (currentSession < sessions.length - 1) {
+        currentSession++;
+        renderSession(currentSession);
+      } else {
+        window.location.href = "choose.html";
+      }
+    }
+  );
+});
               }
             } else {
               // Falsche Buttons deaktiviert lassen, andere aktivieren:
