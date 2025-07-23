@@ -986,3 +986,18 @@ html, body {
   0% { transform: rotate(0deg);}
   100% { transform: rotate(360deg);}
 }
+.quiz-choice-btn.selected {
+  background: #ffe47a;
+  color: #383838;
+  border-color: #ffd600;
+}
+.quiz-choice-btn.correct {
+  background: #5cf379;
+  color: #12451d;
+  border-color: #18c934;
+}
+.quiz-choice-btn.wrong {
+  background: #ff6d6d;
+  color: #fff;
+  border-color: #d32f2f;
+}

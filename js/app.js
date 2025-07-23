@@ -373,54 +373,64 @@ function renderUniversalQuizSession(s, idx, container) {
       btn.textContent = val;
       btn.className = "quiz-choice-btn";
       btn.onclick = function () {
-  if (solved || btn.disabled) return;
+        if (solved || btn.disabled) return;
 
-  btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+        // 1. Sofort gelb markieren:
+        btn.classList.add("selected");
+        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-  // Spinner zuerst, dann Feedback!
-  showUniversalSpinner(container, 3000, "Checking…", () => {
-    const isCorrect = (i === q.correct);
+        // 2. Spinner zeigen, danach Feedback!
+        showUniversalSpinner(container, 3000, "Checking…", () => {
+          btn.classList.remove("selected");
+          const isCorrect = (i === q.correct);
 
-    // Feedback anzeigen
-    const feedback = document.createElement("div");
-    feedback.className = "quiz-feedback";
-    feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
-    feedback.style.color = isCorrect ? "#219821" : "#c82121";
-    feedback.style.marginTop = "12px";
-    container.appendChild(feedback);
+          if (isCorrect) {
+            btn.classList.add("correct");
+          } else {
+            btn.classList.add("wrong");
+          }
 
-    playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
-    runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
-    if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
+          // Feedback
+          const feedback = document.createElement("div");
+          feedback.className = "quiz-feedback";
+          feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
+          feedback.style.color = isCorrect ? "#219821" : "#c82121";
+          feedback.style.marginTop = "12px";
+          container.appendChild(feedback);
 
-    setTimeout(() => {
-      feedback.remove();
-      if (isCorrect) {
-        solved = true;
-        qIdx++;
-        if (qIdx < questions.length) {
-          showQuestion();
-        } else {
-          if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
-          showUniversalReward(
-            s,
-            () => {
-              if (currentSession < sessions.length - 1) {
-                currentSession++;
-                renderSession(currentSession);
+          playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+          runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+          if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
+
+          setTimeout(() => {
+            feedback.remove();
+            if (isCorrect) {
+              solved = true;
+              qIdx++;
+              if (qIdx < questions.length) {
+                showQuestion();
               } else {
-                window.location.href = "choose.html";
+                if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+                showUniversalReward(
+                  s,
+                  () => {
+                    if (currentSession < sessions.length - 1) {
+                      currentSession++;
+                      renderSession(currentSession);
+                    } else {
+                      window.location.href = "choose.html";
+                    }
+                  }
+                );
               }
+            } else {
+              // Falsche Buttons deaktiviert lassen, andere aktivieren:
+              btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
+              // Der falsche Button bleibt rot und disabled!
             }
-          );
-        }
-      } else {
-        // Falsche Buttons deaktiviert lassen, andere aktivieren:
-        btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
-      }
-    }, 1100); // Feedback-Zeit (kürzer, sonst zu lang für Kinder)
-  });
-};
+          }, 1100); // Feedback-Zeit
+        });
+      };
       btnBox.appendChild(btn);
     });
     container.appendChild(btnBox);
@@ -428,8 +438,6 @@ function renderUniversalQuizSession(s, idx, container) {
 
   showQuestion();
 }
-
-
 
 
 
