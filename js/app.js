@@ -1057,12 +1057,19 @@ function renderMemoryField(s, idx, container) {
                 memoryMusic.pause();
                 memoryMusic.currentTime = 0;
               }
-              setTimeout(() => {
-                showUniversalReward(
-                  s,
-                  () => { window.location.href = "choose.html"; }
-                );
-              }, 600);
+              tryShowNextButtonOrWait(() => {
+  showUniversalReward(
+    s,
+    () => {
+      if (currentSession < sessions.length - 1) {
+        currentSession++;
+        renderSession(currentSession);
+      } else {
+        window.location.href = "choose.html";
+      }
+    }
+  );
+});
             }
           } else {
             // zurückdrehen
