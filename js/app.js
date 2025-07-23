@@ -15,6 +15,67 @@ function getDayParam() {
 currentDay = getDayParam();
 const jsonURL = `days/day${currentDay}.json`;
 
+
+let sessionStartTime = 0;
+const minSessionDuration = 60 * 1000; // 1 Minute (kannst du beliebig ändern)
+
+
+
+function tryShowNextButtonOrWait(callback) {
+  let now = Date.now();
+  let remaining = minSessionDuration - (now - sessionStartTime);
+  if (remaining > 0) {
+    showWaitingOverlay(remaining);
+    setTimeout(() => {
+      hideWaitingOverlay();
+      callback();
+    }, remaining);
+  } else {
+    callback();
+  }
+}
+
+// Simple Overlay-Animation (Minimalvariante)
+function showWaitingOverlay(ms) {
+  let overlay = document.createElement("div");
+  overlay.id = "waitingOverlay";
+  overlay.style.position = "fixed";
+  overlay.style.left = 0;
+  overlay.style.top = 0;
+  overlay.style.width = "100vw";
+  overlay.style.height = "100vh";
+  overlay.style.background = "rgba(250,250,210,0.87)";
+  overlay.style.zIndex = 9999;
+  overlay.style.display = "flex";
+  overlay.style.flexDirection = "column";
+  overlay.style.justifyContent = "center";
+  overlay.style.alignItems = "center";
+  overlay.innerHTML = `<div style="font-size:2.2em; margin-bottom:18px;">⏳</div>
+    <div style="font-size:1.3em; margin-bottom:8px;">Just a moment...</div>
+    <div id="waitCountdown" style="font-size:1.1em;"></div>`;
+  document.body.appendChild(overlay);
+
+  // Countdown-Anzeige (optional)
+  let countdownDiv = overlay.querySelector("#waitCountdown");
+  let remainingSec = Math.ceil(ms / 1000);
+  countdownDiv.textContent = `${remainingSec} sec`;
+  let interval = setInterval(() => {
+    remainingSec--;
+    if (remainingSec > 0) {
+      countdownDiv.textContent = `${remainingSec} sec`;
+    } else {
+      clearInterval(interval);
+    }
+  }, 1000);
+}
+
+function hideWaitingOverlay() {
+  document.getElementById("waitingOverlay")?.remove();
+}
+
+
+
+
 // ==== 2. Musik-/Sound-Handling ====
 // Stoppt ALLE laufenden Sounds zentral
 function stopAllSounds() {
@@ -162,6 +223,7 @@ document.addEventListener("visibilitychange", function() {
 
 // ==== 5. Haupt-Session-Renderer ====
 function renderSession(idx) {
+  sessionStartTime = Date.now(); // <<< HIER!
   const s = sessions[idx];
   lastSessionIdx = idx;
   clearTimeouts();
@@ -339,10 +401,10 @@ function showUniversalReward(sessionObj, nextAction = null) {
   } catch(e){}
 
   // Finish-Button: Immer zu choose.html
-  setTimeout(() => {
+  tryShowNextButtonOrWait(() => {
   const btn = document.createElement("button");
-  btn.className = "centered-next-btn";
   btn.innerText = (currentSession < sessions.length - 1) ? "Next" : "Finish";
+  btn.className = "centered-next-btn";
   btn.onclick = () => {
     document.querySelectorAll(".animals-reward-container, .centered-next-btn").forEach(e => e.remove());
     if (currentSession < sessions.length - 1) {
@@ -352,8 +414,8 @@ function showUniversalReward(sessionObj, nextAction = null) {
       window.location.href = "choose.html";
     }
   };
-  document.body.appendChild(btn);
-}, 800);
+  reward.insertAdjacentElement('afterend', btn);
+});
 }
 
 
