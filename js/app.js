@@ -827,7 +827,7 @@ function renderCountingSession(s, idx, container) {
   stopAllSounds();
   container.innerHTML = "";
 
-  // Musik abspielen
+  // Musik abspielen, falls im JSON vorhanden
   if (window.currentMusic) {
     try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
     window.currentMusic = null;
@@ -848,11 +848,14 @@ function renderCountingSession(s, idx, container) {
     container.innerHTML = "";
     const q = questions[qIdx];
 
-    // Fragetext pro Frage (NICHT die globale Überschrift)
-    const qDiv = document.createElement('div');
-    qDiv.className = "quiz-question";
-    qDiv.textContent = q.question || "";
-    if (qDiv.textContent) container.appendChild(qDiv);
+    // Fragetext (OHNE Überschrift – die ist global!)
+    // Du kannst hier aber noch eine Unterzeile machen falls nötig (z.B. für "How many dogs?")
+    if (q.question) {
+      const subQ = document.createElement('div');
+      subQ.className = "quiz-subquestion";
+      subQ.textContent = q.question;
+      container.appendChild(subQ);
+    }
 
     // Tierbilder nebeneinander anzeigen
     if (q.img && q.num > 0) {
@@ -874,7 +877,7 @@ function renderCountingSession(s, idx, container) {
       container.appendChild(animalBox);
     }
 
-    // Antwort-Buttons
+    // Antwortbuttons
     const btnBox = document.createElement('div');
     btnBox.className = "quiz-buttons";
     let solved = false;
@@ -894,18 +897,20 @@ function renderCountingSession(s, idx, container) {
           runAnimations(q.wrongAnimation || ["shake"]);
           if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
 
-          // Spinner + Feedback für 3 Sek, dann Buttons wieder aktivieren
-          showAnswerFeedback(
-            container,
-            q.feedbackWrong || "Try again!",
-            "#c82121",
-            3000,
-            () => {
-              btn.classList.remove("wrong");
-              btn.disabled = false;
-              btnBox.querySelectorAll("button").forEach(b => b.disabled = false);
-            }
-          );
+          // Feedback und Spinner anzeigen
+          const feedback = document.createElement("div");
+          feedback.className = "quiz-feedback";
+          feedback.innerText = q.feedbackWrong || "Try again!";
+          feedback.style.color = "#c82121";
+          feedback.style.marginTop = "12px";
+          container.appendChild(feedback);
+
+          showSpinner(container, 3000, () => {
+            feedback.remove();
+            btn.classList.remove("wrong");
+            btn.disabled = false;
+          });
+
           return;
         }
 
@@ -918,34 +923,37 @@ function renderCountingSession(s, idx, container) {
         if (s.avatar) playAvatarAnimation(s.avatar, "tada");
         btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-        // Spinner + Feedback für 3 Sek, dann nächste Frage oder Reward
-        showAnswerFeedback(
-          container,
-          q.feedbackCorrect || "Great job! 🎉",
-          "#219821",
-          3000,
-          () => {
-            qIdx++;
-            if (qIdx < questions.length) {
-              showQuestion();
-            } else {
-              if (window.currentMusic) {
-                try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
-              }
-              showUniversalReward(
-                s,
-                () => {
-                  if (currentSession < sessions.length - 1) {
-                    currentSession++;
-                    renderSession(currentSession);
-                  } else {
-                    window.location.href = "choose.html";
-                  }
-                }
-              );
+        // Feedback
+        const feedback = document.createElement("div");
+        feedback.className = "quiz-feedback";
+        feedback.innerText = q.feedbackCorrect || "Great job! 🎉";
+        feedback.style.color = "#219821";
+        feedback.style.marginTop = "12px";
+        container.appendChild(feedback);
+
+        // Nach 3s nächste Frage oder Reward
+        setTimeout(() => {
+          feedback.remove();
+          qIdx++;
+          if (qIdx < questions.length) {
+            showQuestion();
+          } else {
+            if (window.currentMusic) {
+              try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
             }
+            showUniversalReward(
+              s,
+              () => {
+                if (currentSession < sessions.length - 1) {
+                  currentSession++;
+                  renderSession(currentSession);
+                } else {
+                  window.location.href = "choose.html";
+                }
+              }
+            );
           }
-        );
+        }, 3000); // Auch bei richtig: 3 Sekunden warten!
       };
       btnBox.appendChild(btn);
     });
@@ -954,8 +962,6 @@ function renderCountingSession(s, idx, container) {
 
   showQuestion();
 }
-
-
 
 // HINWEIS: Diese Funktion ersetzt deinen bisherigen renderMemorySession!
 function renderMemoryField(s, idx, container) {
