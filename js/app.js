@@ -20,151 +20,6 @@ let sessionStartTime = 0;
 const minSessionDuration = 60 * 1000; // 1 Minute (kannst du beliebig ändern)
 
 
-function renderUniversalQuizSession(s, idx, container) {
-  clearTimeouts();
-  stopAllSounds();
-  container.innerHTML = "";
-
-  // Musik (optional)
-  if (window.currentMusic) {
-    try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
-    window.currentMusic = null;
-  }
-  if (s.music) {
-    try {
-      window.currentMusic = new Audio("audio/" + s.music);
-      window.currentMusic.loop = false;
-      window.currentMusic.volume = 0.2;
-      window.currentMusic.play();
-    } catch (e) {}
-  }
-
-  const questions = Array.isArray(s.questions) ? s.questions : [];
-  let qIdx = 0;
-
-  function showQuestion() {
-    container.innerHTML = "";
-    const q = questions[qIdx];
-
-    // FRAGE – falls vorhanden
-    if (q.question) {
-      const qDiv = document.createElement('div');
-      qDiv.className = "quiz-question";
-      qDiv.textContent = q.question;
-      container.appendChild(qDiv);
-    }
-
-    // Optional: Bild (z. B. bei counting, animals, etc.)
-    if (q.img && q.num > 0) {
-      const imgBox = document.createElement('div');
-      imgBox.style.display = "flex";
-      imgBox.style.justifyContent = "center";
-      imgBox.style.gap = "14px";
-      imgBox.style.margin = "12px 0";
-      for (let i = 0; i < q.num; i++) {
-        const img = document.createElement('img');
-        img.src = q.img;
-        img.style.width = "72px";
-        img.style.height = "72px";
-        img.style.objectFit = "contain";
-        img.style.margin = "6px 0";
-        img.style.borderRadius = "14px";
-        imgBox.appendChild(img);
-      }
-      container.appendChild(imgBox);
-    } else if (q.img) {
-      // Einfaches Einzelbild (z. B. für Quiz-Fragen)
-      const img = document.createElement('img');
-      img.src = q.img;
-      img.style.width = "110px";
-      img.style.display = "block";
-      img.style.margin = "0 auto 10px auto";
-      img.style.objectFit = "contain";
-      container.appendChild(img);
-    }
-
-    // Buttons
-    const btnBox = document.createElement('div');
-    btnBox.className = "quiz-buttons";
-    let solved = false;
-
-    q.choices.forEach((val, i) => {
-      const btn = document.createElement('button');
-      btn.textContent = val;
-      btn.className = "quiz-choice-btn";
-      btn.onclick = function () {
-        if (solved || btn.disabled) return;
-
-        // 3 Sekunden Feedback nach JEDEM Klick
-        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
-
-        if (i !== q.correct) {
-          btn.classList.add("wrong");
-          playSound(q.wrongSound || "fail.mp3");
-          runAnimations(q.wrongAnimation || ["shake"]);
-          if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
-
-          // Feedback
-          const feedback = document.createElement("div");
-          feedback.className = "quiz-feedback";
-          feedback.innerText = q.feedbackWrong || "Try again!";
-          feedback.style.color = "#c82121";
-          feedback.style.marginTop = "12px";
-          container.appendChild(feedback);
-
-          setTimeout(() => {
-            if (feedback.parentNode) feedback.parentNode.removeChild(feedback);
-            btnBox.querySelectorAll("button").forEach(b => b.disabled = false);
-          }, 3000);
-
-        } else {
-          solved = true;
-          btn.classList.add("correct");
-          runAnimations(q.correctAnimation || ["confetti-glow"]);
-          playSound(q.correctSound || "yay.mp3");
-          if (s.avatar) playAvatarAnimation(s.avatar, "tada");
-
-          // Feedback
-          const feedback = document.createElement("div");
-          feedback.className = "quiz-feedback";
-          feedback.innerText = q.feedbackCorrect || "Great job! 🎉";
-          feedback.style.color = "#219821";
-          feedback.style.marginTop = "12px";
-          container.appendChild(feedback);
-
-          setTimeout(() => {
-            feedback.remove();
-            qIdx++;
-            if (qIdx < questions.length) {
-              showQuestion();
-            } else {
-              if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
-              showUniversalReward(
-                s,
-                () => {
-                  if (currentSession < sessions.length - 1) {
-                    currentSession++;
-                    renderSession(currentSession);
-                  } else {
-                    window.location.href = "choose.html";
-                  }
-                }
-              );
-            }
-          }, 3000);
-        }
-      };
-      btnBox.appendChild(btn);
-    });
-    container.appendChild(btnBox);
-  }
-
-  showQuestion();
-}
-
-
-
-
 function tryShowNextButtonOrWait(callback) {
   let now = Date.now();
   let remaining = minSessionDuration - (now - sessionStartTime);
@@ -400,27 +255,196 @@ renderFrogProgress(currentSession, currentSession, sessions.length);
   textArea.appendChild(gameContainer);
 
   // Spezialfall: Intro & Story – synchron!
-  // renderSession:
+ // renderSession:
 if (s.type === "intro" || s.type === "story") {
   renderFloatingVideo(s);
   if (s.type === "intro")  renderIntroSession(s, idx, gameContainer);
   else                     renderStorySession(s, idx, gameContainer);
   return;
 }
-  // Alle anderen: Erst nach Video das Spielfeld
-  renderFloatingVideo(s, () => {
-    if      (s.type === "breathing")   renderBreathingSession(s, idx, gameContainer);
-    else if (s.type === "counting")    renderCountingSession(s, idx, gameContainer);
-    else if (s.type === "memory")      renderMemoryField(s, idx, gameContainer);
-    else if (s.type === "drawing")     renderDrawingSession(s, idx, gameContainer);
-    else if (s.type === "animals")     renderAnimalsSession(s, idx, gameContainer);
-    else if (s.type === "rhyme")       renderRhymeSession(s, idx, gameContainer);
-    else if (s.type === "chatgpt-quiz")renderChatGPTQuizSession(s, idx, gameContainer);
-    else if (s.type === "sequence")    renderSequenceSession(s, idx, gameContainer);
-    else if (s.type === "shadow")      renderShadowSession(s, idx, gameContainer);
-    else                              renderUnknownSession(s, idx, gameContainer);
-  });
+// Alle anderen: Erst nach Video das Spielfeld
+renderFloatingVideo(s, () => {
+  // UNIVERSALER QUIZ-TYP
+  if (
+    s.type === "counting" ||
+    s.type === "animals-quiz" ||
+    s.type === "rhyme" ||
+    s.type === "chatgpt-quiz" ||
+    s.type === "color-quiz" ||
+    s.type === "sequence" ||
+    s.type === "shadow"
+  ) {
+    renderUniversalQuizSession(s, idx, gameContainer);
+  }
+  // MEMORY separat
+  else if (s.type === "memory") {
+    renderMemoryField(s, idx, gameContainer);
+  }
+  // ZEICHNEN separat
+  else if (s.type === "drawing") {
+    renderDrawingSession(s, idx, gameContainer);
+  }
+  // SPEZIELLE ANIMAL-SESSION
+  else if (s.type === "animals") {
+    renderAnimalsSession(s, idx, gameContainer);
+  }
+  // Fallback
+  else {
+    renderUnknownSession(s, idx, gameContainer);
+  }
+});
 }
+
+
+
+
+
+
+function renderUniversalQuizSession(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // Musik (optional)
+  if (window.currentMusic) {
+    try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
+    window.currentMusic = null;
+  }
+  if (s.music) {
+    try {
+      window.currentMusic = new Audio("audio/" + s.music);
+      window.currentMusic.loop = false;
+      window.currentMusic.volume = 0.2;
+      window.currentMusic.play();
+    } catch (e) {}
+  }
+
+  const questions = Array.isArray(s.questions) ? s.questions : [];
+  let qIdx = 0;
+
+  function showQuestion() {
+    container.innerHTML = "";
+    const q = questions[qIdx];
+
+    // FRAGE – falls vorhanden
+    if (q.question) {
+      const qDiv = document.createElement('div');
+      qDiv.className = "quiz-question";
+      qDiv.textContent = q.question;
+      container.appendChild(qDiv);
+    }
+
+    // Optional: Bild (z. B. bei counting, animals, etc.)
+    if (q.img && q.num > 0) {
+      const imgBox = document.createElement('div');
+      imgBox.style.display = "flex";
+      imgBox.style.justifyContent = "center";
+      imgBox.style.gap = "14px";
+      imgBox.style.margin = "12px 0";
+      for (let i = 0; i < q.num; i++) {
+        const img = document.createElement('img');
+        img.src = q.img;
+        img.style.width = "72px";
+        img.style.height = "72px";
+        img.style.objectFit = "contain";
+        img.style.margin = "6px 0";
+        img.style.borderRadius = "14px";
+        imgBox.appendChild(img);
+      }
+      container.appendChild(imgBox);
+    } else if (q.img) {
+      // Einfaches Einzelbild (z. B. für Quiz-Fragen)
+      const img = document.createElement('img');
+      img.src = q.img;
+      img.style.width = "110px";
+      img.style.display = "block";
+      img.style.margin = "0 auto 10px auto";
+      img.style.objectFit = "contain";
+      container.appendChild(img);
+    }
+
+    // Buttons
+    const btnBox = document.createElement('div');
+    btnBox.className = "quiz-buttons";
+    let solved = false;
+
+    q.choices.forEach((val, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = val;
+      btn.className = "quiz-choice-btn";
+      btn.onclick = function () {
+        if (solved || btn.disabled) return;
+
+        // 3 Sekunden Feedback nach JEDEM Klick
+        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+
+        if (i !== q.correct) {
+          btn.classList.add("wrong");
+          playSound(q.wrongSound || "fail.mp3");
+          runAnimations(q.wrongAnimation || ["shake"]);
+          if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
+
+          // Feedback
+          const feedback = document.createElement("div");
+          feedback.className = "quiz-feedback";
+          feedback.innerText = q.feedbackWrong || "Try again!";
+          feedback.style.color = "#c82121";
+          feedback.style.marginTop = "12px";
+          container.appendChild(feedback);
+
+          setTimeout(() => {
+            if (feedback.parentNode) feedback.parentNode.removeChild(feedback);
+            btnBox.querySelectorAll("button").forEach(b => b.disabled = false);
+          }, 3000);
+
+        } else {
+          solved = true;
+          btn.classList.add("correct");
+          runAnimations(q.correctAnimation || ["confetti-glow"]);
+          playSound(q.correctSound || "yay.mp3");
+          if (s.avatar) playAvatarAnimation(s.avatar, "tada");
+
+          // Feedback
+          const feedback = document.createElement("div");
+          feedback.className = "quiz-feedback";
+          feedback.innerText = q.feedbackCorrect || "Great job! 🎉";
+          feedback.style.color = "#219821";
+          feedback.style.marginTop = "12px";
+          container.appendChild(feedback);
+
+          setTimeout(() => {
+            feedback.remove();
+            qIdx++;
+            if (qIdx < questions.length) {
+              showQuestion();
+            } else {
+              if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+              showUniversalReward(
+                s,
+                () => {
+                  if (currentSession < sessions.length - 1) {
+                    currentSession++;
+                    renderSession(currentSession);
+                  } else {
+                    window.location.href = "choose.html";
+                  }
+                }
+              );
+            }
+          }, 3000);
+        }
+      };
+      btnBox.appendChild(btn);
+    });
+    container.appendChild(btnBox);
+  }
+
+  showQuestion();
+}
+
+
+
+
 
 // ==== 6. Beispiel-Module ====
 function renderMemoryField(s, idx, container) {
