@@ -953,3 +953,14 @@ html, body {
   opacity: 0.64;
   cursor: not-allowed;
 }
+.animal-funfact {
+  background: #e1f5fe;
+  border-radius: 15px;
+  padding: 9px 16px;
+  margin: 10px 0 0 0;
+  font-size: 1.05em;
+  color: #1976d2;
+  box-shadow: 0 1px 7px #b2ebf288;
+  font-weight: 500;
+  animation: fadeInText 1s;
+}

@@ -6,7 +6,7 @@ let currentDay = 1;
 let currentMusic = null;
 
 const DEV_MODE = true;              // false = Live, true = Test/Entwickler
-const DEV_START_SESSION = 3;        // Index: 0 = erste Session (Intro), 1 = zweite Session, 2 = dritte usw.
+const DEV_START_SESSION = 0;        // Index: 0 = erste Session (Intro), 1 = zweite Session, 2 = dritte usw.
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
@@ -324,7 +324,7 @@ function renderUniversalQuizSession(s, idx, container) {
   stopAllSounds();
   container.innerHTML = "";
 
-  // Musik abspielen (optional)
+  // Musik (optional)
   if (window.currentMusic) {
     try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
     window.currentMusic = null;
@@ -340,14 +340,12 @@ function renderUniversalQuizSession(s, idx, container) {
 
   const questions = Array.isArray(s.questions) ? s.questions : [];
   let qIdx = 0;
-  // Prüfe, ob TTS/KI erlaubt (z.B. per globaler Funktion oder JSON)
-  const ttsAllowed = (typeof canUseTTS === "function") ? canUseTTS(idx) : true;
 
   function showQuestion() {
     container.innerHTML = "";
     const q = questions[qIdx];
 
-    // Frage (immer im JSON, optional KI generierbar)
+    // --- Frage ---
     if (q.question) {
       const qDiv = document.createElement('div');
       qDiv.className = "quiz-question";
@@ -355,30 +353,40 @@ function renderUniversalQuizSession(s, idx, container) {
       container.appendChild(qDiv);
     }
 
-    // Optionales Bild
-    if (q.img) {
+    // --- Tierbild(er) ---
+    if (q.img && q.num > 0) {
+      const imgBox = document.createElement('div');
+      imgBox.style.display = "flex";
+      imgBox.style.justifyContent = "center";
+      imgBox.style.gap = "14px";
+      imgBox.style.margin = "12px 0";
+      for (let i = 0; i < q.num; i++) {
+        const img = document.createElement('img');
+        img.src = q.img;
+        img.style.width = "72px";
+        img.style.height = "72px";
+        img.style.objectFit = "contain";
+        img.style.margin = "6px 0";
+        img.style.borderRadius = "14px";
+        imgBox.appendChild(img);
+      }
+      container.appendChild(imgBox);
+    } else if (q.img) {
       const img = document.createElement('img');
       img.src = q.img;
-      img.style.width = "90px";
+      img.style.width = "110px";
       img.style.display = "block";
       img.style.margin = "0 auto 10px auto";
       img.style.objectFit = "contain";
       container.appendChild(img);
     }
 
-    // Optionales Tiergeräusch
-    if (q.audio) {
-      const audioBtn = document.createElement('button');
-      audioBtn.innerText = "🔊";
-      audioBtn.style.fontSize = "1.5rem";
-      audioBtn.style.marginBottom = "8px";
-      audioBtn.onclick = function() {
-        playSound(q.audio.replace("audio/", ""));
-      };
-      container.appendChild(audioBtn);
+    // --- Tiergeräusch abspielen ---
+    if (q.sound) {
+      playSound(q.sound);
     }
 
-    // Antwort-Buttons
+    // --- Antwort-Buttons ---
     const btnBox = document.createElement('div');
     btnBox.className = "quiz-buttons";
     let solved = false;
@@ -393,84 +401,76 @@ function renderUniversalQuizSession(s, idx, container) {
         btn.classList.add("selected");
         btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
+        // Spinner anzeigen – nach 3 Sek. auswerten
         showUniversalSpinner(container, 3000, "Checking…", () => {
           btn.classList.remove("selected");
           const isCorrect = (i === q.correct);
-          if (isCorrect) btn.classList.add("correct");
-          else           btn.classList.add("wrong");
 
-          // KI/TTS: Nutze KI nur wenn erlaubt und gewünscht
-          let feedbackText = isCorrect ? (q.feedbackCorrect || "Great job!") : (q.feedbackWrong || "Try again!");
-          let factText = q.funFact || "";
-
-          // === TTS/KI-FEEDBACK (wenn erlaubt & im JSON gesetzt oder global Flag) ===
-          if ((q.tts || s.tts) && ttsAllowed && typeof requestKIText === "function") {
-            // KI-Text-API für Feedback und Fun Fact (asynchron)
-            requestKIText({question: q.question, answer: val, correct: isCorrect, context: s.title}, function(kiFeedback) {
-              if (kiFeedback) feedbackText = kiFeedback;
-              showQuizFeedback(feedbackText, isCorrect);
-            });
+          if (isCorrect) {
+            btn.classList.add("correct");
           } else {
-            showQuizFeedback(feedbackText, isCorrect, factText);
+            btn.classList.add("wrong");
           }
+
+          // Feedback
+          const feedback = document.createElement("div");
+          feedback.className = "quiz-feedback";
+          feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
+          feedback.style.color = isCorrect ? "#219821" : "#c82121";
+          feedback.style.marginTop = "12px";
+          container.appendChild(feedback);
+
+          // Fun Fact
+          if (isCorrect && q.funFact) {
+            const factDiv = document.createElement("div");
+            factDiv.className = "animal-funfact";
+            factDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
+            factDiv.style.marginTop = "14px";
+            factDiv.style.fontSize = "1.09em";
+            factDiv.style.textAlign = "center";
+            factDiv.style.color = "#555";
+            container.appendChild(factDiv);
+          }
+
+          playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+          runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+          if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
+
+          setTimeout(() => {
+            feedback.remove();
+            if (isCorrect && container.querySelector('.animal-funfact')) {
+              container.querySelector('.animal-funfact').remove();
+            }
+            if (isCorrect) {
+              solved = true;
+              qIdx++;
+              if (qIdx < questions.length) {
+                showQuestion();
+              } else {
+                if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+                tryShowNextButtonOrWait(() => {
+                  showUniversalReward(
+                    s,
+                    () => {
+                      if (currentSession < sessions.length - 1) {
+                        currentSession++;
+                        renderSession(currentSession);
+                      } else {
+                        window.location.href = "choose.html";
+                      }
+                    }
+                  );
+                });
+              }
+            } else {
+              btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
+            }
+          }, 1100);
         });
       };
       btnBox.appendChild(btn);
     });
     container.appendChild(btnBox);
-
-    // Feedback Helper (universell)
-    function showQuizFeedback(text, isCorrect, fact = "") {
-      const feedback = document.createElement("div");
-      feedback.className = "quiz-feedback";
-      feedback.innerText = text;
-      feedback.style.color = isCorrect ? "#219821" : "#c82121";
-      feedback.style.marginTop = "12px";
-      container.appendChild(feedback);
-
-      // Fun Fact (optional, auch per KI möglich)
-      if (isCorrect && fact) {
-        const factBox = document.createElement("div");
-        factBox.className = "quiz-funfact";
-        factBox.innerText = fact;
-        factBox.style.color = "#1976d2";
-        factBox.style.marginTop = "6px";
-        factBox.style.fontSize = "1.1rem";
-        container.appendChild(factBox);
-      }
-
-      playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
-      runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
-      if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
-
-      setTimeout(() => {
-        feedback.remove();
-        if (isCorrect) {
-          solved = true;
-          qIdx++;
-          if (qIdx < questions.length) {
-            showQuestion();
-          } else {
-            if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
-            tryShowNextButtonOrWait(() => {
-              showUniversalReward(
-                s,
-                () => {
-                  if (currentSession < sessions.length - 1) {
-                    currentSession++;
-                    renderSession(currentSession);
-                  } else {
-                    window.location.href = "choose.html";
-                  }
-                }
-              );
-            });
-          }
-        } else {
-          btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
-        }
-      }, 1100);
-    }
   }
 
   showQuestion();

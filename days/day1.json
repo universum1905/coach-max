@@ -144,7 +144,47 @@
   ],
   "successSticker": 4,
   "onFinish": "Awesome! You finished the rhyming game!"
+},
+{
+  "type": "animals-quiz",
+  "title": "Which animal is this?",
+  "avatar": "momo",
+  "video": "day2-animals-intro.mp4",
+  "music": "animal-loop.mp3",
+  "questions": [
+    {
+      "question": "Which animal makes this sound?",
+      "img": "images/animals/dog.png",
+      "sound": "dog-bark.mp3",
+      "choices": [
+        "Cat",
+        "Dog",
+        "Cow"
+      ],
+      "correct": 1,
+      "feedbackCorrect": "Right! That's a dog! 🐶",
+      "feedbackWrong": "Nope, try again!",
+      "funFact": "Dogs have an amazing sense of smell!"
+    },
+    {
+      "question": "Who is mooing here?",
+      "img": "images/animals/cow.png",
+      "sound": "cow-moo.mp3",
+      "choices": [
+        "Cow",
+        "Sheep",
+        "Dog"
+      ],
+      "correct": 0,
+      "feedbackCorrect": "Moo! It's a cow. 🐮",
+      "feedbackWrong": "Listen again and guess!",
+      "funFact": "Cows have best friends and get stressed when separated."
+    }
+  ],
+  "successSticker": 3,
+  "onFinish": "Great job! You're an animal expert!"
 }
+
    
 
    ]
