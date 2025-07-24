@@ -117,6 +117,7 @@
 {
   "type": "rhyme",
   "title": "Let's Find the Rhymes!",
+  "video": "day1-test.mp4",
   "avatar": "luna",
   "music": "focus-loop.mp3",
   "tts": true,      
