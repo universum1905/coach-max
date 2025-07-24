@@ -324,7 +324,7 @@ function renderUniversalQuizSession(s, idx, container) {
   stopAllSounds();
   container.innerHTML = "";
 
-  // Musik (optional)
+  // Musik abspielen (optional)
   if (window.currentMusic) {
     try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
     window.currentMusic = null;
@@ -340,15 +340,14 @@ function renderUniversalQuizSession(s, idx, container) {
 
   const questions = Array.isArray(s.questions) ? s.questions : [];
   let qIdx = 0;
-
-  // --- NEU: TTS/KI-Limit prüfen (falls aktiviert) ---
-  const ttsAllowed = (typeof canUseTTS === "function") ? canUseTTS(idx) : false;
+  // Prüfe, ob TTS/KI erlaubt (z.B. per globaler Funktion oder JSON)
+  const ttsAllowed = (typeof canUseTTS === "function") ? canUseTTS(idx) : true;
 
   function showQuestion() {
     container.innerHTML = "";
     const q = questions[qIdx];
 
-    // Frage
+    // Frage (immer im JSON, optional KI generierbar)
     if (q.question) {
       const qDiv = document.createElement('div');
       qDiv.className = "quiz-question";
@@ -356,36 +355,30 @@ function renderUniversalQuizSession(s, idx, container) {
       container.appendChild(qDiv);
     }
 
-    // Bild(er) (z. B. für Zählaufgaben)
-    if (q.img && q.num > 0) {
-      const imgBox = document.createElement('div');
-      imgBox.style.display = "flex";
-      imgBox.style.justifyContent = "center";
-      imgBox.style.gap = "14px";
-      imgBox.style.margin = "12px 0";
-      for (let i = 0; i < q.num; i++) {
-        const img = document.createElement('img');
-        img.src = q.img;
-        img.style.width = "72px";
-        img.style.height = "72px";
-        img.style.objectFit = "contain";
-        img.style.margin = "6px 0";
-        img.style.borderRadius = "14px";
-        imgBox.appendChild(img);
-      }
-      container.appendChild(imgBox);
-    } else if (q.img) {
-      // Einzelbild (z. B. für Quiz-Fragen)
+    // Optionales Bild
+    if (q.img) {
       const img = document.createElement('img');
       img.src = q.img;
-      img.style.width = "110px";
+      img.style.width = "90px";
       img.style.display = "block";
       img.style.margin = "0 auto 10px auto";
       img.style.objectFit = "contain";
       container.appendChild(img);
     }
 
-    // Buttons
+    // Optionales Tiergeräusch
+    if (q.audio) {
+      const audioBtn = document.createElement('button');
+      audioBtn.innerText = "🔊";
+      audioBtn.style.fontSize = "1.5rem";
+      audioBtn.style.marginBottom = "8px";
+      audioBtn.onclick = function() {
+        playSound(q.audio.replace("audio/", ""));
+      };
+      container.appendChild(audioBtn);
+    }
+
+    // Antwort-Buttons
     const btnBox = document.createElement('div');
     btnBox.className = "quiz-buttons";
     let solved = false;
@@ -397,78 +390,91 @@ function renderUniversalQuizSession(s, idx, container) {
       btn.onclick = function () {
         if (solved || btn.disabled) return;
 
-        // 1. Auswahl gelb
         btn.classList.add("selected");
         btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-        // 2. Spinner anzeigen – nach 3 Sek. auswerten
         showUniversalSpinner(container, 3000, "Checking…", () => {
           btn.classList.remove("selected");
           const isCorrect = (i === q.correct);
+          if (isCorrect) btn.classList.add("correct");
+          else           btn.classList.add("wrong");
 
-          if (isCorrect) {
-            btn.classList.add("correct");
+          // KI/TTS: Nutze KI nur wenn erlaubt und gewünscht
+          let feedbackText = isCorrect ? (q.feedbackCorrect || "Great job!") : (q.feedbackWrong || "Try again!");
+          let factText = q.funFact || "";
+
+          // === TTS/KI-FEEDBACK (wenn erlaubt & im JSON gesetzt oder global Flag) ===
+          if ((q.tts || s.tts) && ttsAllowed && typeof requestKIText === "function") {
+            // KI-Text-API für Feedback und Fun Fact (asynchron)
+            requestKIText({question: q.question, answer: val, correct: isCorrect, context: s.title}, function(kiFeedback) {
+              if (kiFeedback) feedbackText = kiFeedback;
+              showQuizFeedback(feedbackText, isCorrect);
+            });
           } else {
-            btn.classList.add("wrong");
+            showQuizFeedback(feedbackText, isCorrect, factText);
           }
-
-          // Optional: TTS/KI-Feedback (wenn aktiviert und nicht Wiederholung)
-          if (ttsAllowed && isCorrect && typeof registerTTS === "function") {
-            registerTTS(idx, q.feedbackCorrect || "Great job! 🎉");
-          }
-
-          // Feedback
-          const feedback = document.createElement("div");
-          feedback.className = "quiz-feedback";
-          feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
-          feedback.style.color = isCorrect ? "#219821" : "#c82121";
-          feedback.style.marginTop = "12px";
-          container.appendChild(feedback);
-
-          playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
-          runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
-          if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
-
-          setTimeout(() => {
-            feedback.remove();
-            if (isCorrect) {
-              solved = true;
-              qIdx++;
-              if (qIdx < questions.length) {
-                showQuestion();
-              } else {
-                if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
-                // Jetzt: NICHT sofort Reward – sondern Zeit prüfen!
-                tryShowNextButtonOrWait(() => {
-                  showUniversalReward(
-                    s,
-                    () => {
-                      if (currentSession < sessions.length - 1) {
-                        currentSession++;
-                        renderSession(currentSession);
-                      } else {
-                        window.location.href = "choose.html";
-                      }
-                    }
-                  );
-                });
-              }
-            } else {
-              // Nur nicht-rote Buttons wieder aktivieren (rot bleibt disabled)
-              btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
-            }
-          }, 1100); // Feedback-Zeit (kinderfreundlich kurz)
         });
       };
       btnBox.appendChild(btn);
     });
     container.appendChild(btnBox);
+
+    // Feedback Helper (universell)
+    function showQuizFeedback(text, isCorrect, fact = "") {
+      const feedback = document.createElement("div");
+      feedback.className = "quiz-feedback";
+      feedback.innerText = text;
+      feedback.style.color = isCorrect ? "#219821" : "#c82121";
+      feedback.style.marginTop = "12px";
+      container.appendChild(feedback);
+
+      // Fun Fact (optional, auch per KI möglich)
+      if (isCorrect && fact) {
+        const factBox = document.createElement("div");
+        factBox.className = "quiz-funfact";
+        factBox.innerText = fact;
+        factBox.style.color = "#1976d2";
+        factBox.style.marginTop = "6px";
+        factBox.style.fontSize = "1.1rem";
+        container.appendChild(factBox);
+      }
+
+      playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+      runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+      if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
+
+      setTimeout(() => {
+        feedback.remove();
+        if (isCorrect) {
+          solved = true;
+          qIdx++;
+          if (qIdx < questions.length) {
+            showQuestion();
+          } else {
+            if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+            tryShowNextButtonOrWait(() => {
+              showUniversalReward(
+                s,
+                () => {
+                  if (currentSession < sessions.length - 1) {
+                    currentSession++;
+                    renderSession(currentSession);
+                  } else {
+                    window.location.href = "choose.html";
+                  }
+                }
+              );
+            });
+          }
+        } else {
+          btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
+        }
+      }, 1100);
+    }
   }
 
   showQuestion();
 }
-
-
 
 
 // ==== 7. Universeller Reward ====
