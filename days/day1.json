@@ -113,6 +113,38 @@
   "finalRewardAnimation": ["confetti-glow", "sparkle", "bounce"],
   "finalRewardSound": "applause.mp3",
   "finalRewardText": "You did it! Superstar! 🥳"
+},
+{
+  "type": "rhyme",
+  "title": "Let's Find the Rhymes!",
+  "avatar": "luna",
+  "music": "focus-loop.mp3",
+  "tts": true,      // Optional: Standardmäßig TTS/KI für die ganze Session aktivieren
+  "questions": [
+    {
+      "question": "Which word rhymes with 'cat'?",
+      "choices": ["dog", "bat", "bird"],
+      "correct": 1,
+      "img": "images/animals/cat.png",
+      "audio": "audio/cat.mp3",
+      "feedbackCorrect": "Bat rhymes with cat! 🐱",
+      "feedbackWrong": "Try again!",
+      "tts": true,        // Nur diese Frage mit KI/TTS
+      "funFact": "Cats can jump up to six times their length."
+    },
+    {
+      "question": "What rhymes with 'star'?",
+      "choices": ["car", "frog", "sheep"],
+      "correct": 0,
+      "img": "images/animals/star.png",
+      "feedbackCorrect": "Car and star rhyme perfectly! 🚗⭐",
+      "tts": false      // Optional: Hier KEIN KI/TTS
+    }
+  ],
+  "successSticker": 4,
+  "onFinish": "Awesome! You finished the rhyming game!"
 }
-    ]
+   
+
+   ]
 }
