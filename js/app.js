@@ -919,7 +919,7 @@ function showQuestion() {
 
   const q = questions[qIdx];
 
-  // Frage (ohne Überschrift)
+  // Frage
   if (q.question) {
     const qDiv = document.createElement('div');
     qDiv.className = "quiz-question";
@@ -927,9 +927,10 @@ function showQuestion() {
     container.appendChild(qDiv);
   }
 
-  // Bild(er) + Listen Again
+  // Tierbild(er) + Listen Again
+  let imgSoundWrap = null;
   if (q.img) {
-    const imgSoundWrap = document.createElement('div');
+    imgSoundWrap = document.createElement('div');
     imgSoundWrap.style.display = "flex";
     imgSoundWrap.style.alignItems = "center";
     imgSoundWrap.style.justifyContent = "center";
@@ -986,22 +987,21 @@ function showQuestion() {
     btn.className = "quiz-choice-btn";
     btn.onclick = function () {
       if (solved || btn.disabled) return;
-
       solved = true;
 
-      // Nur gewählter Button bleibt sichtbar, andere verschwinden
+      // Nur der angeklickte Button bleibt sichtbar
       btnBox.querySelectorAll("button").forEach((b, idx) => {
         if (b !== btn) b.style.display = "none";
-        else b.classList.add("selected");
         b.disabled = true;
       });
+      btn.classList.add("selected");
 
-      // Spinner anzeigen
+      // Spinner unter Button
       showUniversalSpinner(container, 3000, "Checking…", () => {
         btn.classList.remove("selected");
         const isCorrect = (i === q.correct);
 
-        // Feedback-Element erstellen (immer unter Button)
+        // Feedback anlegen
         const feedback = document.createElement("div");
         feedback.className = "quiz-feedback";
         feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
@@ -1017,7 +1017,7 @@ function showQuestion() {
         if (isCorrect) {
           btn.classList.add("correct");
 
-          // Fun Fact (bei richtiger Antwort)
+          // Fun Fact unter Feedback
           let factDiv = null;
           if (q.funFact) {
             factDiv = document.createElement("div");
@@ -1030,7 +1030,7 @@ function showQuestion() {
             feedback.insertAdjacentElement("afterend", factDiv);
           }
 
-          // Nach 5 Sekunden weiter
+          // Alles 5 Sekunden stehen lassen
           setTimeout(() => {
             feedback.remove();
             if (factDiv) factDiv.remove();
@@ -1057,15 +1057,17 @@ function showQuestion() {
 
         } else {
           btn.classList.add("wrong");
-          // Nach kurzer Zeit Feedback entfernen, Buttons wieder zeigen (außer falsch gewähltem)
+          // Nach 1,1 s Feedback & Button entfernen, andere Optionen erscheinen wieder
           setTimeout(() => {
             feedback.remove();
+            btn.style.display = "none";
             btnBox.querySelectorAll("button").forEach((b, idx) => {
               if (b !== btn) {
                 b.style.display = "";
                 b.disabled = false;
               }
             });
+            solved = false;
           }, 1100);
         }
       });
