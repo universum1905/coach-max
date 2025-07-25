@@ -343,8 +343,9 @@ function renderUniversalQuizSession(s, idx, container) {
 
   function showQuestion() {
     container.innerHTML = "";
-    // --- Frage ---
     const q = questions[qIdx];
+
+    // Frage
     if (q.question) {
       const qDiv = document.createElement('div');
       qDiv.className = "quiz-question";
@@ -352,7 +353,7 @@ function renderUniversalQuizSession(s, idx, container) {
       container.appendChild(qDiv);
     }
 
-    // --- Tierbild(er) + Listen Again Button ---
+    // Tierbild(er) und Listen-Button
     if (q.img) {
       const imgSoundWrap = document.createElement('div');
       imgSoundWrap.style.display = "flex";
@@ -360,7 +361,8 @@ function renderUniversalQuizSession(s, idx, container) {
       imgSoundWrap.style.justifyContent = "center";
       imgSoundWrap.style.gap = "16px";
       imgSoundWrap.style.margin = "14px 0 10px 0";
-      // Mehrere Tiere
+
+      // Mehrere Tiere?
       if (q.num > 0) {
         for (let i = 0; i < q.num; i++) {
           const img = document.createElement('img');
@@ -380,9 +382,10 @@ function renderUniversalQuizSession(s, idx, container) {
         img.style.objectFit = "contain";
         imgSoundWrap.appendChild(img);
       }
-      // Listen Again Button
+
+      // Listen Again Button (falls Sound)
       if (q.sound) {
-        playSound(q.sound);
+        playSound(q.sound); // Direkt beim Start
         const listenBtn = document.createElement('button');
         listenBtn.className = "animal-listen-btn";
         listenBtn.innerHTML = '🔊 Listen Again';
@@ -398,7 +401,7 @@ function renderUniversalQuizSession(s, idx, container) {
       container.appendChild(imgSoundWrap);
     }
 
-    // --- Antwort-Buttons ---
+    // Antwort-Buttons
     const btnBox = document.createElement('div');
     btnBox.className = "quiz-buttons";
     let solved = false;
@@ -409,56 +412,56 @@ function renderUniversalQuizSession(s, idx, container) {
       btn.className = "quiz-choice-btn";
       btn.onclick = function () {
         if (solved || btn.disabled) return;
-        btn.classList.add("selected");
         btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-        // Spinner anzeigen – nach 3 Sek. auswerten
+        // 1. Auswahl gelb markieren
+        btn.classList.add("selected");
+
+        // 2. Spinner anzeigen, nach 3s Feedback zeigen (sonst nichts!)
         showUniversalSpinner(container, 3000, "Checking…", () => {
           btn.classList.remove("selected");
           const isCorrect = (i === q.correct);
 
-          // Feedback
+          // Ergebnis-Animation (vor Feedback)
+          if (isCorrect) {
+            btn.classList.add("correct");
+            runAnimations(q.correctAnimation || ["confetti-glow"]);
+            playSound(q.correctSound || "yay.mp3");
+            if (s.avatar) playAvatarAnimation(s.avatar, "tada");
+          } else {
+            btn.classList.add("wrong");
+            runAnimations(q.wrongAnimation || ["shake"]);
+            playSound(q.wrongSound || "fail.mp3");
+            if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
+          }
+
+          // Feedback (direkt unter Antwort)
           const feedback = document.createElement("div");
           feedback.className = "quiz-feedback";
           feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
           feedback.style.color = isCorrect ? "#219821" : "#c82121";
-          feedback.style.marginTop = "12px";
+          feedback.style.marginTop = "14px";
+          btn.after(feedback);
 
-          // Richtige oder falsche Markierung
-          if (isCorrect) {
-            btn.classList.add("correct");
-          } else {
-            btn.classList.add("wrong");
-          }
-
-          // Feedback einfügen
-          container.appendChild(feedback);
-
-          playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
-          runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
-          if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
-
-          // --- FUN FACT Handling ---
-          // Immer erst alte entfernen
-          container.querySelectorAll('.animal-funfact').forEach(f => f.remove());
-
+          // Fun Fact nur bei richtig & wenn vorhanden
+          let factDiv = null;
           if (isCorrect && q.funFact) {
-            // Nach Feedback, Buttons entfernen
-            btnBox.remove();
-            // Fun Fact anzeigen (immer über dem Froschbalken)
-            const factDiv = document.createElement("div");
+            factDiv = document.createElement("div");
             factDiv.className = "animal-funfact";
             factDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
-            factDiv.style.margin = "18px 0 0 0";
-            factDiv.style.fontSize = "1.09em";
+            factDiv.style.marginTop = "18px";
+            factDiv.style.fontSize = "1.13em";
             factDiv.style.textAlign = "center";
             factDiv.style.color = "#555";
-            factDiv.style.fontWeight = "bold";
-            container.appendChild(factDiv);
+            feedback.after(factDiv);
+          }
 
-            setTimeout(() => {
-              feedback.remove();
-              factDiv.remove();
+          setTimeout(() => {
+            // Feedback und Fun Fact entfernen
+            if (feedback.parentNode) feedback.remove();
+            if (factDiv && factDiv.parentNode) factDiv.remove();
+
+            if (isCorrect) {
               solved = true;
               qIdx++;
               if (qIdx < questions.length) {
@@ -479,16 +482,11 @@ function renderUniversalQuizSession(s, idx, container) {
                   );
                 });
               }
-            }, 5000); // Fun Fact bleibt 5 Sekunden sichtbar
-          } else {
-            setTimeout(() => {
-              feedback.remove();
-              // Buttons wieder aktivieren, aber nur nicht die falschen
-              if (!isCorrect) {
-                btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
-              }
-            }, 1200); // Feedback kurz, dann Buttons wieder freischalten
-          }
+            } else {
+              // Buttons wieder aktivieren, aber nur noch richtige und noch nicht falsch gewählte
+              btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
+            }
+          }, isCorrect && q.funFact ? 5000 : 1100); // Fun Fact bleibt 5s, sonst kurz Feedback
         });
       };
       btnBox.appendChild(btn);
