@@ -340,10 +340,12 @@ function renderUniversalQuizSession(s, idx, container) {
 
   const questions = Array.isArray(s.questions) ? s.questions : [];
   let qIdx = 0;
+  let wrongAnswers = new Set();
 
   function showQuestion() {
     container.innerHTML = "";
     const q = questions[qIdx];
+    wrongAnswers = new Set(); // Pro Frage zurücksetzen
 
     // Frage
     if (q.question) {
@@ -353,30 +355,44 @@ function renderUniversalQuizSession(s, idx, container) {
       container.appendChild(qDiv);
     }
 
-    // Bild + Listen Again Button
+    // Bild(er) + Listen Again Button (optional)
     if (q.img) {
       const imgSoundWrap = document.createElement('div');
       imgSoundWrap.style.display = "flex";
       imgSoundWrap.style.alignItems = "center";
       imgSoundWrap.style.justifyContent = "center";
-      imgSoundWrap.style.gap = "18px";
+      imgSoundWrap.style.gap = "16px";
       imgSoundWrap.style.margin = "14px 0 10px 0";
 
-      const img = document.createElement('img');
-      img.src = q.img;
-      img.style.width = "110px";
-      img.style.display = "block";
-      img.style.objectFit = "contain";
-      imgSoundWrap.appendChild(img);
+      if (q.num > 0) {
+        for (let i = 0; i < q.num; i++) {
+          const img = document.createElement('img');
+          img.src = q.img;
+          img.style.width = "72px";
+          img.style.height = "72px";
+          img.style.objectFit = "contain";
+          img.style.margin = "6px 0";
+          img.style.borderRadius = "14px";
+          imgSoundWrap.appendChild(img);
+        }
+      } else {
+        const img = document.createElement('img');
+        img.src = q.img;
+        img.style.width = "110px";
+        img.style.height = "auto";
+        img.style.objectFit = "contain";
+        imgSoundWrap.appendChild(img);
+      }
 
+      // Listen-Again-Button (Sound beim Start und als Button)
       if (q.sound) {
         playSound(q.sound);
 
         const listenBtn = document.createElement('button');
         listenBtn.className = "animal-listen-btn";
         listenBtn.innerHTML = '🔊 Listen Again';
-        listenBtn.style.marginLeft = "6px";
-        listenBtn.onclick = function(e) {
+        listenBtn.style.marginLeft = "14px";
+        listenBtn.onclick = function (e) {
           e.stopPropagation();
           playSound(q.sound);
           listenBtn.classList.add('bounce-anim');
@@ -392,24 +408,27 @@ function renderUniversalQuizSession(s, idx, container) {
     const btnBox = document.createElement('div');
     btnBox.className = "quiz-buttons";
     let solved = false;
-    let wrongAnswers = new Set();
+    let feedbackDiv = null;
 
     q.choices.forEach((val, i) => {
       const btn = document.createElement('button');
       btn.textContent = val;
       btn.className = "quiz-choice-btn";
-      btn.disabled = wrongAnswers.has(i);
-      if (wrongAnswers.has(i)) btn.classList.add("wrong");
+      // Falsche Antworten aus vorherigen Runden bleiben rot/disabled
+      if (wrongAnswers.has(i)) {
+        btn.classList.add("wrong");
+        btn.disabled = true;
+      }
       btn.onclick = function () {
         if (solved || btn.disabled) return;
 
-        // Nur gewählten Button zeigen, andere ausblenden
+        // Nur gewählten Button zeigen, Rest ausblenden
         btnBox.querySelectorAll("button").forEach(b => {
           if (b !== btn) b.style.display = "none";
           else b.classList.add("selected");
         });
 
-        // Spinner
+        // Spinner anzeigen
         const spinner = document.createElement('div');
         spinner.className = "wait-spinner";
         btn.insertAdjacentElement('afterend', spinner);
@@ -419,36 +438,62 @@ function renderUniversalQuizSession(s, idx, container) {
           btn.classList.remove("selected");
           const isCorrect = (i === q.correct);
 
-          if (isCorrect) {
-            btn.classList.add("correct");
-            solved = true;
+          // Button-Farbe setzen
+          if (isCorrect) btn.classList.add("correct");
+          else btn.classList.add("wrong");
 
-            // Antwort-Buttons ausblenden
-            btnBox.style.display = "none";
+          // Feedback unter dem Button anzeigen
+          if (feedbackDiv) feedbackDiv.remove();
+          feedbackDiv = document.createElement("div");
+          feedbackDiv.className = "quiz-feedback";
+          feedbackDiv.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
+          feedbackDiv.style.color = isCorrect ? "#219821" : "#c82121";
+          feedbackDiv.style.marginTop = "12px";
+          btn.insertAdjacentElement('afterend', feedbackDiv);
 
-            // Fun Fact zentriert und groß anzeigen
-            if (q.funFact) {
-              const factDiv = document.createElement("div");
-              factDiv.className = "animal-funfact";
-              factDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
-              factDiv.style.margin = "28px auto 0 auto";
-              factDiv.style.fontSize = "1.17em";
-              factDiv.style.textAlign = "center";
-              factDiv.style.maxWidth = "340px";
-              factDiv.style.background = "#fffbe6";
-              factDiv.style.borderRadius = "16px";
-              factDiv.style.padding = "17px 12px";
-              factDiv.style.color = "#28713d";
-              factDiv.style.boxShadow = "0 2px 12px #ffd54faa";
-              factDiv.style.fontWeight = "600";
-              container.appendChild(factDiv);
+          playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+          runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+          if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
 
-              playSound(q.correctSound || "yay.mp3");
-              runAnimations(q.correctAnimation || ["confetti-glow"]);
-              if (s.avatar) playAvatarAnimation(s.avatar, "tada");
+          setTimeout(() => {
+            if (isCorrect) {
+              // Fun Fact (bei richtiger Antwort) – 5 Sekunden anzeigen
+              if (q.funFact) {
+                if (feedbackDiv) feedbackDiv.remove();
+                const funDiv = document.createElement("div");
+                funDiv.className = "animal-funfact";
+                funDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
+                funDiv.style.marginTop = "18px";
+                funDiv.style.fontSize = "1.12em";
+                funDiv.style.textAlign = "center";
+                funDiv.style.color = "#555";
+                btn.insertAdjacentElement('afterend', funDiv);
 
-              setTimeout(() => {
-                factDiv.remove();
+                setTimeout(() => {
+                  funDiv.remove();
+                  solved = true;
+                  qIdx++;
+                  if (qIdx < questions.length) {
+                    showQuestion();
+                  } else {
+                    if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+                    tryShowNextButtonOrWait(() => {
+                      showUniversalReward(
+                        s,
+                        () => {
+                          if (currentSession < sessions.length - 1) {
+                            currentSession++;
+                            renderSession(currentSession);
+                          } else {
+                            window.location.href = "choose.html";
+                          }
+                        }
+                      );
+                    });
+                  }
+                }, 5000);
+              } else {
+                solved = true;
                 qIdx++;
                 if (qIdx < questions.length) {
                   showQuestion();
@@ -468,58 +513,20 @@ function renderUniversalQuizSession(s, idx, container) {
                     );
                   });
                 }
-              }, 5200); // Fun Fact bleibt mind. 5s sichtbar
-
-            } else {
-              // Kein Fun Fact? Direkt weiter
-              qIdx++;
-              if (qIdx < questions.length) {
-                showQuestion();
-              } else {
-                if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
-                tryShowNextButtonOrWait(() => {
-                  showUniversalReward(
-                    s,
-                    () => {
-                      if (currentSession < sessions.length - 1) {
-                        currentSession++;
-                        renderSession(currentSession);
-                      } else {
-                        window.location.href = "choose.html";
-                      }
-                    }
-                  );
-                });
               }
-            }
-
-          } else {
-            // Feedback NUR bei FALSCH darunter
-            const feedback = document.createElement("div");
-            feedback.className = "quiz-feedback";
-            feedback.innerText = q.feedbackWrong || "Try again!";
-            feedback.style.color = "#c82121";
-            feedback.style.marginTop = "12px";
-            btn.insertAdjacentElement('afterend', feedback);
-
-            playSound(q.wrongSound || "fail.mp3");
-            runAnimations(q.wrongAnimation || ["shake"]);
-            if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
-
-            setTimeout(() => {
-              feedback.remove();
-              // Falsche Antwort gemerkt, Button bleibt rot & disabled
+            } else {
+              // Falscher Button bleibt rot & disabled, andere zurück – aber ohne reset
               wrongAnswers.add(i);
-              // Alle Buttons wieder einblenden, aber falscher bleibt disabled+rot
               btnBox.querySelectorAll("button").forEach((b, idx) => {
                 b.style.display = "";
                 b.disabled = wrongAnswers.has(idx);
                 if (wrongAnswers.has(idx)) b.classList.add("wrong");
                 else b.classList.remove("wrong");
               });
-            }, 1200); // Feedback kurz anzeigen
-          }
-        }, 1200); // Spinner
+              if (feedbackDiv) feedbackDiv.remove();
+            }
+          }, 1200); // Feedback-Zeit für Fail
+        }, 1200); // Spinner-Zeit
       };
       btnBox.appendChild(btn);
     });
