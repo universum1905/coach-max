@@ -788,8 +788,12 @@ html, body {
   font-size: 1.16rem;
   font-weight: bold;
   text-align: center;
-  margin: 13px 0 0 0;
+  margin: 13px 0 60px 0; 
   transition: color 0.2s;
+}
+
+.animal-funfact {
+  margin-bottom: 60px;
 }
 
 .drawing-toolbar {
