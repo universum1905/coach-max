@@ -964,3 +964,42 @@ html, body {
   font-weight: 500;
   animation: fadeInText 1s;
 }
+
+.animal-listen-btn {
+  font-size: 1.11rem;
+  font-family: 'Comic Neue', 'Baloo 2', Arial, sans-serif;
+  font-weight: bold;
+  background: linear-gradient(90deg, #ffd54f 60%, #81d4fa 100%);
+  color: #333;
+  border: none;
+  border-radius: 14px;
+  padding: 0.72em 1.6em 0.72em 1.3em;
+  margin-left: 8px;
+  box-shadow: 0 2px 10px #ffd54f55;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.animal-listen-btn:active {
+  background: #ffe082;
+  transform: scale(0.95);
+}
+.animal-listen-btn.bounce-anim {
+  animation: bounce-pop 0.45s cubic-bezier(.4,1.8,.8,1.0);
+}
+@keyframes bounce-pop {
+  0%   { transform: scale(1);}
+  40%  { transform: scale(1.12);}
+  60%  { transform: scale(0.93);}
+  100% { transform: scale(1);}
+}
+@media (max-width: 600px) {
+  .animal-listen-btn {
+    font-size: 1rem;
+    padding: 0.66em 1.1em 0.66em 1em;
+    min-width: 74px;
+  }
+}

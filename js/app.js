@@ -353,37 +353,54 @@ function renderUniversalQuizSession(s, idx, container) {
       container.appendChild(qDiv);
     }
 
-    // --- Tierbild(er) ---
-    if (q.img && q.num > 0) {
-      const imgBox = document.createElement('div');
-      imgBox.style.display = "flex";
-      imgBox.style.justifyContent = "center";
-      imgBox.style.gap = "14px";
-      imgBox.style.margin = "12px 0";
-      for (let i = 0; i < q.num; i++) {
+    // --- Tierbild(er) + Listen Again-Button ---
+    if (q.img) {
+      const imgSoundWrap = document.createElement('div');
+      imgSoundWrap.style.display = "flex";
+      imgSoundWrap.style.alignItems = "center";
+      imgSoundWrap.style.justifyContent = "center";
+      imgSoundWrap.style.gap = "16px";
+      imgSoundWrap.style.margin = "14px 0 10px 0";
+
+      // Mehrere Tiere
+      if (q.num > 0) {
+        for (let i = 0; i < q.num; i++) {
+          const img = document.createElement('img');
+          img.src = q.img;
+          img.style.width = "72px";
+          img.style.height = "72px";
+          img.style.objectFit = "contain";
+          img.style.margin = "6px 0";
+          img.style.borderRadius = "14px";
+          imgSoundWrap.appendChild(img);
+        }
+      } else {
         const img = document.createElement('img');
         img.src = q.img;
-        img.style.width = "72px";
-        img.style.height = "72px";
+        img.style.width = "110px";
+        img.style.height = "auto";
         img.style.objectFit = "contain";
-        img.style.margin = "6px 0";
-        img.style.borderRadius = "14px";
-        imgBox.appendChild(img);
+        imgSoundWrap.appendChild(img);
       }
-      container.appendChild(imgBox);
-    } else if (q.img) {
-      const img = document.createElement('img');
-      img.src = q.img;
-      img.style.width = "110px";
-      img.style.display = "block";
-      img.style.margin = "0 auto 10px auto";
-      img.style.objectFit = "contain";
-      container.appendChild(img);
-    }
 
-    // --- Tiergeräusch abspielen ---
-    if (q.sound) {
-      playSound(q.sound);
+      // Listen Again Button (nur falls Sound gesetzt)
+      if (q.sound) {
+        playSound(q.sound); // Sound direkt beim Start abspielen
+
+        const listenBtn = document.createElement('button');
+        listenBtn.className = "animal-listen-btn";
+        listenBtn.innerHTML = '🔊 Listen Again';
+        listenBtn.style.marginLeft = "14px";
+        listenBtn.onclick = function(e) {
+          e.stopPropagation();
+          playSound(q.sound);
+          listenBtn.classList.add('bounce-anim');
+          setTimeout(() => listenBtn.classList.remove('bounce-anim'), 600);
+        };
+        imgSoundWrap.appendChild(listenBtn);
+      }
+
+      container.appendChild(imgSoundWrap);
     }
 
     // --- Antwort-Buttons ---
@@ -420,7 +437,7 @@ function renderUniversalQuizSession(s, idx, container) {
           feedback.style.marginTop = "12px";
           container.appendChild(feedback);
 
-          // Fun Fact
+          // Fun Fact nur bei richtiger Antwort
           if (isCorrect && q.funFact) {
             const factDiv = document.createElement("div");
             factDiv.className = "animal-funfact";
