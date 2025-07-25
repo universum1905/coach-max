@@ -353,7 +353,7 @@ function renderUniversalQuizSession(s, idx, container) {
       container.appendChild(qDiv);
     }
 
-    // Tierbild(er) + Listen-Again Button (bei Bedarf)
+    // Bild + Listen Again Button
     if (q.img) {
       const imgSoundWrap = document.createElement('div');
       imgSoundWrap.style.display = "flex";
@@ -369,9 +369,8 @@ function renderUniversalQuizSession(s, idx, container) {
       img.style.objectFit = "contain";
       imgSoundWrap.appendChild(img);
 
-      // Listen Again Button (nur wenn q.sound)
       if (q.sound) {
-        playSound(q.sound); // Sound automatisch abspielen
+        playSound(q.sound);
 
         const listenBtn = document.createElement('button');
         listenBtn.className = "animal-listen-btn";
@@ -420,23 +419,59 @@ function renderUniversalQuizSession(s, idx, container) {
           btn.classList.remove("selected");
           const isCorrect = (i === q.correct);
 
-          // Feedback-Text unter Button
-          const feedback = document.createElement("div");
-          feedback.className = "quiz-feedback";
-          feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
-          feedback.style.color = isCorrect ? "#219821" : "#c82121";
-          feedback.style.marginTop = "12px";
-          btn.insertAdjacentElement('afterend', feedback);
+          if (isCorrect) {
+            btn.classList.add("correct");
+            solved = true;
 
-          playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
-          runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
-          if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
+            // Antwort-Buttons ausblenden
+            btnBox.style.display = "none";
 
-          setTimeout(() => {
-            feedback.remove();
-            if (isCorrect) {
-              btn.classList.add("correct");
-              solved = true;
+            // Fun Fact zentriert und groß anzeigen
+            if (q.funFact) {
+              const factDiv = document.createElement("div");
+              factDiv.className = "animal-funfact";
+              factDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
+              factDiv.style.margin = "28px auto 0 auto";
+              factDiv.style.fontSize = "1.17em";
+              factDiv.style.textAlign = "center";
+              factDiv.style.maxWidth = "340px";
+              factDiv.style.background = "#fffbe6";
+              factDiv.style.borderRadius = "16px";
+              factDiv.style.padding = "17px 12px";
+              factDiv.style.color = "#28713d";
+              factDiv.style.boxShadow = "0 2px 12px #ffd54faa";
+              factDiv.style.fontWeight = "600";
+              container.appendChild(factDiv);
+
+              playSound(q.correctSound || "yay.mp3");
+              runAnimations(q.correctAnimation || ["confetti-glow"]);
+              if (s.avatar) playAvatarAnimation(s.avatar, "tada");
+
+              setTimeout(() => {
+                factDiv.remove();
+                qIdx++;
+                if (qIdx < questions.length) {
+                  showQuestion();
+                } else {
+                  if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+                  tryShowNextButtonOrWait(() => {
+                    showUniversalReward(
+                      s,
+                      () => {
+                        if (currentSession < sessions.length - 1) {
+                          currentSession++;
+                          renderSession(currentSession);
+                        } else {
+                          window.location.href = "choose.html";
+                        }
+                      }
+                    );
+                  });
+                }
+              }, 5200); // Fun Fact bleibt mind. 5s sichtbar
+
+            } else {
+              // Kein Fun Fact? Direkt weiter
               qIdx++;
               if (qIdx < questions.length) {
                 showQuestion();
@@ -456,7 +491,23 @@ function renderUniversalQuizSession(s, idx, container) {
                   );
                 });
               }
-            } else {
+            }
+
+          } else {
+            // Feedback NUR bei FALSCH darunter
+            const feedback = document.createElement("div");
+            feedback.className = "quiz-feedback";
+            feedback.innerText = q.feedbackWrong || "Try again!";
+            feedback.style.color = "#c82121";
+            feedback.style.marginTop = "12px";
+            btn.insertAdjacentElement('afterend', feedback);
+
+            playSound(q.wrongSound || "fail.mp3");
+            runAnimations(q.wrongAnimation || ["shake"]);
+            if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
+
+            setTimeout(() => {
+              feedback.remove();
               // Falsche Antwort gemerkt, Button bleibt rot & disabled
               wrongAnswers.add(i);
               // Alle Buttons wieder einblenden, aber falscher bleibt disabled+rot
@@ -466,8 +517,8 @@ function renderUniversalQuizSession(s, idx, container) {
                 if (wrongAnswers.has(idx)) b.classList.add("wrong");
                 else b.classList.remove("wrong");
               });
-            }
-          }, 1200); // Feedback kurz anzeigen
+            }, 1200); // Feedback kurz anzeigen
+          }
         }, 1200); // Spinner
       };
       btnBox.appendChild(btn);
