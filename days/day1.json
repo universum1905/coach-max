@@ -164,7 +164,11 @@
       "correct": 1,
       "feedbackCorrect": "Right! That's a dog! 🐶",
       "feedbackWrong": "Nope, try again!",
-      "funFact": "Dogs have an amazing sense of smell!"
+      "funFact": "Dogs have an amazing sense of smell!",
+      "correctSound": "yay.mp3",
+      "wrongSound": "fail.mp3",
+      "correctAnimation": ["confetti-glow", "emoji-party", "sparkle"],
+      "wrongAnimation": ["shake"]
     },
     {
       "question": "Who is mooing here?",
@@ -178,7 +182,29 @@
       "correct": 0,
       "feedbackCorrect": "Moo! It's a cow. 🐮",
       "feedbackWrong": "Listen again and guess!",
-      "funFact": "Cows have best friends and get stressed when separated."
+      "funFact": "Cows have best friends and get stressed when separated.",
+      "correctSound": "yay.mp3",
+      "wrongSound": "fail.mp3",
+      "correctAnimation": ["confetti-glow", "emoji-party"],
+      "wrongAnimation": ["shake"]
+    },
+    {
+      "question": "Which animal makes this sound?",
+      "img": "images/animals/cat.png",
+      "sound": "cat-meow.mp3",
+      "choices": [
+        "Dog",
+        "Cow",
+        "Cat"
+      ],
+      "correct": 2,
+      "feedbackCorrect": "Purr-fect! It's a cat! 🐱",
+      "feedbackWrong": "Try again, listen closely!",
+      "funFact": "Cats can jump up to six times their length!",
+      "correctSound": "yay.mp3",
+      "wrongSound": "fail.mp3",
+      "correctAnimation": ["confetti-glow", "emoji-party", "sparkle"],
+      "wrongAnimation": ["shake"]
     }
   ],
   "successSticker": 3,

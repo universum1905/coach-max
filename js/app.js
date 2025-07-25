@@ -340,13 +340,11 @@ function renderUniversalQuizSession(s, idx, container) {
 
   const questions = Array.isArray(s.questions) ? s.questions : [];
   let qIdx = 0;
-  let wrongAnswers = new Set();
 
   function showQuestion() {
     container.innerHTML = "";
-    const q = questions[qIdx];
-
     // --- Frage ---
+    const q = questions[qIdx];
     if (q.question) {
       const qDiv = document.createElement('div');
       qDiv.className = "quiz-question";
@@ -354,8 +352,7 @@ function renderUniversalQuizSession(s, idx, container) {
       container.appendChild(qDiv);
     }
 
-    // --- Bild(er) + Listen-Button ---
-    let listenBtn = null;
+    // --- Tierbild(er) + Listen Again Button ---
     if (q.img) {
       const imgSoundWrap = document.createElement('div');
       imgSoundWrap.style.display = "flex";
@@ -363,7 +360,6 @@ function renderUniversalQuizSession(s, idx, container) {
       imgSoundWrap.style.justifyContent = "center";
       imgSoundWrap.style.gap = "16px";
       imgSoundWrap.style.margin = "14px 0 10px 0";
-
       // Mehrere Tiere
       if (q.num > 0) {
         for (let i = 0; i < q.num; i++) {
@@ -384,12 +380,10 @@ function renderUniversalQuizSession(s, idx, container) {
         img.style.objectFit = "contain";
         imgSoundWrap.appendChild(img);
       }
-
-      // Listen Again Button (nur falls Sound gesetzt)
+      // Listen Again Button
       if (q.sound) {
-        playSound(q.sound); // Sound direkt beim Start abspielen
-
-        listenBtn = document.createElement('button');
+        playSound(q.sound);
+        const listenBtn = document.createElement('button');
         listenBtn.className = "animal-listen-btn";
         listenBtn.innerHTML = '🔊 Listen Again';
         listenBtn.style.marginLeft = "14px";
@@ -401,7 +395,6 @@ function renderUniversalQuizSession(s, idx, container) {
         };
         imgSoundWrap.appendChild(listenBtn);
       }
-
       container.appendChild(imgSoundWrap);
     }
 
@@ -414,80 +407,58 @@ function renderUniversalQuizSession(s, idx, container) {
       const btn = document.createElement('button');
       btn.textContent = val;
       btn.className = "quiz-choice-btn";
-      btn.disabled = wrongAnswers.has(i);
-      if (wrongAnswers.has(i)) btn.classList.add("wrong");
       btn.onclick = function () {
         if (solved || btn.disabled) return;
+        btn.classList.add("selected");
+        btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
 
-        // Nur geklickten Button sichtbar, Rest ausblenden
-        btnBox.querySelectorAll("button").forEach(b => {
-          if (b !== btn) b.style.display = "none";
-          else b.classList.add("selected");
-        });
-
-        // Spinner
-        const spinner = document.createElement('div');
-        spinner.className = "wait-spinner";
-        btn.insertAdjacentElement('afterend', spinner);
-
-        setTimeout(() => {
-          spinner.remove();
+        // Spinner anzeigen – nach 3 Sek. auswerten
+        showUniversalSpinner(container, 3000, "Checking…", () => {
           btn.classList.remove("selected");
           const isCorrect = (i === q.correct);
 
-          // Feedback-Text unter Button
+          // Feedback
           const feedback = document.createElement("div");
           feedback.className = "quiz-feedback";
           feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
           feedback.style.color = isCorrect ? "#219821" : "#c82121";
           feedback.style.marginTop = "12px";
-          btn.insertAdjacentElement('afterend', feedback);
+
+          // Richtige oder falsche Markierung
+          if (isCorrect) {
+            btn.classList.add("correct");
+          } else {
+            btn.classList.add("wrong");
+          }
+
+          // Feedback einfügen
+          container.appendChild(feedback);
 
           playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
           runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
           if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
 
-          // Fun Fact bei richtig
-          let funFactDiv = null;
-          if (isCorrect && q.funFact) {
-            funFactDiv = document.createElement("div");
-            funFactDiv.className = "animal-funfact";
-            funFactDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
-            funFactDiv.style.marginTop = "14px";
-            funFactDiv.style.fontSize = "1.11em";
-            funFactDiv.style.textAlign = "center";
-            funFactDiv.style.color = "#555";
-            feedback.insertAdjacentElement('afterend', funFactDiv);
-          }
+          // --- FUN FACT Handling ---
+          // Immer erst alte entfernen
+          container.querySelectorAll('.animal-funfact').forEach(f => f.remove());
 
-          setTimeout(() => {
-            feedback.remove();
-            if (isCorrect && funFactDiv) {
-              // Fun Fact soll mind. 5 Sekunden stehen bleiben
-              setTimeout(() => {
-                if (funFactDiv) funFactDiv.remove();
-                solved = true;
-                qIdx++;
-                if (qIdx < questions.length) {
-                  showQuestion();
-                } else {
-                  if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
-                  tryShowNextButtonOrWait(() => {
-                    showUniversalReward(
-                      s,
-                      () => {
-                        if (currentSession < sessions.length - 1) {
-                          currentSession++;
-                          renderSession(currentSession);
-                        } else {
-                          window.location.href = "choose.html";
-                        }
-                      }
-                    );
-                  });
-                }
-              }, 5000); // Fun Fact sichtbar lassen
-            } else if (isCorrect) {
+          if (isCorrect && q.funFact) {
+            // Nach Feedback, Buttons entfernen
+            btnBox.remove();
+            // Fun Fact anzeigen (immer über dem Froschbalken)
+            const factDiv = document.createElement("div");
+            factDiv.className = "animal-funfact";
+            factDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
+            factDiv.style.margin = "18px 0 0 0";
+            factDiv.style.fontSize = "1.09em";
+            factDiv.style.textAlign = "center";
+            factDiv.style.color = "#555";
+            factDiv.style.fontWeight = "bold";
+            container.appendChild(factDiv);
+
+            setTimeout(() => {
+              feedback.remove();
+              factDiv.remove();
               solved = true;
               qIdx++;
               if (qIdx < questions.length) {
@@ -508,29 +479,26 @@ function renderUniversalQuizSession(s, idx, container) {
                   );
                 });
               }
-            } else {
-              wrongAnswers.add(i);
-              // Buttons zurück, falsche bleibt deaktiviert & rot
-              btnBox.querySelectorAll("button").forEach((b, idx) => {
-                b.style.display = "";
-                b.disabled = wrongAnswers.has(idx);
-                if (wrongAnswers.has(idx)) b.classList.add("wrong");
-                else b.classList.remove("wrong");
-              });
-            }
-          }, isCorrect ? 1100 : 1100); // Feedback-Dauer, dann ggf. FunFact
-        }, 1200); // Spinner-Dauer
+            }, 5000); // Fun Fact bleibt 5 Sekunden sichtbar
+          } else {
+            setTimeout(() => {
+              feedback.remove();
+              // Buttons wieder aktivieren, aber nur nicht die falschen
+              if (!isCorrect) {
+                btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
+              }
+            }, 1200); // Feedback kurz, dann Buttons wieder freischalten
+          }
+        });
       };
       btnBox.appendChild(btn);
     });
     container.appendChild(btnBox);
-
-    // Listen-Button bleibt immer!
-    // (Wurde bereits zum imgSoundWrap hinzugefügt und ist immer sichtbar)
   }
 
   showQuestion();
 }
+
 
 
 // ==== 7. Universeller Reward ====
