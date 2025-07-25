@@ -340,6 +340,7 @@ function renderUniversalQuizSession(s, idx, container) {
 
   const questions = Array.isArray(s.questions) ? s.questions : [];
   let qIdx = 0;
+  let wrongAnswers = new Set();
 
   function showQuestion() {
     container.innerHTML = "";
@@ -353,7 +354,7 @@ function renderUniversalQuizSession(s, idx, container) {
       container.appendChild(qDiv);
     }
 
-    // Tierbild(er) (optional)
+    // Bild(er)
     if (q.img) {
       const img = document.createElement('img');
       img.src = q.img;
@@ -369,8 +370,6 @@ function renderUniversalQuizSession(s, idx, container) {
     btnBox.className = "quiz-buttons";
     let solved = false;
 
-    let wrongAnswers = new Set();
-
     q.choices.forEach((val, i) => {
       const btn = document.createElement('button');
       btn.textContent = val;
@@ -380,7 +379,7 @@ function renderUniversalQuizSession(s, idx, container) {
       btn.onclick = function () {
         if (solved || btn.disabled) return;
 
-        // Alle anderen Buttons ausblenden (nur geklickter sichtbar)
+        // Nur geklickten Button sichtbar, Rest ausblenden
         btnBox.querySelectorAll("button").forEach(b => {
           if (b !== btn) b.style.display = "none";
           else b.classList.add("selected");
@@ -408,10 +407,48 @@ function renderUniversalQuizSession(s, idx, container) {
           runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
           if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
 
+          // Fun Fact bei richtig
+          let funFactDiv = null;
+          if (isCorrect && q.funFact) {
+            funFactDiv = document.createElement("div");
+            funFactDiv.className = "animal-funfact";
+            funFactDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
+            funFactDiv.style.marginTop = "14px";
+            funFactDiv.style.fontSize = "1.11em";
+            funFactDiv.style.textAlign = "center";
+            funFactDiv.style.color = "#555";
+            feedback.insertAdjacentElement('afterend', funFactDiv);
+          }
+
           setTimeout(() => {
             feedback.remove();
-            if (isCorrect) {
-              btn.classList.add("correct");
+            if (isCorrect && funFactDiv) {
+              // Fun Fact soll mind. 5 Sekunden stehen bleiben
+              setTimeout(() => {
+                funFactDiv.remove();
+                solved = true;
+                qIdx++;
+                if (qIdx < questions.length) {
+                  showQuestion();
+                } else {
+                  if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+                  tryShowNextButtonOrWait(() => {
+                    showUniversalReward(
+                      s,
+                      () => {
+                        if (currentSession < sessions.length - 1) {
+                          currentSession++;
+                          renderSession(currentSession);
+                        } else {
+                          window.location.href = "choose.html";
+                        }
+                      }
+                    );
+                  });
+                }
+              }, 5000); // Fun Fact sichtbar lassen
+            } else if (isCorrect) {
+              // Kein Fun Fact, direkt nächste Frage
               solved = true;
               qIdx++;
               if (qIdx < questions.length) {
@@ -435,7 +472,7 @@ function renderUniversalQuizSession(s, idx, container) {
             } else {
               // Falsche Antwort gemerkt, Button bleibt rot & disabled
               wrongAnswers.add(i);
-              // Alle Buttons wieder einblenden, aber falscher bleibt disabled+rot
+              // Buttons zurück, falsche bleibt deaktiviert & rot
               btnBox.querySelectorAll("button").forEach((b, idx) => {
                 b.style.display = "";
                 b.disabled = wrongAnswers.has(idx);
@@ -443,8 +480,8 @@ function renderUniversalQuizSession(s, idx, container) {
                 else b.classList.remove("wrong");
               });
             }
-          }, 1200); // Feedback kurz anzeigen
-        }, 1200); // Spinner
+          }, isCorrect ? 1100 : 1100); // Feedback-Dauer, danach FunFact nur bei richtig
+        }, 1200); // Spinner-Dauer
       };
       btnBox.appendChild(btn);
     });
@@ -453,7 +490,6 @@ function renderUniversalQuizSession(s, idx, container) {
 
   showQuestion();
 }
-
 
 
 // ==== 7. Universeller Reward ====
