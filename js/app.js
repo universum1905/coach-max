@@ -949,101 +949,101 @@ function renderCountingSession(s, idx, container) {
   let qIdx = 0;
 
   function showQuestion() {
-    container.innerHTML = "";
+  container.innerHTML = "";
 
-    const q = questions[qIdx];
+  const q = questions[qIdx];
 
-    // Frage (ohne Überschrift – die ist schon oben!)
-    // Du kannst hier spezifische Fragen aus dem JSON nehmen:
-    if (q.question) {
-      const qDiv = document.createElement('div');
-      qDiv.className = "quiz-question";
-      qDiv.textContent = q.question;
-      container.appendChild(qDiv);
-    }
-
-    // Tierbilder nebeneinander anzeigen
-    if (q.img && q.num > 0) {
-      const animalBox = document.createElement('div');
-      animalBox.style.display = "flex";
-      animalBox.style.justifyContent = "center";
-      animalBox.style.gap = "16px";
-      animalBox.style.margin = "10px 0";
-      for (let i = 0; i < q.num; i++) {
-        const img = document.createElement('img');
-        img.src = q.img;
-        img.style.width = "72px";
-        img.style.height = "72px";
-        img.style.objectFit = "contain";
-        img.style.margin = "8px 0";
-        img.style.borderRadius = "14px";
-        animalBox.appendChild(img);
-      }
-      container.appendChild(animalBox);
-    }
-
-    // Antwort-Buttons
-    const btnBox = document.createElement('div');
-    btnBox.className = "quiz-buttons";
-    let solved = false;
-
-    q.choices.forEach((val, i) => {
-      const btn = document.createElement('button');
-      btn.textContent = val;
-      btn.className = "quiz-choice-btn";
-      btn.onclick = function () {
-  if (solved || btn.disabled) return;
-  btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
-
-  const isCorrect = (i === q.correct);
-
-  // Feedback anzeigen
-  const feedback = document.createElement("div");
-  feedback.className = "quiz-feedback";
-  feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
-  feedback.style.color = isCorrect ? "#219821" : "#c82121";
-  feedback.style.marginTop = "12px";
-  container.appendChild(feedback);
-
-  playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
-  runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
-  if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
-
-  // --- HIER SPINNER EINBLENDEN & erst nach Ablauf alles machen ---
-  showUniversalSpinner(container, 3000, "Checking…", () => {
-    feedback.remove();
-
-    if (isCorrect) {
-      solved = true;
-      qIdx++;
-      if (qIdx < questions.length) {
-        showQuestion();
-      } else {
-        if (window.currentMusic) {
-          try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
-        }
-        showUniversalReward(
-          s,
-          () => {
-            if (currentSession < sessions.length - 1) {
-              currentSession++;
-              renderSession(currentSession);
-            } else {
-              window.location.href = "choose.html";
-            }
-          }
-        );
-      }
-    } else {
-      // Falsche Buttons deaktiviert lassen, andere aktivieren:
-      btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
-    }
-  });
-};
-      btnBox.appendChild(btn);
-    });
-    container.appendChild(btnBox);
+  // Frage (ohne Überschrift – die ist schon oben!)
+  if (q.question) {
+    const qDiv = document.createElement('div');
+    qDiv.className = "quiz-question";
+    qDiv.textContent = q.question;
+    container.appendChild(qDiv);
   }
+
+  // Tierbilder nebeneinander anzeigen
+  if (q.img && q.num > 0) {
+    const animalBox = document.createElement('div');
+    animalBox.style.display = "flex";
+    animalBox.style.justifyContent = "center";
+    animalBox.style.gap = "16px";
+    animalBox.style.margin = "10px 0";
+    for (let i = 0; i < q.num; i++) {
+      const img = document.createElement('img');
+      img.src = q.img;
+      img.style.width = "72px";
+      img.style.height = "72px";
+      img.style.objectFit = "contain";
+      img.style.margin = "8px 0";
+      img.style.borderRadius = "14px";
+      animalBox.appendChild(img);
+    }
+    container.appendChild(animalBox);
+  }
+
+  // Antwort-Buttons
+  const btnBox = document.createElement('div');
+  btnBox.className = "quiz-buttons";
+  btnBox.innerHTML = "";   // <<--- HIER: Immer vor jedem Aufbau leeren!
+  let solved = false;
+
+  q.choices.forEach((val, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = val;
+    btn.className = "quiz-choice-btn";
+    btn.onclick = function () {
+      if (solved || btn.disabled) return;
+      btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+
+      const isCorrect = (i === q.correct);
+
+      // Feedback anzeigen
+      const feedback = document.createElement("div");
+      feedback.className = "quiz-feedback";
+      feedback.innerText = isCorrect ? (q.feedbackCorrect || "Great job! 🎉") : (q.feedbackWrong || "Try again!");
+      feedback.style.color = isCorrect ? "#219821" : "#c82121";
+      feedback.style.marginTop = "12px";
+      container.appendChild(feedback);
+
+      playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+      runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+      if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
+
+      // Spinner einblenden
+      showUniversalSpinner(container, 3000, "Checking…", () => {
+        feedback.remove();
+
+        if (isCorrect) {
+          solved = true;
+          qIdx++;
+          if (qIdx < questions.length) {
+            showQuestion();
+          } else {
+            if (window.currentMusic) {
+              try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
+            }
+            showUniversalReward(
+              s,
+              () => {
+                if (currentSession < sessions.length - 1) {
+                  currentSession++;
+                  renderSession(currentSession);
+                } else {
+                  window.location.href = "choose.html";
+                }
+              }
+            );
+          }
+        } else {
+          // Nur nicht-rote Buttons wieder aktivieren:
+          btnBox.querySelectorAll("button:not(.wrong)").forEach(b => b.disabled = false);
+        }
+      });
+    };
+    btnBox.appendChild(btn);
+  });
+  container.appendChild(btnBox);
+}
 
   showQuestion();
 }
