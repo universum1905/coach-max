@@ -35,19 +35,20 @@ html, body {
   width: 100vw;
   max-width: 480px;
   margin: 0 auto;
-  padding: 0 20px 210px 20px;
+  min-height: 100vh;
+  padding: 0 20px 110px 20px; /* Unten Platz für Froschbalken! */
   background: none;
   box-shadow: none;
   overflow-x: hidden;
   box-sizing: border-box;
 }
 
-/* Mobilanpassung */
+/* Mobilanpassung: unten weniger Padding für kleinere Screens */
 @media (max-width: 600px) {
   .session-text-area {
     max-width: 98vw;
     width: 100vw;
-    padding: 0 12px 130px 12px;
+    padding: 0 12px 65px 12px; /* Weniger Abstand für Frog Bar */
   }
 }
 
@@ -790,10 +791,6 @@ html, body {
   text-align: center;
   margin: 13px 0 60px 0; 
   transition: color 0.2s;
-}
-
-.animal-funfact {
-  margin-bottom: 60px;
 }
 
 .drawing-toolbar {
