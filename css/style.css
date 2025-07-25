@@ -36,7 +36,7 @@ html, body {
   max-width: 480px;
   margin: 0 auto;
   min-height: 100vh;
-  padding: 0 20px 110px 20px; /* Unten Platz für Froschbalken! */
+  padding: 0 20px 140px 20px; /* Unten Platz für Froschbalken! */
   background: none;
   box-shadow: none;
   overflow-x: hidden;
