@@ -715,8 +715,18 @@ window.onload = async function() {
     currentSession = DEV_MODE ? DEV_START_SESSION : 0;
     renderSession(currentSession);
   } catch (e) {
-    console.error("Fehler beim Initialisieren:", e);
-    document.body.innerHTML = `<div style="color:red;font-size:1.4em;">Fehler beim Initialisieren:<br>${e.message}</div>`;
+    console.warn("Fehler beim Initialisieren:", e);
+    if (DEV_MODE) {
+      console.log("DEV_MODE aktiv: Lade Dummy-Sessions für Testzwecke");
+      sessions = [
+        { type: "intro", title: "Test Intro", text: [{ line: "Welcome to Test Mode", duration: 3 }] },
+        { type: "counting", title: "Test Counting", questions: [{ question: "How many stars?", choices: [1,2,3], correct: 1 }] }
+      ];
+      currentSession = 0;
+      renderSession(currentSession);
+    } else {
+      document.body.innerHTML = `<div style="color:red;font-size:1.4em;">Fehler beim Initialisieren:<br>${e.message}</div>`;
+    }
   }
 };
 
