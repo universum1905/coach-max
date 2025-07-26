@@ -3,9 +3,9 @@
     "sessions": [
         {
             "type": "intro",
+			"title": "Welcome to Day {day}!"
             "avatar": "luna",
             "music": "focus-loop.mp3",
-            "title": "Welcome to Day 1!",
             "text": [
                 {
                     "line": "Hi there, I’m Luna! Welcome to Day 1 of our learning adventure.",
