@@ -6,7 +6,7 @@ let currentDay = 1;
 let currentMusic = null;
 
 const DEV_MODE = true;              // false = Live, true = Test/Entwickler
-const DEV_START_SESSION = 1;        // Index: 0 = erste Session (Intro), 1 = zweite Session, 2 = dritte usw.
+const DEV_START_SESSION = 4;        // Index: 0 = erste Session (Intro), 1 = zweite Session, 2 = dritte usw.
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
@@ -1283,6 +1283,166 @@ function renderMemoryField(s, idx, container) {
 }
 
 
+
+function renderSequenceSession(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // Musik vorbereiten (startet nach Video)
+  let bgMusic = null;
+  if (s.music) {
+    bgMusic = new Audio("audio/" + s.music);
+    bgMusic.loop = true;
+    bgMusic.volume = 0.2;
+  }
+
+  const questions = Array.isArray(s.questions) ? s.questions : [];
+  let qIdx = 0;
+
+  function showQuestion() {
+    container.innerHTML = "";
+    const q = questions[qIdx];
+    let userSequence = [];
+    let showingSequence = true;
+    let allowRepeat = q.repeatable || false;
+
+    // Titel
+    if (q.question) {
+      const qDiv = document.createElement('div');
+      qDiv.className = "quiz-question";
+      qDiv.textContent = q.question;
+      container.appendChild(qDiv);
+    }
+
+    // Sequenzanzeige
+    const seqContainer = document.createElement('div');
+    seqContainer.className = "sequence-container";
+    seqContainer.style.display = "flex";
+    seqContainer.style.justifyContent = "center";
+    seqContainer.style.gap = "10px";
+    container.appendChild(seqContainer);
+
+    q.sequence.forEach(color => {
+      const box = document.createElement('div');
+      box.className = "sequence-box";
+      box.style.width = "60px";
+      box.style.height = "60px";
+      box.style.borderRadius = "10px";
+      box.style.background = color;
+      seqContainer.appendChild(box);
+    });
+
+    // Nach showDuration: ausblenden
+    setTimeout(() => {
+      seqContainer.querySelectorAll(".sequence-box").forEach(box => box.style.background = "#ccc");
+      showingSequence = false;
+    }, q.showDuration || 5000);
+
+    // Wiederholbutton
+    if (allowRepeat) {
+      const repeatBtn = document.createElement('button');
+      repeatBtn.textContent = "🔁 Repeat";
+      repeatBtn.className = "animal-listen-btn";
+      repeatBtn.onclick = () => {
+        if (showingSequence) return;
+        showingSequence = true;
+        let i = 0;
+        seqContainer.querySelectorAll(".sequence-box").forEach((box, idx) => {
+          box.style.background = q.sequence[idx];
+        });
+        setTimeout(() => {
+          seqContainer.querySelectorAll(".sequence-box").forEach(box => box.style.background = "#ccc");
+          showingSequence = false;
+        }, q.showDuration || 5000);
+      };
+      container.appendChild(repeatBtn);
+    }
+
+    // Antwortfelder
+    const btnBox = document.createElement('div');
+    btnBox.className = "quiz-buttons";
+    container.appendChild(btnBox);
+
+    q.choices.forEach((choice, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = choice;
+      btn.className = "quiz-choice-btn";
+      btn.onclick = () => {
+        if (showingSequence) return;
+        userSequence.push(i);
+        btn.classList.add("selected");
+        if (userSequence.length === q.correct.length) checkAnswer();
+      };
+      btnBox.appendChild(btn);
+    });
+
+    // Check
+    function checkAnswer() {
+      const spinner = document.createElement('div');
+      spinner.className = "wait-spinner";
+      container.appendChild(spinner);
+
+      setTimeout(() => {
+        spinner.remove();
+        const isCorrect = JSON.stringify(userSequence) === JSON.stringify(q.correct);
+        const feedbackDiv = document.createElement("div");
+        feedbackDiv.className = "quiz-feedback";
+        feedbackDiv.innerText = isCorrect ? (q.feedbackCorrect || "Great job!") : (q.feedbackWrong || "Try again!");
+        feedbackDiv.style.color = isCorrect ? "#219821" : "#c82121";
+        container.appendChild(feedbackDiv);
+
+        playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
+        runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
+        if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
+
+        if (isCorrect) {
+          setTimeout(() => {
+            qIdx++;
+            if (qIdx < questions.length) showQuestion();
+            else {
+              if (bgMusic) bgMusic.pause();
+              tryShowNextButtonOrWait(() => {
+                showUniversalReward(s, () => {
+                  if (currentSession < sessions.length - 1) {
+                    currentSession++;
+                    renderSession(currentSession);
+                  } else {
+                    window.location.href = "choose.html";
+                  }
+                });
+              });
+            }
+          }, 2000);
+        } else {
+          // Richtige Reihenfolge zeigen
+          seqContainer.querySelectorAll(".sequence-box").forEach((box, idx) => {
+            box.style.background = q.sequence[idx];
+          });
+          setTimeout(() => {
+            seqContainer.querySelectorAll(".sequence-box").forEach(box => box.style.background = "#ccc");
+            userSequence = [];
+            btnBox.querySelectorAll("button").forEach(b => b.classList.remove("selected"));
+            feedbackDiv.remove();
+          }, q.revealDuration || 3000);
+        }
+      }, 1000);
+    }
+  }
+
+  // Starte mit Frage 1
+  showQuestion();
+
+  // Starte Musik nach Video-Ende
+  const video = document.querySelector('.floating-video video');
+  if (video) {
+    video.addEventListener('ended', () => {
+      if (bgMusic) bgMusic.play();
+    });
+  } else {
+    if (bgMusic) bgMusic.play();
+  }
+}
 
 
 

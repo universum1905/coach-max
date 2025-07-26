@@ -211,6 +211,47 @@
   ],
   "successSticker": 3,
   "onFinish": "Great job! You're an animal expert!"
+},
+
+{
+  "type": "sequence",
+  "title": "Remember the Colors!",
+  "video": "day1-sequence.mp4",
+  "avatar": "momo",
+  "music": "focus-loop.mp3",
+  "tts": true,
+  "questions": [
+    {
+      "question": "Can you repeat the color sequence?",
+      "sequence": ["red", "blue", "yellow", "green"], 
+      "choices": ["red", "blue", "yellow", "green", "purple"],
+      "correct": [0,1,2,3], 
+      "feedbackCorrect": "Great job! 🎉 You remembered them all!",
+      "feedbackWrong": "Oops! Watch closely and try again!",
+      "funFact": "Your memory is as sharp as an eagle's eyes!",
+      "showDuration": 5000,
+      "revealDuration": 3000,
+      "repeatable": true,
+      "correctSound": "yay.mp3",
+      "wrongSound": "fail.mp3",
+      "correctAnimation": ["confetti-glow", "emoji-party"],
+      "wrongAnimation": ["shake"]
+    },
+    {
+      "question": "This one is a bit harder! Ready?",
+      "sequence": ["purple", "yellow", "red", "blue", "green"], 
+      "choices": ["red", "blue", "yellow", "green", "purple"],
+      "correct": [4,2,0,1,3],
+      "feedbackCorrect": "Awesome! You nailed it!",
+      "feedbackWrong": "Try again! Watch carefully!",
+      "funFact": "Did you know? Memory games improve brain power!",
+      "showDuration": 5000,
+      "revealDuration": 3000,
+      "repeatable": true
+    }
+  ],
+  "successSticker": 5,
+  "onFinish": "Fantastic! You're a memory master!"
 }
 
    
