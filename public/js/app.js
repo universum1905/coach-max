@@ -703,6 +703,28 @@ function showUniversalReward(sessionObj, nextAction = null) {
 }
 
 // ==== 8. Initialisierung ====
+/* ==== COACH MAX UNIVERSAL SESSION TEMPLATE ==== */
+
+let sessions = [], currentSession = 0, lastSessionIdx = 0;
+let textTimeouts = [];
+let currentDay = 1;
+let currentMusic = null;
+
+const DEV_MODE = true;              // false = Live, true = Test/Entwickler
+const DEV_START_SESSION = 0;        // Index: Startsession in DEV
+
+function getDayParam() {
+  const params = new URLSearchParams(window.location.search);
+  const d = parseInt(params.get("day"));
+  return d > 0 ? d : 1; // Fallback auf Day 1
+}
+currentDay = getDayParam();
+const jsonURL = `days/day${currentDay}.json`;
+
+let sessionStartTime = 0;
+const minSessionDuration = 60 * 1000;
+
+/* ==== WICHTIG: DEV-FREUNDLICHES LADEN ==== */
 window.onload = async function() {
   document.getElementById('mainContent').style.display = '';
   try {
@@ -717,10 +739,33 @@ window.onload = async function() {
   } catch (e) {
     console.warn("Fehler beim Initialisieren:", e);
     if (DEV_MODE) {
-      console.log("DEV_MODE aktiv: Lade Dummy-Sessions für Testzwecke");
+      console.log("DEV_MODE aktiv: Dummy-Sessions geladen.");
       sessions = [
-        { type: "intro", title: "Test Intro", text: [{ line: "Welcome to Test Mode", duration: 3 }] },
-        { type: "counting", title: "Test Counting", questions: [{ question: "How many stars?", choices: [1,2,3], correct: 1 }] }
+        {
+          type: "intro",
+          title: "Test Intro",
+          text: [{ line: "Welcome to Test Mode", duration: 3 }]
+        },
+        {
+          type: "sequence",
+          title: "Test Sequence",
+          avatar: "momo",
+          video: "day1-sequence.mp4",
+          music: "focus-loop.mp3",
+          questions: [
+            {
+              question: "Can you repeat the color sequence?",
+              sequence: ["red","blue","yellow","green"],
+              choices: ["red","blue","yellow","green","purple"],
+              correct: [0,1,2,3],
+              feedbackCorrect: "Great job!",
+              feedbackWrong: "Try again!",
+              showDuration: 5000,
+              revealDuration: 3000,
+              repeatable: true
+            }
+          ]
+        }
       ];
       currentSession = 0;
       renderSession(currentSession);
@@ -729,6 +774,7 @@ window.onload = async function() {
     }
   }
 };
+
 
 // Immer ganz oben im Code behalten!
 
