@@ -37,6 +37,19 @@ function registerTTS(sessionIndex, text) {
 }
 
 
+// === Ganz oben in app.js einfügen ===
+let ttsUtterance = null;
+function speakText(text) {
+  if (!window.speechSynthesis) return;
+  if (ttsUtterance) window.speechSynthesis.cancel();
+  ttsUtterance = new SpeechSynthesisUtterance(text);
+  ttsUtterance.lang = "en-US";
+  ttsUtterance.pitch = 1.1;
+  ttsUtterance.rate = 1;
+  ttsUtterance.volume = 1;
+  window.speechSynthesis.speak(ttsUtterance);
+}
+
 
 
 function tryShowNextButtonOrWait(callback) {
@@ -414,7 +427,6 @@ function renderUniversalQuizSession(s, idx, container) {
       const btn = document.createElement('button');
       btn.textContent = val;
       btn.className = "quiz-choice-btn";
-      // Falsche Antworten aus vorherigen Runden bleiben rot/disabled
       if (wrongAnswers.has(i)) {
         btn.classList.add("wrong");
         btn.disabled = true;
@@ -422,13 +434,11 @@ function renderUniversalQuizSession(s, idx, container) {
       btn.onclick = function () {
         if (solved || btn.disabled) return;
 
-        // Nur gewählten Button zeigen, Rest ausblenden
         btnBox.querySelectorAll("button").forEach(b => {
           if (b !== btn) b.style.display = "none";
           else b.classList.add("selected");
         });
 
-        // Spinner anzeigen
         const spinner = document.createElement('div');
         spinner.className = "wait-spinner";
         btn.insertAdjacentElement('afterend', spinner);
@@ -438,11 +448,9 @@ function renderUniversalQuizSession(s, idx, container) {
           btn.classList.remove("selected");
           const isCorrect = (i === q.correct);
 
-          // Button-Farbe setzen
           if (isCorrect) btn.classList.add("correct");
           else btn.classList.add("wrong");
 
-          // Feedback unter dem Button anzeigen
           if (feedbackDiv) feedbackDiv.remove();
           feedbackDiv = document.createElement("div");
           feedbackDiv.className = "quiz-feedback";
@@ -451,13 +459,15 @@ function renderUniversalQuizSession(s, idx, container) {
           feedbackDiv.style.marginTop = "12px";
           btn.insertAdjacentElement('afterend', feedbackDiv);
 
+          // === TTS für Feedback ===
+          speakText(feedbackDiv.innerText);
+
           playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
           runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
           if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
 
           setTimeout(() => {
             if (isCorrect) {
-              // Fun Fact (bei richtiger Antwort) – 5 Sekunden anzeigen
               if (q.funFact) {
                 if (feedbackDiv) feedbackDiv.remove();
                 const funDiv = document.createElement("div");
@@ -515,7 +525,6 @@ function renderUniversalQuizSession(s, idx, container) {
                 }
               }
             } else {
-              // Falscher Button bleibt rot & disabled, andere zurück – aber ohne reset
               wrongAnswers.add(i);
               btnBox.querySelectorAll("button").forEach((b, idx) => {
                 b.style.display = "";
@@ -525,8 +534,8 @@ function renderUniversalQuizSession(s, idx, container) {
               });
               if (feedbackDiv) feedbackDiv.remove();
             }
-          }, 1200); // Feedback-Zeit für Fail
-        }, 1200); // Spinner-Zeit
+          }, 1200);
+        }, 1200);
       };
       btnBox.appendChild(btn);
     });
