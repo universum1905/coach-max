@@ -1434,3 +1434,53 @@ function showUniversalSpinner(container, ms = 3000, text = "Checking…", cb = n
     if (typeof cb === "function") cb();
   }, ms);
 }
+
+
+
+
+
+// Firebase
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const auth = getAuth();
+const db = getFirestore();
+
+// Elemente
+const setupOverlay = document.getElementById('setupOverlay');
+const letsStartBtn = document.getElementById('letsStartBtn');
+
+// Nach Elternvideo: Button öffnet Overlay statt direkte Weiterleitung
+letsStartBtn.onclick = () => {
+  setupOverlay.classList.remove('hidden');
+};
+
+// Registrierung/Login
+document.getElementById('loginBtn').onclick = async () => {
+  const email = document.getElementById('parentEmail').value;
+  const password = document.getElementById('parentPassword').value;
+  try {
+    let user;
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      user = cred.user;
+    } catch {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      user = cred.user;
+      // Neue Accounts: 7-Tage-Test setzen
+      await setDoc(doc(db, "users", user.uid), { subscriptionStatus: "trial", trialEnds: Date.now() + 7*24*60*60*1000 });
+    }
+    alert("Login successful!");
+  } catch (e) {
+    alert("Error: " + e.message);
+  }
+};
+
+// Kind speichern & Weiterleiten
+document.getElementById('saveChildBtn').onclick = async () => {
+  const name = document.getElementById('childName').value;
+  const user = auth.currentUser;
+  if (!user) return alert("Please login first!");
+  if (!name) return alert("Please enter your child's name!");
+  await setDoc(doc(db, "users", user.uid, "children", "child1"), { name: name, progress: {}, stickers: [] });
+  window.location.href = 'choose.html';
+};

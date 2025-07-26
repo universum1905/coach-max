@@ -196,7 +196,123 @@
 <footer class="mt-8 mb-3 text-center text-blue-600 text-base font-semibold">
   Questions? <a href="parents.html" class="underline hover:text-orange-400 font-bold">See our FAQ for Parents</a>
 </footer>
+<!-- Setup / Login Overlay -->
+<div id="setupOverlay" class="fixed inset-0 bg-white/95 flex flex-col items-center justify-center z-50 hidden p-6">
+  <h2 class="text-2xl font-bold mb-4">Set up your account</h2>
+  
+  <!-- Login -->
+  <input id="parentEmail" type="email" placeholder="Parent Email" class="mb-3 p-2 border rounded w-64">
+  <input id="parentPassword" type="password" placeholder="Password" class="mb-3 p-2 border rounded w-64">
+  <button id="loginBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-6 w-64">Register / Login</button>
+  
+  <!-- Children -->
+  <h3 class="text-xl font-semibold mb-2">Children Profiles</h3>
+  <div id="childrenList" class="w-full max-w-md space-y-2 mb-3"></div>
+  
+  <div class="flex space-x-2 mb-4">
+    <input id="childName" type="text" placeholder="New child's name" class="p-2 border rounded w-48">
+    <button id="addChildBtn" class="bg-green-500 text-white px-4 py-2 rounded">Add</button>
+  </div>
+  
+  <button id="continueBtn" class="bg-purple-600 text-white px-6 py-2 rounded-full shadow w-64">Continue</button>
+</div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // === Firebase Setup ===
+  const firebaseConfig = {
+    apiKey: "DEIN_API_KEY",
+    authDomain: "DEIN_PROJECT.firebaseapp.com",
+    projectId: "DEIN_PROJECT_ID",
+    storageBucket: "DEIN_PROJECT.appspot.com",
+    messagingSenderId: "DEIN_SENDER_ID",
+    appId: "DEINE_APP_ID"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // === Elemente ===
+  const setupOverlay = document.getElementById('setupOverlay');
+  const loginBtn = document.getElementById('loginBtn');
+  const addChildBtn = document.getElementById('addChildBtn');
+  const continueBtn = document.getElementById('continueBtn');
+  const childrenList = document.getElementById('childrenList');
+
+  let selectedChildId = null;
+
+  // === Overlay nach Video anzeigen ===
+  document.getElementById('letsStartBtn').onclick = () => {
+    setupOverlay.classList.remove('hidden');
+    loadChildren(); // falls schon eingeloggt
+  };
+
+  // === Login/Register ===
+  loginBtn.onclick = async () => {
+    const email = document.getElementById('parentEmail').value;
+    const password = document.getElementById('parentPassword').value;
+    if (!email || !password) return alert("Please enter email & password");
+    try {
+      let user;
+      try {
+        user = (await signInWithEmailAndPassword(auth, email, password)).user;
+      } catch {
+        user = (await createUserWithEmailAndPassword(auth, email, password)).user;
+        await setDoc(doc(db, "users", user.uid), {
+          subscriptionStatus: "trial",
+          trialEnds: Date.now() + 7*24*60*60*1000,
+          createdAt: serverTimestamp()
+        });
+      }
+      alert("Logged in as " + user.email);
+      await loadChildren();
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  // === Kinder laden ===
+  async function loadChildren() {
+    childrenList.innerHTML = "";
+    const user = auth.currentUser;
+    if (!user) return;
+    const snap = await getDocs(collection(db, "users", user.uid, "children"));
+    snap.forEach(docSnap => {
+      const child = docSnap.data();
+      const div = document.createElement("div");
+      div.textContent = child.name;
+      div.className = "p-2 border rounded cursor-pointer hover:bg-purple-100";
+      div.onclick = () => { selectedChildId = docSnap.id; highlightChild(div); };
+      childrenList.appendChild(div);
+    });
+  }
+
+  function highlightChild(selectedDiv) {
+    Array.from(childrenList.children).forEach(div => div.classList.remove("bg-purple-200"));
+    selectedDiv.classList.add("bg-purple-200");
+  }
+
+  // === Kind hinzufügen ===
+  addChildBtn.onclick = async () => {
+    const name = document.getElementById('childName').value;
+    const user = auth.currentUser;
+    if (!user || !name) return alert("Please enter a name and login");
+    const childId = Date.now().toString();
+    await setDoc(doc(db, "users", user.uid, "children", childId), { name, createdAt: serverTimestamp(), progress: {}, stickers: [] });
+    document.getElementById('childName').value = "";
+    await loadChildren();
+  };
+
+  // === Fortfahren ===
+  continueBtn.onclick = () => {
+    if (!selectedChildId) return alert("Please select a child profile");
+    localStorage.setItem("activeChildId", selectedChildId);
+    window.location.href = 'choose.html';
+  };
+</script>
 
 </body>
 </html>
