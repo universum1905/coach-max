@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Coach Max – Day 1</title>
+  <title id="pageTitle">Coach Max – Day</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="css/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
@@ -13,23 +13,23 @@
   <!-- Welcome / Start Overlay -->
   <div id="welcomeArea"></div>
   
-  <!-- Haupt-Content (Sessions usw.) -->
+  <!-- Haupt-Content -->
   <div id="mainContent" style="display:none;">
     <h2 id="mainTitle" class="session-heading"></h2>
     <div class="session-text-area" id="sessionTextArea"></div>
     <div id="progressFrogBar">
-  <div class="frog-bar-track">
-    <div class="frog-bar-spot"></div>
-    <div class="frog-bar-spot"></div>
-    <div class="frog-bar-spot"></div>
-    <div class="frog-bar-spot"></div>
-    <div class="frog-bar-spot"></div>
-    <img src="images/frog.png" id="jumpingFrog" />
-  </div>
-</div>
+      <div class="frog-bar-track">
+        <div class="frog-bar-spot"></div>
+        <div class="frog-bar-spot"></div>
+        <div class="frog-bar-spot"></div>
+        <div class="frog-bar-spot"></div>
+        <div class="frog-bar-spot"></div>
+        <img src="images/frog.png" id="jumpingFrog" />
+      </div>
+    </div>
   </div>
   
-   <!-- Rotation-Notice für mobile Portrait -->
+  <!-- Rotation-Notice -->
   <div id="rotationNotice" class="rotation-notice" style="display:none;">
     <div>
       <img src="images/rotate-phone.png" class="rotate-icon" alt="Rotate"/>
@@ -37,10 +37,80 @@
     </div>
   </div>
 
-  <!-- Audios & JS -->
+  <!-- Audios -->
   <audio id="frogSound" src="audio/frog-hop.mp3" preload="auto"></audio>
   <audio id="welcomeMusic" src="audio/welcome-music.mp3" preload="auto" loop></audio>
   <audio id="breathingMusic" src="audio/focus-loop.mp3" preload="auto" loop></audio>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // Firebase Setup
+    const firebaseConfig = {
+      apiKey: "DEIN_API_KEY",
+      authDomain: "DEIN_PROJECT.firebaseapp.com",
+      projectId: "DEIN_PROJECT_ID",
+      storageBucket: "DEIN_PROJECT.appspot.com",
+      messagingSenderId: "DEIN_SENDER_ID",
+      appId: "DEINE_APP_ID"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Variablen
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentDay = parseInt(urlParams.get("day")) || 1;
+    const activeChildId = localStorage.getItem("activeChildId");
+    const mainTitle = document.getElementById("mainTitle");
+    const pageTitle = document.getElementById("pageTitle");
+    let user = null;
+
+    // Titel dynamisch setzen
+    pageTitle.textContent = `Coach Max – Day ${currentDay}`;
+    mainTitle.textContent = `Welcome to Coach Max – Day ${currentDay}`;
+
+    onAuthStateChanged(auth, async (u) => {
+      if (!u) return window.location.href = "index.html";
+      user = u;
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists()) return window.location.href = "index.html";
+
+      const subData = userDoc.data();
+      const trialExpired = subData.subscriptionStatus !== "premium" && Date.now() > subData.trialEnds;
+      if (trialExpired && currentDay > 7) {
+        alert("Your trial has ended. Please upgrade to Premium to continue!");
+        window.location.href = "choose.html";
+      }
+    });
+
+    // Tag als abgeschlossen markieren
+    async function markDayCompleted() {
+      const childRef = doc(db, "users", user.uid, "children", activeChildId);
+      await updateDoc(childRef, { completedDays: arrayUnion(currentDay) });
+    }
+
+    // Sticker & Puzzle speichern
+    async function saveRewards(stickers = [], puzzlePieces = []) {
+      const childRef = doc(db, "users", user.uid, "children", activeChildId);
+      const childSnap = await getDoc(childRef);
+      const data = childSnap.data();
+      const updatedStickers = Array.from(new Set([...(data.stickers || []), ...stickers]));
+      const updatedPuzzle = Array.from(new Set([...(data.puzzlePieces || []), ...puzzlePieces]));
+      await updateDoc(childRef, { stickers: updatedStickers, puzzlePieces: updatedPuzzle });
+    }
+
+    // Diese Funktion rufen wir auf, wenn der Tag fertig ist:
+    window.finishDay = async (stickers = [], puzzlePieces = []) => {
+      await markDayCompleted();
+      await saveRewards(stickers, puzzlePieces);
+      alert("Day completed! Progress saved.");
+      window.location.href = "choose.html";
+    };
+  </script>
+  
   <script src="js/app.js" defer></script>
 </body>
 </html>
