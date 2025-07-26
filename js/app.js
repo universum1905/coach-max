@@ -139,17 +139,13 @@ function playSound(soundFile) {
 
 
 // ==== 3. Überschrift zentriert OBEN, nur einmal! ====
-function renderSessionHeader(title) {
-  let header = document.getElementById("mainTitle");
-  if (!header) {
-    header = document.createElement("h2");
-    header.id = "mainTitle";
-    header.className = "session-heading";
-    const content = document.getElementById("sessionTextArea") || document.body;
-    content.insertAdjacentElement("afterbegin", header);
-  }
-  header.innerText = title || "";
+// --- Session-Titel dynamisch setzen ---
+let dynamicTitle = s.title || "";
+if (s.type === "intro") {
+  dynamicTitle = dynamicTitle.replace("{day}", currentDay) || `Welcome to Coach Max – Day ${currentDay}`;
 }
+renderSessionHeader(dynamicTitle);
+
 
 
 function renderFrogProgress(currentIdx, _, totalSessions = null) {
