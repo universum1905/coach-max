@@ -1,19 +1,28 @@
 /* ==== COACH MAX UNIVERSAL SESSION TEMPLATE ==== */
 
-import { DEV_MODE, DEV_START_SESSION, DEV_DAY } from "./js/config.js";
+// ==== DEV/LIVE Schalter ====
+import { DEV_MODE, DEV_DAY, DEV_START_SESSION } from "./js/config.js";
 
 let sessions = [], currentSession = 0, lastSessionIdx = 0;
 let textTimeouts = [];
-let currentDay = DEV_MODE ? DEV_DAY : 1;   // Im DEV = fester Tag aus config.js
+let currentDay = DEV_MODE ? DEV_DAY : 1;   // Im DEV: fester Tag aus config.js
 let currentMusic = null;
 
+// Hole Day-Parameter (nur Live)
 function getDayParam() {
-  if (DEV_MODE) return DEV_DAY;           // DEV ignoriert URL und nimmt festen Tag
+  if (DEV_MODE) return DEV_DAY;
   const params = new URLSearchParams(window.location.search);
   return parseInt(params.get("day")) || 1;
 }
 currentDay = getDayParam();
+
+// JSON-Datei abhängig vom aktuellen Tag
 const jsonURL = `days/day${currentDay}.json`;
+
+// Starte Session an bestimmtem Index (nur im DEV)
+if (DEV_MODE) {
+  currentSession = DEV_START_SESSION;
+}
 
 let sessionStartTime = 0;
 const minSessionDuration = 60 * 1000;
