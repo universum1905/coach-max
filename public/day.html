@@ -36,7 +36,9 @@
 
   <script type="module">
   import { DEV_MODE } from "/js/config.js";
-  import { auth, db, onAuthStateChanged, doc, getDoc, updateDoc, arrayUnion } from "/js/firebase.js";
+import { auth, db, onAuthStateChanged, doc, getDoc } from "/js/firebase.js";
+
+let user = null;
 
   const urlParams = new URLSearchParams(window.location.search);
   const currentDay = DEV_MODE ? 1 : parseInt(urlParams.get("day")) || 1;
@@ -50,23 +52,23 @@
 
   // === Login/Trial nur im Live-Modus ===
   if (!DEV_MODE) {
-    onAuthStateChanged(auth, async (u) => {
-      if (!u) return window.location.href = "index.html";
-      user = u;
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (!userDoc.exists()) return window.location.href = "index.html";
+  onAuthStateChanged(auth, async (u) => {
+    if (!u) return window.location.href = "index.html";
+    user = u;
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (!userDoc.exists()) return window.location.href = "index.html";
 
-      const subData = userDoc.data();
-      const trialExpired =
-        subData.subscriptionStatus !== "premium" &&
-        Date.now() > subData.trialEnds;
+    const subData = userDoc.data();
+    const trialExpired =
+      subData.subscriptionStatus !== "premium" &&
+      Date.now() > subData.trialEnds;
 
-      if (trialExpired && currentDay > 7) {
-        alert("Your trial has ended. Please upgrade to Premium to continue!");
-        window.location.href = "choose.html";
-      }
-    });
-  }
+    if (trialExpired && currentDay > 7) {
+      alert("Your trial has ended. Please upgrade to Premium to continue!");
+      window.location.href = "choose.html";
+    }
+  });
+}
 
   // === Speichern nur im Live-Modus ===
   async function markDayCompleted() {

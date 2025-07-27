@@ -767,24 +767,7 @@ async function finishDay(stickers = [], puzzlePieces = []) {
 // ==== 8. Initialisierung ====
 /* ==== COACH MAX UNIVERSAL SESSION TEMPLATE ==== */
 
-let sessions = [], currentSession = 0, lastSessionIdx = 0;
-let textTimeouts = [];
-let currentDay = 1;
-let currentMusic = null;
 
-const DEV_MODE = true;              // false = Live, true = Test/Entwickler
-const DEV_START_SESSION = 0;        // Index: Startsession in DEV
-
-function getDayParam() {
-  const params = new URLSearchParams(window.location.search);
-  const d = parseInt(params.get("day"));
-  return d > 0 ? d : 1; // Fallback auf Day 1
-}
-currentDay = getDayParam();
-const jsonURL = `days/day${currentDay}.json`;
-
-let sessionStartTime = 0;
-const minSessionDuration = 60 * 1000;
 
 /* ==== WICHTIG: DEV-FREUNDLICHES LADEN ==== */
 window.onload = async function() {
