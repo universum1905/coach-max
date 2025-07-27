@@ -1,16 +1,14 @@
 /* ==== COACH MAX UNIVERSAL SESSION TEMPLATE ==== */
 
-import { DEV_MODE } from "/js/config.js";
+import { DEV_MODE, DEV_START_SESSION, DEV_DAY } from "./config.js";
 
 let sessions = [], currentSession = 0, lastSessionIdx = 0;
 let textTimeouts = [];
-let currentDay = 1;
+let currentDay = DEV_MODE ? DEV_DAY : 1;   // Im DEV = fester Tag aus config.js
 let currentMusic = null;
 
-const DEV_MODE = true;              // false = Live, true = Test/Entwickler
-const DEV_START_SESSION = 2;        // Index: 0 = Intro, 1 = Counting, etc.
-
 function getDayParam() {
+  if (DEV_MODE) return DEV_DAY;           // DEV ignoriert URL und nimmt festen Tag
   const params = new URLSearchParams(window.location.search);
   return parseInt(params.get("day")) || 1;
 }
