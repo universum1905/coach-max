@@ -2,7 +2,7 @@
   "hosting": {
     "site": "coach-max",
 
-    "public": "public",
+    "public": "public"
     
   }
 }
