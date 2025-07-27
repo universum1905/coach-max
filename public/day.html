@@ -35,69 +35,67 @@
   <audio id="breathingMusic" src="audio/focus-loop.mp3" preload="auto" loop></audio>
 
   <script type="module">
-  import { DEV_MODE } from "/js/config.js";
-import { auth, db, onAuthStateChanged, doc, getDoc } from "/js/firebase.js";
+    import { DEV_MODE } from "/js/config.js";
+    import { auth, db, onAuthStateChanged, doc, getDoc, updateDoc, arrayUnion } from "/js/firebase.js";
 
-let user = null;
+    let user = null;
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const currentDay = DEV_MODE ? 1 : parseInt(urlParams.get("day")) || 1;
-  const activeChildId = localStorage.getItem("activeChildId");
-  const mainTitle = document.getElementById("mainTitle");
-  const pageTitle = document.getElementById("pageTitle");
-  let user = null;
+    // === Day-Parameter laden (im DEV immer Tag 1) ===
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentDay = DEV_MODE ? 1 : parseInt(urlParams.get("day")) || 1;
+    const activeChildId = localStorage.getItem("activeChildId");
+    const mainTitle = document.getElementById("mainTitle");
+    const pageTitle = document.getElementById("pageTitle");
 
-  pageTitle.textContent = `Coach Max – Day ${currentDay}`;
-  mainTitle.textContent = `Welcome to Coach Max – Day ${currentDay}`;
+    pageTitle.textContent = `Coach Max – Day ${currentDay}`;
+    mainTitle.textContent = `Welcome to Coach Max – Day ${currentDay}`;
 
-  // === Login/Trial nur im Live-Modus ===
-  if (!DEV_MODE) {
-  onAuthStateChanged(auth, async (u) => {
-    if (!u) return window.location.href = "index.html";
-    user = u;
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    if (!userDoc.exists()) return window.location.href = "index.html";
-
-    const subData = userDoc.data();
-    const trialExpired =
-      subData.subscriptionStatus !== "premium" &&
-      Date.now() > subData.trialEnds;
-
-    if (trialExpired && currentDay > 7) {
-      alert("Your trial has ended. Please upgrade to Premium to continue!");
-      window.location.href = "choose.html";
-    }
-  });
-}
-
-  // === Speichern nur im Live-Modus ===
-  async function markDayCompleted() {
-    if (DEV_MODE) return;
-    const childRef = doc(db, "users", user.uid, "children", activeChildId);
-    await updateDoc(childRef, { completedDays: arrayUnion(currentDay) });
-  }
-
-  async function saveRewards(stickers = [], puzzlePieces = []) {
-    if (DEV_MODE) return;
-    const childRef = doc(db, "users", user.uid, "children", activeChildId);
-    const childSnap = await getDoc(childRef);
-    const data = childSnap.data();
-    const updatedStickers = Array.from(new Set([...(data.stickers || []), ...stickers]));
-    const updatedPuzzle = Array.from(new Set([...(data.puzzlePieces || []), ...puzzlePieces]));
-    await updateDoc(childRef, { stickers: updatedStickers, puzzlePieces: updatedPuzzle });
-  }
-
-  // === Fertigstellen (Im DEV nur Test-Alert, im Live mit Speichern & Weiterleitung) ===
-  window.finishDay = async (stickers = [], puzzlePieces = []) => {
+    // === Login & Trial-Check (nur im Live-Modus) ===
     if (!DEV_MODE) {
-      await markDayCompleted();
-      await saveRewards(stickers, puzzlePieces);
-      window.location.href = "choose.html";
-    } else {
-      alert("Day completed! (Test Mode – no data saved)");
+      onAuthStateChanged(auth, async (u) => {
+        if (!u) return window.location.href = "index.html";
+        user = u;
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists()) return window.location.href = "index.html";
+
+        const subData = userDoc.data();
+        const trialExpired = subData.subscriptionStatus !== "premium" && Date.now() > subData.trialEnds;
+        if (trialExpired && currentDay > 7) {
+          alert("Your trial has ended. Please upgrade to Premium to continue!");
+          window.location.href = "choose.html";
+        }
+      });
     }
-  };
-</script>
+
+    // === Tag als abgeschlossen markieren (nur Live) ===
+    async function markDayCompleted() {
+      if (DEV_MODE) return;
+      const childRef = doc(db, "users", user.uid, "children", activeChildId);
+      await updateDoc(childRef, { completedDays: arrayUnion(currentDay) });
+    }
+
+    // === Sticker & Puzzle speichern (nur Live) ===
+    async function saveRewards(stickers = [], puzzlePieces = []) {
+      if (DEV_MODE) return;
+      const childRef = doc(db, "users", user.uid, "children", activeChildId);
+      const childSnap = await getDoc(childRef);
+      const data = childSnap.data();
+      const updatedStickers = Array.from(new Set([...(data.stickers || []), ...stickers]));
+      const updatedPuzzle = Array.from(new Set([...(data.puzzlePieces || []), ...puzzlePieces]));
+      await updateDoc(childRef, { stickers: updatedStickers, puzzlePieces: updatedPuzzle });
+    }
+
+    // === Tag beenden (DEV = nur Alert, Live = Speichern & Weiterleitung) ===
+    window.finishDay = async (stickers = [], puzzlePieces = []) => {
+      if (!DEV_MODE) {
+        await markDayCompleted();
+        await saveRewards(stickers, puzzlePieces);
+        window.location.href = "choose.html";
+      } else {
+        alert("Day completed! (Test Mode – no data saved)");
+      }
+    };
+  </script>
 
   <script src="js/app.js" defer></script>
 </body>
