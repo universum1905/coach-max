@@ -87,14 +87,24 @@
 
     // === Tag beenden (DEV = nur Alert, Live = Speichern & Weiterleitung) ===
     window.finishDay = async (stickers = [], puzzlePieces = []) => {
-      if (!DEV_MODE) {
-        await markDayCompleted();
-        await saveRewards(stickers, puzzlePieces);
-        window.location.href = "choose.html";
-      } else {
-        alert("Day completed! (Test Mode – no data saved)");
-      }
-    };
+  if (!DEV_MODE) {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Not logged in");
+      return window.location.href = "index.html";
+    }
+    const childRef = doc(db, "users", user.uid, "children", activeChildId);
+    await updateDoc(childRef, {
+      completedDays: arrayUnion(currentDay),
+      stickers: arrayUnion(...stickers),
+      puzzlePieces: arrayUnion(...puzzlePieces)
+    });
+  } else {
+    console.log("DEV_MODE: Progress not saved (simulated).");
+    alert("Day completed! (Test Mode – no data saved)");
+  }
+  window.location.href = "choose.html";
+};
   </script>
 
   <script src="./js/app.js" type="module" defer></script>

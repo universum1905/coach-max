@@ -68,18 +68,18 @@
     }
 
     async function loadChildData() {
-      const childRef = doc(db, "users", user.uid, "children", activeChildId);
-      const childSnap = await getDoc(childRef);
-      if (!childSnap.exists()) {
-        alert("Profile not found.");
-        window.location.href = "index.html";
-      }
-      const data = childSnap.data();
-      activeChildNameEl.textContent = data.name;
-      completedDays = data.completedDays || [];
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      isPremium = userDoc.exists() && (userDoc.data().subscriptionStatus === "premium" || Date.now() < userDoc.data().trialEnds);
-    }
+  const childRef = doc(db, "users", user.uid, "children", activeChildId);
+  const childSnap = await getDoc(childRef);
+  if (!childSnap.exists()) {
+    alert("Profile not found.");
+    window.location.href = "index.html";
+  }
+  const data = childSnap.data();
+  activeChildNameEl.textContent = data.name;
+  completedDays = data.completedDays || [];
+  const userDoc = await getDoc(doc(db, "users", user.uid));
+  isPremium = userDoc.exists() && (userDoc.data().subscriptionStatus === "premium" || Date.now() < userDoc.data().trialEnds);
+}
 
     function isDayUnlocked(dayNumber) {
       if (DEV_MODE) return true;
