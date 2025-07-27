@@ -1,11 +1,8 @@
 {
   "hosting": {
+    "site": "coach-max",
+
     "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ]
     
   }
 }
