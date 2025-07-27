@@ -1,6 +1,6 @@
 /* ==== COACH MAX UNIVERSAL SESSION TEMPLATE ==== */
 
-import { DEV_MODE, DEV_START_SESSION, DEV_DAY } from "./config.js";
+import { DEV_MODE, DEV_START_SESSION, DEV_DAY } from "./js/config.js";
 
 let sessions = [], currentSession = 0, lastSessionIdx = 0;
 let textTimeouts = [];
