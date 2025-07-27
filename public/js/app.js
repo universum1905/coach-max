@@ -2,13 +2,18 @@
 
 // ==== DEV/LIVE Schalter ====
 import { DEV_MODE, DEV_DAY, DEV_START_SESSION } from "./js/config.js";
+import { app, analytics } from "./js/firebase.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 let sessions = [], currentSession = 0, lastSessionIdx = 0;
 let textTimeouts = [];
-let currentDay = DEV_MODE ? DEV_DAY : 1;   // Im DEV: fester Tag aus config.js
+let currentDay = DEV_MODE ? DEV_DAY : 1;
 let currentMusic = null;
 
-// Hole Day-Parameter (nur Live)
 function getDayParam() {
   if (DEV_MODE) return DEV_DAY;
   const params = new URLSearchParams(window.location.search);
@@ -16,13 +21,8 @@ function getDayParam() {
 }
 currentDay = getDayParam();
 
-// JSON-Datei abhängig vom aktuellen Tag
 const jsonURL = `days/day${currentDay}.json`;
-
-// Starte Session an bestimmtem Index (nur im DEV)
-if (DEV_MODE) {
-  currentSession = DEV_START_SESSION;
-}
+if (DEV_MODE) currentSession = DEV_START_SESSION;
 
 let sessionStartTime = 0;
 const minSessionDuration = 60 * 1000;
@@ -1712,48 +1712,3 @@ function showUniversalSpinner(container, ms = 3000, text = "Checking…", cb = n
 
 
 
-// Firebase
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-const auth = getAuth();
-const db = getFirestore();
-
-// Elemente
-const setupOverlay = document.getElementById('setupOverlay');
-const letsStartBtn = document.getElementById('letsStartBtn');
-
-// Nach Elternvideo: Button öffnet Overlay statt direkte Weiterleitung
-letsStartBtn.onclick = () => {
-  setupOverlay.classList.remove('hidden');
-};
-
-// Registrierung/Login
-document.getElementById('loginBtn').onclick = async () => {
-  const email = document.getElementById('parentEmail').value;
-  const password = document.getElementById('parentPassword').value;
-  try {
-    let user;
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email, password);
-      user = cred.user;
-    } catch {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      user = cred.user;
-      // Neue Accounts: 7-Tage-Test setzen
-      await setDoc(doc(db, "users", user.uid), { subscriptionStatus: "trial", trialEnds: Date.now() + 7*24*60*60*1000 });
-    }
-    alert("Login successful!");
-  } catch (e) {
-    alert("Error: " + e.message);
-  }
-};
-
-// Kind speichern & Weiterleiten
-document.getElementById('saveChildBtn').onclick = async () => {
-  const name = document.getElementById('childName').value;
-  const user = auth.currentUser;
-  if (!user) return alert("Please login first!");
-  if (!name) return alert("Please enter your child's name!");
-  await setDoc(doc(db, "users", user.uid, "children", "child1"), { name: name, progress: {}, stickers: [] });
-  window.location.href = 'choose.html';
-};
