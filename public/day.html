@@ -34,61 +34,7 @@
   <audio id="welcomeMusic" src="audio/welcome-music.mp3" preload="auto" loop></audio>
   <audio id="breathingMusic" src="audio/focus-loop.mp3" preload="auto" loop></audio>
 
-  <script type="module">
-import { DEV_MODE } from "./js/config.js";
-import { auth, db } from "./js/firebase.js";
-import { doc, updateDoc, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-let currentUser = null;
-let activeChildId = localStorage.getItem("activeChildId");
-
-onAuthStateChanged(auth, async (user) => {
-  if (!user && !DEV_MODE) {
-    window.location.href = "index.html";
-  } else {
-    currentUser = user;
-  }
-});
-
-// === Tag als abgeschlossen markieren ===
-async function markDayCompleted(day) {
-  if (DEV_MODE) return;
-  if (!currentUser || !activeChildId) return;
-  const childRef = doc(db, "users", currentUser.uid, "children", activeChildId);
-  await updateDoc(childRef, { completedDays: arrayUnion(day) });
-}
-
-// === Sticker & Puzzle speichern ===
-async function saveRewards(day, stickers = [], puzzlePieces = []) {
-  if (DEV_MODE) return;
-  if (!currentUser || !activeChildId) return;
-  const childRef = doc(db, "users", currentUser.uid, "children", activeChildId);
-  const snap = await getDoc(childRef);
-  const data = snap.data();
-  const updatedStickers = Array.from(new Set([...(data.stickers || []), ...stickers]));
-  const updatedPuzzle = Array.from(new Set([...(data.puzzlePieces || []), ...puzzlePieces]));
-  await updateDoc(childRef, { stickers: updatedStickers, puzzlePieces: updatedPuzzle });
-}
-
-// === Tag beenden ===
-window.finishDay = async (stickers = [], puzzlePieces = []) => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const currentDay = parseInt(urlParams.get("day")) || 1;
-
-  if (!DEV_MODE) {
-    await markDayCompleted(currentDay);
-    await saveRewards(currentDay, stickers, puzzlePieces);
-  } else {
-    console.log("DEV_MODE: Finish simulated", { currentDay, stickers, puzzlePieces });
-  }
-
-  setTimeout(() => {
-    window.location.href = "choose.html";
-  }, 800);
-};
-</script>
-
+  
 <script type="module" src="./js/app.js" defer></script>
   
 </body>
