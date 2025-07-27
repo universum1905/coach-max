@@ -17,6 +17,7 @@
 <body class="min-h-screen flex flex-col items-center justify-start p-6 text-center">
   <h1 class="text-3xl font-bold mb-6">📅 Choose Your Day</h1>
 
+  <!-- Profilanzeige -->
   <div class="p-4 bg-white/80 rounded-xl shadow mb-4 max-w-md w-full">
     <h2 class="text-xl font-bold mb-2">Active Profile: <span id="activeChildName"></span></h2>
     <button id="switchProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Switch Profile</button>
@@ -31,6 +32,7 @@
   <p class="text-gray-600 mb-2">Tap a day to start your adventure. New days unlock every morning at 6:00 AM!</p>
   <div id="dayList" class="flex flex-wrap justify-center gap-4 w-full max-w-md"></div>
 
+  <!-- Unlock Modal -->
   <div id="unlockOverlay" style="display:none; position:fixed; z-index:50; inset:0; background:rgba(0,0,0,0.65); align-items:center; justify-content:center;">
     <div id="unlockModal" class="rounded-3xl bg-white p-8 max-w-xs mx-auto flex flex-col items-center text-center shadow-xl animate-bounce-in">
       <div id="unlockModalIcon" class="text-6xl mb-2 animate-shine">🔒</div>
@@ -40,77 +42,102 @@
   </div>
 
   <script type="module">
-  import { DEV_MODE } from "./js/config.js";
-  import { auth, db, onAuthStateChanged, doc, getDoc, getDocs, collection } from "./js/firebase.js";
+    import { DEV_MODE } from "./js/config.js";
+    import { auth, db, onAuthStateChanged, doc, getDoc, getDocs, collection } from "./js/firebase.js";
 
-  const totalDays = 100;
-  const dayList = document.getElementById("dayList");
-  const activeChildId = localStorage.getItem("activeChildId");
-  const activeChildNameEl = document.getElementById("activeChildName");
-  let user = null;
-  let completedDays = [];
-  let isPremium = false;
+    const totalDays = 100;
+    const dayList = document.getElementById("dayList");
+    const activeChildId = localStorage.getItem("activeChildId");
+    const activeChildNameEl = document.getElementById("activeChildName");
+    const switchProfileBtn = document.getElementById("switchProfileBtn");
+    let user = null;
+    let completedDays = [];
+    let isPremium = false;
 
-  if (!DEV_MODE) {
-  onAuthStateChanged(auth, async (u) => {
-    if (!u) return window.location.href = "index.html";
-    user = u;
-    await loadChildData();
-    renderDays();
-  });
-} else {
-  renderDays(); // Im DEV: Direkt ohne Login
-}
-
-  async function loadChildData() {
-    const childRef = doc(db, "users", user.uid, "children", activeChildId);
-    const childSnap = await getDoc(childRef);
-    if (!childSnap.exists()) {
-      alert("Profile not found.");
-      window.location.href = "index.html";
+    if (!DEV_MODE) {
+      onAuthStateChanged(auth, async (u) => {
+        if (!u) return window.location.href = "index.html";
+        user = u;
+        await loadChildData();
+        renderDays();
+      });
+    } else {
+      // DEV: Direkt ohne Login
+      activeChildNameEl.textContent = "Test Mode";
+      renderDays();
     }
-    const data = childSnap.data();
-    activeChildNameEl.textContent = data.name;
-    completedDays = data.completedDays || [];
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    isPremium = userDoc.exists() && (userDoc.data().subscriptionStatus === "premium" || Date.now() < userDoc.data().trialEnds);
-  }
 
-  function isDayUnlocked(dayNumber) {
-    if (DEV_MODE) return true;
-    if (dayNumber === 1) return true;
-    if (dayNumber > 7 && !isPremium) return false;
-    const prevCompleted = completedDays.includes(dayNumber - 1);
-    return prevCompleted;
-  }
+    async function loadChildData() {
+      const childRef = doc(db, "users", user.uid, "children", activeChildId);
+      const childSnap = await getDoc(childRef);
+      if (!childSnap.exists()) {
+        alert("Profile not found.");
+        window.location.href = "index.html";
+      }
+      const data = childSnap.data();
+      activeChildNameEl.textContent = data.name;
+      completedDays = data.completedDays || [];
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      isPremium = userDoc.exists() && (userDoc.data().subscriptionStatus === "premium" || Date.now() < userDoc.data().trialEnds);
+    }
 
-  function renderDays() {
-    dayList.innerHTML = "";
-    for (let i = 1; i <= totalDays; i++) {
-      const isUnlocked = isDayUnlocked(i);
-      const isCompleted = completedDays.includes(i);
+    function isDayUnlocked(dayNumber) {
+      if (DEV_MODE) return true;
+      if (dayNumber === 1) return true;
+      if (dayNumber > 7 && !isPremium) return false;
+      return completedDays.includes(dayNumber - 1);
+    }
 
-      const btn = document.createElement('button');
-      btn.className = `rounded-2xl px-6 py-4 font-bold text-xl flex items-center justify-center shadow transition duration-300 ${
-        isUnlocked
-          ? isCompleted
-            ? 'bg-green-400 text-white hover:bg-green-500'
-            : 'bg-blue-400 text-white hover:bg-blue-500'
-          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-      }`;
-      btn.textContent = `Day ${i}`;
+    function renderDays() {
+      dayList.innerHTML = "";
+      for (let i = 1; i <= totalDays; i++) {
+        const isUnlocked = isDayUnlocked(i);
+        const isCompleted = completedDays.includes(i);
 
-      btn.onclick = () => {
-        if (isUnlocked) {
-          window.location.href = `day.html?day=${i}`;
-        } else {
-          alert("This day is locked!");
-        }
+        const btn = document.createElement('button');
+        btn.className = `rounded-2xl px-6 py-4 font-bold text-xl flex items-center justify-center shadow transition duration-300 ${
+          isUnlocked
+            ? isCompleted
+              ? 'bg-green-400 text-white hover:bg-green-500'
+              : 'bg-blue-400 text-white hover:bg-blue-500'
+            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+        }`;
+        btn.textContent = `Day ${i}`;
+
+        btn.onclick = () => {
+          if (isUnlocked) {
+            window.location.href = `day.html?day=${i}`;
+          } else {
+            showUnlockOverlay(i);
+          }
+        };
+        dayList.appendChild(btn);
+      }
+    }
+
+    function showUnlockOverlay(dayNumber) {
+      document.getElementById("unlockOverlay").style.display = "flex";
+      document.getElementById("unlockModalMsg").textContent = 
+        dayNumber > 7 ? "This day is only for Premium users." : "Please come back tomorrow!";
+      document.getElementById("unlockOverlayBtn").onclick = () => {
+        document.getElementById("unlockOverlay").style.display = "none";
       };
-      dayList.appendChild(btn);
     }
-  }
-</script>
+
+    // Profilwechsel
+    switchProfileBtn.addEventListener("click", async () => {
+      if (DEV_MODE) return alert("Profile switching disabled in Test Mode");
+      const childrenSnap = await getDocs(collection(db, "users", user.uid, "children"));
+      const names = [];
+      childrenSnap.forEach(c => names.push({ id: c.id, name: c.data().name }));
+      const newChoice = prompt("Switch to which profile?\n" + names.map((c, idx) => `${idx + 1}. ${c.name}`).join("\n"));
+      const choiceIdx = parseInt(newChoice) - 1;
+      if (choiceIdx >= 0 && choiceIdx < names.length) {
+        localStorage.setItem("activeChildId", names[choiceIdx].id);
+        window.location.reload();
+      }
+    });
+  </script>
 
   <div class="w-full flex justify-center mb-5">
     <a href="index.html" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold px-6 py-2 rounded-xl shadow transition">

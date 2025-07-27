@@ -36,12 +36,11 @@
 
   <script type="module">
     import { DEV_MODE } from "./js/config.js";
-import { auth, db, doc, getDoc, updateDoc, arrayUnion } from "./js/firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { auth, db, onAuthStateChanged, doc, getDoc, updateDoc, arrayUnion } from "./js/firebase.js";
 
-    
+    let user = null;
 
-    // === Day-Parameter laden (im DEV immer Tag 1) ===
+    // === Day-Parameter laden ===
     const urlParams = new URLSearchParams(window.location.search);
     const currentDay = DEV_MODE ? 1 : parseInt(urlParams.get("day")) || 1;
     const activeChildId = localStorage.getItem("activeChildId");
@@ -68,14 +67,14 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/f
       });
     }
 
-    // === Tag als abgeschlossen markieren (nur Live) ===
+    // === Tag als abgeschlossen markieren ===
     async function markDayCompleted() {
       if (DEV_MODE) return;
       const childRef = doc(db, "users", user.uid, "children", activeChildId);
       await updateDoc(childRef, { completedDays: arrayUnion(currentDay) });
     }
 
-    // === Sticker & Puzzle speichern (nur Live) ===
+    // === Sticker & Puzzle speichern ===
     async function saveRewards(stickers = [], puzzlePieces = []) {
       if (DEV_MODE) return;
       const childRef = doc(db, "users", user.uid, "children", activeChildId);
@@ -98,6 +97,6 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/f
     };
   </script>
 
-  <script src="./js/app.js" defer></script>
+  <script src="./js/app.js" type="module" defer></script>
 </body>
 </html>
