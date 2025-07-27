@@ -5,7 +5,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCSekyhXJXgx2pEDcLllpMgKeRlnlY_0dY",
   authDomain: "coach-max.firebaseapp.com",
   projectId: "coach-max",
-  storageBucket: "coach-max.appspot.com",
+  storageBucket: "coach-max.firebasestorage.app",
   messagingSenderId: "156803412822",
   appId: "1:156803412822:web:4ce6340bde758ab3bfdcf7",
   measurementId: "G-C5J92W6SSS"
