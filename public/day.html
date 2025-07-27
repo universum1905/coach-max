@@ -43,9 +43,9 @@
   <audio id="breathingMusic" src="audio/focus-loop.mp3" preload="auto" loop></audio>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+   // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+   // import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+   // import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     
 
@@ -62,18 +62,19 @@
     mainTitle.textContent = `Welcome to Coach Max – Day ${currentDay}`;
 
     onAuthStateChanged(auth, async (u) => {
-      if (!u) return window.location.href = "index.html";
+     // if (!u) return window.location.href = "index.html"; //
       user = u;
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (!userDoc.exists()) return window.location.href = "index.html";
+     // if (!userDoc.exists()) return window.location.href = "index.html"; //
 
       const subData = userDoc.data();
       const trialExpired = subData.subscriptionStatus !== "premium" && Date.now() > subData.trialEnds;
-      if (trialExpired && currentDay > 7) {
-        alert("Your trial has ended. Please upgrade to Premium to continue!");
-        window.location.href = "choose.html";
-      }
+     // if (trialExpired && currentDay > 7) {
+      //  alert("Your trial has ended. Please upgrade to Premium to continue!");
+      //  window.location.href = "choose.html"; //
+     // }
     });
+	// ...
 
     // Tag als abgeschlossen markieren
     async function markDayCompleted() {
