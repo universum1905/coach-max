@@ -52,16 +52,15 @@
   let isPremium = false;
 
   if (!DEV_MODE) {
-    onAuthStateChanged(auth, async (u) => {
-      if (!u) return window.location.href = "index.html";
-      user = u;
-      await loadChildData();
-      renderDays();
-    });
-  } else {
-    activeChildNameEl.textContent = "Test Child";
+  onAuthStateChanged(auth, async (u) => {
+    if (!u) return window.location.href = "index.html";
+    user = u;
+    await loadChildData();
     renderDays();
-  }
+  });
+} else {
+  renderDays(); // Im DEV: Direkt ohne Login
+}
 
   async function loadChildData() {
     const childRef = doc(db, "users", user.uid, "children", activeChildId);
