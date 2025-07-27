@@ -42,85 +42,76 @@
   </div>
 
   <script type="module">
-  import { DEV_MODE } from "./js/config.js";
-  import { app, db } from "./js/firebase.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { DEV_MODE } from "./js/config.js";
+import { auth, db, onAuthStateChanged, doc, getDoc, getDocs, collection } from "./js/firebase.js";
 
-  const auth = getAuth(app);
-  const totalDays = 100;
-  const dayList = document.getElementById("dayList");
-  const activeChildId = localStorage.getItem("activeChildId");
-  const activeChildNameEl = document.getElementById("activeChildName");
-  let user = null;
-  let completedDays = [];
-  let isPremium = false;
+const totalDays = 100;
+const dayList = document.getElementById("dayList");
+const activeChildId = localStorage.getItem("activeChildId");
+const activeChildNameEl = document.getElementById("activeChildName");
+let user = null;
+let completedDays = [];
+let isPremium = false;
 
-  // === Live vs DEV ===
-  if (!DEV_MODE) {
-    onAuthStateChanged(auth, async (u) => {
-      if (!u) return window.location.href = "index.html";
-      user = u;
-      await loadChildData(u.uid);
-      renderDays();
-    });
-  } else {
-    console.log("[DEV] Choose.html – Simuliert");
-    activeChildNameEl.textContent = "Test Child";
-    completedDays = [1,2,3];
-    isPremium = true;
+if (!DEV_MODE) {
+  onAuthStateChanged(auth, async (u) => {
+    if (!u) return window.location.href = "index.html";
+    user = u;
+    await loadChildData();
     renderDays();
+  });
+} else {
+  renderDays();
+}
+
+async function loadChildData() {
+  const childRef = doc(db, "users", user.uid, "children", activeChildId);
+  const childSnap = await getDoc(childRef);
+  if (!childSnap.exists()) {
+    alert("Profile not found.");
+    window.location.href = "index.html";
   }
+  const data = childSnap.data();
+  activeChildNameEl.textContent = data.name;
+  completedDays = data.completedDays || [];
+  const userDoc = await getDoc(doc(db, "users", user.uid));
+  isPremium = userDoc.exists() && (userDoc.data().subscriptionStatus === "premium" || Date.now() < userDoc.data().trialEnds);
+}
 
-  async function loadChildData(uid) {
-    const childRef = doc(db, "users", uid, "children", activeChildId);
-    const childSnap = await getDoc(childRef);
-    if (!childSnap.exists()) {
-      alert("Profile not found.");
-      window.location.href = "index.html";
-    }
-    const data = childSnap.data();
-    activeChildNameEl.textContent = data.name;
-    completedDays = data.completedDays || [];
+function isDayUnlocked(dayNumber) {
+  if (DEV_MODE) return true;
+  if (dayNumber === 1) return true;
+  if (dayNumber > 7 && !isPremium) return false;
+  const prevCompleted = completedDays.includes(dayNumber - 1);
+  return prevCompleted;
+}
 
-    const userDoc = await getDoc(doc(db, "users", uid));
-    isPremium = userDoc.exists() && (userDoc.data().subscriptionStatus === "premium" || Date.now() < userDoc.data().trialEnds);
+function renderDays() {
+  dayList.innerHTML = "";
+  for (let i = 1; i <= totalDays; i++) {
+    const isUnlocked = isDayUnlocked(i);
+    const isCompleted = completedDays.includes(i);
+
+    const btn = document.createElement('button');
+    btn.className = `rounded-2xl px-6 py-4 font-bold text-xl flex items-center justify-center shadow transition duration-300 ${
+      isUnlocked
+        ? isCompleted
+          ? 'bg-green-400 text-white hover:bg-green-500'
+          : 'bg-blue-400 text-white hover:bg-blue-500'
+        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+    }`;
+    btn.textContent = `Day ${i}`;
+
+    btn.onclick = () => {
+      if (isUnlocked) {
+        window.location.href = `day.html?day=${i}`;
+      } else {
+        alert("This day is locked!");
+      }
+    };
+    dayList.appendChild(btn);
   }
-
-  function isDayUnlocked(dayNumber) {
-    if (DEV_MODE) return true;
-    if (dayNumber === 1) return true;
-    if (dayNumber > 7 && !isPremium) return false;
-    const prevCompleted = completedDays.includes(dayNumber - 1);
-    return prevCompleted;
-  }
-
-  function renderDays() {
-    dayList.innerHTML = "";
-    for (let i = 1; i <= totalDays; i++) {
-      const isUnlocked = isDayUnlocked(i);
-      const isCompleted = completedDays.includes(i);
-
-      const btn = document.createElement('button');
-      btn.className = `rounded-2xl px-6 py-4 font-bold text-xl flex items-center justify-center shadow transition duration-300 ${
-        isUnlocked
-          ? isCompleted
-            ? 'bg-green-400 text-white hover:bg-green-500'
-            : 'bg-blue-400 text-white hover:bg-blue-500'
-          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-      }`;
-      btn.textContent = `Day ${i}`;
-
-      btn.onclick = () => {
-        if (isUnlocked) {
-          window.location.href = `day.html?day=${i}`;
-        } else {
-          alert("This day is locked!");
-        }
-      };
-      dayList.appendChild(btn);
-    }
-  }
+}
 </script>
 
   <div class="w-full flex justify-center mb-5">
