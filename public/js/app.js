@@ -6,7 +6,7 @@ let currentDay = 1;
 let currentMusic = null;
 
 const DEV_MODE = true;              // false = Live, true = Test/Entwickler
-const DEV_START_SESSION = 4;        // Index: 0 = erste Session (Intro), 1 = zweite Session, 2 = dritte usw.
+const DEV_START_SESSION = 2;        // Index: 0 = erste Session (Intro), 1 = zweite Session, 2 = dritte usw.
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
