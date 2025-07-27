@@ -40,83 +40,78 @@
   </div>
 
   <script type="module">
-    import { auth, db, onAuthStateChanged, doc, getDoc, getDocs, collection } from "/js/firebase.js";
+  import { DEV_MODE } from "/js/config.js";
+  import { auth, db, onAuthStateChanged, doc, getDoc, getDocs, collection } from "/js/firebase.js";
 
-    const DEV_MODE = true; 
-    const totalDays = 100;
-    const dayList = document.getElementById("dayList");
-    const activeChildId = localStorage.getItem("activeChildId");
-    const activeChildNameEl = document.getElementById("activeChildName");
-    const switchProfileBtn = document.getElementById("switchProfileBtn");
-    let user = null;
-    let completedDays = [];
-    let isPremium = false;
+  const totalDays = 100;
+  const dayList = document.getElementById("dayList");
+  const activeChildId = localStorage.getItem("activeChildId");
+  const activeChildNameEl = document.getElementById("activeChildName");
+  let user = null;
+  let completedDays = [];
+  let isPremium = false;
 
-    if (!DEV_MODE) {
-      onAuthStateChanged(auth, async (u) => {
-        if (!u) return window.location.href = "index.html";
-        user = u;
-        await loadChildData();
-        renderDays();
-      });
-    } else {
+  if (!DEV_MODE) {
+    onAuthStateChanged(auth, async (u) => {
+      if (!u) return window.location.href = "index.html";
+      user = u;
+      await loadChildData();
       renderDays();
-      activeChildNameEl.textContent = "Test User";
+    });
+  } else {
+    activeChildNameEl.textContent = "Test Child";
+    renderDays();
+  }
+
+  async function loadChildData() {
+    const childRef = doc(db, "users", user.uid, "children", activeChildId);
+    const childSnap = await getDoc(childRef);
+    if (!childSnap.exists()) {
+      alert("Profile not found.");
+      window.location.href = "index.html";
     }
+    const data = childSnap.data();
+    activeChildNameEl.textContent = data.name;
+    completedDays = data.completedDays || [];
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    isPremium = userDoc.exists() && (userDoc.data().subscriptionStatus === "premium" || Date.now() < userDoc.data().trialEnds);
+  }
 
-    async function loadChildData() {
-      const childRef = doc(db, "users", user.uid, "children", activeChildId);
-      const childSnap = await getDoc(childRef);
-      if (!childSnap.exists()) {
-        alert("Profile not found.");
-        window.location.href = "index.html";
-      }
-      const data = childSnap.data();
-      activeChildNameEl.textContent = data.name;
-      completedDays = data.completedDays || [];
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      isPremium = userDoc.exists() && (userDoc.data().subscriptionStatus === "premium" || Date.now() < userDoc.data().trialEnds);
-    }
+  function isDayUnlocked(dayNumber) {
+    if (DEV_MODE) return true;
+    if (dayNumber === 1) return true;
+    if (dayNumber > 7 && !isPremium) return false;
+    const prevCompleted = completedDays.includes(dayNumber - 1);
+    return prevCompleted;
+  }
 
-    function isDayUnlocked(dayNumber) {
-      if (DEV_MODE) return true;
-      if (dayNumber === 1) return true;
-      if (dayNumber > 7 && !isPremium) return false;
-      const prevCompleted = completedDays.includes(dayNumber - 1);
-      return prevCompleted;
-    }
+  function renderDays() {
+    dayList.innerHTML = "";
+    for (let i = 1; i <= totalDays; i++) {
+      const isUnlocked = isDayUnlocked(i);
+      const isCompleted = completedDays.includes(i);
 
-    function renderDays() {
-      dayList.innerHTML = "";
-      for (let i = 1; i <= totalDays; i++) {
-        const isUnlocked = isDayUnlocked(i);
-        const btn = document.createElement('button');
-        btn.className = `rounded-2xl px-6 py-4 font-bold text-xl flex items-center justify-center shadow transition duration-300 ${
-          isUnlocked ? 'bg-blue-400 text-white hover:bg-blue-500' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-        }`;
-        btn.textContent = `Day ${i}`;
+      const btn = document.createElement('button');
+      btn.className = `rounded-2xl px-6 py-4 font-bold text-xl flex items-center justify-center shadow transition duration-300 ${
+        isUnlocked
+          ? isCompleted
+            ? 'bg-green-400 text-white hover:bg-green-500'
+            : 'bg-blue-400 text-white hover:bg-blue-500'
+          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+      }`;
+      btn.textContent = `Day ${i}`;
 
-        btn.onclick = () => {
-          if (isUnlocked) {
-            localStorage.setItem("currentDay", i);
-            window.location.href = `day.html?day=${i}`;
-          } else {
-            showUnlockOverlay("Please come back tomorrow!", "⏳");
-          }
-        };
-        dayList.appendChild(btn);
-      }
-    }
-
-    function showUnlockOverlay(msg, emoji = "🔒") {
-      document.getElementById("unlockOverlay").style.display = "flex";
-      document.getElementById("unlockModalIcon").innerText = emoji;
-      document.getElementById("unlockModalMsg").innerHTML = msg;
-      document.getElementById("unlockOverlayBtn").onclick = () => {
-        document.getElementById("unlockOverlay").style.display = "none";
+      btn.onclick = () => {
+        if (isUnlocked) {
+          window.location.href = `day.html?day=${i}`;
+        } else {
+          alert("This day is locked!");
+        }
       };
+      dayList.appendChild(btn);
     }
-  </script>
+  }
+</script>
 
   <div class="w-full flex justify-center mb-5">
     <a href="index.html" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold px-6 py-2 rounded-xl shadow transition">
