@@ -245,91 +245,110 @@
 
   
   <script type="module">
-import { auth, db } from "./js/firebase.js";
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { 
-  doc, setDoc, getDocs, collection 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { DEV_MODE } from "./js/config.js";
+  import { app, db } from "./js/firebase.js";
+  import { 
+    getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword 
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { 
+    doc, setDoc, getDoc, collection, addDoc, serverTimestamp 
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const loginBtn = document.getElementById('loginBtn');
-const continueBtn = document.getElementById('continueBtn');
-const addChildBtn = document.getElementById('addChildBtn');
-const childrenList = document.getElementById('childrenList');
-let selectedChildId = null;
+  const auth = getAuth(app);
 
-loginBtn.onclick = async () => {
-  const email = document.getElementById('parentEmail').value;
-  const password = document.getElementById('parentPassword').value;
-  if (!email || !password) return alert("Enter email and password");
-  try {
-    let user;
-    try {
-      user = (await signInWithEmailAndPassword(auth, email, password)).user;
-    } catch {
-      user = (await createUserWithEmailAndPassword(auth, email, password)).user;
-      await setDoc(doc(db, "users", user.uid), {
-        subscriptionStatus: "trial",
-        trialEnds: Date.now() + 7*24*60*60*1000,
-        createdAt: Date.now()
-      });
+  // === Elemente ===
+  const loginBtn = document.getElementById("loginBtn");
+  const continueBtn = document.getElementById("continueBtn");
+  const addChildBtn = document.getElementById("addChildBtn");
+  const childrenList = document.getElementById("childrenList");
+  let selectedChildId = null;
+
+  // === Login/Register ===
+  loginBtn.addEventListener("click", async () => {
+    const email = document.getElementById("parentEmail").value;
+    const password = document.getElementById("parentPassword").value;
+    if (!email || !password) return alert("Please enter email & password");
+
+    if (DEV_MODE) {
+      console.log("[DEV] Login simulated for:", email);
+      return;
     }
-    loadChildren(user.uid);
-  } catch (err) {
-    alert(err.message);
+
+    try {
+      let user;
+      try {
+        user = (await signInWithEmailAndPassword(auth, email, password)).user;
+      } catch {
+        user = (await createUserWithEmailAndPassword(auth, email, password)).user;
+        await setDoc(doc(db, "users", user.uid), {
+          subscriptionStatus: "trial",
+          trialEnds: Date.now() + 7 * 24 * 60 * 60 * 1000,
+          createdAt: serverTimestamp()
+        });
+      }
+      alert("Logged in as " + user.email);
+      await loadChildren(user.uid);
+    } catch (e) {
+      alert("Login error: " + e.message);
+    }
+  });
+
+  // === Kinderprofile laden ===
+  async function loadChildren(uid) {
+    if (DEV_MODE) {
+      console.log("[DEV] Simulated child profiles loaded");
+      childrenList.innerHTML = "<div class='p-2 border rounded'>Test Child</div>";
+      selectedChildId = "dev-child";
+      return;
+    }
+
+    childrenList.innerHTML = "";
+    const querySnap = await getDoc(doc(db, "users", uid));
+    if (!querySnap.exists()) return;
+    const childCol = collection(db, "users", uid, "children");
+    const childDocs = await getDocs(childCol);
+    childDocs.forEach(c => {
+      const div = document.createElement("div");
+      div.textContent = c.data().name;
+      div.className = "p-2 border rounded cursor-pointer hover:bg-purple-100";
+      div.onclick = () => {
+        selectedChildId = c.id;
+        Array.from(childrenList.children).forEach(d => d.classList.remove("bg-purple-200"));
+        div.classList.add("bg-purple-200");
+      };
+      childrenList.appendChild(div);
+    });
   }
-};
 
-async function loadChildren(uid) {
-  childrenList.innerHTML = "";
-  const snap = await getDocs(collection(db, "users", uid, "children"));
-  snap.forEach(docSnap => {
-    const child = docSnap.data();
-    const div = document.createElement("div");
-    div.textContent = child.name;
-    div.className = "p-2 border rounded cursor-pointer hover:bg-purple-100";
-    div.onclick = () => {
-      selectedChildId = docSnap.id;
-      highlightChild(div);
-    };
-    childrenList.appendChild(div);
+  // === Neues Kind hinzufügen ===
+  addChildBtn.addEventListener("click", async () => {
+    const name = document.getElementById("childName").value;
+    if (!name) return alert("Please enter a name");
+
+    if (DEV_MODE) {
+      console.log("[DEV] Simulated child added:", name);
+      return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) return alert("Please login first");
+    const childId = Date.now().toString();
+    await setDoc(doc(db, "users", user.uid, "children", childId), {
+      name,
+      createdAt: serverTimestamp(),
+      progress: {},
+      stickers: []
+    });
+    document.getElementById("childName").value = "";
+    await loadChildren(user.uid);
   });
-}
 
-function highlightChild(div) {
-  Array.from(childrenList.children).forEach(c => c.classList.remove("bg-purple-200"));
-  div.classList.add("bg-purple-200");
-}
-
-addChildBtn.onclick = async () => {
-  const name = document.getElementById('childName').value;
-  const user = auth.currentUser;
-  if (!user || !name) return alert("Login first and enter a name");
-  const id = Date.now().toString();
-  await setDoc(doc(db, "users", user.uid, "children", id), { 
-    name, 
-    createdAt: Date.now(),
-    completedDays: [], 
-    stickers: [], 
-    puzzlePieces: [] 
+  // === Weiter zum Choose-Screen ===
+  continueBtn.addEventListener("click", () => {
+    if (!selectedChildId) return alert("Please select a child profile");
+    localStorage.setItem("activeChildId", selectedChildId);
+    window.location.href = "choose.html";
   });
-  document.getElementById('childName').value = "";
-  loadChildren(user.uid);
-};
-
-continueBtn.onclick = () => {
-  if (!selectedChildId) return alert("Select a child");
-  localStorage.setItem("activeChildId", selectedChildId);
-  window.location.href = "choose.html";
-};
-
-// Falls schon eingeloggt: Auto-Load
-onAuthStateChanged(auth, u => {
-  if (u) loadChildren(u.uid);
-});
 </script>
 </body>
 </html>
