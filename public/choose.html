@@ -17,28 +17,20 @@
 <body class="min-h-screen flex flex-col items-center justify-start p-6 text-center">
   <h1 class="text-3xl font-bold mb-6">📅 Choose Your Day</h1>
 
-  <!-- Profilanzeige -->
   <div class="p-4 bg-white/80 rounded-xl shadow mb-4 max-w-md w-full">
     <h2 class="text-xl font-bold mb-2">Active Profile: <span id="activeChildName"></span></h2>
     <button id="switchProfileBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Switch Profile</button>
   </div>
   
   <div class="w-full max-w-md flex justify-end mb-4">
-    <a href="stickerboard.html" class="bg-yellow-200 text-yellow-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-yellow-300 transition mr-2">
-      🏅 Sticker Board
-    </a>
-    <a href="puzzleboard.html" class="bg-blue-100 text-blue-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-blue-200 transition">
-      🧩 Puzzle Board
-    </a>
-    <a href="gallery.html" class="bg-pink-200 text-pink-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-pink-300 transition mb-4">
-      🎨 My Gallery
-    </a>
+    <a href="stickerboard.html" class="bg-yellow-200 text-yellow-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-yellow-300 transition mr-2">🏅 Sticker Board</a>
+    <a href="puzzleboard.html" class="bg-blue-100 text-blue-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-blue-200 transition">🧩 Puzzle Board</a>
+    <a href="gallery.html" class="bg-pink-200 text-pink-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-pink-300 transition mb-4">🎨 My Gallery</a>
   </div>
   
   <p class="text-gray-600 mb-2">Tap a day to start your adventure. New days unlock every morning at 6:00 AM!</p>
   <div id="dayList" class="flex flex-wrap justify-center gap-4 w-full max-w-md"></div>
 
-  <!-- Unlock Modal -->
   <div id="unlockOverlay" style="display:none; position:fixed; z-index:50; inset:0; background:rgba(0,0,0,0.65); align-items:center; justify-content:center;">
     <div id="unlockModal" class="rounded-3xl bg-white p-8 max-w-xs mx-auto flex flex-col items-center text-center shadow-xl animate-bounce-in">
       <div id="unlockModalIcon" class="text-6xl mb-2 animate-shine">🔒</div>
@@ -48,24 +40,9 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, getDocs, updateDoc, collection, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { auth, db, onAuthStateChanged, doc, getDoc, getDocs, collection } from "/js/firebase.js";
 
-    // Firebase Setup
-    const firebaseConfig = {
-      apiKey: "DEIN_API_KEY",
-      authDomain: "DEIN_PROJECT.firebaseapp.com",
-      projectId: "DEIN_PROJECT_ID",
-      storageBucket: "DEIN_PROJECT.appspot.com",
-      messagingSenderId: "DEIN_SENDER_ID",
-      appId: "DEINE_APP_ID"
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // Variablen
+    const DEV_MODE = true; 
     const totalDays = 100;
     const dayList = document.getElementById("dayList");
     const activeChildId = localStorage.getItem("activeChildId");
@@ -75,12 +52,17 @@
     let completedDays = [];
     let isPremium = false;
 
-    onAuthStateChanged(auth, async (u) => {
-      if (!u) return window.location.href = "index.html";
-      user = u;
-      await loadChildData();
+    if (!DEV_MODE) {
+      onAuthStateChanged(auth, async (u) => {
+        if (!u) return window.location.href = "index.html";
+        user = u;
+        await loadChildData();
+        renderDays();
+      });
+    } else {
       renderDays();
-    });
+      activeChildNameEl.textContent = "Test User";
+    }
 
     async function loadChildData() {
       const childRef = doc(db, "users", user.uid, "children", activeChildId);
@@ -92,12 +74,12 @@
       const data = childSnap.data();
       activeChildNameEl.textContent = data.name;
       completedDays = data.completedDays || [];
-      // Premium-Status aus Parent laden
       const userDoc = await getDoc(doc(db, "users", user.uid));
       isPremium = userDoc.exists() && (userDoc.data().subscriptionStatus === "premium" || Date.now() < userDoc.data().trialEnds);
     }
 
     function isDayUnlocked(dayNumber) {
+      if (DEV_MODE) return true;
       if (dayNumber === 1) return true;
       if (dayNumber > 7 && !isPremium) return false;
       const prevCompleted = completedDays.includes(dayNumber - 1);
@@ -108,59 +90,30 @@
       dayList.innerHTML = "";
       for (let i = 1; i <= totalDays; i++) {
         const isUnlocked = isDayUnlocked(i);
-        const isCompleted = completedDays.includes(i);
-
         const btn = document.createElement('button');
         btn.className = `rounded-2xl px-6 py-4 font-bold text-xl flex items-center justify-center shadow transition duration-300 ${
-          isUnlocked
-            ? isCompleted
-              ? 'bg-green-400 text-white hover:bg-green-500'
-              : 'bg-blue-400 text-white hover:bg-blue-500'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          isUnlocked ? 'bg-blue-400 text-white hover:bg-blue-500' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
         }`;
         btn.textContent = `Day ${i}`;
 
-        if (isUnlocked) {
-          btn.onclick = () => {
+        btn.onclick = () => {
+          if (isUnlocked) {
             localStorage.setItem("currentDay", i);
             window.location.href = `day.html?day=${i}`;
-          };
-        } else {
-          btn.onclick = (e) => {
-            e.preventDefault();
-            if (i > 7 && !isPremium) {
-              showUnlockOverlay("This day is only available with Premium!<br><span class='text-pink-500 font-bold'>Unlock all adventures for $9.99/month.</span>", "💎", true);
-            } else {
-              showUnlockOverlay("Please come back tomorrow!", "⏳");
-            }
-          };
-        }
+          } else {
+            showUnlockOverlay("Please come back tomorrow!", "⏳");
+          }
+        };
         dayList.appendChild(btn);
       }
     }
 
-    // Profilwechsel
-    switchProfileBtn.addEventListener("click", async () => {
-      const childrenSnap = await getDocs(collection(db, "users", user.uid, "children"));
-      const names = [];
-      childrenSnap.forEach(c => names.push({ id: c.id, name: c.data().name }));
-      const newChoice = prompt("Switch to which profile?\n" + names.map((c, idx) => `${idx + 1}. ${c.name}`).join("\n"));
-      const choiceIdx = parseInt(newChoice) - 1;
-      if (choiceIdx >= 0 && choiceIdx < names.length) {
-        localStorage.setItem("activeChildId", names[choiceIdx].id);
-        window.location.reload();
-      }
-    });
-
-    function showUnlockOverlay(msg, emoji = "🔒", showPaywall = false) {
+    function showUnlockOverlay(msg, emoji = "🔒") {
       document.getElementById("unlockOverlay").style.display = "flex";
       document.getElementById("unlockModalIcon").innerText = emoji;
       document.getElementById("unlockModalMsg").innerHTML = msg;
-      const btn = document.getElementById("unlockOverlayBtn");
-      btn.innerText = showPaywall ? "Go Premium" : "OK";
-      btn.onclick = function() {
+      document.getElementById("unlockOverlayBtn").onclick = () => {
         document.getElementById("unlockOverlay").style.display = "none";
-        if (showPaywall) window.open('https://coach-max.lemonsqueezy.com/buy/600fbb48-8189-41ea-adbd-32a3eed96cca', '_blank');
       };
     }
   </script>

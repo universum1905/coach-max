@@ -17,41 +17,21 @@
       font-family: 'Fredoka', sans-serif;
       overflow-y: auto;
     }
-
     @keyframes wiggle {
       0%, 100% { transform: rotate(0deg); }
       25% { transform: rotate(10deg); }
       50% { transform: rotate(-10deg); }
       75% { transform: rotate(5deg); }
     }
-
-    .animate-wiggle {
-      animation: wiggle 1.5s infinite ease-in-out;
-      display: inline-block;
-    }
-
-    video {
-      object-fit: contain;
-    }
-
-    .audioHint {
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
-      color: #6b7280;
-      transition: opacity 0.5s ease;
-    }
-
-    .audioHint.hidden {
-      opacity: 0;
-    }
-
+    .animate-wiggle { animation: wiggle 1.5s infinite ease-in-out; display: inline-block; }
+    video { object-fit: contain; }
+    .audioHint { font-size: 0.875rem; margin-top: 0.25rem; color: #6b7280; transition: opacity 0.5s ease; }
+    .audioHint.hidden { opacity: 0; }
     @media screen and (orientation: portrait) {
-      #orientationOverlay { display: none; }
-      #mainContent       { display: block; }
+      #orientationOverlay { display: none; } #mainContent { display: block; }
     }
     @media screen and (orientation: landscape) {
-      #orientationOverlay { display: flex; }
-      #mainContent       { display: none; }
+      #orientationOverlay { display: flex; } #mainContent { display: none; }
     }
   </style>
 </head>
@@ -114,7 +94,6 @@
 
     <!-- START BUTTON -->
     <button id="letsStartBtn"
-      onclick="window.location.href='choose.html'"
       class="bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700 font-bold text-lg transition disabled:opacity-40 disabled:cursor-not-allowed"
       disabled>
       🎬 Let’s Start!
@@ -122,7 +101,7 @@
   </div>
 
   <script>
-    // Avatar Video Functions (stop other videos on play)
+    // Avatar Video Functions
     function playAvatarVideo(name) {
       stopAllVideosExcept(`${name}Video`);
       const img = document.getElementById(`${name}Image`);
@@ -132,11 +111,8 @@
       video.classList.remove('hidden');
       video.play();
       hint.classList.remove('hidden');
-      setTimeout(() => {
-        hint.classList.add('hidden');
-      }, 4000);
+      setTimeout(() => hint.classList.add('hidden'), 4000);
     }
-
     function resetAvatar(name) {
       const img = document.getElementById(`${name}Image`);
       const video = document.getElementById(`${name}Video`);
@@ -146,164 +122,127 @@
       video.currentTime = 0;
       hint.classList.remove('hidden');
     }
-
-    // Verhindere gleichzeitiges Abspielen ALLER Videos (inkl. Elternvideo)
     function stopAllVideosExcept(exceptId) {
       document.querySelectorAll('.coachmax-video').forEach(v => {
         if (v.id !== exceptId) {
-          v.pause();
-          v.currentTime = 0;
-          // Nur für Avatare: das Bild wieder anzeigen
+          v.pause(); v.currentTime = 0;
           if (v.id.endsWith('Video') && v.id !== 'parentIntroVideo') {
             v.classList.add('hidden');
             const idPrefix = v.id.replace('Video', 'Image');
             const img = document.getElementById(idPrefix);
             if (img) img.classList.remove('hidden');
-            // Hint zeigen
             const hint = document.getElementById('hint-' + idPrefix.replace('Image', ''));
             if (hint) hint.classList.remove('hidden');
           }
         }
       });
     }
-
-    // Elternvideo: beim Start stoppe alle anderen Videos!
     const parentVideo = document.getElementById('parentIntroVideo');
-    parentVideo.addEventListener('play', function() {
-      stopAllVideosExcept('parentIntroVideo');
-    });
-
     const letsStartBtn = document.getElementById('letsStartBtn');
     const parentVideoHint = document.getElementById('parentVideoHint');
-
+    parentVideo.addEventListener('play', () => stopAllVideosExcept('parentIntroVideo'));
     parentVideo.onended = function() {
       letsStartBtn.disabled = false;
       letsStartBtn.classList.add('animate-bounce');
       parentVideoHint.textContent = "Ready! You can now start the adventure 🚀";
     };
-
-    // Sicherheit: Wenn andere Videos manuell gestartet werden, stoppe Elternvideo
     ['bennyVideo', 'lunaVideo', 'momoVideo'].forEach(vidId => {
       const vid = document.getElementById(vidId);
-      if (vid) {
-        vid.addEventListener('play', function() {
-          stopAllVideosExcept(vidId);
-        });
-      }
+      if (vid) vid.addEventListener('play', () => stopAllVideosExcept(vidId));
     });
   </script>
 
-<footer class="mt-8 mb-3 text-center text-blue-600 text-base font-semibold">
-  Questions? <a href="parents.html" class="underline hover:text-orange-400 font-bold">See our FAQ for Parents</a>
-</footer>
-<!-- Setup / Login Overlay -->
-<div id="setupOverlay" class="fixed inset-0 bg-white/95 flex flex-col items-center justify-center z-50 hidden p-6">
-  <h2 class="text-2xl font-bold mb-4">Set up your account</h2>
-  
-  <!-- Login -->
-  <input id="parentEmail" type="email" placeholder="Parent Email" class="mb-3 p-2 border rounded w-64">
-  <input id="parentPassword" type="password" placeholder="Password" class="mb-3 p-2 border rounded w-64">
-  <button id="loginBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-6 w-64">Register / Login</button>
-  
-  <!-- Children -->
-  <h3 class="text-xl font-semibold mb-2">Children Profiles</h3>
-  <div id="childrenList" class="w-full max-w-md space-y-2 mb-3"></div>
-  
-  <div class="flex space-x-2 mb-4">
-    <input id="childName" type="text" placeholder="New child's name" class="p-2 border rounded w-48">
-    <button id="addChildBtn" class="bg-green-500 text-white px-4 py-2 rounded">Add</button>
+  <footer class="mt-8 mb-3 text-center text-blue-600 text-base font-semibold">
+    Questions? <a href="parents.html" class="underline hover:text-orange-400 font-bold">See our FAQ for Parents</a>
+  </footer>
+
+  <!-- Setup / Login Overlay -->
+  <div id="setupOverlay" class="fixed inset-0 bg-white/95 flex flex-col items-center justify-center z-50 hidden p-6">
+    <h2 class="text-2xl font-bold mb-4">Set up your account</h2>
+    <input id="parentEmail" type="email" placeholder="Parent Email" class="mb-3 p-2 border rounded w-64">
+    <input id="parentPassword" type="password" placeholder="Password" class="mb-3 p-2 border rounded w-64">
+    <button id="loginBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-6 w-64">Register / Login</button>
+    <h3 class="text-xl font-semibold mb-2">Children Profiles</h3>
+    <div id="childrenList" class="w-full max-w-md space-y-2 mb-3"></div>
+    <div class="flex space-x-2 mb-4">
+      <input id="childName" type="text" placeholder="New child's name" class="p-2 border rounded w-48">
+      <button id="addChildBtn" class="bg-green-500 text-white px-4 py-2 rounded">Add</button>
+    </div>
+    <button id="continueBtn" class="bg-purple-600 text-white px-6 py-2 rounded-full shadow w-64">Continue</button>
   </div>
-  
-  <button id="continueBtn" class="bg-purple-600 text-white px-6 py-2 rounded-full shadow w-64">Continue</button>
-</div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  <!-- Firebase Funktionen -->
+  <script type="module">
+    import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, setDoc, getDocs, collection, doc, serverTimestamp } from "/js/firebase.js";
 
-  
+    const setupOverlay = document.getElementById('setupOverlay');
+    const loginBtn = document.getElementById('loginBtn');
+    const addChildBtn = document.getElementById('addChildBtn');
+    const continueBtn = document.getElementById('continueBtn');
+    const childrenList = document.getElementById('childrenList');
+    const letsStartBtn = document.getElementById('letsStartBtn');
 
-  // === Elemente ===
-  const setupOverlay = document.getElementById('setupOverlay');
-  const loginBtn = document.getElementById('loginBtn');
-  const addChildBtn = document.getElementById('addChildBtn');
-  const continueBtn = document.getElementById('continueBtn');
-  const childrenList = document.getElementById('childrenList');
+    let selectedChildId = null;
+    letsStartBtn.onclick = () => { setupOverlay.classList.remove('hidden'); loadChildren(); };
 
-  let selectedChildId = null;
-
-  // === Overlay nach Video anzeigen ===
-  document.getElementById('letsStartBtn').onclick = () => {
-    setupOverlay.classList.remove('hidden');
-    loadChildren(); // falls schon eingeloggt
-  };
-
-  // === Login/Register ===
-  loginBtn.onclick = async () => {
-    const email = document.getElementById('parentEmail').value;
-    const password = document.getElementById('parentPassword').value;
-    if (!email || !password) return alert("Please enter email & password");
-    try {
-      let user;
+    loginBtn.onclick = async () => {
+      const email = document.getElementById('parentEmail').value;
+      const password = document.getElementById('parentPassword').value;
+      if (!email || !password) return alert("Please enter email & password");
       try {
-        user = (await signInWithEmailAndPassword(auth, email, password)).user;
-      } catch {
-        user = (await createUserWithEmailAndPassword(auth, email, password)).user;
-        await setDoc(doc(db, "users", user.uid), {
-          subscriptionStatus: "trial",
-          trialEnds: Date.now() + 7*24*60*60*1000,
-          createdAt: serverTimestamp()
-        });
-      }
-      alert("Logged in as " + user.email);
-      await loadChildren();
-    } catch (e) {
-      alert(e.message);
+        let user;
+        try {
+          user = (await signInWithEmailAndPassword(auth, email, password)).user;
+        } catch {
+          user = (await createUserWithEmailAndPassword(auth, email, password)).user;
+          await setDoc(doc(db, "users", user.uid), {
+            subscriptionStatus: "trial",
+            trialEnds: Date.now() + 7*24*60*60*1000,
+            createdAt: serverTimestamp()
+          });
+        }
+        alert("Logged in as " + user.email);
+        await loadChildren();
+      } catch (e) { alert(e.message); }
+    };
+
+    async function loadChildren() {
+      childrenList.innerHTML = "";
+      const user = auth.currentUser;
+      if (!user) return;
+      const snap = await getDocs(collection(db, "users", user.uid, "children"));
+      snap.forEach(docSnap => {
+        const child = docSnap.data();
+        const div = document.createElement("div");
+        div.textContent = child.name;
+        div.className = "p-2 border rounded cursor-pointer hover:bg-purple-100";
+        div.onclick = () => { selectedChildId = docSnap.id; highlightChild(div); };
+        childrenList.appendChild(div);
+      });
     }
-  };
 
-  // === Kinder laden ===
-  async function loadChildren() {
-    childrenList.innerHTML = "";
-    const user = auth.currentUser;
-    if (!user) return;
-    const snap = await getDocs(collection(db, "users", user.uid, "children"));
-    snap.forEach(docSnap => {
-      const child = docSnap.data();
-      const div = document.createElement("div");
-      div.textContent = child.name;
-      div.className = "p-2 border rounded cursor-pointer hover:bg-purple-100";
-      div.onclick = () => { selectedChildId = docSnap.id; highlightChild(div); };
-      childrenList.appendChild(div);
-    });
-  }
+    function highlightChild(selectedDiv) {
+      Array.from(childrenList.children).forEach(div => div.classList.remove("bg-purple-200"));
+      selectedDiv.classList.add("bg-purple-200");
+    }
 
-  function highlightChild(selectedDiv) {
-    Array.from(childrenList.children).forEach(div => div.classList.remove("bg-purple-200"));
-    selectedDiv.classList.add("bg-purple-200");
-  }
+    addChildBtn.onclick = async () => {
+      const name = document.getElementById('childName').value;
+      const user = auth.currentUser;
+      if (!user || !name) return alert("Please enter a name and login");
+      const childId = Date.now().toString();
+      await setDoc(doc(db, "users", user.uid, "children", childId), { name, createdAt: serverTimestamp(), progress: {}, stickers: [] });
+      document.getElementById('childName').value = "";
+      await loadChildren();
+    };
 
-  // === Kind hinzufügen ===
-  addChildBtn.onclick = async () => {
-    const name = document.getElementById('childName').value;
-    const user = auth.currentUser;
-    if (!user || !name) return alert("Please enter a name and login");
-    const childId = Date.now().toString();
-    await setDoc(doc(db, "users", user.uid, "children", childId), { name, createdAt: serverTimestamp(), progress: {}, stickers: [] });
-    document.getElementById('childName').value = "";
-    await loadChildren();
-  };
+    continueBtn.onclick = () => {
+      if (!selectedChildId) return alert("Please select a child profile");
+      localStorage.setItem("activeChildId", selectedChildId);
+      window.location.href = 'choose.html';
+    };
+  </script>
 
-  // === Fortfahren ===
-  continueBtn.onclick = () => {
-    if (!selectedChildId) return alert("Please select a child profile");
-    localStorage.setItem("activeChildId", selectedChildId);
-    window.location.href = 'choose.html';
-  };
-</script>
-
-<script type="module" src="js/firebase.js"></script>
-
+  <script type="module" src="/js/firebase.js"></script>
 </body>
 </html>

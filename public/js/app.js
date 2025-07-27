@@ -6,7 +6,7 @@ let currentDay = 1;
 let currentMusic = null;
 
 const DEV_MODE = true;              // false = Live, true = Test/Entwickler
-const DEV_START_SESSION = 2;        // Index: 0 = erste Session (Intro), 1 = zweite Session, 2 = dritte usw.
+const DEV_START_SESSION = 2;        // Index: 0 = Intro, 1 = Counting, etc.
 
 function getDayParam() {
   const params = new URLSearchParams(window.location.search);
@@ -15,9 +15,42 @@ function getDayParam() {
 currentDay = getDayParam();
 const jsonURL = `days/day${currentDay}.json`;
 
-
 let sessionStartTime = 0;
-const minSessionDuration = 60 * 1000; // 1 Minute (kannst du beliebig ändern)
+const minSessionDuration = 60 * 1000;
+
+// ==== Firebase nur einmal initialisieren ====
+import { app, analytics } from "./js/firebase.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ==== OnLoad: DEV vs. Live ====
+window.onload = async function() {
+  document.getElementById('mainContent').style.display = '';
+  try {
+    const res = await fetch(jsonURL);
+    if (!res.ok) throw new Error("Fehler beim Laden des JSON: " + res.statusText);
+    const data = await res.json();
+    sessions = data.sessions;
+    currentDay = data.day || 1;
+    document.title = `Coach Max – Day ${currentDay}`;
+    currentSession = DEV_MODE ? DEV_START_SESSION : 0;
+    renderSession(currentSession);
+  } catch (e) {
+    console.warn("Fehler beim Initialisieren:", e);
+    // Fallback Dummy-Sessions
+    sessions = [
+      { type: "intro", title: "Test Intro", text: [{ line: "Welcome to Test Mode", duration: 3 }] },
+      { type: "sequence", title: "Test Sequence", avatar: "momo", video: "day1-sequence.mp4", music: "focus-loop.mp3",
+        questions: [{ question: "Can you repeat the sequence?", sequence: ["red","blue","yellow","green"], choices: ["red","blue","yellow","green","purple"], correct: [0,1,2,3] }]
+      }
+    ];
+    currentSession = 0;
+    renderSession(currentSession);
+  }
+};
 
 
 // ==== KI/TTS-Limit-Logik (pro Tag und Session, z. B. 1000 Zeichen) ====
