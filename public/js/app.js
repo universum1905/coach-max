@@ -729,7 +729,7 @@ window.onload = async function() {
   document.getElementById('mainContent').style.display = '';
   try {
     const res = await fetch(jsonURL);
-    if (!res.ok) throw new Error("Fehler beim Laden des JSON: " + res.statusText);
+    if (!res.ok) throw new Error("Day JSON not found: " + jsonURL);
     const data = await res.json();
     sessions = data.sessions;
     currentDay = data.day || 1;
@@ -737,13 +737,14 @@ window.onload = async function() {
     currentSession = DEV_MODE ? DEV_START_SESSION : 0;
     renderSession(currentSession);
   } catch (e) {
-    console.warn("Fehler beim Initialisieren:", e);
+    console.warn("Fehler beim Initialisieren:", e.message);
     if (DEV_MODE) {
+      // === Dummy Sessions ===
       console.log("DEV_MODE aktiv: Dummy-Sessions geladen.");
       sessions = [
         {
           type: "intro",
-          title: "Test Intro",
+          title: `Welcome to Day ${currentDay} (Test Mode)`,
           text: [{ line: "Welcome to Test Mode", duration: 3 }]
         },
         {
@@ -770,12 +771,18 @@ window.onload = async function() {
       currentSession = 0;
       renderSession(currentSession);
     } else {
-      document.body.innerHTML = `<div style="color:red;font-size:1.4em;">Fehler beim Initialisieren:<br>${e.message}</div>`;
+      // === Live-Modus: Fehleranzeige, kein Redirect ===
+      const textArea = document.getElementById("sessionTextArea");
+      if (textArea) {
+        textArea.innerHTML = `
+          <div style="color:red;font-size:1.3em;padding:2em;text-align:center;">
+            Oops! We couldn't load today's session.<br>
+            Please try again later.
+          </div>`;
+      }
     }
   }
 };
-
-
 // Immer ganz oben im Code behalten!
 
 function clearTimeouts() {
