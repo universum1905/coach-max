@@ -173,7 +173,7 @@
 
   <!-- Firebase Funktionen -->
   <script type="module">
-    import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, setDoc, getDocs, collection, doc, serverTimestamp } from "/js/firebase.js";
+    import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, setDoc, getDocs, collection, doc, serverTimestamp } from "./js/firebase.js";
 
     const setupOverlay = document.getElementById('setupOverlay');
     const loginBtn = document.getElementById('loginBtn');
@@ -243,6 +243,6 @@
     };
   </script>
 
-  <script type="module" src="/js/firebase.js"></script>
+  <script type="module" src="./js/firebase.js"></script>
 </body>
 </html>
