@@ -35,58 +35,72 @@
   <audio id="breathingMusic" src="audio/focus-loop.mp3" preload="auto" loop></audio>
 
   <script type="module">
-    import { auth, db, onAuthStateChanged, doc, getDoc, updateDoc, arrayUnion } from "/js/firebase.js";
+  const DEV_MODE = true; // false = Live
 
-    const DEV_MODE = true; // In DEV kein Login & keine Weiterleitungen
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentDay = parseInt(urlParams.get("day")) || 1;
-    const activeChildId = localStorage.getItem("activeChildId");
-    const mainTitle = document.getElementById("mainTitle");
-    const pageTitle = document.getElementById("pageTitle");
-    let user = null;
+  let auth, db, onAuthStateChanged, doc, getDoc, updateDoc, arrayUnion;
 
-    pageTitle.textContent = `Coach Max – Day ${currentDay}`;
-    mainTitle.textContent = `Welcome to Coach Max – Day ${currentDay}`;
+  if (!DEV_MODE) {
+    // Nur in Live-Umgebung Firebase laden
+    const fb = await import("/js/firebase.js");
+    auth = fb.auth;
+    db = fb.db;
+    onAuthStateChanged = fb.onAuthStateChanged;
+    doc = fb.doc;
+    getDoc = fb.getDoc;
+    updateDoc = fb.updateDoc;
+    arrayUnion = fb.arrayUnion;
+  }
 
-    if (!DEV_MODE) {
-      onAuthStateChanged(auth, async (u) => {
-        if (!u) return window.location.href = "index.html";
-        user = u;
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists()) return window.location.href = "index.html";
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentDay = parseInt(urlParams.get("day")) || 1;
+  const activeChildId = localStorage.getItem("activeChildId");
+  const mainTitle = document.getElementById("mainTitle");
+  const pageTitle = document.getElementById("pageTitle");
+  let user = null;
 
-        const subData = userDoc.data();
-        const trialExpired = subData.subscriptionStatus !== "premium" && Date.now() > subData.trialEnds;
-        if (trialExpired && currentDay > 7) {
-          alert("Your trial has ended. Please upgrade to Premium to continue!");
-          window.location.href = "choose.html";
-        }
-      });
-    }
+  pageTitle.textContent = `Coach Max – Day ${currentDay}`;
+  mainTitle.textContent = `Welcome to Coach Max – Day ${currentDay}`;
 
-    async function markDayCompleted() {
-      if (!user) return;
-      const childRef = doc(db, "users", user.uid, "children", activeChildId);
-      await updateDoc(childRef, { completedDays: arrayUnion(currentDay) });
-    }
+  // Loginprüfung nur im Live-Modus
+  if (!DEV_MODE) {
+    onAuthStateChanged(auth, async (u) => {
+      if (!u) return window.location.href = "index.html";
+      user = u;
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists()) return window.location.href = "index.html";
+      const subData = userDoc.data();
+      const trialExpired = subData.subscriptionStatus !== "premium" && Date.now() > subData.trialEnds;
+      if (trialExpired && currentDay > 7) {
+        alert("Your trial has ended. Please upgrade to Premium to continue!");
+        window.location.href = "choose.html";
+      }
+    });
+  }
 
-    async function saveRewards(stickers = [], puzzlePieces = []) {
-      if (!user) return;
-      const childRef = doc(db, "users", user.uid, "children", activeChildId);
-      const childSnap = await getDoc(childRef);
-      const data = childSnap.data();
-      const updatedStickers = Array.from(new Set([...(data.stickers || []), ...stickers]));
-      const updatedPuzzle = Array.from(new Set([...(data.puzzlePieces || []), ...puzzlePieces]));
-      await updateDoc(childRef, { stickers: updatedStickers, puzzlePieces: updatedPuzzle });
-    }
+  async function markDayCompleted() {
+    if (!user || DEV_MODE) return; // In DEV nix speichern
+    const childRef = doc(db, "users", user.uid, "children", activeChildId);
+    await updateDoc(childRef, { completedDays: arrayUnion(currentDay) });
+  }
 
-    window.finishDay = async (stickers = [], puzzlePieces = []) => {
-      await markDayCompleted();
-      await saveRewards(stickers, puzzlePieces);
-      alert("Day completed! Progress saved.");
-      if (!DEV_MODE) window.location.href = "choose.html";
-    };
-  </script>
+  async function saveRewards(stickers = [], puzzlePieces = []) {
+    if (!user || DEV_MODE) return; 
+    const childRef = doc(db, "users", user.uid, "children", activeChildId);
+    const childSnap = await getDoc(childRef);
+    const data = childSnap.data();
+    const updatedStickers = Array.from(new Set([...(data.stickers || []), ...stickers]));
+    const updatedPuzzle = Array.from(new Set([...(data.puzzlePieces || []), ...puzzlePieces]));
+    await updateDoc(childRef, { stickers: updatedStickers, puzzlePieces: updatedPuzzle });
+  }
+
+  // Fertig-Meldung (in DEV kein Redirect)
+  window.finishDay = async (stickers = [], puzzlePieces = []) => {
+    await markDayCompleted();
+    await saveRewards(stickers, puzzlePieces);
+    alert("Day completed! Progress saved.");
+    if (!DEV_MODE) window.location.href = "choose.html";
+  };
+</script>
 
   <script src="js/app.js" defer></script>
 </body>
