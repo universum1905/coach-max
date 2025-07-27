@@ -735,6 +735,35 @@ function showUniversalReward(sessionObj, nextAction = null) {
   });
 }
 
+// ==== Tag als abgeschlossen markieren und weiterleiten ====
+async function finishDay(stickers = [], puzzlePieces = []) {
+  try {
+    if (!DEV_MODE) {
+      // Live: Speichern in Firebase
+      const activeChildId = localStorage.getItem("activeChildId");
+      const user = auth.currentUser;
+      if (user && activeChildId) {
+        const childRef = doc(db, "users", user.uid, "children", activeChildId);
+        await updateDoc(childRef, {
+          completedDays: arrayUnion(currentDay),
+          stickers: arrayUnion(...stickers),
+          puzzlePieces: arrayUnion(...puzzlePieces)
+        });
+      }
+    } else {
+      console.log("DEV_MODE: Speichern simuliert:", { currentDay, stickers, puzzlePieces });
+    }
+  } catch (e) {
+    console.warn("Fehler beim Speichern:", e);
+  }
+
+  // Weiterleitung: Im DEV-Mode UND Live gleich
+  setTimeout(() => {
+    window.location.href = "choose.html";
+  }, 800);
+}
+
+
 // ==== 8. Initialisierung ====
 /* ==== COACH MAX UNIVERSAL SESSION TEMPLATE ==== */
 
