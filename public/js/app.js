@@ -288,6 +288,9 @@ function renderSession(idx) {
   else if (s.type === "animals") {
     renderAnimalsSession(s, idx, gameContainer);
   }
+  else if (s.type === "dragdrop") {
+  renderDragDropSession(s, idx, gameContainer);
+  }
   else {
     renderUnknownSession(s, idx, gameContainer);
   }
@@ -1028,6 +1031,260 @@ function renderSequenceSession(s, idx, container) {
 
     updateChosen();
     updateCheckBtn();
+  }
+
+  showQuestion();
+}
+
+
+function renderDragDropSession(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // Musik abspielen
+  if (s.music) {
+    try {
+      window.currentMusic = new Audio("audio/" + s.music);
+      window.currentMusic.loop = false;
+      window.currentMusic.volume = 0.2;
+      window.currentMusic.play();
+    } catch (e) {}
+  }
+
+  const questions = Array.isArray(s.questions) ? s.questions : [];
+  let qIdx = 0;
+
+  function showQuestion() {
+    container.innerHTML = "";
+
+    const q = questions[qIdx];
+    let solvedCount = 0;
+
+    // Fragentext
+    if (q.question) {
+      const qDiv = document.createElement('div');
+      qDiv.className = "quiz-question";
+      qDiv.textContent = q.question;
+      container.appendChild(qDiv);
+    }
+
+    // Drop-Ziele
+    const targets = document.createElement("div");
+    targets.className = "dragdrop-targets";
+    targets.style.display = "flex";
+    targets.style.flexWrap = "wrap";
+    targets.style.justifyContent = "center";
+    targets.style.gap = "20px";
+    targets.style.margin = "25px 0 18px 0";
+    container.appendChild(targets);
+
+    // Draggables
+    const draggables = document.createElement("div");
+    draggables.className = "dragdrop-draggables";
+    draggables.style.display = "flex";
+    draggables.style.flexWrap = "wrap";
+    draggables.style.justifyContent = "center";
+    draggables.style.gap = "20px";
+    draggables.style.margin = "15px 0 16px 0";
+    container.appendChild(draggables);
+
+    let currentDrag = null;
+    let matched = [];
+
+    // Ziele erstellen
+    q.targets.forEach((target, i) => {
+      const targetDiv = document.createElement("div");
+      targetDiv.className = "dragdrop-target";
+      targetDiv.style.width = "94px";
+      targetDiv.style.height = "94px";
+      targetDiv.style.border = "3px dashed #ffd54f";
+      targetDiv.style.borderRadius = "18px";
+      targetDiv.style.background = "#fffbe6";
+      targetDiv.style.display = "flex";
+      targetDiv.style.alignItems = "center";
+      targetDiv.style.justifyContent = "center";
+      targetDiv.style.position = "relative";
+      targetDiv.style.fontSize = "1.1em";
+      targetDiv.dataset.solution = target.solution;
+      targetDiv.dataset.index = i;
+
+      // Schattenbild?
+      if (target.img) {
+        const img = document.createElement("img");
+        img.src = target.img;
+        img.alt = target.label;
+        img.style.width = "60px";
+        img.style.height = "60px";
+        // Wende Schatten-Klasse an, wenn shadow: true
+        if (target.shadow) img.classList.add("shadow-image");
+        targetDiv.appendChild(img);
+      } else {
+        targetDiv.textContent = target.label;
+      }
+      targets.appendChild(targetDiv);
+
+      // DragOver/Drop (Desktop)
+      targetDiv.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        targetDiv.style.background = "#ffe082";
+        targetDiv.style.border = "3px solid #ffd54f";
+      });
+      targetDiv.addEventListener("dragleave", function () {
+        targetDiv.style.background = "#fffbe6";
+        targetDiv.style.border = "3px dashed #ffd54f";
+      });
+      targetDiv.addEventListener("drop", function (e) {
+        e.preventDefault();
+        targetDiv.style.background = "#b9f6ca";
+        targetDiv.style.border = "3px solid #39c839";
+        const dropped = e.dataTransfer.getData("text/plain");
+        handleMatch(dropped, targetDiv);
+      });
+
+      // Touch-Drop
+      targetDiv.addEventListener("touchend", function (e) {
+        if (!currentDrag) return;
+        const touch = e.changedTouches[0];
+        const rect = targetDiv.getBoundingClientRect();
+        if (
+          touch.clientX >= rect.left &&
+          touch.clientX <= rect.right &&
+          touch.clientY >= rect.top &&
+          touch.clientY <= rect.bottom
+        ) {
+          handleMatch(currentDrag.dataset.solution, targetDiv, currentDrag);
+        }
+      });
+    });
+
+    // Karten erstellen
+    // Shuffle für Abwechslung!
+    let items = Array.isArray(q.items) ? [...q.items] : [];
+    items = items.sort(() => Math.random() - 0.5);
+
+    items.forEach((item, i) => {
+      const drag = document.createElement("div");
+      drag.className = "dragdrop-draggable";
+      drag.style.width = "84px";
+      drag.style.height = "84px";
+      drag.style.borderRadius = "15px";
+      drag.style.background = "#81d4fa";
+      drag.style.boxShadow = "0 2px 12px #ffd54faa";
+      drag.style.display = "flex";
+      drag.style.alignItems = "center";
+      drag.style.justifyContent = "center";
+      drag.style.marginBottom = "10px";
+      drag.style.fontSize = "1em";
+      drag.style.cursor = "grab";
+      drag.style.transition = "box-shadow 0.18s, background 0.18s";
+      drag.draggable = true;
+      drag.dataset.solution = item.solution;
+
+      if (item.img) {
+        const img = document.createElement("img");
+        img.src = item.img;
+        img.alt = item.label;
+        img.style.width = "60px";
+        img.style.height = "60px";
+        drag.appendChild(img);
+      } else {
+        drag.textContent = item.label;
+      }
+      draggables.appendChild(drag);
+
+      // Drag & Drop (Desktop)
+      drag.addEventListener("dragstart", function (e) {
+        e.dataTransfer.setData("text/plain", item.solution);
+        drag.classList.add("dragging");
+        setTimeout(() => (drag.style.opacity = "0.4"), 0);
+      });
+      drag.addEventListener("dragend", function () {
+        drag.classList.remove("dragging");
+        drag.style.opacity = "1";
+      });
+
+      // Touch
+      drag.addEventListener("touchstart", function (e) {
+        currentDrag = drag;
+        drag.classList.add("dragging");
+        drag.style.zIndex = "1000";
+      });
+      drag.addEventListener("touchend", function (e) {
+        setTimeout(() => {
+          drag.classList.remove("dragging");
+          drag.style.zIndex = "";
+          currentDrag = null;
+        }, 150);
+      });
+    });
+
+    function handleMatch(solution, targetDiv, dragEl = null) {
+      if (
+        solution === targetDiv.dataset.solution &&
+        !targetDiv.classList.contains("done")
+      ) {
+        // Korrekt!
+        // Finde das passende draggable
+        let d = dragEl;
+        if (!d) {
+          d = [...draggables.children].find(
+            c => c.dataset.solution === solution && !c.classList.contains("dragged-done")
+          );
+        }
+        if (d) d.style.pointerEvents = "none";
+        targetDiv.classList.add("done");
+        if (d) d.classList.add("dragged-done");
+        targetDiv.style.background = "#b9f6ca";
+        playSound(q.correctSound || "yay.mp3");
+        matched.push(solution);
+        solvedCount++;
+        setTimeout(() => {
+          targetDiv.style.background = "#fffbe6";
+          targetDiv.style.border = "3px dashed #ffd54f";
+        }, 500);
+
+        // Alle gelöst?
+        if (solvedCount === items.length) {
+          setTimeout(() => {
+            showAnswerFeedback(
+              container,
+              q.feedbackCorrect || "Great job!",
+              "#219821",
+              2000,
+              () => {
+                if (qIdx < questions.length - 1) {
+                  qIdx++;
+                  showQuestion();
+                } else {
+                  tryShowNextButtonOrWait(() => {
+                    showUniversalReward(
+                      s,
+                      () => {
+                        window.location.href = "/choose";
+                      }
+                    );
+                  });
+                }
+              }
+            );
+            runAnimations(q.correctAnimation || ["confetti-glow"]);
+          }, 500);
+        }
+      } else {
+        // Falsch
+        targetDiv.style.background = "#ffd1d1";
+        playSound(q.wrongSound || "fail.mp3");
+        showAnswerFeedback(
+          container,
+          q.feedbackWrong || "Oops! Try again!",
+          "#c82121",
+          1200
+        );
+        runAnimations(q.wrongAnimation || ["shake"]);
+        setTimeout(() => (targetDiv.style.background = "#fffbe6"), 500);
+      }
+    }
   }
 
   showQuestion();
