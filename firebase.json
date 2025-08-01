@@ -5,6 +5,22 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "rewrites": [
+      { "source": "/", "destination": "/index.html" },
+      { "source": "/choose", "destination": "/choose.html" },
+      { "source": "/day/**", "destination": "/day.html" },
+      { "source": "/stickerboard", "destination": "/stickerboard.html" },
+      { "source": "/puzzleboard", "destination": "/puzzleboard.html" },
+      { "source": "/gallery", "destination": "/gallery.html" },
+      { "source": "/parents", "destination": "/parents.html" },
+      { "source": "/thankyou", "destination": "/thankyou.html" },
+      { "source": "**", "destination": "/index.html" }
     ]
+  },
+  "emulators": {
+    "hosting": {
+      "port": 5000
+    }
   }
 }

@@ -153,7 +153,7 @@
   </script>
 
   <footer class="mt-8 mb-3 text-center text-blue-600 text-base font-semibold">
-    Questions? <a href="parents.html" class="underline hover:text-orange-400 font-bold">See our FAQ for Parents</a>
+    Questions? <a href="/parents" class="underline hover:text-orange-400 font-bold">See our FAQ for Parents</a>
   </footer>
 
   <!-- Setup / Login Overlay -->
@@ -239,7 +239,7 @@
     continueBtn.onclick = () => {
       if (!selectedChildId) return alert("Please select a child profile");
       localStorage.setItem("activeChildId", selectedChildId);
-      window.location.href = 'choose.html';
+      window.location.href = '/choose';
     };
   </script>
 
@@ -325,7 +325,7 @@ addChildBtn.onclick = async () => {
 continueBtn.onclick = () => {
   if (!selectedChildId) return alert("Please select a child profile");
   localStorage.setItem("activeChildId", selectedChildId);
-  window.location.href = 'choose.html';
+  window.location.href = '/choose';
 };
 
 // === Falls eingeloggt: Automatisch Kinder laden ===

@@ -24,9 +24,9 @@
   </div>
   
   <div class="w-full max-w-md flex justify-end mb-4">
-    <a href="stickerboard.html" class="bg-yellow-200 text-yellow-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-yellow-300 transition mr-2">🏅 Sticker Board</a>
-    <a href="puzzleboard.html" class="bg-blue-100 text-blue-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-blue-200 transition">🧩 Puzzle Board</a>
-    <a href="gallery.html" class="bg-pink-200 text-pink-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-pink-300 transition mb-4">🎨 My Gallery</a>
+    <a href="/stickerboard" class="bg-yellow-200 text-yellow-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-yellow-300 transition mr-2">🏅 Sticker Board</a>
+    <a href="/puzzleboard" class="bg-blue-100 text-blue-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-blue-200 transition">🧩 Puzzle Board</a>
+    <a href="/gallery" class="bg-pink-200 text-pink-900 font-bold rounded-xl px-4 py-2 shadow hover:bg-pink-300 transition mb-4">🎨 My Gallery</a>
   </div>
   
   <p class="text-gray-600 mb-2">Tap a day to start your adventure. New days unlock every morning at 6:00 AM!</p>
@@ -43,7 +43,7 @@
 
   <script type="module">
 import { DEV_MODE } from "./js/config.js";
-import { auth, db, onAuthStateChanged, doc, getDoc, getDocs, collection } from "./js/firebase.js";
+import { auth, db, onAuthStateChanged, doc, getDoc, getDocs, collection } from "/js/firebase.js";
 
 const totalDays = 100;
 const dayList = document.getElementById("dayList");
@@ -55,7 +55,7 @@ let isPremium = false;
 
 if (!DEV_MODE) {
   onAuthStateChanged(auth, async (u) => {
-    if (!u) return window.location.href = "index.html";
+    if (!u) return window.location.href = "/index";
     user = u;
     await loadChildData();
     renderDays();
@@ -69,7 +69,7 @@ async function loadChildData() {
   const childSnap = await getDoc(childRef);
   if (!childSnap.exists()) {
     alert("Profile not found.");
-    window.location.href = "index.html";
+    window.location.href = "/index";
   }
   const data = childSnap.data();
   activeChildNameEl.textContent = data.name;
@@ -104,7 +104,7 @@ function renderDays() {
 
     btn.onclick = () => {
       if (isUnlocked) {
-        window.location.href = `day.html?day=${i}`;
+        window.location.href = `/day/${i}`;
       } else {
         alert("This day is locked!");
       }
@@ -115,7 +115,7 @@ function renderDays() {
 </script>
 
   <div class="w-full flex justify-center mb-5">
-    <a href="index.html" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold px-6 py-2 rounded-xl shadow transition">
+    <a href="/index" class="bg-yellow-300 hover:bg-yellow-400 text-blue-900 font-bold px-6 py-2 rounded-xl shadow transition">
       ← 🏠 Back to Welcome Page
     </a>
   </div>
@@ -124,7 +124,7 @@ function renderDays() {
     font-size:1.06rem;background:#fffbe6;padding:10px 24px;border-radius:13px;
     box-shadow:0 4px 18px #ffd54faa;letter-spacing:0.02em;color:#006aa8;">
     Questions? 
-    <a href="parents.html" style="text-decoration:underline;color:#0096d6;">See our FAQ for Parents</a>
+    <a href="/parents" style="text-decoration:underline;color:#0096d6;">See our FAQ for Parents</a>
   </div>
   <script type="module" src="./js/app.js"></script>
 </body>

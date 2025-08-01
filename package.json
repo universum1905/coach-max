@@ -1,9 +1,10 @@
 {
   "name": "coach-max",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +18,7 @@
   },
   "homepage": "https://github.com/universum1905/coach-max#readme",
   "description": "",
-  "devDependencies": {
-    "live-server": "^1.2.2"
+  "dependencies": {
+    "express": "^4.18.2"
   }
 }
