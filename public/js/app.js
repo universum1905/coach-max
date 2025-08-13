@@ -39,6 +39,7 @@ function getDayParam() {
   return parseInt(urlParams.get('day')) || 1;
 }
 
+
 /* ==== JSON-URL ==== */
 const jsonURL = `days/day${currentDay}.json`;
 
@@ -59,14 +60,17 @@ function registerTTS(sessionIndex, text) {
 }
 function speakText(text) {
   if (!window.speechSynthesis) return;
-  if (ttsUtterance) window.speechSynthesis.cancel();
-  ttsUtterance = new SpeechSynthesisUtterance(text);
-  ttsUtterance.lang = "en-US";
-  ttsUtterance.pitch = 1.1;
-  ttsUtterance.rate = 1;
-  ttsUtterance.volume = 1;
-  window.speechSynthesis.speak(ttsUtterance);
+  if (window.ttsUtterance) window.speechSynthesis.cancel();
+  window.ttsUtterance = new SpeechSynthesisUtterance(text);
+  window.ttsUtterance.lang = "en-US";
+  window.ttsUtterance.pitch = 1.1;
+  window.ttsUtterance.rate = 1;
+  window.ttsUtterance.volume = 1;
+  window.speechSynthesis.speak(window.ttsUtterance);
 }
+
+
+
 
 /* ==== Helper: Zeitverzögerung & Overlays ==== */
 function tryShowNextButtonOrWait(callback) {
@@ -224,6 +228,39 @@ function renderFloatingVideo(sessionObj, onVideoEndedCallback) {
 }
 
 
+function playSessionVideoAndRestoreAvatar(opts) {
+  const videoContainer = document.querySelector('.floating-video');
+  if (!videoContainer) return;
+  videoContainer.innerHTML = "";
+
+  const video = document.createElement("video");
+  video.src = opts.videoUrl;
+  video.autoplay = true;
+  video.muted = false;
+  video.playsInline = true;
+  video.style.width = "100%";
+  video.style.height = "100%";
+  video.style.objectFit = "cover";
+  video.style.borderRadius = "inherit";
+  video.style.display = "block";
+  videoContainer.appendChild(video);
+
+  video.onended = () => {
+    videoContainer.innerHTML = "";
+    if (opts.avatar) {
+      const avatarImg = document.createElement("img");
+      avatarImg.src = "images/" + opts.avatar + ".png";
+      avatarImg.alt = "Avatar";
+      avatarImg.style.width = "100%";
+      avatarImg.style.height = "100%";
+      avatarImg.style.borderRadius = "inherit";
+      avatarImg.style.objectFit = "cover";
+      avatarImg.style.display = "block";
+      videoContainer.appendChild(avatarImg);
+    }
+    if (opts.onEnded) opts.onEnded();
+  };
+}
 
 /* ==== Session Header ==== */
 function renderSessionHeader(title) {
@@ -232,7 +269,7 @@ function renderSessionHeader(title) {
 }
 
 /* ==== Haupt-Session-Renderer ==== */
-function renderSession(idx) {
+function renderSession1(idx) {
   sessionStartTime = Date.now();
   const s = sessions[idx];
   lastSessionIdx = idx;
@@ -288,13 +325,150 @@ function renderSession(idx) {
   else if (s.type === "animals") {
     renderAnimalsSession(s, idx, gameContainer);
   }
-  else if (s.type === "dragdrop") {
-  renderDragDropSession(s, idx, gameContainer);
-  }
+  else if (s.type === "tapmatch") {
+  renderTapMatchSession(s, idx, gameContainer);
+   }
+   else if (s.type === "reaction") {
+  renderReactionSession(s, idx, gameContainer);
+   }
+   else if (s.type === "story") {
+  renderStorySession(s, idx, gameContainer);
+}
+else if (s.type === "drawing") {
+  renderDrawingSession(s, idx, document.getElementById("sessionTextArea"));
+}
   else {
     renderUnknownSession(s, idx, gameContainer);
   }
 });
+}
+
+
+function renderSession12(idx) {
+  sessionStartTime = Date.now();
+  const s = sessions[idx];
+  lastSessionIdx = idx;
+  clearTimeouts();
+  stopAllSounds();
+  document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
+
+  const textArea = document.getElementById("sessionTextArea");
+  if (textArea) textArea.innerHTML = "";
+
+  renderSessionHeader(s.title || "");
+  renderFrogProgress(currentSession, currentSession, sessions.length);
+
+  const gameContainer = document.createElement("div");
+  gameContainer.id = "gameContainer";
+  Object.assign(gameContainer.style, {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    maxWidth: "370px",
+    margin: "0 auto",
+    position: "relative",
+    zIndex: "3"
+  });
+  textArea.appendChild(gameContainer);
+
+  // --- Intro & Story ---
+  if (s.type === "intro" || s.type === "story") {
+    renderFloatingVideo(s);
+    if (s.type === "intro") renderIntroSession(s, idx, gameContainer);
+    else renderStorySession(s, idx, gameContainer);
+    return;
+  }
+
+  // --- Alle anderen Sessions ---
+  renderFloatingVideo(s, () => {
+    if (
+      s.type === "counting" ||
+      s.type === "animals-quiz" ||
+      s.type === "rhyme" ||
+      s.type === "chatgpt-quiz" ||
+      s.type === "color-quiz" ||
+      s.type === "shadow"
+    ) {
+      renderUniversalQuizSession(s, idx, gameContainer);
+    }
+    else if (s.type === "sequence") renderSequenceSession(s, idx, gameContainer);
+    else if (s.type === "memory") renderMemoryField(s, idx, gameContainer);
+    else if (s.type === "drawing") renderDrawingSession(s, idx, gameContainer);
+    else if (s.type === "animals") renderAnimalsSession(s, idx, gameContainer);
+    else if (s.type === "tapmatch") renderTapMatchSession(s, idx, gameContainer);
+    else if (s.type === "reaction") renderReactionSession(s, idx, gameContainer);
+    else renderUnknownSession(s, idx, gameContainer);
+  });
+}
+
+function renderSession(idx) {
+  sessionStartTime = Date.now();
+  const s = sessions[idx];
+  lastSessionIdx = idx;
+  clearTimeouts();
+  stopAllSounds();
+  document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
+
+  const textArea = document.getElementById("sessionTextArea");
+  if (textArea) textArea.innerHTML = "";
+
+  renderSessionHeader(s.title || "");
+  renderFrogProgress(currentSession, currentSession, sessions.length);
+
+  const gameContainer = document.createElement("div");
+  gameContainer.id = "gameContainer";
+  Object.assign(gameContainer.style, {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    maxWidth: "370px",
+    margin: "0 auto",
+    position: "relative",
+    zIndex: "3"
+  });
+  textArea.appendChild(gameContainer);
+
+  // --- Intro & Story ---
+  if (s.type === "intro" || s.type === "story") {
+    renderFloatingVideo(s);
+    if (s.type === "intro") renderIntroSession(s, idx, gameContainer);
+    else renderStorySession(s, idx, gameContainer);
+    return;
+  }
+
+  // --- Drawing braucht KEIN renderFloatingVideo! ---
+  if (s.type === "drawing") {
+    renderDrawingSession(s, idx, gameContainer);
+    return;
+  }
+  if (s.type === "explain") {
+  renderExplainSession(s, idx, gameContainer);
+  return;
+}
+
+  // --- Alle anderen Sessions ---
+  renderFloatingVideo(s, () => {
+    if (
+      s.type === "counting" ||
+      s.type === "animals-quiz" ||
+      s.type === "rhyme" ||
+      s.type === "chatgpt-quiz" ||
+      s.type === "color-quiz" ||
+      s.type === "shadow"
+    ) {
+      renderUniversalQuizSession(s, idx, gameContainer);
+    }
+    else if (s.type === "sequence") renderSequenceSession(s, idx, gameContainer);
+    else if (s.type === "memory") renderMemoryField(s, idx, gameContainer);
+    else if (s.type === "animals") renderAnimalsSession(s, idx, gameContainer);
+    else if (s.type === "tapmatch") renderTapMatchSession(s, idx, gameContainer);
+    else if (s.type === "reaction") renderReactionSession(s, idx, gameContainer);
+	else renderUnknownSession(s, idx, gameContainer);
+  });
 }
 
 
@@ -384,7 +558,7 @@ function renderIntroSession(s, idx, container) {
           try {
             introMusic = new Audio("audio/" + s.music);
             introMusic.loop = false;
-            introMusic.volume = 0.18;
+            introMusic.volume = 0.04;
             introMusic.play();
             window.currentMusic = introMusic;
           } catch (e) {}
@@ -405,7 +579,7 @@ function renderIntroSession(s, idx, container) {
         try {
           introMusic = new Audio("audio/" + s.music);
           introMusic.loop = false;
-          introMusic.volume = 0.18;
+          introMusic.volume = 0.04;
           introMusic.play();
           window.currentMusic = introMusic;
         } catch (e) {}
@@ -420,7 +594,7 @@ function renderIntroSession(s, idx, container) {
       try {
         introMusic = new Audio("audio/" + s.music);
         introMusic.loop = false;
-        introMusic.volume = 0.18;
+        introMusic.volume = 0.04;
         introMusic.play();
         window.currentMusic = introMusic;
       } catch (e) {}
@@ -436,22 +610,21 @@ function renderIntroSession(s, idx, container) {
 // ==== Universal Quiz Session (z.B. animals-quiz, counting, rhyme etc.) ====
 // ==== Universal Quiz Session (animals-quiz, counting, rhyme, chatgpt-quiz, sequence, etc.) ====
 
+
+
 function renderUniversalQuizSession(s, idx, container) {
   clearTimeouts();
   stopAllSounds();
   container.innerHTML = "";
 
-  // Musik (optional)
-  if (window.currentMusic) {
-    try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {}
-    window.currentMusic = null;
-  }
+  // Musik initialisieren, aber noch nicht abspielen!
+  let quizMusic = null;
   if (s.music) {
     try {
-      window.currentMusic = new Audio("audio/" + s.music);
-      window.currentMusic.loop = false;
-      window.currentMusic.volume = 0.2;
-      window.currentMusic.play();
+      quizMusic = new Audio("audio/" + s.music);
+      quizMusic.loop = false;
+      quizMusic.volume = 0.08;
+      window.currentMusic = quizMusic;
     } catch (e) {}
   }
 
@@ -459,12 +632,31 @@ function renderUniversalQuizSession(s, idx, container) {
   let qIdx = 0;
   let wrongAnswers = new Set();
 
+  function setAllButtonsDisabled(disabled) {
+    container.querySelectorAll(".quiz-choice-btn").forEach(btn => {
+      btn.disabled = disabled;
+      btn.style.opacity = disabled ? "0.5" : "1";
+      btn.style.pointerEvents = disabled ? "none" : "";
+    });
+  }
+
+  function speakTextWithLock(text, cb) {
+    setAllButtonsDisabled(true);
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.onend = () => {
+      setAllButtonsDisabled(false);
+      if (cb) cb();
+    };
+    window.speechSynthesis.speak(utter);
+  }
+
   function showQuestion() {
     container.innerHTML = "";
     const q = questions[qIdx];
-    wrongAnswers = new Set(); // Pro Frage zurücksetzen
+    wrongAnswers = new Set();
 
-    // Frage
     if (q.question) {
       const qDiv = document.createElement('div');
       qDiv.className = "quiz-question";
@@ -472,7 +664,8 @@ function renderUniversalQuizSession(s, idx, container) {
       container.appendChild(qDiv);
     }
 
-    // Bild(er) + Listen Again Button (optional)
+    // Tierbild + Listen-Again-Button (ohne Sound!)
+    let listenBtn = null;
     if (q.img) {
       const imgSoundWrap = document.createElement('div');
       imgSoundWrap.style.display = "flex";
@@ -501,11 +694,8 @@ function renderUniversalQuizSession(s, idx, container) {
         imgSoundWrap.appendChild(img);
       }
 
-      // Listen-Again-Button (Sound beim Start und als Button)
       if (q.sound) {
-        playSound(q.sound);
-
-        const listenBtn = document.createElement('button');
+        listenBtn = document.createElement('button');
         listenBtn.className = "animal-listen-btn";
         listenBtn.innerHTML = '🔊 Listen Again';
         listenBtn.style.marginLeft = "14px";
@@ -517,11 +707,10 @@ function renderUniversalQuizSession(s, idx, container) {
         };
         imgSoundWrap.appendChild(listenBtn);
       }
-
       container.appendChild(imgSoundWrap);
     }
 
-    // Antwort-Buttons
+    // Buttons vorbereiten
     const btnBox = document.createElement('div');
     btnBox.className = "quiz-buttons";
     let solved = false;
@@ -538,6 +727,7 @@ function renderUniversalQuizSession(s, idx, container) {
       btn.onclick = function () {
         if (solved || btn.disabled) return;
 
+        setAllButtonsDisabled(true);
         btnBox.querySelectorAll("button").forEach(b => {
           if (b !== btn) b.style.display = "none";
           else b.classList.add("selected");
@@ -563,72 +753,47 @@ function renderUniversalQuizSession(s, idx, container) {
           feedbackDiv.style.marginTop = "12px";
           btn.insertAdjacentElement('afterend', feedbackDiv);
 
-          // === TTS für Feedback ===
-          speakText(feedbackDiv.innerText);
+          if (isCorrect) {
+            playSound(q.correctSound || "yay.mp3");
+            runAnimations(q.correctAnimation || ["confetti-glow", "emoji-party"]);
+            if (s.avatar) playAvatarAnimation(s.avatar, "tada");
 
-          playSound(isCorrect ? (q.correctSound || "yay.mp3") : (q.wrongSound || "fail.mp3"));
-          runAnimations(isCorrect ? (q.correctAnimation || ["confetti-glow"]) : (q.wrongAnimation || ["shake"]));
-          if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
+            speakTextWithLock(feedbackDiv.innerText, () => {
+              setTimeout(() => {
+                if (q.funFact) {
+                  if (feedbackDiv) feedbackDiv.remove();
+                  const funDiv = document.createElement("div");
+                  funDiv.className = "animal-funfact";
+                  funDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
+                  funDiv.style.marginTop = "18px";
+                  funDiv.style.fontSize = "1.12em";
+                  funDiv.style.textAlign = "center";
+                  funDiv.style.color = "#555";
+                  btn.insertAdjacentElement('afterend', funDiv);
 
-          setTimeout(() => {
-            if (isCorrect) {
-              if (q.funFact) {
-                if (feedbackDiv) feedbackDiv.remove();
-                const funDiv = document.createElement("div");
-                funDiv.className = "animal-funfact";
-                funDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
-                funDiv.style.marginTop = "18px";
-                funDiv.style.fontSize = "1.12em";
-                funDiv.style.textAlign = "center";
-                funDiv.style.color = "#555";
-                btn.insertAdjacentElement('afterend', funDiv);
-
-                setTimeout(() => {
-                  funDiv.remove();
+                  speakTextWithLock(q.funFact, () => {
+                    setTimeout(() => {
+                      funDiv.remove();
+                      solved = true;
+                      qIdx++;
+                      if (qIdx < questions.length) showQuestion();
+                      else finishQuiz();
+                    }, 800);
+                  });
+                } else {
                   solved = true;
                   qIdx++;
-                  if (qIdx < questions.length) {
-                    showQuestion();
-                  } else {
-                    if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
-                    tryShowNextButtonOrWait(() => {
-                      showUniversalReward(
-                        s,
-                        () => {
-                          if (currentSession < sessions.length - 1) {
-                            currentSession++;
-                            renderSession(currentSession);
-                          } else {
-                            window.location.href = "/choose";
-                          }
-                        }
-                      );
-                    });
-                  }
-                }, 5000);
-              } else {
-                solved = true;
-                qIdx++;
-                if (qIdx < questions.length) {
-                  showQuestion();
-                } else {
-                  if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
-                  tryShowNextButtonOrWait(() => {
-                    showUniversalReward(
-                      s,
-                      () => {
-                        if (currentSession < sessions.length - 1) {
-                          currentSession++;
-                          renderSession(currentSession);
-                        } else {
-                          window.location.href = "/choose";
-                        }
-                      }
-                    );
-                  });
+                  if (qIdx < questions.length) showQuestion();
+                  else finishQuiz();
                 }
-              }
-            } else {
+              }, 500);
+            });
+          } else {
+            playSound(q.wrongSound || "fail.mp3");
+            runAnimations(q.wrongAnimation || ["shake"]);
+            if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
+
+            speakTextWithLock(feedbackDiv.innerText, () => {
               wrongAnswers.add(i);
               btnBox.querySelectorAll("button").forEach((b, idx) => {
                 b.style.display = "";
@@ -637,37 +802,118 @@ function renderUniversalQuizSession(s, idx, container) {
                 else b.classList.remove("wrong");
               });
               if (feedbackDiv) feedbackDiv.remove();
-            }
-          }, 1200);
-        }, 1200);
+            });
+          }
+        }, 1100);
       };
       btnBox.appendChild(btn);
     });
     container.appendChild(btnBox);
+
+    // === Video-Ende → Musik starten → TTS/Sound/Buttons ===
+    setAllButtonsDisabled(true);
+    const vid = document.querySelector('.floating-video video');
+    if (vid) {
+      vid.addEventListener('ended', () => {
+        if (quizMusic) quizMusic.play();
+        if (q.ttsText) {
+          speakTextWithLock(q.ttsText, () => {
+            if (q.sound) playSound(q.sound);
+            setAllButtonsDisabled(false);
+          });
+        } else {
+          if (q.sound) playSound(q.sound);
+          setAllButtonsDisabled(false);
+        }
+      }, { once: true });
+    } else {
+      if (quizMusic) quizMusic.play();
+      if (q.ttsText) {
+        speakTextWithLock(q.ttsText, () => {
+          if (q.sound) playSound(q.sound);
+          setAllButtonsDisabled(false);
+        });
+      } else {
+        if (q.sound) playSound(q.sound);
+        setAllButtonsDisabled(false);
+      }
+    }
+  }
+
+  function finishQuiz() {
+    if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+    if ((Array.isArray(s.congratsVideos) && s.congratsVideos.length) || s.congratsVideo) {
+      let videoUrl = null;
+      if (Array.isArray(s.congratsVideos) && s.congratsVideos.length) {
+        videoUrl = s.congratsVideos[Math.floor(Math.random() * s.congratsVideos.length)];
+      } else if (s.congratsVideo) {
+        videoUrl = s.congratsVideo;
+      }
+      playSessionVideoAndRestoreAvatar({
+        videoUrl,
+        avatar: s.avatar,
+        onEnded: () => {
+          tryShowNextButtonOrWait(() => {
+            showUniversalReward(
+              s,
+              () => {
+                if (currentSession < sessions.length - 1) {
+                  currentSession++;
+                  renderSession(currentSession);
+                } else window.location.href = "/choose";
+              }
+            );
+          });
+        }
+      });
+    } else {
+      tryShowNextButtonOrWait(() => {
+        showUniversalReward(
+          s,
+          () => {
+            if (currentSession < sessions.length - 1) {
+              currentSession++;
+              renderSession(currentSession);
+            } else window.location.href = "/choose";
+          }
+        );
+      });
+    }
   }
 
   showQuestion();
 }
 
+
 // ==== Memory Session ====
+
 function renderMemoryField(s, idx, container) {
   container.innerHTML = "";
   clearTimeouts();
   stopAllSounds();
-  let memoryMusic = null;
+
   if (window.currentMusic) {
     try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch(e) {}
     window.currentMusic = null;
   }
+  let memoryMusic = null;
   if (s.music) {
     try {
       memoryMusic = new Audio("audio/" + s.music);
       memoryMusic.loop = false;
-      memoryMusic.volume = 0.2;
+      memoryMusic.volume = 0.08;
       memoryMusic.play();
       window.currentMusic = memoryMusic;
     } catch (e) {}
   }
+
+  // ======= Header EINMALIG =======
+  const header = document.createElement("div");
+  header.className = "quiz-question";
+  header.textContent = s.title || "Memory Game";
+  header.style.margin = "0 0 18px 0";
+  container.appendChild(header);
+
   const gridSize = (s.gridSize || "3x2").split("x");
   const rows = parseInt(gridSize[1]);
   const cols = parseInt(gridSize[0]);
@@ -683,6 +929,7 @@ function renderMemoryField(s, idx, container) {
     const j = Math.floor(Math.random() * (i + 1));
     [cards[i], cards[j]] = [cards[j], cards[i]];
   }
+
   const grid = document.createElement("div");
   grid.className = "memory-grid";
   grid.style.display = "grid";
@@ -699,6 +946,120 @@ function renderMemoryField(s, idx, container) {
 
   let flipped = [];
   let matched = [];
+  let lock = true;
+
+  function setAllCardsDisabled(disabled) {
+    container.querySelectorAll('.memory-card').forEach(card => {
+      card.style.pointerEvents = disabled ? "none" : "";
+      card.style.opacity = disabled ? 0.5 : 1;
+    });
+    lock = disabled;
+  }
+
+  // Feedback-Overlay (z. B. „Yay!“, „Try again!“) animiert wie bei tapmatch/quiz
+  function showMemoryFeedback(msg, color, cb) {
+    let feedbackDiv = document.createElement("div");
+    feedbackDiv.className = "memory-feedback";
+    feedbackDiv.innerHTML = msg;
+    feedbackDiv.style.position = "fixed";
+    feedbackDiv.style.left = "50%";
+    feedbackDiv.style.top = "26%";
+    feedbackDiv.style.transform = "translate(-50%, -50%)";
+    feedbackDiv.style.background = color || "#fff";
+    feedbackDiv.style.color = "#222";
+    feedbackDiv.style.fontSize = "1.5em";
+    feedbackDiv.style.fontWeight = "bold";
+    feedbackDiv.style.padding = "24px 38px";
+    feedbackDiv.style.borderRadius = "22px";
+    feedbackDiv.style.boxShadow = "0 6px 32px #ffd54faa";
+    feedbackDiv.style.zIndex = "11";
+    feedbackDiv.style.textAlign = "center";
+    feedbackDiv.style.opacity = "0.95";
+    feedbackDiv.style.transition = "all 0.4s";
+    feedbackDiv.style.pointerEvents = "none";
+    document.body.appendChild(feedbackDiv);
+    setTimeout(() => {
+      feedbackDiv.style.opacity = "0";
+      setTimeout(() => {
+        feedbackDiv.remove();
+        if (cb) cb();
+      }, 320);
+    }, 1000);
+  }
+
+  // TTS-Lock analog zu tapmatch/quiz
+  function speakTextWithLock(text, cb) {
+    setAllCardsDisabled(true);
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.onend = () => {
+      setAllCardsDisabled(false);
+      if (cb) cb();
+    };
+    window.speechSynthesis.speak(utter);
+  }
+
+  // ---- Gratulationsvideo in .floating-video nach Fun Fact ----
+function showCongratsVideoAndReward() {
+  const videoContainer = document.querySelector('.floating-video');
+  if (!videoContainer) return;
+  videoContainer.innerHTML = "";
+
+  // Video-URL aus JSON
+  let videoUrl = null;
+  if (Array.isArray(s.congratsVideos) && s.congratsVideos.length) {
+    videoUrl = s.congratsVideos[Math.floor(Math.random() * s.congratsVideos.length)];
+  } else if (s.congratsVideo) {
+    videoUrl = s.congratsVideo;
+  } else {
+    videoUrl = "videos/congrats-test.mp4";
+  }
+
+  // Das Video nimmt die komplette Fläche des Containers ein
+  const video = document.createElement("video");
+  video.src = videoUrl;
+  video.autoplay = true;
+  video.muted = false;
+  video.playsInline = true;
+  video.style.width = "100%";
+  video.style.height = "100%";
+  video.style.display = "block";
+  video.style.objectFit = "cover"; // Füllt den Container, kein Rand
+  video.style.borderRadius = "inherit"; // Wenn Container rund, dann Video rund
+  videoContainer.appendChild(video);
+
+  video.onended = () => {
+    videoContainer.innerHTML = "";
+    // Avatarbild wieder anzeigen
+    if (s.avatar) {
+      const avatarImg = document.createElement("img");
+      avatarImg.src = "images/" + s.avatar + ".png";
+      avatarImg.alt = "Avatar";
+      avatarImg.style.width = "100%";
+      avatarImg.style.height = "100%";
+      avatarImg.style.borderRadius = "inherit";
+      avatarImg.style.objectFit = "cover";
+      avatarImg.style.display = "block";
+      videoContainer.appendChild(avatarImg);
+    }
+    // Jetzt Reward wie gehabt
+    tryShowNextButtonOrWait(() => {
+      showUniversalReward(
+        s,
+        () => {
+          if (currentSession < sessions.length - 1) {
+            currentSession++;
+            renderSession(currentSession);
+          } else {
+            window.location.href = "/choose";
+          }
+        }
+      );
+    });
+  };
+}
+
   cards.forEach((imgPath, index) => {
     const wrapper = document.createElement("div");
     wrapper.className = "memory-card";
@@ -733,7 +1094,8 @@ function renderMemoryField(s, idx, container) {
         flipped.length === 2 ||
         matched.includes(index) ||
         flipped.includes(index) ||
-        wrapper.classList.contains("flipped")
+        wrapper.classList.contains("flipped") ||
+        lock
       ) return;
 
       wrapper.classList.add("flipped");
@@ -742,54 +1104,86 @@ function renderMemoryField(s, idx, container) {
       flipped.push(index);
 
       if (flipped.length === 2) {
+        setAllCardsDisabled(true);
         const [i1, i2] = flipped;
         const same = cards[i1] === cards[i2];
         setTimeout(() => {
           if (same) {
             matched.push(i1, i2);
-            runAnimations(["confetti-glow", "emoji-party"]);
-            playSound("yay.mp3");
+            runAnimations(s.correctAnimation || ["confetti-glow", "emoji-party"]);
+            playSound(s.correctSound || "yay.mp3");
             if (s.avatar) playAvatarAnimation(s.avatar, "tada");
-            if (matched.length === cards.length) {
-              if (memoryMusic) {
-                memoryMusic.pause();
-                memoryMusic.currentTime = 0;
-              }
-              tryShowNextButtonOrWait(() => {
-                showUniversalReward(
-                  s,
-                  () => {
-                    if (currentSession < sessions.length - 1) {
-                      currentSession++;
-                      renderSession(currentSession);
-                    } else {
-                      window.location.href = "/choose";
+
+            showMemoryFeedback(s.feedbackCorrect || "Yay! You made a match! 🎉", "#e6ffed", () => {
+              speakTextWithLock(s.feedbackCorrect || "Yay! You made a match!", () => {
+                setTimeout(() => {
+                  if (matched.length === cards.length) {
+                    if (memoryMusic) {
+                      memoryMusic.pause();
+                      memoryMusic.currentTime = 0;
                     }
+                    function afterFunFactOrDirect() {
+                      showCongratsVideoAndReward(); // im universal floating-video!
+                    }
+                    if (s.funFact) {
+                      const funDiv = document.createElement("div");
+                      funDiv.className = "animal-funfact";
+                      funDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + s.funFact;
+                      funDiv.style.marginTop = "18px";
+                      funDiv.style.fontSize = "1.12em";
+                      funDiv.style.textAlign = "center";
+                      funDiv.style.color = "#555";
+                      container.appendChild(funDiv);
+                      speakTextWithLock(s.funFact, () => {
+                        setTimeout(() => {
+                          funDiv.remove();
+                          afterFunFactOrDirect();
+                        }, 1200);
+                      });
+                    } else {
+                      afterFunFactOrDirect();
+                    }
+                  } else {
+                    setAllCardsDisabled(false);
                   }
-                );
+                }, 300);
               });
-            }
-          } else {
-            [i1, i2].forEach(idx => {
-              const card = grid.children[idx];
-              card.classList.remove("flipped");
-              card.querySelector('.front').style.display = "none";
-              card.querySelector('.back').style.display = "block";
             });
-            runAnimations(["shake"]);
-            playSound("fail.mp3");
+          } else {
+            runAnimations(s.wrongAnimation || ["shake"]);
+            playSound(s.wrongSound || "fail.mp3");
             if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
+
+            showMemoryFeedback(s.feedbackWrong || "Oops! Try again!", "#ffd7d7", () => {
+              speakTextWithLock(s.feedbackWrong || "Oops! Try again!", () => {
+                [i1, i2].forEach(idx => {
+                  const card = grid.children[idx];
+                  card.classList.remove("flipped");
+                  card.querySelector('.front').style.display = "none";
+                  card.querySelector('.back').style.display = "block";
+                });
+                setAllCardsDisabled(false);
+              });
+            });
           }
           flipped = [];
         }, 800);
       }
     });
   });
+
+  // --- Nach Video/Session-Start: Erst Anleitung per TTS, dann Karten freischalten
+  setAllCardsDisabled(true);
+  if (s.ttsText) {
+    speakTextWithLock(s.ttsText);
+  } else {
+    setAllCardsDisabled(false);
+  }
 }
 
 
-
 // Für Session-Type: "sequence"
+
 function renderSequenceSession(s, idx, container) {
   clearTimeouts();
   stopAllSounds();
@@ -800,7 +1194,7 @@ function renderSequenceSession(s, idx, container) {
   if (s.music) {
     bgMusic = new Audio("audio/" + s.music);
     bgMusic.loop = true;
-    bgMusic.volume = 0.18;
+    bgMusic.volume = 0.08;
   }
 
   const questions = Array.isArray(s.questions) ? s.questions : [];
@@ -812,6 +1206,15 @@ function renderSequenceSession(s, idx, container) {
   header.style.margin = "0 0 18px 0";
   header.textContent = s.title || (questions[0] && questions[0].question) || "";
   container.appendChild(header);
+
+  function speakWithCallback(text, cb) {
+    if (!text) return cb && cb();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.onend = () => cb && cb();
+    window.speechSynthesis.speak(utter);
+  }
 
   function showQuestion() {
     // Entferne alles außer Überschrift
@@ -854,6 +1257,7 @@ function renderSequenceSession(s, idx, container) {
       highlightSequence(q.sequence, seqContainer, 7000, () => {
         showingSequence = false;
         repeatBtn.disabled = false;
+        btnBox.querySelectorAll("button").forEach(b => b.disabled = false);
       });
     };
     seqWrap.appendChild(repeatBtn);
@@ -868,6 +1272,7 @@ function renderSequenceSession(s, idx, container) {
         seqCont.appendChild(box);
       });
       repeatBtn.disabled = true;
+      btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
       setTimeout(() => {
         seqCont.querySelectorAll(".sequence-box").forEach(box => box.style.background = "#ddd");
         if (typeof cb === "function") cb();
@@ -949,27 +1354,58 @@ function renderSequenceSession(s, idx, container) {
         if (s.avatar) playAvatarAnimation(s.avatar, isCorrect ? "tada" : "wiggle");
 
         if (isCorrect) {
-          // Fun Fact & Reward
-          if (q.funFact) {
-            const factDiv = document.createElement('div');
-            factDiv.className = "animal-funfact";
-            factDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
-            factDiv.style.marginTop = "18px";
-            container.appendChild(factDiv);
-            speakText(q.funFact);
-            ttsUtterance.onend = function () {
-              setTimeout(() => {
-                factDiv.remove();
+          // === 1. Feedback anzeigen, sprechen, dann Fun Fact ===
+          const feedbackDiv = document.createElement("div");
+          feedbackDiv.className = "sequence-feedback";
+          feedbackDiv.innerHTML = q.feedbackCorrect || "Great job!";
+          feedbackDiv.style.marginTop = "18px";
+          feedbackDiv.style.textAlign = "center";
+          feedbackDiv.style.fontWeight = "bold";
+          container.appendChild(feedbackDiv);
+
+          speakWithCallback(q.feedbackCorrect || "Great job!", () => {
+            setTimeout(() => {
+              feedbackDiv.remove();
+              if (q.funFact) {
+                const factDiv = document.createElement('div');
+                factDiv.className = "animal-funfact";
+                factDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + q.funFact;
+                factDiv.style.marginTop = "18px";
+                container.appendChild(factDiv);
+                speakWithCallback(q.funFact, () => {
+                  setTimeout(() => {
+                    factDiv.remove();
+                    nextQuestion();
+                  }, 800);
+                });
+              } else {
                 nextQuestion();
-              }, 1600);
-            };
-          } else {
-            nextQuestion();
-          }
+              }
+            }, 600);
+          });
+
         } else {
-          highlightSequence(q.sequence, seqContainer, 7000, () => {
-            // Alles neu (aber Titel bleibt!)
-            showQuestion();
+          // === Falsch: Feedback anzeigen und sprechen, dann Sequence und neue Eingabe ===
+          const feedbackDiv = document.createElement("div");
+          feedbackDiv.className = "sequence-feedback";
+          feedbackDiv.innerHTML = q.feedbackWrong || "Oops! Try again!";
+          feedbackDiv.style.marginTop = "18px";
+          feedbackDiv.style.textAlign = "center";
+          feedbackDiv.style.fontWeight = "bold";
+          container.appendChild(feedbackDiv);
+
+          speakWithCallback(q.feedbackWrong || "Oops! Try again!", () => {
+            setTimeout(() => {
+              feedbackDiv.remove();
+              userSequence = [];
+              updateChosen();
+              updateCheckBtn();
+              highlightSequence(q.sequence, seqContainer, 7000, () => {
+                showingSequence = false;
+                repeatBtn.disabled = false;
+                btnBox.querySelectorAll("button").forEach(b => b.disabled = false);
+              });
+            }, 600);
           });
         }
       });
@@ -981,6 +1417,147 @@ function renderSequenceSession(s, idx, container) {
         showQuestion();
       } else {
         if (window.currentMusic) { try { window.currentMusic.pause(); window.currentMusic.currentTime = 0; } catch (e) {} }
+        // === NEU: Gratulationsvideo am Ende anzeigen, dann Avatar, dann Reward ===
+        if ((Array.isArray(s.congratsVideos) && s.congratsVideos.length) || s.congratsVideo) {
+          let videoUrl = null;
+          if (Array.isArray(s.congratsVideos) && s.congratsVideos.length) {
+            videoUrl = s.congratsVideos[Math.floor(Math.random() * s.congratsVideos.length)];
+          } else if (s.congratsVideo) {
+            videoUrl = s.congratsVideo;
+          }
+          playSessionVideoAndRestoreAvatar({
+            videoUrl,
+            avatar: s.avatar,
+            onEnded: () => {
+              tryShowNextButtonOrWait(() => {
+                showUniversalReward(
+                  s,
+                  () => {
+                    if (currentSession < sessions.length - 1) {
+                      currentSession++;
+                      renderSession(currentSession);
+                    } else {
+                      window.location.href = "/choose";
+                    }
+                  }
+                );
+              });
+            }
+          });
+        } else {
+          tryShowNextButtonOrWait(() => {
+            showUniversalReward(
+              s,
+              () => {
+                if (currentSession < sessions.length - 1) {
+                  currentSession++;
+                  renderSession(currentSession);
+                } else {
+                  window.location.href = "/choose";
+                }
+              }
+            );
+          });
+        }
+      }
+    }
+
+    // --- TTS nach Video-Ende, dann Sequence ---
+    function startSequenceAfterTTS() {
+      if (bgMusic) bgMusic.play();
+      if (q.ttsText) {
+        speakWithCallback(q.ttsText, () => {
+          highlightSequence(q.sequence, seqContainer, 7000, () => {
+            showingSequence = false;
+            repeatBtn.disabled = false;
+            btnBox.querySelectorAll("button").forEach(b => b.disabled = false);
+          });
+        });
+      } else {
+        highlightSequence(q.sequence, seqContainer, 7000, () => {
+          showingSequence = false;
+          repeatBtn.disabled = false;
+          btnBox.querySelectorAll("button").forEach(b => b.disabled = false);
+        });
+      }
+    }
+
+    const video = document.querySelector('.floating-video video');
+    if (video) {
+      video.addEventListener('ended', () => {
+        startSequenceAfterTTS();
+      }, { once: true });
+    } else {
+      startSequenceAfterTTS();
+    }
+
+    document.addEventListener("visibilitychange", function () {
+      if (bgMusic) document.hidden ? bgMusic.pause() : bgMusic.play();
+    });
+
+    btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
+    checkBtn.disabled = true;
+    repeatBtn.disabled = true;
+
+    updateChosen();
+    updateCheckBtn();
+  }
+
+  showQuestion();
+}
+
+
+function renderTapMatchSession(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  let musicInstance = null; // Musik erst nach Videoende abspielen!
+
+  const questions = Array.isArray(s.questions) ? [...s.questions] : [];
+  let qIdx = 0;
+  let selectedItem = null;
+
+  // ======= Header EINMALIG =======
+  let header = document.createElement('div');
+  header.className = "quiz-question";
+  header.style.margin = "0 0 18px 0";
+  header.textContent = s.title || (questions[0] && questions[0].question) || "";
+  container.appendChild(header);
+
+  function setAllCardsDisabled(disabled) {
+    container.querySelectorAll(".tapmatch-item, .tapmatch-target").forEach(div => {
+      if (!div.classList.contains("matched")) {
+        div.style.opacity = disabled ? "0.4" : "1";
+        div.style.pointerEvents = disabled ? "none" : "";
+      }
+    });
+  }
+
+  function speakTextWithLock(text, cb) {
+    setAllCardsDisabled(true);
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.onend = () => {
+      setAllCardsDisabled(false);
+      if (cb) cb();
+    };
+    window.speechSynthesis.speak(utter);
+  }
+
+  // Universal-Video/Avatar: Nutzt wie bei Memory/Sequence den globalen Container
+  function showCongratsVideoAndReward() {
+    let videoUrl = "videos/congrats-test.mp4";
+    if (Array.isArray(s.congratsVideos) && s.congratsVideos.length) {
+      videoUrl = s.congratsVideos[Math.floor(Math.random() * s.congratsVideos.length)];
+    } else if (typeof s.congratsVideo === "string") {
+      videoUrl = s.congratsVideo;
+    }
+    playSessionVideoAndRestoreAvatar({
+      videoUrl,
+      avatar: s.avatar,
+      onEnded: () => {
         tryShowNextButtonOrWait(() => {
           showUniversalReward(
             s,
@@ -995,296 +1572,275 @@ function renderSequenceSession(s, idx, container) {
           );
         });
       }
-    }
-
-    // Musik nach Video-Ende oder sofort
-    const video = document.querySelector('.floating-video video');
-    if (video) {
-      video.addEventListener('ended', () => {
-        if (bgMusic) bgMusic.play();
-        highlightSequence(q.sequence, seqContainer, 7000, () => {
-          showingSequence = false;
-          repeatBtn.disabled = false;
-        });
-      }, { once: true });
-    } else {
-      if (bgMusic) bgMusic.play();
-      highlightSequence(q.sequence, seqContainer, 7000, () => {
-        showingSequence = false;
-        repeatBtn.disabled = false;
-      });
-    }
-
-    // Musik bei Tabwechsel stoppen
-    document.addEventListener("visibilitychange", function () {
-      if (bgMusic) document.hidden ? bgMusic.pause() : bgMusic.play();
     });
-
-    // Initial: Buttons deaktivieren bis Sequence fertig
-    btnBox.querySelectorAll("button").forEach(b => b.disabled = true);
-    checkBtn.disabled = true;
-    repeatBtn.disabled = true;
-    setTimeout(() => {
-      btnBox.querySelectorAll("button").forEach(b => b.disabled = false);
-      repeatBtn.disabled = false;
-    }, 7000);
-
-    updateChosen();
-    updateCheckBtn();
   }
-
-  showQuestion();
-}
-
-
-function renderDragDropSession(s, idx, container) {
-  clearTimeouts();
-  stopAllSounds();
-  container.innerHTML = "";
-
-  // Musik abspielen
-  if (s.music) {
-    try {
-      window.currentMusic = new Audio("audio/" + s.music);
-      window.currentMusic.loop = false;
-      window.currentMusic.volume = 0.2;
-      window.currentMusic.play();
-    } catch (e) {}
-  }
-
-  const questions = Array.isArray(s.questions) ? s.questions : [];
-  let qIdx = 0;
 
   function showQuestion() {
-    container.innerHTML = "";
-
+    // Alles außer Header löschen!
+    Array.from(container.children).forEach((el, i) => { if (i > 0) el.remove(); });
     const q = questions[qIdx];
-    let solvedCount = 0;
+    selectedItem = null;
 
-    // Fragentext
+    // --- VIDEO ---
+    if (q.video) {
+      const videoWrap = document.createElement("div");
+      videoWrap.className = "tapmatch-video-wrap";
+      Object.assign(videoWrap.style, { display: "flex", justifyContent: "center", margin: "0 auto 12px" });
+      const video = document.createElement("video");
+      Object.assign(video, { src: q.video, playsInline: true, controls: false, autoplay: true, muted: false });
+      Object.assign(video.style, { maxWidth: "220px", borderRadius: "16px", boxShadow: "0 4px 16px #ffd54f55" });
+      videoWrap.appendChild(video);
+      container.appendChild(videoWrap);
+
+      let cardsPrepared = false;
+      function showCardsIfNotYet() {
+        if (!cardsPrepared) {
+          cardsPrepared = true;
+          showTapMatchCards(q);
+          setTimeout(() => setAllCardsDisabled(true), 10);
+        }
+      }
+      video.onended = () => {
+        // MUSIK startet JETZT!
+        if (s.music) {
+          try {
+            musicInstance = new Audio("audio/" + s.music);
+            musicInstance.loop = false;
+            musicInstance.volume = 0.08;
+            musicInstance.play();
+            window.currentMusic = musicInstance;
+          } catch (e) {}
+        }
+        if (s.avatar) playAvatarAnimation(s.avatar, "talk");
+        showCardsIfNotYet();
+        if (q.ttsText) {
+          speakTextWithLock(q.ttsText);
+        } else {
+          setAllCardsDisabled(false);
+        }
+      };
+      setTimeout(showCardsIfNotYet, 16000);
+      return;
+    }
+
+    // --- KEIN VIDEO ---
+    if (s.music) {
+      try {
+        musicInstance = new Audio("audio/" + s.music);
+        musicInstance.loop = false;
+        musicInstance.volume = 0.08;
+        musicInstance.play();
+        window.currentMusic = musicInstance;
+      } catch (e) {}
+    }
+    showTapMatchCards(q);
+    setAllCardsDisabled(false);
+    if (q.ttsText) speakTextWithLock(q.ttsText);
+  }
+
+  function showTapMatchCards(q) {
+    // ** ALLE alten Frage-Elemente löschen (außer Header) **
+    Array.from(container.children).forEach((el, i) => { if (i > 0) el.remove(); });
+
+    // Frage-Text anzeigen
     if (q.question) {
       const qDiv = document.createElement('div');
-      qDiv.className = "quiz-question";
+      qDiv.className = "quiz-subquestion";
+      Object.assign(qDiv.style, { margin: "0 0 12px", textAlign: "center" });
       qDiv.textContent = q.question;
       container.appendChild(qDiv);
     }
 
-    // Drop-Ziele
-    const targets = document.createElement("div");
-    targets.className = "dragdrop-targets";
-    targets.style.display = "flex";
-    targets.style.flexWrap = "wrap";
-    targets.style.justifyContent = "center";
-    targets.style.gap = "20px";
-    targets.style.margin = "25px 0 18px 0";
-    container.appendChild(targets);
+    // Karten-Wrapper
+    const cardsWrap = document.createElement("div");
+    cardsWrap.className = "tapmatch-cardswrap";
+    Object.assign(cardsWrap.style, {
+      display: "flex", justifyContent: "center", gap: "44px",
+      margin: "12px 0 0", flexWrap: "wrap"
+    });
+    container.appendChild(cardsWrap);
 
-    // Draggables
-    const draggables = document.createElement("div");
-    draggables.className = "dragdrop-draggables";
-    draggables.style.display = "flex";
-    draggables.style.flexWrap = "wrap";
-    draggables.style.justifyContent = "center";
-    draggables.style.gap = "20px";
-    draggables.style.margin = "15px 0 16px 0";
-    container.appendChild(draggables);
+    // Items- & Targets-Container
+    const itemsDiv = document.createElement("div");
+    itemsDiv.className = "tapmatch-items";
+    Object.assign(itemsDiv.style, {
+      display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "14px"
+    });
+    cardsWrap.appendChild(itemsDiv);
 
-    let currentDrag = null;
-    let matched = [];
+    const targetsDiv = document.createElement("div");
+    targetsDiv.className = "tapmatch-targets";
+    Object.assign(targetsDiv.style, {
+      display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "14px"
+    });
+    cardsWrap.appendChild(targetsDiv);
 
-    // Ziele erstellen
-    q.targets.forEach((target, i) => {
+    const CARD_W = "88px", CARD_H = "88px";
+    let items = Array.isArray(q.items) ? [...q.items] : [];
+    items.sort(() => Math.random() - 0.5);
+
+    // Animal-Karten
+    items.forEach(item => {
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "tapmatch-item";
+      Object.assign(itemDiv.style, {
+        width: CARD_W, height: CARD_H, borderRadius: "16px",
+        background: "#81d4fa", boxShadow: "0 2px 12px #ffd54faa",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: "1em", cursor: "pointer", border: "3px solid #ffd54f"
+      });
+      itemDiv.dataset.solution = item.solution;
+      if (item.img) {
+        const img = document.createElement("img");
+        img.src = item.img; img.alt = item.label;
+        Object.assign(img.style, { width: "64px", height: "64px" });
+        itemDiv.appendChild(img);
+      } else {
+        itemDiv.textContent = item.label;
+      }
+      itemsDiv.appendChild(itemDiv);
+
+      itemDiv.addEventListener("click", () => {
+        if (itemDiv.style.pointerEvents === "none") return;
+        if (itemDiv.classList.contains("matched")) return;
+        if (selectedItem && selectedItem !== itemDiv) {
+          Object.assign(selectedItem.style, { boxShadow: "0 2px 12px #ffd54faa", background: "#81d4fa" });
+        }
+        selectedItem = itemDiv;
+        Object.assign(itemDiv.style, { background: "#ffe082", boxShadow: "0 0 12px #ffe082" });
+      });
+    });
+
+    // Home-Karten
+    q.targets.forEach(target => {
       const targetDiv = document.createElement("div");
-      targetDiv.className = "dragdrop-target";
-      targetDiv.style.width = "94px";
-      targetDiv.style.height = "94px";
-      targetDiv.style.border = "3px dashed #ffd54f";
-      targetDiv.style.borderRadius = "18px";
-      targetDiv.style.background = "#fffbe6";
-      targetDiv.style.display = "flex";
-      targetDiv.style.alignItems = "center";
-      targetDiv.style.justifyContent = "center";
-      targetDiv.style.position = "relative";
-      targetDiv.style.fontSize = "1.1em";
+      targetDiv.className = "tapmatch-target";
+      Object.assign(targetDiv.style, {
+        width: CARD_W, height: CARD_H, border: "3px dashed #ffd54f",
+        borderRadius: "16px", background: "#fffbe6",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: "1.1em", cursor: "pointer"
+      });
       targetDiv.dataset.solution = target.solution;
-      targetDiv.dataset.index = i;
-
-      // Schattenbild?
       if (target.img) {
         const img = document.createElement("img");
-        img.src = target.img;
-        img.alt = target.label;
-        img.style.width = "60px";
-        img.style.height = "60px";
-        // Wende Schatten-Klasse an, wenn shadow: true
+        img.src = target.img; img.alt = target.label;
+        Object.assign(img.style, { width: "64px", height: "64px" });
         if (target.shadow) img.classList.add("shadow-image");
         targetDiv.appendChild(img);
       } else {
         targetDiv.textContent = target.label;
       }
-      targets.appendChild(targetDiv);
+      targetsDiv.appendChild(targetDiv);
 
-      // DragOver/Drop (Desktop)
-      targetDiv.addEventListener("dragover", function (e) {
-        e.preventDefault();
-        targetDiv.style.background = "#ffe082";
-        targetDiv.style.border = "3px solid #ffd54f";
-      });
-      targetDiv.addEventListener("dragleave", function () {
-        targetDiv.style.background = "#fffbe6";
-        targetDiv.style.border = "3px dashed #ffd54f";
-      });
-      targetDiv.addEventListener("drop", function (e) {
-        e.preventDefault();
-        targetDiv.style.background = "#b9f6ca";
-        targetDiv.style.border = "3px solid #39c839";
-        const dropped = e.dataTransfer.getData("text/plain");
-        handleMatch(dropped, targetDiv);
-      });
+      targetDiv.addEventListener("click", () => {
+        if (targetDiv.style.pointerEvents === "none") return;
+        if (selectedItem &&
+            !targetDiv.classList.contains("matched") &&
+            !selectedItem.classList.contains("matched")) {
+          Object.assign(selectedItem.style, { background: "#ffe082" });
+          Object.assign(targetDiv.style, { background: "#ffe082" });
 
-      // Touch-Drop
-      targetDiv.addEventListener("touchend", function (e) {
-        if (!currentDrag) return;
-        const touch = e.changedTouches[0];
-        const rect = targetDiv.getBoundingClientRect();
-        if (
-          touch.clientX >= rect.left &&
-          touch.clientX <= rect.right &&
-          touch.clientY >= rect.top &&
-          touch.clientY <= rect.bottom
-        ) {
-          handleMatch(currentDrag.dataset.solution, targetDiv, currentDrag);
-        }
-      });
-    });
+          showUniversalSpinner(container, 1200, "Checking…", () => {
+            const sol = targetDiv.dataset.solution;
+            if (selectedItem.dataset.solution === sol) {
+              targetDiv.classList.add("matched");
+              selectedItem.classList.add("matched");
+              Object.assign(targetDiv.style, { background: "#b9f6ca", opacity: "1" });
+              Object.assign(selectedItem.style, { background: "#b9f6ca", opacity: "1" });
+              playSound(q.correctSound || "yay.mp3");
+              runAnimations(q.correctAnimation || ["confetti-glow", "emoji-party"]);
+              if (s.avatar) playAvatarAnimation(s.avatar, "tada");
 
-    // Karten erstellen
-    // Shuffle für Abwechslung!
-    let items = Array.isArray(q.items) ? [...q.items] : [];
-    items = items.sort(() => Math.random() - 0.5);
+              // Wenn komplett gelöst: Feedback, dann Fun Fact, dann Gratulationsvideo, dann Reward!
+              if (
+                itemsDiv.querySelectorAll(".matched").length === items.length &&
+                targetsDiv.querySelectorAll(".matched").length === items.length
+              ) {
+                // --- Feedback anzeigen (yay), sprechen, dann Fun Fact ---
+                const feedbackDiv = document.createElement("div");
+                feedbackDiv.className = "tapmatch-feedback";
+                feedbackDiv.innerHTML = q.feedbackCorrect || "Great job!";
+                feedbackDiv.style.marginTop = "18px";
+                feedbackDiv.style.textAlign = "center";
+                feedbackDiv.style.fontWeight = "bold";
+                container.appendChild(feedbackDiv);
 
-    items.forEach((item, i) => {
-      const drag = document.createElement("div");
-      drag.className = "dragdrop-draggable";
-      drag.style.width = "84px";
-      drag.style.height = "84px";
-      drag.style.borderRadius = "15px";
-      drag.style.background = "#81d4fa";
-      drag.style.boxShadow = "0 2px 12px #ffd54faa";
-      drag.style.display = "flex";
-      drag.style.alignItems = "center";
-      drag.style.justifyContent = "center";
-      drag.style.marginBottom = "10px";
-      drag.style.fontSize = "1em";
-      drag.style.cursor = "grab";
-      drag.style.transition = "box-shadow 0.18s, background 0.18s";
-      drag.draggable = true;
-      drag.dataset.solution = item.solution;
-
-      if (item.img) {
-        const img = document.createElement("img");
-        img.src = item.img;
-        img.alt = item.label;
-        img.style.width = "60px";
-        img.style.height = "60px";
-        drag.appendChild(img);
-      } else {
-        drag.textContent = item.label;
-      }
-      draggables.appendChild(drag);
-
-      // Drag & Drop (Desktop)
-      drag.addEventListener("dragstart", function (e) {
-        e.dataTransfer.setData("text/plain", item.solution);
-        drag.classList.add("dragging");
-        setTimeout(() => (drag.style.opacity = "0.4"), 0);
-      });
-      drag.addEventListener("dragend", function () {
-        drag.classList.remove("dragging");
-        drag.style.opacity = "1";
-      });
-
-      // Touch
-      drag.addEventListener("touchstart", function (e) {
-        currentDrag = drag;
-        drag.classList.add("dragging");
-        drag.style.zIndex = "1000";
-      });
-      drag.addEventListener("touchend", function (e) {
-        setTimeout(() => {
-          drag.classList.remove("dragging");
-          drag.style.zIndex = "";
-          currentDrag = null;
-        }, 150);
-      });
-    });
-
-    function handleMatch(solution, targetDiv, dragEl = null) {
-      if (
-        solution === targetDiv.dataset.solution &&
-        !targetDiv.classList.contains("done")
-      ) {
-        // Korrekt!
-        // Finde das passende draggable
-        let d = dragEl;
-        if (!d) {
-          d = [...draggables.children].find(
-            c => c.dataset.solution === solution && !c.classList.contains("dragged-done")
-          );
-        }
-        if (d) d.style.pointerEvents = "none";
-        targetDiv.classList.add("done");
-        if (d) d.classList.add("dragged-done");
-        targetDiv.style.background = "#b9f6ca";
-        playSound(q.correctSound || "yay.mp3");
-        matched.push(solution);
-        solvedCount++;
-        setTimeout(() => {
-          targetDiv.style.background = "#fffbe6";
-          targetDiv.style.border = "3px dashed #ffd54f";
-        }, 500);
-
-        // Alle gelöst?
-        if (solvedCount === items.length) {
-          setTimeout(() => {
-            showAnswerFeedback(
-              container,
-              q.feedbackCorrect || "Great job!",
-              "#219821",
-              2000,
-              () => {
-                if (qIdx < questions.length - 1) {
-                  qIdx++;
-                  showQuestion();
-                } else {
-                  tryShowNextButtonOrWait(() => {
-                    showUniversalReward(
-                      s,
-                      () => {
-                        window.location.href = "/choose";
+                speakTextWithLock(q.feedbackCorrect || "Great job!", () => {
+                  setTimeout(() => {
+                    feedbackDiv.remove();
+                    // Fun Fact?
+                    function doAfterFunFact() {
+                      // === Nur nach letzter Frage: Gratulationsvideo, dann Reward ===
+                      if (qIdx === questions.length - 1 && ((Array.isArray(s.congratsVideos) && s.congratsVideos.length) || s.congratsVideo)) {
+                        showCongratsVideoAndReward();
+                      } else {
+                        setTimeout(() => {
+                          qIdx++;
+                          showQuestion();
+                        }, 500);
                       }
-                    );
-                  });
-                }
+                    }
+
+                    if (q.funFact) {
+                      setTimeout(() => {
+                        const funFactDiv = document.createElement("div");
+                        funFactDiv.className = "animal-funfact";
+                        Object.assign(funFactDiv.style, {
+                          margin: "24px auto 10px", fontSize: "1.12em",
+                          textAlign: "center", background: "#fffde7",
+                          borderRadius: "14px", padding: "8px 10px",
+                          boxShadow: "0 2px 8px #ffe08266"
+                        });
+                        funFactDiv.innerHTML = `✨ <b>Fun Fact:</b> ${q.funFact}`;
+                        container.appendChild(funFactDiv);
+                        speakTextWithLock(q.funFact, () => {
+                          setTimeout(() => {
+                            funFactDiv.remove();
+                            doAfterFunFact();
+                          }, 800);
+                        });
+                      }, 400);
+                    } else {
+                      doAfterFunFact();
+                    }
+                  }, 300);
+                });
               }
-            );
-            runAnimations(q.correctAnimation || ["confetti-glow"]);
-          }, 500);
+              selectedItem = null;
+            } else {
+              // Falsch: Feedback anzeigen und sprechen, dann neu
+              Object.assign(targetDiv.style, { background: "#ffd1d1" });
+              Object.assign(selectedItem.style, { background: "#ffd1d1" });
+              playSound(q.wrongSound || "fail.mp3");
+              runAnimations(q.wrongAnimation || ["shake"]);
+              if (s.avatar) playAvatarAnimation(s.avatar, "wiggle");
+              targetDiv.classList.add("wrong");
+              selectedItem.classList.add("wrong");
+
+              const feedbackDiv = document.createElement("div");
+              feedbackDiv.className = "tapmatch-feedback";
+              feedbackDiv.innerHTML = q.feedbackWrong || "Oops! Try again!";
+              feedbackDiv.style.marginTop = "18px";
+              feedbackDiv.style.textAlign = "center";
+              feedbackDiv.style.fontWeight = "bold";
+              container.appendChild(feedbackDiv);
+
+              speakTextWithLock(q.feedbackWrong || "Oops! Try again!", () => {
+                setTimeout(() => {
+                  feedbackDiv.remove();
+                  targetDiv.classList.remove("wrong");
+                  selectedItem.classList.remove("wrong");
+                  Object.assign(targetDiv.style, { background: "#fffbe6" });
+                  Object.assign(selectedItem.style, { background: "#81d4fa" });
+                  selectedItem = null;
+                }, 600);
+              });
+            }
+          });
         }
-      } else {
-        // Falsch
-        targetDiv.style.background = "#ffd1d1";
-        playSound(q.wrongSound || "fail.mp3");
-        showAnswerFeedback(
-          container,
-          q.feedbackWrong || "Oops! Try again!",
-          "#c82121",
-          1200
-        );
-        runAnimations(q.wrongAnimation || ["shake"]);
-        setTimeout(() => (targetDiv.style.background = "#fffbe6"), 500);
-      }
-    }
+      });
+    });
   }
 
   showQuestion();
@@ -1292,12 +1848,1752 @@ function renderDragDropSession(s, idx, container) {
 
 
 
+function renderReactionSession(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
 
-// ==== Drawing Session ====
-// Hier Platzhalter, da du eigene Logik hast (füge ein, falls notwendig)
-function renderDrawingSession(s, idx, container) {
-  // Deine Drawing-Session-Logik
+  let musicInstance = null; // Musik-Objekt
+  let roundIdx = 0;
+  let reactionStart = 0;
+  let musicStarted = false;
+
+  function setAllDisabled(disabled) {
+    container.querySelectorAll(".reaction-animal-btn").forEach(btn => {
+      btn.disabled = disabled;
+      btn.style.opacity = disabled ? "0.6" : "1";
+    });
+  }
+
+  function speakWithLock(text, cb) {
+    setAllDisabled(true);
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.onend = () => {
+      setAllDisabled(false);
+      if (cb) cb();
+    };
+    window.speechSynthesis.speak(utter);
+  }
+
+  function playMusicIfNeeded() {
+    // Musik wird nur einmal pro Session gestartet (nach erstem Video)
+    if (musicStarted || !s.music) return;
+    try {
+      musicInstance = new Audio("audio/" + s.music);
+      musicInstance.loop = false;
+      musicInstance.volume = 0.08;
+      musicInstance.play();
+      window.currentMusic = musicInstance;
+      musicStarted = true;
+    } catch (e) {}
+  }
+
+  function showRound() {
+    container.innerHTML = "";
+    const r = s.rounds[roundIdx];
+
+    // Headline
+    const header = document.createElement('div');
+    header.className = "quiz-question";
+    header.textContent = s.title || "Reaction Game";
+    header.style.margin = "0 0 18px 0";
+    container.appendChild(header);
+
+    // VIDEO (optional, pro Runde)
+    if (r.video) {
+      const videoWrap = document.createElement("div");
+      videoWrap.className = "reaction-video-wrap";
+      videoWrap.style.display = "flex";
+      videoWrap.style.justifyContent = "center";
+      videoWrap.style.margin = "0 auto 12px";
+      const video = document.createElement("video");
+      video.src = r.video;
+      video.playsInline = true;
+      video.controls = false;
+      video.autoplay = true;
+      video.muted = false;
+      video.style.maxWidth = "220px";
+      video.style.borderRadius = "16px";
+      video.style.boxShadow = "0 4px 16px #ffd54f55";
+      videoWrap.appendChild(video);
+      container.appendChild(videoWrap);
+
+      video.onended = () => {
+        playMusicIfNeeded(); // Musik exakt jetzt!
+        startRestOfRound(r);
+      };
+      return;
+    }
+
+    // --- KEIN VIDEO ---
+    playMusicIfNeeded();
+    startRestOfRound(r);
+  }
+
+  function startRestOfRound(r) {
+    let ttsText = r.ttsText || s.ttsText || null;
+    if (ttsText) {
+      speakWithLock(ttsText, () => setupRound(r));
+    } else {
+      setupRound(r);
+    }
+  }
+
+  function setupRound(r) {
+    // Countdown
+    const countdown = document.createElement("div");
+    countdown.className = "reaction-countdown";
+    countdown.style.textAlign = "center";
+    countdown.style.fontSize = "2em";
+    countdown.textContent = "3";
+    container.appendChild(countdown);
+
+    let count = 3;
+    const interval = setInterval(() => {
+      count--;
+      if (count > 0) {
+        countdown.textContent = count;
+      } else {
+        clearInterval(interval);
+        countdown.textContent = "Go!";
+        setTimeout(() => {
+          countdown.remove();
+          startReactionRound(r);
+        }, 600);
+      }
+    }, 700);
+  }
+
+  function startReactionRound(r) {
+    if (r.sound) playSound(r.sound);
+
+    const btnWrap = document.createElement("div");
+    btnWrap.className = "reaction-animals-wrap";
+    btnWrap.style.display = "flex";
+    btnWrap.style.justifyContent = "center";
+    btnWrap.style.gap = "28px";
+    btnWrap.style.margin = "22px 0 10px";
+    container.appendChild(btnWrap);
+
+    r.options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "reaction-animal-btn";
+      btn.style.background = "#fffbe6";
+      btn.style.border = "2px solid #ffd54f";
+      btn.style.borderRadius = "16px";
+      btn.style.width = "96px";
+      btn.style.height = "96px";
+      btn.style.display = "flex";
+      btn.style.alignItems = "center";
+      btn.style.justifyContent = "center";
+      btn.style.boxShadow = "0 2px 12px #ffd54faa";
+      btn.style.transition = "box-shadow 0.18s";
+      btn.style.cursor = "pointer";
+      btn.style.position = "relative";
+      btn.innerHTML = `<img src="${opt.img}" alt="${opt.label}" style="width:68px;height:68px;object-fit:contain;">`;
+      btn.setAttribute("data-label", opt.label);
+
+      btn.onclick = function () {
+        setAllDisabled(true);
+        const isCorrect = opt.label.toLowerCase() === r.target.toLowerCase();
+        const reactionTimeMs = Math.max(0, Math.round(performance.now() - reactionStart));
+        const reactionTimeSec = (reactionTimeMs / 1000).toFixed(2);
+
+        if (isCorrect) {
+          playSound("yay.mp3");
+          runAnimations(r.correctAnimation || ["confetti-glow", "emoji-party"]);
+          btn.style.background = "#b9f6ca";
+          const feedback = document.createElement("div");
+          feedback.className = "reaction-feedback";
+          feedback.innerHTML = (r.feedbackCorrect || "Great!") + `<br><span style="font-size:0.9em;">⏱️ ${reactionTimeSec} s</span>`;
+          feedback.style.textAlign = "center";
+          feedback.style.margin = "18px auto 0";
+          feedback.style.fontWeight = "bold";
+          container.appendChild(feedback);
+          speakWithLock(r.feedbackCorrect || "Great!", () => {
+            setTimeout(() => {
+              feedback.remove();
+              // Fun Fact
+              if (r.funFact) {
+                const funDiv = document.createElement("div");
+                funDiv.className = "animal-funfact";
+                funDiv.innerHTML = "🐾 <b>Fun Fact:</b> " + r.funFact;
+                funDiv.style.marginTop = "18px";
+                funDiv.style.fontSize = "1.12em";
+                funDiv.style.textAlign = "center";
+                funDiv.style.color = "#555";
+                container.appendChild(funDiv);
+                speakWithLock(r.funFact, () => {
+                  setTimeout(() => {
+                    funDiv.remove();
+                    nextRound();
+                  }, 900);
+                });
+              } else {
+                nextRound();
+              }
+            }, 700);
+          });
+        } else {
+          playSound("fail.mp3");
+          runAnimations(r.wrongAnimation || ["shake"]);
+          btn.style.background = "#ffd1d1";
+          const feedback = document.createElement("div");
+          feedback.className = "reaction-feedback";
+          feedback.innerHTML = r.feedbackWrong || "Try again!";
+          feedback.style.textAlign = "center";
+          feedback.style.margin = "18px auto 0";
+          feedback.style.fontWeight = "bold";
+          container.appendChild(feedback);
+          speakWithLock(r.feedbackWrong || "Try again!", () => {
+            setTimeout(() => {
+              feedback.remove();
+              showRound();
+            }, 800);
+          });
+        }
+      };
+
+      btnWrap.appendChild(btn);
+    });
+
+    setTimeout(() => { reactionStart = performance.now(); }, 160);
+    setAllDisabled(false);
+  }
+
+  function nextRound() {
+    roundIdx++;
+    if (roundIdx < s.rounds.length) {
+      showRound();
+    } else {
+      if ((Array.isArray(s.congratsVideos) && s.congratsVideos.length) || s.congratsVideo) {
+        let videoUrl = null;
+        if (Array.isArray(s.congratsVideos) && s.congratsVideos.length) {
+          videoUrl = s.congratsVideos[Math.floor(Math.random() * s.congratsVideos.length)];
+        } else if (s.congratsVideo) {
+          videoUrl = s.congratsVideo;
+        }
+        playSessionVideoAndRestoreAvatar({
+          videoUrl,
+          avatar: s.avatar,
+          onEnded: () => {
+            tryShowNextButtonOrWait(() => {
+              showUniversalReward(
+                s,
+                () => {
+                  if (currentSession < sessions.length - 1) {
+                    currentSession++;
+                    renderSession(currentSession);
+                  } else window.location.href = "/choose";
+                }
+              );
+            });
+          }
+        });
+      } else {
+        tryShowNextButtonOrWait(() => {
+          showUniversalReward(
+            s,
+            () => {
+              if (currentSession < sessions.length - 1) {
+                currentSession++;
+                renderSession(currentSession);
+              } else window.location.href = "/choose";
+            }
+          );
+        });
+      }
+    }
+  }
+
+  showRound();
 }
+
+
+function renderStorySession(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  let sessionStarted = Date.now();
+  let textFinished = false;
+  let videoFinished = false;
+
+  // === Header ===
+  const header = document.createElement("div");
+  header.className = "quiz-question";
+  header.style.margin = "0 0 18px 0";
+  header.textContent = s.title || "Story Time!";
+  container.appendChild(header);
+
+  // === Bildcontainer (optional) ===
+  if (s.storyImg) {
+    const img = document.createElement("img");
+    img.src = s.storyImg;
+    img.style.maxWidth = "220px";
+    img.style.display = "block";
+    img.style.margin = "0 auto 16px";
+    img.style.borderRadius = "14px";
+    img.style.boxShadow = "0 4px 16px #ffd54f55";
+    container.appendChild(img);
+  }
+
+  // === Story-Textbox ===
+  const textBox = document.createElement("div");
+  textBox.className = "story-text";
+  textBox.style.fontSize = "1.15em";
+  textBox.style.background = "#fffde7";
+  textBox.style.borderRadius = "16px";
+  textBox.style.padding = "18px 18px";
+  textBox.style.margin = "0 0 18px 0";
+  textBox.style.boxShadow = "0 2px 10px #ffe08244";
+  textBox.style.lineHeight = "1.5";
+  container.appendChild(textBox);
+
+  // === Zeilen vorbereiten ===
+  let lines = [];
+  if (Array.isArray(s.storyLines)) {
+    lines = s.storyLines.map(l => (typeof l === "string" ? { line: l, duration: 3 } : l));
+  } else if (s.storyText) {
+    lines = [{ line: s.storyText, duration: 3 }];
+  }
+
+  let lineIdx = 0;
+  function showNextLine(cb) {
+    if (lineIdx >= lines.length) {
+      textFinished = true;
+      if (cb) cb();
+      tryShowNextButton();
+      return;
+    }
+    const p = document.createElement("div");
+    p.className = "animated-text";
+    p.textContent = lines[lineIdx].line;
+    textBox.appendChild(p);
+    textTimeouts.push(
+      setTimeout(() => {
+        if (textBox.childNodes.length > 4) textBox.removeChild(textBox.firstChild);
+        lineIdx++;
+        showNextLine(cb);
+      }, (lines[lineIdx].duration || 3) * 1000)
+    );
+  }
+
+  // === Video mit stabilem Play-Button ===
+  const videoBox = document.createElement("div");
+  videoBox.className = "floating-video";
+  const video = document.createElement("video");
+  video.src = s.video;
+  video.setAttribute("controls", "true");
+  video.setAttribute("controlsList", "nodownload");
+  video.autoplay = false;
+  video.muted = false;
+  video.playsInline = true;
+  video.poster = "images/video-placeholder.png";
+  video.style.width = "100%";
+  video.style.height = "100%";
+  video.style.borderRadius = "50%";
+  videoBox.appendChild(video);
+
+  const playBtn = document.createElement('button');
+  playBtn.className = "custom-play-btn";
+  playBtn.title = "Play";
+  playBtn.innerHTML = `
+    <svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>`;
+  videoBox.appendChild(playBtn);
+  document.body.appendChild(videoBox);
+
+  // Play-Button: startet Video + Text
+  playBtn.addEventListener('click', () => {
+    video.play().then(() => {
+      playBtn.style.display = "none";
+      video.style.pointerEvents = "auto";
+      if (lineIdx === 0) showNextLine();
+    }).catch(err => console.log("Video Play Error:", err));
+  });
+
+  // Video-Ende
+  video.addEventListener('ended', () => {
+    videoFinished = true;
+    tryShowNextButton();
+  });
+
+  // === Next-Button mit globaler Warteanzeige ===
+  function tryShowNextButton() {
+    if (videoFinished && textFinished) {
+      tryShowNextButtonOrWait(() => {
+        const btn = document.createElement("button");
+        btn.innerText = idx < sessions.length - 1 ? "Next" : "Finish";
+        btn.className = "centered-next-btn";
+        btn.onclick = () => {
+          currentSession++;
+          renderSession(currentSession);
+        };
+        document.body.appendChild(btn);
+      });
+    }
+  }
+}
+
+
+function renderDrawingSession1(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // --- CSS-in-JS für zentrierte Drawing-Session ---
+  if (!document.getElementById('drawing-session-css')) {
+    const style = document.createElement("style");
+    style.id = "drawing-session-css";
+    style.textContent = `
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Quicksand:wght@700&display=swap');
+body, html { margin:0; padding:0; width:100vw; }
+#main, .main, .container, .outer { box-sizing: border-box !important; margin:0 auto !important; width:100vw !important; padding:0 !important;}
+.drawing-root * { font-family: 'Comic Neue', 'Comic Sans MS', 'Quicksand', cursive !important; }
+.drawing-root { 
+  max-width: 370px;
+  margin: 32px auto 0 auto;
+  background: #fff9ef;
+  padding: 16px 12px 10px 12px;
+  border-radius: 28px;
+  box-shadow: 0 2px 16px #ffd54f33;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.drawing-h2 { font-size: 1.7em; font-weight: bold; text-align: center; margin-bottom: 14px; margin-top: 6px; }
+.drawing-tabs { display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; width: 100%; }
+.drawing-tab { flex: 1; padding: 12px 0; font-size: 1.13em; font-weight: bold; border-radius: 18px; border: 2px solid #ffd54f; cursor: pointer; transition: background .15s; background: #fff; color: #555; }
+.drawing-tab.active { background: #ffe082; color: #222; box-shadow: 0 3px 12px #ffd54f77; }
+.drawing-canvas-wrap { display: flex; justify-content: center; align-items: center; width: 100%; }
+.drawing-canvas { border: 3px solid #ffd54f; border-radius: 22px; background: #fff; margin-bottom: 18px; display: block; touch-action: none; box-shadow: 0 2px 10px #ffd54f44; }
+.drawing-tools { display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; width: 100%; }
+.drawing-toolbtn { font-size: 1.13em; padding: 8px 24px; border: none; border-radius: 14px; background: #e0f7fa; color: #1976d2; font-weight: bold; cursor: pointer; transition: background .12s;}
+.drawing-toolbtn.active { background: #1976d2; color: #fff; }
+.drawing-color-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 13px; }
+.drawing-colorbtn { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #ffd54f; box-shadow: 0 2px 6px #ffd54f66; cursor: pointer; outline: none; transition: box-shadow .12s; }
+.drawing-colorbtn.selected { box-shadow: 0 0 0 4px #81d4fa, 0 2px 6px #ffd54f66; }
+.drawing-size-row { display: flex; justify-content: center; margin-bottom: 10px; }
+.drawing-size-sel { padding: 6px 12px; font-size: 1em; border-radius: 12px; border: 2px solid #ffd54f; background: #fffbe6; }
+.drawing-btnrow { display: flex; justify-content: center; gap: 28px; margin-bottom: 3px; }
+.drawing-actionbtn { font-size: 1.13em; font-weight: bold; padding: 11px 30px; border: none; border-radius: 16px; cursor: pointer; transition: background .14s; box-shadow: 0 1px 8px #ffd54f66; }
+.drawing-actionbtn.clear { background: #e57373; color: #fff; }
+.drawing-actionbtn.done  { background: #81c784; color: #222; }
+@media (max-width: 480px) {
+  .drawing-root { max-width: 99vw; left: 50% !important; transform: translateX(-50%) !important; }
+  .drawing-canvas { width: 96vw !important; max-width: 96vw; height: 62vw !important; max-height: 68vw; }
+}
+.floating-video { position:fixed;right:18px;bottom:90px;width:160px;height:160px;border-radius:50%;overflow:hidden;z-index:12;
+  box-shadow:0 6px 32px #b2ebf2, 0 2px 24px #fbc02d; background:#fff;display:flex;align-items:center;justify-content:center;}
+.floating-video video { width:140px; height:140px; border-radius:50%; object-fit:contain; background:#eee; pointer-events:none; }
+.custom-play-btn { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg, #ffd54f 60%, #81d4fa 100%);display:flex;align-items:center;justify-content:center;
+  border:none;box-shadow:0 2px 8px #b3e5fc;z-index:45;cursor:pointer; }
+.custom-play-btn svg { width:36px;height:36px;fill:#383838; }
+@media (max-width:600px) {
+  .floating-video { width:110px; height:110px; right:6px; bottom:68px; }
+  .floating-video video { width:90px; height:90px; }
+  .custom-play-btn { width:54px;height:54px; }
+}
+`;
+    document.head.appendChild(style);
+  }
+
+  // --- Floating Video wie überall ---
+  if (s.video) {
+    document.querySelectorAll(".floating-video").forEach(el => el.remove());
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    const videoEl = document.createElement("video");
+    videoEl.src = s.video;
+    videoEl.playsInline = true;
+    videoEl.style.width = "100%";
+    videoEl.style.height = "100%";
+    videoBox.appendChild(videoEl);
+
+    // Play overlay
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>`;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = () => {
+      videoEl.play();
+      playBtn.style.display = "none";
+      videoEl.style.pointerEvents = "auto";
+    };
+    videoEl.addEventListener("play",  () => playBtn.style.display = "none");
+    videoEl.addEventListener("pause", () => playBtn.style.display = "");
+    videoEl.addEventListener("ended", () => {
+      videoBox.remove();
+      buildDrawingUI();
+    });
+
+    document.body.appendChild(videoBox);
+    return;
+  }
+
+  // --- Drawing UI ---
+  buildDrawingUI();
+
+  function buildDrawingUI() {
+    let mode = "free";
+    let tool = "brush";
+    let brushSize = 8;
+    let brushColor = "#1976d2";
+    let lastX = null, lastY = null;
+    let drawing = false;
+    let templateLoaded = false;
+
+    // Root-Wrapper
+    const root = document.createElement("div");
+    root.className = "drawing-root";
+    container.appendChild(root);
+
+    // Heading
+    const h2 = document.createElement("div");
+    h2.className = "drawing-h2";
+    h2.textContent = s.title || "Draw Something!";
+    root.appendChild(h2);
+
+    // Tabs
+    const tabs = document.createElement("div");
+    tabs.className = "drawing-tabs";
+    const freeBtn  = document.createElement("button");
+    freeBtn.className = "drawing-tab active";
+    freeBtn.innerHTML = "🖍️ Free Drawing";
+    const traceBtn = document.createElement("button");
+    traceBtn.className = "drawing-tab";
+    traceBtn.innerHTML = "✏️ Trace Template";
+    tabs.append(freeBtn, traceBtn);
+    root.appendChild(tabs);
+
+    // Canvas
+    const canvasWrap = document.createElement("div");
+    canvasWrap.className = "drawing-canvas-wrap";
+    root.appendChild(canvasWrap);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 320; canvas.height = 400;
+    canvas.className = "drawing-canvas";
+    canvas.style.width = "320px";
+    canvas.style.height = "400px";
+    canvasWrap.appendChild(canvas);
+
+    const ctx  = canvas.getContext("2d");
+    const buf  = document.createElement("canvas");
+    buf.width = canvas.width; buf.height = canvas.height;
+    const bctx = buf.getContext("2d");
+
+    // Tools Row
+    const toolRow = document.createElement("div");
+    toolRow.className = "drawing-tools";
+    root.appendChild(toolRow);
+    const brushBtn = document.createElement("button");
+    brushBtn.className = "drawing-toolbtn active";
+    brushBtn.innerHTML = "🖌️ Brush";
+    const fillBtn  = document.createElement("button");
+    fillBtn.className = "drawing-toolbtn";
+    fillBtn.innerHTML = "🪣 Fill";
+    toolRow.append(brushBtn, fillBtn);
+
+    // Color Row
+    const colorRow = document.createElement("div");
+    colorRow.className = "drawing-color-row";
+    const colors = ["#1976d2","#e53935","#43a047","#fbc02d","#ab47bc","#ffb300","#000","#fff"];
+    colors.forEach(c => {
+      const btn = document.createElement("button");
+      btn.className = "drawing-colorbtn";
+      btn.style.background = c;
+      if (brushColor === c) btn.classList.add("selected");
+      btn.onclick = () => {
+        brushColor = c;
+        colorRow.querySelectorAll("button").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+      };
+      colorRow.appendChild(btn);
+    });
+    root.appendChild(colorRow);
+
+    // Brush Size Row (Dropdown)
+    const sizeRow = document.createElement("div");
+    sizeRow.className = "drawing-size-row";
+    const sizeSel = document.createElement("select");
+    sizeSel.className = "drawing-size-sel";
+    [{label:"Thin",v:4},{label:"Medium",v:8},{label:"Thick",v:16}].forEach(opt => {
+      const o = document.createElement("option");
+      o.value = opt.v;
+      o.textContent = opt.label;
+      if (opt.v === brushSize) o.selected = true;
+      sizeSel.appendChild(o);
+    });
+    sizeSel.onchange = e => brushSize = +e.target.value;
+    sizeRow.appendChild(sizeSel);
+    root.appendChild(sizeRow);
+
+    // Buttons: Clear & Done
+    const btnRow = document.createElement("div");
+    btnRow.className = "drawing-btnrow";
+    const clearBtn = document.createElement("button");
+    clearBtn.className = "drawing-actionbtn clear";
+    clearBtn.textContent = "🗑️ Clear";
+    clearBtn.onclick = () => { bctx.clearRect(0,0,buf.width,buf.height); redraw(); };
+    const doneBtn = document.createElement("button");
+    doneBtn.className = "drawing-actionbtn done";
+    doneBtn.textContent = "✅ Done";
+    doneBtn.onclick = () => {
+      tryShowNextButtonOrWait(() => {
+        const nextBtn = document.createElement("button");
+        nextBtn.textContent = idx < sessions.length-1 ? "➡️ Next" : "🎉 Finish";
+        nextBtn.className = "centered-next-btn";
+        nextBtn.onclick = () => { currentSession++; renderSession(currentSession); };
+        document.body.append(nextBtn);
+      });
+    };
+    btnRow.append(clearBtn, doneBtn);
+    root.appendChild(btnRow);
+
+    // Zeichenlogik
+    drawing = false;
+    let templateImg = new Image();
+    
+    if (s.drawingTemplate) {
+      templateImg.onload = () => { templateLoaded = true; if (mode === "trace") redraw(); };
+      templateImg.src = s.drawingTemplate;
+    }
+
+    canvas.addEventListener("pointerdown", e => {
+      if (tool === "brush") {
+        drawing = true;
+        lastX = e.offsetX; lastY = e.offsetY;
+        bctx.beginPath();
+        bctx.moveTo(lastX, lastY);
+      } else if (tool === "fill") {
+        floodFill(Math.floor(e.offsetX), Math.floor(e.offsetY), brushColor);
+        redraw();
+      }
+    });
+    canvas.addEventListener("pointermove", e => {
+      if (!drawing) return;
+      bctx.lineCap = "round";
+      bctx.lineJoin = "round";
+      bctx.lineWidth = brushSize;
+      bctx.strokeStyle = brushColor;
+      bctx.lineTo(e.offsetX, e.offsetY);
+      bctx.stroke();
+      bctx.beginPath();
+      bctx.moveTo(e.offsetX, e.offsetY);
+      redraw();
+    });
+    ["pointerup","pointerleave"].forEach(ev =>
+      canvas.addEventListener(ev, () => {
+        if (drawing) {
+          bctx.closePath();
+          drawing = false;
+        }
+      })
+    );
+
+    // Tabs switching
+    freeBtn.onclick = () => switchMode("free");
+    traceBtn.onclick = () => switchMode("trace");
+    function switchMode(m) {
+      mode = m;
+      freeBtn.classList.toggle("active", m==="free");
+      traceBtn.classList.toggle("active", m==="trace");
+      if (m==="free") {
+        // Lösche alles beim Umschalten auf free!
+        bctx.clearRect(0,0,buf.width,buf.height);
+      }
+      redraw();
+    }
+
+    // Tool switching
+    brushBtn.onclick = () => {
+      tool = "brush";
+      brushBtn.classList.add("active");
+      fillBtn.classList.remove("active");
+    };
+    fillBtn.onclick = () => {
+      tool = "fill";
+      fillBtn.classList.add("active");
+      brushBtn.classList.remove("active");
+    };
+
+    function redraw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      if (mode==="trace" && templateLoaded) {
+        ctx.globalAlpha = 0.27;
+        ctx.drawImage(templateImg, 0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1;
+      }
+      ctx.drawImage(buf, 0, 0);
+    }
+
+    function floodFill(x, y, color) {
+      const w = buf.width, h = buf.height;
+      const img = bctx.getImageData(0,0,w,h), d = img.data;
+      const idx0 = (y*w + x)*4;
+      const orig = [d[idx0],d[idx0+1],d[idx0+2],d[idx0+3]];
+      const tgt  = hexToRgba(color);
+      if (orig[0]===tgt[0]&&orig[1]===tgt[1]&&orig[2]===tgt[2]) return;
+      const stack = [[x,y]];
+      while (stack.length) {
+        const [cx,cy] = stack.pop(), i = (cy*w+cx)*4;
+        if (i<0||i>=d.length) continue;
+        if (d[i]===orig[0]&&d[i+1]===orig[1]&&d[i+2]===orig[2]) {
+          d[i]=tgt[0]; d[i+1]=tgt[1]; d[i+2]=tgt[2];
+          stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+        }
+      }
+      bctx.putImageData(img,0,0);
+    }
+    function hexToRgba(h) {
+      const v = h.replace("#",""), a = [...v.match(/.{2}/g)].map(x=>parseInt(x,16));
+      return a.length === 3 ? [...a,255] : a;
+    }
+    // Initial
+    switchMode("free");
+  }
+}
+
+
+
+
+function renderDrawingSession12(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // --- CSS-in-JS für zentrierte Drawing-Session + Letterbox ---
+  if (!document.getElementById('drawing-session-css')) {
+    const style = document.createElement("style");
+    style.id = "drawing-session-css";
+    style.textContent = `
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Quicksand:wght@700&display=swap');
+body, html { margin:0; padding:0; width:100vw; }
+.drawing-root * { font-family: 'Comic Neue', 'Comic Sans MS', 'Quicksand', cursive !important; }
+.drawing-root { 
+  max-width: 370px;
+  margin: 8px auto 0 auto;
+  background: #fff9ef;
+  padding: 8px 7px 7px 7px;
+  border-radius: 26px;
+  box-shadow: 0 2px 16px #ffd54f33;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.drawing-h2 { font-size: 1.7em; font-weight: bold; text-align: center; margin-bottom: 12px; margin-top: 2px; }
+.drawing-tabs { display: flex; justify-content: center; gap: 12px; margin-bottom: 15px; width: 100%; }
+.drawing-tab { flex: 1; padding: 12px 0; font-size: 1.13em; font-weight: bold; border-radius: 18px; border: 2px solid #ffd54f; cursor: pointer; transition: background .15s; background: #fff; color: #555; }
+.drawing-tab.active { background: #ffe082; color: #222; box-shadow: 0 3px 12px #ffd54f77; }
+.drawing-canvas-wrap { display: flex; justify-content: center; align-items: center; width: 100%; }
+.drawing-canvas { border: 3px solid #ffd54f; border-radius: 22px; background: #fff; margin-bottom: 13px; display: block; touch-action: none; box-shadow: 0 2px 10px #ffd54f44; }
+.drawing-tools { display: flex; justify-content: center; gap: 12px; margin-bottom: 10px; width: 100%; }
+.drawing-toolbtn { font-size: 1.13em; padding: 8px 24px; border: none; border-radius: 14px; background: #e0f7fa; color: #1976d2; font-weight: bold; cursor: pointer; transition: background .12s;}
+.drawing-toolbtn.active { background: #1976d2; color: #fff; }
+.drawing-color-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 11px; }
+.drawing-colorbtn { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #ffd54f; box-shadow: 0 2px 6px #ffd54f66; cursor: pointer; outline: none; transition: box-shadow .12s; }
+.drawing-colorbtn.selected { box-shadow: 0 0 0 4px #81d4fa, 0 2px 6px #ffd54f66; }
+.drawing-size-row { display: flex; justify-content: center; margin-bottom: 7px; }
+.drawing-size-sel { padding: 6px 12px; font-size: 1em; border-radius: 12px; border: 2px solid #ffd54f; background: #fffbe6; }
+.drawing-btnrow { display: flex; justify-content: center; gap: 28px; margin-bottom: 3px; }
+.drawing-actionbtn { font-size: 1.13em; font-weight: bold; padding: 11px 30px; border: none; border-radius: 16px; cursor: pointer; transition: background .14s; box-shadow: 0 1px 8px #ffd54f66; }
+.drawing-actionbtn.clear { background: #e57373; color: #fff; }
+.drawing-actionbtn.done  { background: #81c784; color: #222; }
+@media (max-width: 480px) {
+  .drawing-root { max-width: 99vw; left: 50% !important; transform: translateX(-50%) !important; }
+  .drawing-canvas { width: 96vw !important; max-width: 96vw; height: 62vw !important; max-height: 68vw; }
+}
+.floating-video { position:fixed;right:18px;bottom:90px;width:160px;height:160px;border-radius:50%;overflow:hidden;z-index:12;
+  box-shadow:0 6px 32px #b2ebf2, 0 2px 24px #fbc02d; background:#fff;display:flex;align-items:center;justify-content:center;}
+.floating-video video { width:140px; height:140px; border-radius:50%; object-fit:contain; background:#eee; pointer-events:none; }
+.custom-play-btn { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg, #ffd54f 60%, #81d4fa 100%);display:flex;align-items:center;justify-content:center;
+  border:none;box-shadow:0 2px 8px #b3e5fc;z-index:45;cursor:pointer; }
+.custom-play-btn svg { width:36px;height:36px;fill:#383838; }
+@media (max-width:600px) {
+  .floating-video { width:110px; height:110px; right:6px; bottom:68px; }
+  .floating-video video { width:90px; height:90px; }
+  .custom-play-btn { width:54px;height:54px; }
+}
+`;
+    document.head.appendChild(style);
+  }
+
+  // --- Floating Video wie überall ---
+  if (s.video) {
+    document.querySelectorAll(".floating-video").forEach(el => el.remove());
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    const videoEl = document.createElement("video");
+    videoEl.src = s.video;
+    videoEl.playsInline = true;
+    videoEl.style.width = "100%";
+    videoEl.style.height = "100%";
+    videoBox.appendChild(videoEl);
+
+    // Play overlay
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>`;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = () => {
+      videoEl.play();
+      playBtn.style.display = "none";
+      videoEl.style.pointerEvents = "auto";
+    };
+    videoEl.addEventListener("play",  () => playBtn.style.display = "none");
+    videoEl.addEventListener("pause", () => playBtn.style.display = "");
+    videoEl.addEventListener("ended", () => {
+      videoBox.remove();
+      buildDrawingUI();
+    });
+
+    document.body.appendChild(videoBox);
+    return;
+  }
+
+  // --- Drawing UI ---
+  buildDrawingUI();
+
+  function buildDrawingUI() {
+    let mode = "free";
+    let tool = "brush";
+    let brushSize = 8;
+    let brushColor = "#1976d2";
+    let lastX = null, lastY = null;
+    let drawing = false;
+    let templateLoaded = false;
+    let templateImg = new Image();
+    let templateBox = { x: 0, y: 0, w: 0, h: 0 };
+
+    // Root-Wrapper
+    const root = document.createElement("div");
+    root.className = "drawing-root";
+    container.appendChild(root);
+
+    // Heading
+    const h2 = document.createElement("div");
+    h2.className = "drawing-h2";
+    h2.textContent = s.title || "Draw Something!";
+    root.appendChild(h2);
+
+    // Tabs
+    const tabs = document.createElement("div");
+    tabs.className = "drawing-tabs";
+    const freeBtn  = document.createElement("button");
+    freeBtn.className = "drawing-tab active";
+    freeBtn.innerHTML = "🖍️ Free Drawing";
+    const traceBtn = document.createElement("button");
+    traceBtn.className = "drawing-tab";
+    traceBtn.innerHTML = "✏️ Trace Template";
+    tabs.append(freeBtn, traceBtn);
+    root.appendChild(tabs);
+
+    // Canvas
+    const canvasWrap = document.createElement("div");
+    canvasWrap.className = "drawing-canvas-wrap";
+    root.appendChild(canvasWrap);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 320; canvas.height = 400;
+    canvas.className = "drawing-canvas";
+    canvas.style.width = "320px";
+    canvas.style.height = "400px";
+    canvasWrap.appendChild(canvas);
+
+    const ctx  = canvas.getContext("2d");
+    const buf  = document.createElement("canvas");
+    buf.width = canvas.width; buf.height = canvas.height;
+    const bctx = buf.getContext("2d");
+
+    // Tools Row
+    const toolRow = document.createElement("div");
+    toolRow.className = "drawing-tools";
+    root.appendChild(toolRow);
+    const brushBtn = document.createElement("button");
+    brushBtn.className = "drawing-toolbtn active";
+    brushBtn.innerHTML = "🖌️ Brush";
+    const fillBtn  = document.createElement("button");
+    fillBtn.className = "drawing-toolbtn";
+    fillBtn.innerHTML = "🪣 Fill";
+    toolRow.append(brushBtn, fillBtn);
+
+    // Color Row
+    const colorRow = document.createElement("div");
+    colorRow.className = "drawing-color-row";
+    const colors = ["#1976d2","#e53935","#43a047","#fbc02d","#ab47bc","#ffb300","#000","#fff"];
+    colors.forEach(c => {
+      const btn = document.createElement("button");
+      btn.className = "drawing-colorbtn";
+      btn.style.background = c;
+      if (brushColor === c) btn.classList.add("selected");
+      btn.onclick = () => {
+        brushColor = c;
+        colorRow.querySelectorAll("button").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+      };
+      colorRow.appendChild(btn);
+    });
+    root.appendChild(colorRow);
+
+    // Brush Size Row (Dropdown)
+    const sizeRow = document.createElement("div");
+    sizeRow.className = "drawing-size-row";
+    const sizeSel = document.createElement("select");
+    sizeSel.className = "drawing-size-sel";
+    [{label:"Thin",v:4},{label:"Medium",v:8},{label:"Thick",v:16}].forEach(opt => {
+      const o = document.createElement("option");
+      o.value = opt.v;
+      o.textContent = opt.label;
+      if (opt.v === brushSize) o.selected = true;
+      sizeSel.appendChild(o);
+    });
+    sizeSel.onchange = e => brushSize = +e.target.value;
+    sizeRow.appendChild(sizeSel);
+    root.appendChild(sizeRow);
+
+    // Buttons: Clear & Done
+    const btnRow = document.createElement("div");
+    btnRow.className = "drawing-btnrow";
+    const clearBtn = document.createElement("button");
+    clearBtn.className = "drawing-actionbtn clear";
+    clearBtn.textContent = "🗑️ Clear";
+    clearBtn.onclick = () => { bctx.clearRect(0,0,buf.width,buf.height); redraw(); };
+    const doneBtn = document.createElement("button");
+    doneBtn.className = "drawing-actionbtn done";
+    doneBtn.textContent = "✅ Done";
+    doneBtn.onclick = () => {
+      tryShowNextButtonOrWait(() => {
+        const nextBtn = document.createElement("button");
+        nextBtn.textContent = idx < sessions.length-1 ? "➡️ Next" : "🎉 Finish";
+        nextBtn.className = "centered-next-btn";
+        nextBtn.onclick = () => { currentSession++; renderSession(currentSession); };
+        document.body.append(nextBtn);
+      });
+    };
+    btnRow.append(clearBtn, doneBtn);
+    root.appendChild(btnRow);
+
+    // Zeichenlogik & Template
+    drawing = false;
+
+    // --- Template letterboxed einpassen ---
+    if (s.drawingTemplate) {
+      templateImg.onload = () => {
+        templateLoaded = true;
+        templateBox = getLetterboxBox(templateImg, canvas);
+        if (mode === "trace") redraw();
+      };
+      templateImg.src = s.drawingTemplate;
+    }
+
+    function getLetterboxBox(img, c) {
+      const iw = img.width, ih = img.height;
+      const cw = c.width, ch = c.height;
+      const ir = iw/ih, cr = cw/ch;
+      let dw, dh, dx, dy;
+      if (ir > cr) {
+        dw = cw;
+        dh = cw / ir;
+        dx = 0;
+        dy = (ch - dh) / 2;
+      } else {
+        dh = ch;
+        dw = ch * ir;
+        dy = 0;
+        dx = (cw - dw) / 2;
+      }
+      return {x:dx, y:dy, w:dw, h:dh};
+    }
+
+    // Für Touch UND Maus!
+    function getPointer(e) {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches && e.touches.length) {
+        return {
+          x: (e.touches[0].clientX - rect.left) * (canvas.width / rect.width),
+          y: (e.touches[0].clientY - rect.top) * (canvas.height / rect.height)
+        };
+      } else {
+        return {
+          x: (e.clientX - rect.left) * (canvas.width / rect.width),
+          y: (e.clientY - rect.top)  * (canvas.height / rect.height)
+        };
+      }
+    }
+
+    canvas.addEventListener("pointerdown", e => {
+      const {x, y} = getPointer(e);
+      if (tool === "brush") {
+        drawing = true;
+        lastX = x; lastY = y;
+        bctx.beginPath();
+        bctx.moveTo(lastX, lastY);
+      } else if (tool === "fill") {
+        floodFill(Math.floor(x), Math.floor(y), brushColor);
+        redraw();
+      }
+    });
+    canvas.addEventListener("pointermove", e => {
+      if (!drawing) return;
+      const {x, y} = getPointer(e);
+      bctx.lineCap = "round";
+      bctx.lineJoin = "round";
+      bctx.lineWidth = brushSize;
+      bctx.strokeStyle = brushColor;
+      bctx.lineTo(x, y);
+      bctx.stroke();
+      bctx.beginPath();
+      bctx.moveTo(x, y);
+      redraw();
+    });
+    ["pointerup","pointerleave"].forEach(ev =>
+      canvas.addEventListener(ev, () => {
+        if (drawing) {
+          bctx.closePath();
+          drawing = false;
+        }
+      })
+    );
+
+    // Tabs switching (löscht IMMER das Canvas)
+    freeBtn.onclick = () => switchMode("free");
+    traceBtn.onclick = () => switchMode("trace");
+    function switchMode(m) {
+      mode = m;
+      freeBtn.classList.toggle("active", m==="free");
+      traceBtn.classList.toggle("active", m==="trace");
+      // Immer beim Umschalten alles löschen!
+      bctx.clearRect(0,0,buf.width,buf.height);
+      redraw();
+    }
+
+    // Tool switching
+    brushBtn.onclick = () => {
+      tool = "brush";
+      brushBtn.classList.add("active");
+      fillBtn.classList.remove("active");
+    };
+    fillBtn.onclick = () => {
+      tool = "fill";
+      fillBtn.classList.add("active");
+      brushBtn.classList.remove("active");
+    };
+
+    // --- Letterbox-Template im Canvas korrekt einpassen ---
+    function redraw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      if (mode==="trace" && templateLoaded) {
+        ctx.globalAlpha = 0.27;
+        ctx.drawImage(templateImg, templateBox.x, templateBox.y, templateBox.w, templateBox.h);
+        ctx.globalAlpha = 1;
+      }
+      ctx.drawImage(buf, 0, 0);
+    }
+
+    // Flood Fill wie gehabt
+    function floodFill(x, y, color) {
+      const w = buf.width, h = buf.height;
+      const img = bctx.getImageData(0,0,w,h), d = img.data;
+      const idx0 = (y*w + x)*4;
+      const orig = [d[idx0],d[idx0+1],d[idx0+2],d[idx0+3]];
+      const tgt  = hexToRgba(color);
+      if (orig[0]===tgt[0]&&orig[1]===tgt[1]&&orig[2]===tgt[2]) return;
+      const stack = [[x,y]];
+      while (stack.length) {
+        const [cx,cy] = stack.pop(), i = (cy*w+cx)*4;
+        if (i<0||i>=d.length) continue;
+        if (d[i]===orig[0]&&d[i+1]===orig[1]&&d[i+2]===orig[2]) {
+         d[i]=tgt[0]; d[i+1]=tgt[1]; d[i+2]=tgt[2];
+          stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+        }
+      }
+      bctx.putImageData(img,0,0);
+    }
+    function hexToRgba(h) {
+      const v = h.replace("#",""), a = [...v.match(/.{2}/g)].map(x=>parseInt(x,16));
+      return a.length === 3 ? [...a,255] : a;
+    }
+    // Initial
+    switchMode("free");
+  }
+} 
+
+
+
+function renderDrawingSession123(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // --- CSS-in-JS für zentrierte Drawing-Session + Letterbox ---
+  if (!document.getElementById('drawing-session-css')) {
+    const style = document.createElement("style");
+    style.id = "drawing-session-css";
+    style.textContent = `
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Quicksand:wght@700&display=swap');
+body, html { margin:0; padding:0; width:100vw; }
+.drawing-root * { font-family: 'Comic Neue', 'Comic Sans MS', 'Quicksand', cursive !important; }
+.drawing-root { 
+  max-width: 370px;
+  margin: 8px auto 0 auto;
+  background: #fff9ef;
+  padding: 8px 7px 7px 7px;
+  border-radius: 26px;
+  box-shadow: 0 2px 16px #ffd54f33;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.drawing-h2 { font-size: 1.7em; font-weight: bold; text-align: center; margin-bottom: 12px; margin-top: 2px; }
+.drawing-tabs { display: flex; justify-content: center; gap: 12px; margin-bottom: 15px; width: 100%; }
+.drawing-tab { flex: 1; padding: 12px 0; font-size: 1.13em; font-weight: bold; border-radius: 18px; border: 2px solid #ffd54f; cursor: pointer; transition: background .15s; background: #fff; color: #555; }
+.drawing-tab.active { background: #ffe082; color: #222; box-shadow: 0 3px 12px #ffd54f77; }
+.drawing-canvas-wrap { display: flex; justify-content: center; align-items: center; width: 100%; }
+.drawing-canvas { border: 3px solid #ffd54f; border-radius: 22px; background: #fff; margin-bottom: 13px; display: block; touch-action: none; box-shadow: 0 2px 10px #ffd54f44; }
+.drawing-tools { display: flex; justify-content: center; gap: 12px; margin-bottom: 10px; width: 100%; }
+.drawing-toolbtn { font-size: 1.13em; padding: 8px 24px; border: none; border-radius: 14px; background: #e0f7fa; color: #1976d2; font-weight: bold; cursor: pointer; transition: background .12s;}
+.drawing-toolbtn.active { background: #1976d2; color: #fff; }
+.drawing-color-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 11px; }
+.drawing-colorbtn { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #ffd54f; box-shadow: 0 2px 6px #ffd54f66; cursor: pointer; outline: none; transition: box-shadow .12s; }
+.drawing-colorbtn.selected { box-shadow: 0 0 0 4px #81d4fa, 0 2px 6px #ffd54f66; }
+.drawing-size-row { display: flex; justify-content: center; margin-bottom: 7px; }
+.drawing-size-sel { padding: 6px 12px; font-size: 1em; border-radius: 12px; border: 2px solid #ffd54f; background: #fffbe6; }
+.drawing-btnrow { display: flex; justify-content: center; gap: 28px; margin-bottom: 3px; }
+.drawing-actionbtn { font-size: 1.13em; font-weight: bold; padding: 11px 30px; border: none; border-radius: 16px; cursor: pointer; transition: background .14s; box-shadow: 0 1px 8px #ffd54f66; }
+.drawing-actionbtn.clear { background: #e57373; color: #fff; }
+.drawing-actionbtn.done  { background: #81c784; color: #222; }
+@media (max-width: 480px) {
+  .drawing-root { max-width: 99vw; left: 50% !important; transform: translateX(-50%) !important; }
+  .drawing-canvas { width: 96vw !important; max-width: 96vw; height: 62vw !important; max-height: 68vw; }
+}
+.floating-video { position:fixed;right:18px;bottom:90px;width:160px;height:160px;border-radius:50%;overflow:hidden;z-index:12;
+  box-shadow:0 6px 32px #b2ebf2, 0 2px 24px #fbc02d; background:#fff;display:flex;align-items:center;justify-content:center;}
+.floating-video video { width:140px; height:140px; border-radius:50%; object-fit:contain; background:#eee; pointer-events:none; }
+.custom-play-btn { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg, #ffd54f 60%, #81d4fa 100%);display:flex;align-items:center;justify-content:center;
+  border:none;box-shadow:0 2px 8px #b3e5fc;z-index:45;cursor:pointer; }
+.custom-play-btn svg { width:36px;height:36px;fill:#383838; }
+@media (max-width:600px) {
+  .floating-video { width:110px; height:110px; right:6px; bottom:68px; }
+  .floating-video video { width:90px; height:90px; }
+  .custom-play-btn { width:54px;height:54px; }
+}
+`;
+    document.head.appendChild(style);
+  }
+
+  // --- Floating Video ---
+  if (s.video) {
+    document.querySelectorAll(".floating-video").forEach(el => el.remove());
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    const videoEl = document.createElement("video");
+    videoEl.src = s.video;
+    videoEl.playsInline = true;
+    videoEl.style.width = "100%";
+    videoEl.style.height = "100%";
+    videoBox.appendChild(videoEl);
+
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.innerHTML = `<svg viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="28" fill="none"/>
+      <polygon points="22,16 46,30 22,44" fill="#383838"/>
+    </svg>`;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = () => { videoEl.play(); playBtn.style.display = "none"; videoEl.style.pointerEvents = "auto"; };
+    videoEl.addEventListener("play",  () => playBtn.style.display = "none");
+    videoEl.addEventListener("pause", () => playBtn.style.display = "");
+    videoEl.addEventListener("ended", () => { videoBox.remove(); buildDrawingUI(); });
+
+    document.body.appendChild(videoBox);
+    return;
+  }
+
+  buildDrawingUI();
+
+  function buildDrawingUI() {
+    let mode = "free";
+    let tool = "brush";
+    let brushSize = 8;
+    let brushColor = "#1976d2";
+    let drawing = false;
+    let templateLoaded = false;
+    let templateImg = new Image();
+    let templateBox = { x: 0, y: 0, w: 0, h: 0 };
+
+    const root = document.createElement("div");
+    root.className = "drawing-root";
+    container.appendChild(root);
+
+    const h2 = document.createElement("div");
+    h2.className = "drawing-h2";
+    h2.textContent = s.title || "Draw Something!";
+    root.appendChild(h2);
+
+    const tabs = document.createElement("div");
+    tabs.className = "drawing-tabs";
+    const freeBtn  = document.createElement("button");
+    freeBtn.className = "drawing-tab active";
+    freeBtn.innerHTML = "🖍️ Free Drawing";
+    const traceBtn = document.createElement("button");
+    traceBtn.className = "drawing-tab";
+    traceBtn.innerHTML = "✏️ Trace Template";
+    tabs.append(freeBtn, traceBtn);
+    root.appendChild(tabs);
+
+    const canvasWrap = document.createElement("div");
+    canvasWrap.className = "drawing-canvas-wrap";
+    root.appendChild(canvasWrap);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 320; canvas.height = 400;
+    canvas.className = "drawing-canvas";
+    canvas.style.width = "320px"; canvas.style.height = "400px";
+    canvasWrap.appendChild(canvas);
+
+    const ctx  = canvas.getContext("2d");
+    const buf  = document.createElement("canvas");
+    buf.width = canvas.width; buf.height = canvas.height;
+    const bctx = buf.getContext("2d");
+
+    // --- NEU: Template laden ---
+    const templateUrl = s.drawingTemplate || "templates/cat.svg";
+    fetch(templateUrl)
+      .then(res => res.text())
+      .then(svgText => {
+        const blob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        templateImg.onload = () => {
+          templateLoaded = true;
+          templateBox = getLetterboxBox(templateImg, canvas);
+          if (mode === "trace") redraw();
+        };
+        templateImg.src = url;
+      })
+      .catch(err => console.error("SVG-Fehler:", err));
+
+    function getLetterboxBox(img, c) {
+      const ir = img.width / img.height, cr = c.width / c.height;
+      let dw, dh, dx, dy;
+      if (ir > cr) { dw = c.width; dh = c.width / ir; dx = 0; dy = (c.height - dh) / 2; }
+      else { dh = c.height; dw = c.height * ir; dy = 0; dx = (c.width - dw) / 2; }
+      return {x:dx, y:dy, w:dw, h:dh};
+    }
+
+    // Tools
+    const toolRow = document.createElement("div");
+    toolRow.className = "drawing-tools";
+    root.appendChild(toolRow);
+    const brushBtn = document.createElement("button");
+    brushBtn.className = "drawing-toolbtn active"; brushBtn.innerHTML = "🖌️ Brush";
+    const fillBtn  = document.createElement("button");
+    fillBtn.className = "drawing-toolbtn"; fillBtn.innerHTML = "🪣 Fill";
+    toolRow.append(brushBtn, fillBtn);
+
+    const colorRow = document.createElement("div");
+    colorRow.className = "drawing-color-row";
+    const colors = ["#1976d2","#e53935","#43a047","#fbc02d","#ab47bc","#ffb300","#000","#fff"];
+    colors.forEach(c => {
+      const btn = document.createElement("button");
+      btn.className = "drawing-colorbtn";
+      btn.style.background = c;
+      if (brushColor === c) btn.classList.add("selected");
+      btn.onclick = () => { brushColor = c; colorRow.querySelectorAll("button").forEach(b => b.classList.remove("selected")); btn.classList.add("selected"); };
+      colorRow.appendChild(btn);
+    });
+    root.appendChild(colorRow);
+
+    const sizeRow = document.createElement("div");
+    sizeRow.className = "drawing-size-row";
+    const sizeSel = document.createElement("select");
+    sizeSel.className = "drawing-size-sel";
+    [{label:"Thin",v:4},{label:"Medium",v:8},{label:"Thick",v:16}].forEach(opt => {
+      const o = document.createElement("option"); o.value = opt.v; o.textContent = opt.label; if (opt.v === brushSize) o.selected = true; sizeSel.appendChild(o);
+    });
+    sizeSel.onchange = e => brushSize = +e.target.value;
+    sizeRow.appendChild(sizeSel);
+    root.appendChild(sizeRow);
+
+    const btnRow = document.createElement("div");
+    btnRow.className = "drawing-btnrow";
+    const clearBtn = document.createElement("button");
+    clearBtn.className = "drawing-actionbtn clear"; clearBtn.textContent = "🗑️ Clear";
+    clearBtn.onclick = () => { bctx.clearRect(0,0,buf.width,buf.height); redraw(); };
+    const doneBtn = document.createElement("button");
+    doneBtn.className = "drawing-actionbtn done"; doneBtn.textContent = "✅ Done";
+    doneBtn.onclick = () => { tryShowNextButtonOrWait(() => { const nextBtn = document.createElement("button"); nextBtn.textContent = idx < sessions.length-1 ? "➡️ Next" : "🎉 Finish"; nextBtn.className = "centered-next-btn"; nextBtn.onclick = () => { currentSession++; renderSession(currentSession); }; document.body.append(nextBtn); }); };
+    btnRow.append(clearBtn, doneBtn);
+    root.appendChild(btnRow);
+
+    // Pointer
+    function getPointer(e) { const rect = canvas.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX; const cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: (cx - rect.left) * (canvas.width / rect.width), y: (cy - rect.top) * (canvas.height / rect.height)}; }
+
+    canvas.addEventListener("pointerdown", e => { const {x, y} = getPointer(e); if (tool === "brush") { drawing = true; bctx.beginPath(); bctx.moveTo(x, y); } else if (tool === "fill") { floodFill(Math.floor(x), Math.floor(y), brushColor); redraw(); } });
+    canvas.addEventListener("pointermove", e => { if (!drawing) return; const {x, y} = getPointer(e); bctx.lineCap = "round"; bctx.lineJoin = "round"; bctx.lineWidth = brushSize; bctx.strokeStyle = brushColor; bctx.lineTo(x, y); bctx.stroke(); bctx.beginPath(); bctx.moveTo(x, y); redraw(); });
+    ["pointerup","pointerleave"].forEach(ev => canvas.addEventListener(ev, () => { if (drawing) { bctx.closePath(); drawing = false; } }));
+
+    freeBtn.onclick = () => switchMode("free");
+    traceBtn.onclick = () => switchMode("trace");
+    function switchMode(m) { mode = m; freeBtn.classList.toggle("active", m==="free"); traceBtn.classList.toggle("active", m==="trace"); bctx.clearRect(0,0,buf.width,buf.height); redraw(); }
+
+    brushBtn.onclick = () => { tool = "brush"; brushBtn.classList.add("active"); fillBtn.classList.remove("active"); };
+    fillBtn.onclick = () => { tool = "fill"; fillBtn.classList.add("active"); brushBtn.classList.remove("active"); };
+
+    function redraw() { ctx.clearRect(0,0,canvas.width,canvas.height); if (mode==="trace" && templateLoaded) { ctx.globalAlpha = 0.27; ctx.drawImage(templateImg, templateBox.x, templateBox.y, templateBox.w, templateBox.h); ctx.globalAlpha = 1; } ctx.drawImage(buf, 0, 0); }
+
+    function floodFill(x, y, color) {
+      const w = buf.width, h = buf.height; const img = bctx.getImageData(0,0,w,h), d = img.data; const idx0 = (y*w + x)*4; const orig = [d[idx0],d[idx0+1],d[idx0+2],d[idx0+3]]; const tgt  = hexToRgba(color);
+      const tol = 20; // Farbtoleranz
+      const stack = [[x,y]]; while (stack.length) { const [cx,cy] = stack.pop(), i = (cy*w+cx)*4; if (i<0||i>=d.length) continue;
+        if (Math.abs(d[i]-orig[0])<tol && Math.abs(d[i+1]-orig[1])<tol && Math.abs(d[i+2]-orig[2])<tol) { d[i]=tgt[0]; d[i+1]=tgt[1]; d[i+2]=tgt[2]; stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]); } }
+      bctx.putImageData(img,0,0);
+    }
+    function hexToRgba(h) { const v=h.replace("#",""), a=[...v.match(/.{2}/g)].map(x=>parseInt(x,16)); return a.length===3?[...a,255]:a; }
+
+    switchMode("free");
+  }
+}
+
+
+
+function renderExplainSession1(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // Überschrift / Titel
+  const header = document.createElement("div");
+  header.className = "quiz-question";
+  header.textContent = s.title || "Let’s learn something new!";
+  container.appendChild(header);
+
+  // Helfer: aktiven Kindernamen für TTS einsetzen
+  const childName = (localStorage.getItem("activeChildName") || "").trim() || "buddy";
+  const personalize = (txt) =>
+    (txt || "").replaceAll("{childName}", childName).replaceAll("{ChildName}", childName);
+
+  // Video-Box (zentriert, oben)
+  let videoEl = null;
+  const hasVideo = !s.reminder && s.video;
+  if (hasVideo) {
+    const videoWrap = document.createElement("div");
+    videoWrap.className = "explain-video-wrap";
+    const video = document.createElement("video");
+    video.src = (s.video.startsWith("videos/") ? s.video : "videos/" + s.video);
+    video.playsInline = true;
+    video.controls = true;        // Eltern können pausieren
+    video.autoplay = false;       // Autoplay ist mobil oft geblockt
+    video.muted = false;
+    video.className = "explain-video";
+    videoWrap.appendChild(video);
+    container.appendChild(videoWrap);
+    videoEl = video;
+  }
+
+  // Beispiele unten als Chips
+  const examples = Array.isArray(s.examples) ? s.examples : [];
+  if (examples.length) {
+    const exWrap = document.createElement("div");
+    exWrap.className = "explain-examples";
+    examples.forEach((t) => {
+      const chip = document.createElement("div");
+      chip.className = "explain-chip";
+      chip.textContent = t;
+      exWrap.appendChild(chip);
+    });
+    container.appendChild(exWrap);
+  }
+
+  // TTS-Logik: Buttons während TTS sperren
+  function setDisabled(disabled) {
+    container.querySelectorAll("button, video").forEach(el => {
+      if (el.tagName === "VIDEO") {
+        el.controls = !disabled;  // Video bleibt bedienbar, aber wir sperren sonst nichts Hartes
+      } else {
+        el.disabled = disabled;
+        el.style.opacity = disabled ? "0.6" : "1";
+      }
+    });
+  }
+  function speakWithLock(text, cb) {
+    if (!text) return cb && cb();
+    setDisabled(true);
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch(e){}
+    const u = new SpeechSynthesisUtterance(personalize(text));
+    u.lang = "en-US";
+    u.rate = 1;
+    u.pitch = 1.05;
+    u.onend = () => { setDisabled(false); cb && cb(); };
+    try { window.speechSynthesis.speak(u); } catch(e){ setDisabled(false); cb && cb(); }
+  }
+
+  // „Listen again“ Button (nur wenn TTS-Text vorhanden)
+  let listenBtn = null;
+  if (s.ttsText) {
+    listenBtn = document.createElement("button");
+    listenBtn.className = "animal-listen-btn";
+    listenBtn.style.marginTop = "10px";
+    listenBtn.innerHTML = "🔊 Listen again";
+    listenBtn.onclick = () => speakWithLock(s.ttsText);
+    container.appendChild(listenBtn);
+  }
+
+  // Ablauf:
+  // - Falls Video existiert: erst Video ansehen, dann personalisiertes TTS
+  // - Falls Reminder: sofort TTS
+  function showNextBtn() {
+    tryShowNextButtonOrWait(() => {
+      const btn = document.createElement("button");
+      btn.className = "centered-next-btn";
+      btn.textContent = (idx < sessions.length - 1) ? "Next" : "Finish";
+      btn.onclick = () => {
+        if (idx < sessions.length - 1) { currentSession++; renderSession(currentSession); }
+        else { window.location.href = "/choose"; }
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  if (hasVideo && videoEl) {
+    // Start-Hinweis, optional TTS vor dem Video?
+    // Wir spielen TTS NACH dem Video, damit die Erklärung zusammenpasst.
+    videoEl.addEventListener("ended", () => {
+      if (s.ttsText) speakWithLock(s.ttsText, showNextBtn);
+      else showNextBtn();
+    }, { once: true });
+
+    // Falls Nutzer gar nicht abspielt → kleiner Hinweis
+    const hint = document.createElement("div");
+    hint.style.fontSize = "0.95rem";
+    hint.style.color = "#666";
+    hint.style.textAlign = "center";
+    hint.style.marginTop = "6px";
+    hint.textContent = "Tip: Play the short video, then we’ll continue!";
+    container.appendChild(hint);
+  } else {
+    // Reminder-Variante: nur TTS/Text
+    if (s.ttsText) speakWithLock(s.ttsText, showNextBtn);
+    else showNextBtn();
+  }
+}
+
+
+function renderExplainSession12(s, idx, container) { 
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // Animation für Play-Button
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes pulsePlay {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,193,7, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(255,193,7, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,193,7, 0); }
+    }
+    .play-btn-animated {
+      background: #ffc107;
+      border: none;
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      animation: pulsePlay 1.5s infinite;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Überschrift
+  const header = document.createElement("div");
+  header.className = "quiz-question";
+  header.style.marginTop = "-10px";
+  header.textContent = s.title || "Let’s learn something new!";
+  container.appendChild(header);
+
+  const childName = (localStorage.getItem("activeChildName") || "").trim() || "buddy";
+  const personalize = (txt) =>
+    (txt || "").replaceAll("{childName}", childName).replaceAll("{ChildName}", childName);
+
+  function setDisabled(disabled) {
+    container.querySelectorAll("button, video").forEach(el => {
+      if (el.tagName === "VIDEO") {
+        el.controls = !disabled;
+      } else {
+        el.disabled = disabled;
+        el.style.opacity = disabled ? "0.6" : "1";
+      }
+    });
+  }
+
+  function speakWithLock(text, cb) {
+    if (!text) return cb && cb();
+    setDisabled(true);
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch(e){}
+    const liveText = document.createElement("div");
+    liveText.style.margin = "8px auto";
+    liveText.style.padding = "10px";
+    liveText.style.maxWidth = "360px";
+    liveText.style.background = "#fffde7";
+    liveText.style.borderRadius = "14px";
+    liveText.style.textAlign = "center";
+    liveText.textContent = personalize(text);
+    container.appendChild(liveText);
+    const u = new SpeechSynthesisUtterance(personalize(text));
+    u.lang = "en-US";
+    u.rate = 1;
+    u.pitch = 1.05;
+    u.onend = () => { setDisabled(false); liveText.remove(); cb && cb(); };
+    try { window.speechSynthesis.speak(u); } catch(e){ setDisabled(false); liveText.remove(); cb && cb(); }
+  }
+
+  function showVideoAndExamples() {
+    const hasVideo = !s.reminder && s.video;
+    let videoEl = null;
+    if (hasVideo) {
+      const video = document.createElement("video");
+      video.src = (s.video.startsWith("videos/") ? s.video : "videos/" + s.video);
+      video.playsInline = true;
+      video.controls = true;
+      video.autoplay = false;
+      video.muted = false;
+      video.style.display = "block";
+      video.style.maxWidth = "240px";
+      video.style.margin = "0 auto 8px auto";
+      video.style.borderRadius = "16px";
+      container.appendChild(video);
+      videoEl = video;
+    }
+
+    const tip = document.createElement("div");
+    tip.style.fontSize = "0.95rem";
+    tip.style.color = "#666";
+    tip.style.textAlign = "center";
+    tip.style.margin = "6px auto";
+    tip.textContent = "Tip: Play the short video, then we’ll continue!";
+    container.appendChild(tip);
+
+    const examples = Array.isArray(s.examples) ? s.examples : [];
+    if (examples.length) {
+      const exWrap = document.createElement("div");
+      exWrap.style.display = "flex";
+      exWrap.style.flexWrap = "wrap";
+      exWrap.style.justifyContent = "center";
+      exWrap.style.gap = "8px";
+      const palette = ["#81d4fa","#ffe082","#b9f6ca","#ffccbc","#d1c4e9","#c5e1a5","#ffecb3","#b3e5fc"];
+      examples.forEach((t, i) => {
+        const chip = document.createElement("div");
+        chip.style.background = palette[i % palette.length];
+        chip.style.padding = "8px 12px";
+        chip.style.borderRadius = "16px";
+        chip.style.fontWeight = "bold";
+        chip.textContent = t;
+        exWrap.appendChild(chip);
+      });
+      container.appendChild(exWrap);
+    }
+
+    tryShowNextButtonOrWait(() => {
+      const btn = document.createElement("button");
+      btn.className = "centered-next-btn";
+      btn.textContent = (idx < sessions.length - 1) ? "Next" : "Finish";
+      btn.onclick = () => {
+        if (idx < sessions.length - 1) { currentSession++; renderSession(currentSession); }
+        else { window.location.href = "/choose"; }
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  const playBtn = document.createElement("button");
+  playBtn.className = "play-btn-animated";
+  playBtn.textContent = "▶";
+  playBtn.onclick = () => {
+    playBtn.remove();
+    if (s.ttsText) speakWithLock(s.ttsText, showVideoAndExamples);
+    else showVideoAndExamples();
+  };
+  container.appendChild(playBtn);
+}
+
+function renderExplainSession(s, idx, container) { 
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // Universal Spinner entfernen
+  document.querySelectorAll(".universal-spinner").forEach(el => el.remove());
+
+  // Animation für Play-Button
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes pulsePlay {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,193,7, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(255,193,7, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,193,7, 0); }
+    }
+    .play-btn-animated {
+      background: #ffc107;
+      border: none;
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      animation: pulsePlay 1.5s infinite;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Überschrift
+  const header = document.createElement("div");
+  header.className = "quiz-question";
+  header.style.marginTop = "-10px";
+  header.textContent = s.title || "Let’s learn something new!";
+  container.appendChild(header);
+
+  const childName = (localStorage.getItem("activeChildName") || "").trim() || "buddy";
+  const personalize = (txt) =>
+    (txt || "").replaceAll("{childName}", childName).replaceAll("{ChildName}", childName);
+
+  function setDisabled(disabled) {
+    container.querySelectorAll("button, video").forEach(el => {
+      if (el.tagName === "VIDEO") {
+        el.controls = !disabled;
+      } else {
+        el.disabled = disabled;
+        el.style.opacity = disabled ? "0.6" : "1";
+      }
+    });
+  }
+
+  function speakWithLock(text, cb) {
+    if (!text) return cb && cb();
+    setDisabled(true);
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch(e){}
+    const liveText = document.createElement("div");
+    liveText.style.margin = "8px auto";
+    liveText.style.padding = "10px";
+    liveText.style.maxWidth = "360px";
+    liveText.style.background = "#fffde7";
+    liveText.style.borderRadius = "14px";
+    liveText.style.textAlign = "center";
+    liveText.textContent = personalize(text);
+    container.appendChild(liveText);
+    const u = new SpeechSynthesisUtterance(personalize(text));
+    u.lang = "en-US";
+    u.rate = 1;
+    u.pitch = 1.05;
+    u.onend = () => { setDisabled(false); liveText.remove(); cb && cb(); };
+    try { window.speechSynthesis.speak(u); } catch(e){ setDisabled(false); liveText.remove(); cb && cb(); }
+  }
+
+  function showVideoAndExamples() {
+    const hasVideo = !s.reminder && s.video;
+    let videoEl = null;
+    if (hasVideo) {
+      const video = document.createElement("video");
+      video.src = (s.video.startsWith("videos/") ? s.video : "videos/" + s.video);
+      video.playsInline = true;
+      video.controls = true;
+      video.autoplay = false;
+      video.muted = false;
+      video.style.display = "block";
+      video.style.maxWidth = "240px";
+      video.style.margin = "0 auto 8px auto";
+      video.style.borderRadius = "16px";
+      container.appendChild(video);
+      videoEl = video;
+    }
+
+    const tip = document.createElement("div");
+    tip.style.fontSize = "0.95rem";
+    tip.style.color = "#666";
+    tip.style.textAlign = "center";
+    tip.style.margin = "6px auto";
+    tip.textContent = "Tip: Play the short video, then we’ll continue!";
+    container.appendChild(tip);
+
+    const examples = Array.isArray(s.examples) ? s.examples : [];
+    if (examples.length) {
+      const exWrap = document.createElement("div");
+      exWrap.style.display = "flex";
+      exWrap.style.flexWrap = "wrap";
+      exWrap.style.justifyContent = "center";
+      exWrap.style.gap = "8px";
+      const palette = ["#81d4fa","#ffe082","#b9f6ca","#ffccbc","#d1c4e9","#c5e1a5","#ffecb3","#b3e5fc"];
+      examples.forEach((t, i) => {
+        const chip = document.createElement("div");
+        chip.style.background = palette[i % palette.length];
+        chip.style.padding = "8px 12px";
+        chip.style.borderRadius = "16px";
+        chip.style.fontWeight = "bold";
+        chip.textContent = t;
+        exWrap.appendChild(chip);
+      });
+      container.appendChild(exWrap);
+    }
+
+    tryShowNextButtonOrWait(() => {
+      const btn = document.createElement("button");
+      btn.className = "centered-next-btn";
+      btn.textContent = (idx < sessions.length - 1) ? "Next" : "Finish";
+      btn.onclick = () => {
+        if (idx < sessions.length - 1) { currentSession++; renderSession(currentSession); }
+        else { window.location.href = "/choose"; }
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  const playBtn = document.createElement("button");
+  playBtn.className = "play-btn-animated";
+  playBtn.textContent = "▶";
+  playBtn.onclick = () => {
+    playBtn.remove();
+    if (s.ttsText) speakWithLock(s.ttsText, showVideoAndExamples);
+    else showVideoAndExamples();
+  };
+  container.appendChild(playBtn);
+}
+
+
 
 // ==== Animals Session ====
 // Wenn du sie brauchst, eigene Funktion hier einfügen (siehe früherer Code).
@@ -1638,6 +3934,9 @@ window.finishDay = finishDay;
 
 // ==== Initialisierung & DEV-Dummy ====
 window.onload = async function () {
+  console.log("Current page:", getCurrentPage());
+  console.log("Current day:", getDayParam());
+
   const page = getCurrentPage();
 
   if (page === 'index') {

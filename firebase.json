@@ -7,20 +7,61 @@
       "**/node_modules/**"
     ],
     "rewrites": [
-      { "source": "/", "destination": "/index.html" },
-      { "source": "/choose", "destination": "/choose.html" },
-      { "source": "/day/**", "destination": "/day.html" },
-      { "source": "/stickerboard", "destination": "/stickerboard.html" },
-      { "source": "/puzzleboard", "destination": "/puzzleboard.html" },
-      { "source": "/gallery", "destination": "/gallery.html" },
-      { "source": "/parents", "destination": "/parents.html" },
-      { "source": "/thankyou", "destination": "/thankyou.html" },
-      { "source": "**", "destination": "/index.html" }
+      {
+        "source": "/",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/choose",
+        "destination": "/choose.html"
+      },
+      {
+        "source": "/day/**",
+        "destination": "/day.html"
+      },
+      {
+        "source": "/stickerboard",
+        "destination": "/stickerboard.html"
+      },
+      {
+        "source": "/puzzleboard",
+        "destination": "/puzzleboard.html"
+      },
+      {
+        "source": "/gallery",
+        "destination": "/gallery.html"
+      },
+      {
+        "source": "/parents",
+        "destination": "/parents.html"
+      },
+      {
+        "source": "/thankyou",
+        "destination": "/thankyou.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ]
   },
   "emulators": {
     "hosting": {
+      "host": "0.0.0.0",
       "port": 5000
-    }
+    },
+    "auth": {
+      "port": 9099
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "nam5",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }

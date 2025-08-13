@@ -7,184 +7,555 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Fredoka', sans-serif;
-      background: linear-gradient(120deg, #e0f7fa 0%, #ffe082 100%);
-      color: #222;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-    }
-    .faq-container {
-      background: #fffbe8ee;
-      border-radius: 28px;
-      box-shadow: 0 4px 32px #90caf980;
-      max-width: 720px;
-      margin: 48px auto 32px auto;
-      padding: 32px 22px 38px 22px;
-      border: 3px solid #fce67e;
-      position: relative;
-    }
-    .logo-row {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .logo-row img {
-      max-height: 82px;
-      margin-bottom: 10px;
-      filter: drop-shadow(0 2px 18px #ffd60080);
-    }
-    h1 {
-      text-align: center;
-      color: #337aff;
-      font-size: 2.35rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      margin-bottom: 14px;
-      margin-top: 0;
-    }
-    .faq-intro {
-      text-align: center;
-      color: #3e4575;
-      margin-bottom: 24px;
-      font-size: 1.14rem;
-      font-weight: 500;
-    }
-    .question {
-      font-weight: 700;
-      color: #1976d2;
-      margin-top: 1.5em;
-      font-size: 1.07em;
-      margin-bottom: 0.3em;
-    }
-    .answer {
-      margin-bottom: 1.15em;
-      color: #373939;
-      font-size: 1.05em;
-    }
-    .contact-box {
-      background: #e3f4fdcc;
-      border-radius: 18px;
-      padding: 20px 14px 18px 14px;
-      text-align: center;
-      margin-top: 28px;
-      font-size: 1.07em;
-      color: #2460a7;
-      box-shadow: 0 2px 10px #90caf980;
-      font-weight: 500;
-    }
-    a {
-      color: #1976d2;
-      text-decoration: underline;
-      font-weight: 700;
-      transition: color 0.15s;
-    }
-    a:hover {
-      color: #ff9800;
-    }
-    @media (max-width: 600px) {
-      .faq-container { padding: 14px 2vw 22px 2vw; }
-      h1 { font-size: 1.32rem; }
-      .logo-row img { max-height: 54px; }
-    }
+  font-family: 'Fredoka', sans-serif;
+  background: linear-gradient(120deg, #e0f7fa 0%, #ffe082 100%);
+  color: #222;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Elternbereich */
+.parent-panel {
+  background: #fffbe6;
+  border-radius: 24px;
+  box-shadow: 0 2px 18px #ffd54f55;
+  max-width: 720px;
+  margin: 40px auto 18px auto;
+  padding: 28px 20px 18px 20px;
+  border: 2.5px solid #ffe082;
+}
+
+/* Kind hinzufügen Formular */
+.add-child-form input[type="text"],
+.add-child-form input[type="number"] {
+  padding: 6px 10px;
+  margin-right: 6px;
+  border-radius: 7px;
+  border: 1.5px solid #fce67e;
+  font-size: 1.05em;
+  font-family: inherit;
+}
+.add-child-form button {
+  background: #00bfae;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 9px;
+  border: none;
+  padding: 8px 22px;
+  font-size: 1.06em;
+  margin-left: 3px;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.add-child-form button:hover { background: #1976d2; }
+
+/* Kinderliste */
+.children-list {
+  margin: 0 0 12px 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.children-list li {
+  margin: 6px 0;
+  font-size: 1.09em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e0f7faaa;
+  border-radius: 9px;
+  padding: 6px 12px;
+}
+.delete-child-btn {
+  background: #ffd54f;
+  color: #333;
+  border: none;
+  border-radius: 7px;
+  margin-left: 10px;
+  padding: 4px 10px;
+  font-size: 0.98em;
+  cursor: pointer;
+  transition: background 0.13s;
+}
+.delete-child-btn:hover { background: #ff8a65; color: #fff; }
+
+/* Abo-Box */
+.abo-box {
+  margin: 18px 0 12px 0;
+  text-align: center;
+  font-size: 1.08em;
+  color: #2460a7;
+  background: #e3f4fdcc;
+  border-radius: 18px;
+  padding: 16px 10px 14px 10px;
+  box-shadow: 0 2px 10px #90caf980;
+  font-weight: 500;
+}
+.cancel-abo-btn {
+  background: #e53935;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 9px;
+  border: none;
+  padding: 7px 19px;
+  margin-left: 16px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.13s;
+}
+.cancel-abo-btn:hover { background: #b71c1c; }
+
+/* Elternbereich-Buttons */
+.parent-btn-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-top: 24px;
+}
+.logout-btn {
+  background: linear-gradient(90deg, #fff82c 0%, #ffc46b 100%);
+  color: #8c4800;
+  border: 2.5px solid #fff7b3;
+  padding: 13px 28px;
+  font-size: 1.08em;
+  font-weight: bold;
+  border-radius: 18px;
+  box-shadow: 0 2px 18px #ffd54f38;
+  cursor: pointer;
+  margin-bottom: 5px;
+  transition: background 0.18s, color 0.16s, box-shadow 0.18s, transform 0.14s;
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: 0.04em;
+  width: 220px;
+}
+.logout-btn:hover, .logout-btn:focus {
+  background: linear-gradient(90deg, #ffe082 10%, #ffc46b 100%);
+  color: #442300;
+  box-shadow: 0 3px 18px #ffd54f77;
+  transform: scale(1.04) translateY(-1px);
+}
+.danger-btn, .small-danger-btn {
+  background: linear-gradient(90deg, #ff385c 0%, #ff6a00 80%);
+  color: #fff;
+  border: 2.5px solid #fff3;
+  font-weight: bold;
+  border-radius: 18px;
+  box-shadow: 0 2px 18px #ffd54f38;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.18s, color 0.16s, box-shadow 0.18s, transform 0.14s;
+  width: 220px;
+}
+.small-danger-btn {
+  font-size: 0.70em !important;
+  padding: 7px 10px !important;
+  border-radius: 14px !important;
+  margin-top: 8px;
+  width: 170px;        /* HIER Breite kleiner machen */
+  opacity: 0.87;
+  background: linear-gradient(90deg, #ff385c 0%, #ff6a00 80%);
+  color: #fff;
+  border: 2px solid #ffe0e0;
+  box-shadow: 0 2px 12px #ff386b44;
+  transition: background 0.18s, color 0.16s, box-shadow 0.18s, transform 0.14s;
+}
+.small-danger-btn:hover, .small-danger-btn:focus {
+  opacity: 1;
+  background: linear-gradient(90deg, #d32f2f 0%, #ff6a00 100%);
+  color: #fffbe8;
+  box-shadow: 0 2px 12px #ff386b88;
+  transform: scale(1.03);
+}
+
+/* FAQ */
+.faq-container {
+  background: #fffbe8ee;
+  border-radius: 28px;
+  box-shadow: 0 4px 32px #90caf980;
+  max-width: 720px;
+  margin: 48px auto 32px auto;
+  padding: 32px 22px 38px 22px;
+  border: 3px solid #fce67e;
+  position: relative;
+}
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 16px;
+}
+.faq-item {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px #e0e0e099;
+  padding: 20px 22px 18px 22px;
+  transition: box-shadow 0.17s, background 0.13s;
+  border-left: 7px solid #81d4fa;
+}
+.faq-item:hover {
+  box-shadow: 0 6px 18px #b3e5fc66;
+  background: #f5fcff;
+}
+.question {
+  font-weight: 800;
+  color: #1976d2;
+  font-size: 1.12em;
+  margin-bottom: 10px;
+  letter-spacing: -0.2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.answer {
+  color: #464646;
+  font-size: 1.05em;
+  line-height: 1.58;
+}
+.contact-box {
+  background: #e3f4fdcc;
+  border-radius: 18px;
+  padding: 20px 14px 18px 14px;
+  text-align: center;
+  margin-top: 28px;
+  font-size: 1.08em;
+  color: #2460a7;
+  box-shadow: 0 2px 10px #90caf980;
+  font-weight: 500;
+}
+
+/* Mobile Anpassungen */
+@media (max-width: 600px) {
+  .faq-container { padding: 14px 2vw 22px 2vw; }
+  h1 { font-size: 1.32rem; }
+  .faq-item { padding: 13px 10px; font-size: 0.98em; border-left-width: 4px; }
+  .faq-list { gap: 13px; }
+  .parent-panel { padding: 14px 4vw 14px 4vw;}
+}
   </style>
 </head>
 <body>
-  <div class="faq-container">
-    <div class="logo-row">
-      <!-- Optional: Dein Logo hier einfügen -->
-      <!-- <img src="images/Logo.png" alt="Coach Max Logo"> -->
-    </div>
-    <h1>Coach Max – FAQ for Parents</h1>
-    <div class="faq-intro">
-      Welcome to Coach Max! Here are answers to the most common questions from parents.  
-      If you need more help, we’re just an email away.
-    </div>
 
-    <!-- FAQ FRAGEN/ANTWORTEN -->
-    <div class="question">1. What is Coach Max?</div>
-    <div class="answer">
-      Coach Max is a joyful, interactive learning app created especially for young children and their families. Every day, your child meets our friendly animal coaches—Benny, Luna, and Momo—for fun, positive sessions in counting, memory, rhyming, stories, and more. Coach Max turns everyday learning into a safe, happy adventure!
-    </div>
-
-    <div class="question">2. How does the Premium subscription work?</div>
-    <div class="answer">
-      With Coach Max Premium, your child enjoys new learning adventures every day. For $9.99/month, you get unlimited access to all activities, rewards, and new sessions—no hidden fees or surprises. Your subscription renews automatically, but you can cancel any time, no questions asked.
-    </div>
-
-    <div class="question">3. How do daily unlocks work?</div>
-    <div class="answer">
-      Every morning at 6:00 AM, Coach Max unlocks a fresh set of 6 playful sessions for your child to explore. This helps keep learning exciting and supports a healthy, gentle daily routine. You don’t need to do anything—just open the app and start your day!
-    </div>
-
-    <div class="question">4. Do we have to play every day?</div>
-    <div class="answer">
-      Not at all! Coach Max is designed for real family life. If you miss a day, everything stays unlocked and ready to go. Your child can always catch up whenever you have time—no stress, just happy learning!
-    </div>
-
-    <div class="question">5. What happens if we miss a day?</div>
-    <div class="answer">
-      No worries! Nothing is ever lost or locked away. If your family takes a break, all previous days and activities stay available. Coach Max is about supporting your child’s curiosity at their own pace.
-    </div>
-
-    <div class="question">6. How do I cancel my subscription?</div>
-    <div class="answer">
-      You can cancel your subscription anytime—no hassle, no pressure. Just click the link in your Coach Max receipt email, or contact our friendly support team. Your child will still have full access until the end of the paid month.
-    </div>
-
-    <div class="question">7. Can I get a refund?</div>
-    <div class="answer">
-      We want you to be completely happy! If Coach Max isn’t a great fit, just contact us within 14 days of your first payment and we’ll provide a full refund—no questions asked.
-    </div>
-
-    <div class="question">8. How is my child’s data protected?</div>
-    <div class="answer">
-      Your child’s privacy and safety are our top priority. We do not collect any personal information from children, and we never share your data with third parties. All information stays 100% private and secure.
-    </div>
-
-    <div class="question">9. Is Coach Max ad-free and safe for children?</div>
-    <div class="answer">
-      Yes! Coach Max is always ad-free, child-safe, and designed for kids. No pop-ups, no outside links, and no in-app purchases—just pure, positive learning.
-    </div>
-
-    <div class="question">10. How do I contact support?</div>
-    <div class="answer">
-      We’re here to help! You can reach us anytime at <b>support@coachmax.com</b> or by using the contact form on our website. We answer all emails as quickly as possible, usually within 24 hours.
-    </div>
-
-    <div class="question">11. Can I try Coach Max before paying?</div>
-    <div class="answer">
-      Absolutely! Every family gets a free 7-day trial with full access to all activities—no payment needed up front. You can cancel during the trial at any time and you won’t be charged.
-    </div>
-
-    <div class="question">12. How does billing work after the free trial?</div>
-    <div class="answer">
-      After your 7-day free trial, your subscription will automatically begin at $9.99/month. We’ll send a reminder before your trial ends. You can cancel at any time—no hidden fees.
-    </div>
-
-    <div class="question">13. Are there any hidden fees?</div>
-    <div class="answer">
-      Never! Coach Max Premium is one simple monthly price—no extra costs, no ads, no surprises.
-    </div>
-
-    <div class="question">14. What devices can I use?</div>
-    <div class="answer">
-      Coach Max works on all modern devices—phones, tablets, and computers. For the best experience, we recommend using a recent iOS, Android, or Chrome browser.
-    </div>
-
-    <div class="question">15. Can siblings use the same account?</div>
-    <div class="answer">
-      Yes! Coach Max is made for families. All siblings can enjoy the daily adventures together using the same device and account.
-    </div>
-
-    <div class="contact-box">
-      Didn’t find your answer?<br>
-      Email us any time at <a href="mailto:support@coachmax.com">support@coachmax.com</a> – we’re always happy to help!
-    </div>
+<div class="parent-panel">
+  <h2>Parent Account & Data Management</h2>
+  <div id="parentAccountBox"></div>
+  <div id="aboBox" class="abo-box"></div>
+  <form class="add-child-form" style="text-align:center; margin-bottom:18px;" onsubmit="return false;">
+    <input id="childName" type="text" placeholder="Child's name" maxlength="20">
+    <input id="childAge" type="number" placeholder="Age" min="3" max="12" required style="width:64px;">
+    <button id="addChildBtn">Add Child</button>
+  </form>
+  <div id="childErrorBox" style="display:none;color:#b91c1c;font-weight:bold;background:#fee;padding:10px 18px;border-radius:9px;margin-bottom:10px;text-align:center;"></div>
+  <ul id="childrenList" class="children-list"></ul>
+  <div id="childDeleteConfirmBox" style="display:none;">
+    Really delete this child profile? This cannot be undone!<br>
+    <button id="confirmChildDeleteBtn">Yes, delete child</button>
+    <button id="cancelChildDeleteBtn">Cancel</button>
   </div>
-  <div style="text-align:center; margin-top:28px; color:#2460a7; font-size:1.07em;">
-  Ready to get started?<br>
-  <a href="/choose" style="background:#1976d2; color:#fff; font-size:1.13em; padding:12px 32px; border-radius:20px; font-weight:bold; text-decoration:none; box-shadow:0 2px 8px #90caf980; display:inline-block; margin-top:9px;">Back to Coach Max App</a>
+  <div class="parent-btn-row" style="flex-direction:column; gap:10px; align-items:center; margin-top:24px;">
+  <button id="logoutBtn" class="logout-btn" style="width:220px;">
+    <span style="margin-right:7px;">🚪</span> Logout
+  </button>
+  <button id="deleteAccountBtn" class="small-danger-btn">
+    <span style="margin-right:7px;">🗑️</span> Delete my account & all data
+  </button>
 </div>
   
+  <div id="deleteConfirmBox" style="display:none;">
+    Really delete everything? This cannot be undone!<br>
+    <button id="confirmDeleteBtn">Yes, delete everything</button>
+    <button id="cancelDeleteBtn">Cancel</button>
+  </div>
+
+
+<script type="module">
+function showChildError(msg) {
+  let box = document.getElementById('childErrorBox');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'childErrorBox';
+    box.style = "color:#b91c1c;font-weight:bold;background:#fee;padding:8px 18px;border-radius:9px;margin:12px 0;text-align:center;";
+    addChildBtn.parentNode.insertBefore(box, addChildBtn.nextSibling);
+  }
+  box.textContent = msg;
+  box.style.display = '';
+  setTimeout(() => { box.style.display = 'none'; }, 4000);
+}
+
+import { auth, db, onAuthStateChanged, deleteUser, signOut, doc, getDoc, getDocs, collection, setDoc, deleteDoc, addDoc, serverTimestamp } from "/js/firebase.js";
+
+let user = null, deleteChildId = null;
+
+const accountBox = document.getElementById('parentAccountBox');
+const aboBox = document.getElementById('aboBox');
+const childrenList = document.getElementById('childrenList');
+const addChildBtn = document.getElementById('addChildBtn');
+const childName = document.getElementById('childName');
+const childAge = document.getElementById('childAge');
+const deleteBtn = document.getElementById('deleteAccountBtn');
+const confirmBox = document.getElementById('deleteConfirmBox');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+const childDeleteConfirmBox = document.getElementById("childDeleteConfirmBox");
+const confirmChildDeleteBtn = document.getElementById("confirmChildDeleteBtn");
+const cancelChildDeleteBtn = document.getElementById("cancelChildDeleteBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+onAuthStateChanged(auth, async (u) => {
+  if (!u) {
+    accountBox.innerHTML = "<b>Please log in first to manage your data.</b>";
+    document.querySelector('.add-child-form').style.display = "none";
+    childrenList.innerHTML = "";
+    aboBox.innerHTML = "";
+    deleteBtn.style.display = "none";
+    logoutBtn.style.display = "none";
+    return;
+  }
+  user = u;
+  accountBox.innerHTML = `<b>Email:</b> ${user.email}`;
+  document.querySelector('.add-child-form').style.display = "";
+  deleteBtn.style.display = "";
+  logoutBtn.style.display = "";
+  await loadChildren();
+  await loadAbo();
+});
+
+async function loadChildren() {
+  childrenList.innerHTML = "";
+  if (!user) return;
+  const children = await getDocs(collection(db, "users", user.uid, "children"));
+  if (!children.empty) {
+    children.forEach(docSnap => {
+      const data = docSnap.data();
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${data.name} <span style="color:#888;font-size:0.98em;">(Age: ${data.age || "-"})</span></span>
+        <button class="delete-child-btn" data-childid="${docSnap.id}">Delete</button>`;
+      childrenList.appendChild(li);
+    });
+    document.querySelectorAll('.delete-child-btn').forEach(btn => {
+      btn.onclick = () => {
+        deleteChildId = btn.dataset.childid;
+        childDeleteConfirmBox.style.display = "";
+      };
+    });
+  } else {
+    childrenList.innerHTML = "<li style='text-align:center;color:#aaa;'>No children added yet.</li>";
+  }
+}
+
+addChildBtn.onclick = async () => {
+  const name = childName.value.trim();
+  const ageVal = childAge.value.trim();
+  const age = parseInt(ageVal);
+
+  if (!name && !ageVal) {
+    showChildError("Please enter your child’s name and age.");
+    return;
+  }
+  if (!name) {
+    showChildError("Please enter your child’s name.");
+    return;
+  }
+  if (!ageVal) {
+    showChildError("Please enter your child’s age (3-12).");
+    return;
+  }
+  if (isNaN(age) || age < 4 || age > 12) {
+    showChildError("Age must be between 4 and 12.");
+    return;
+  }
+
+  await addDoc(collection(db, "users", user.uid, "children"), {
+    name,
+    age,
+    createdAt: serverTimestamp()
+  });
+  childName.value = "";
+  childAge.value = "";
+  await loadChildren();
+};
+
+confirmChildDeleteBtn.onclick = async () => {
+  if (!user || !deleteChildId) return;
+  await deleteDoc(doc(db, "users", user.uid, "children", deleteChildId));
+  childDeleteConfirmBox.style.display = "none";
+  await loadChildren();
+};
+cancelChildDeleteBtn.onclick = () => {
+  childDeleteConfirmBox.style.display = "none";
+};
+
+async function loadAbo() {
+  if (!user) return;
+  const userDocRef = doc(db, "users", user.uid);
+  const userDocSnap = await getDoc(userDocRef);
+  let data = userDocSnap.exists() ? userDocSnap.data() : {};
+  const status = data.subscriptionStatus || "trial";
+  let trialEnd = data.trialEnds ? new Date(data.trialEnds).toLocaleDateString() : "-";
+  let statusText = (status === "active") ? "Premium (active)" : (status === "trial" ? "Trial (free)" : status);
+  aboBox.innerHTML = `<b>Subscription status:</b> ${statusText}` +
+    (status === "trial" && trialEnd !== "-" ? ` <span style="color:#888;">(trial ends: ${trialEnd})</span>` : "") +
+    ((status === "active" || status === "trial") ?
+      `<button id="cancelAboBtn" class="cancel-abo-btn">Cancel Subscription</button>` : "");
+  if (document.getElementById("cancelAboBtn")) {
+    document.getElementById("cancelAboBtn").onclick = cancelAbo;
+  }
+}
+async function cancelAbo() {
+  if (!user) return;
+  await setDoc(doc(db, "users", user.uid), { subscriptionStatus: "cancelled" }, { merge: true });
+  alert("Subscription cancelled. You will retain access until the end of your paid period.");
+  await loadAbo();
+}
+
+deleteBtn.onclick = () => { confirmBox.style.display = ""; };
+cancelDeleteBtn.onclick = () => { confirmBox.style.display = "none"; };
+confirmDeleteBtn.onclick = async () => {
+  if (!user) return;
+  // Alle Kinderprofile löschen
+  const children = await getDocs(collection(db, "users", user.uid, "children"));
+  for (const docSnap of children.docs) await deleteDoc(doc(db, "users", user.uid, "children", docSnap.id));
+  // User-Doc löschen
+  await deleteDoc(doc(db, "users", user.uid));
+  // Auth-Account löschen
+  await deleteUser(user);
+  alert("All data deleted. We're sorry to see you go.");
+  location.href = "/index";
+};
+
+logoutBtn.onclick = () => { signOut(auth).then(()=>location.href="/index"); };
+
+</script>
+
+
+
+
+<!-- FAQ Bereich -->
+<div class="faq-container">
+  <h1>Coach Max – FAQ for Parents</h1>
+  <div class="faq-intro">
+    Welcome to Coach Max! Below you’ll find the most frequently asked questions from parents.<br>
+    If you still need help, just send us an email anytime.
+  </div>
+  <div class="faq-list">
+
+    <div class="faq-item">
+      <div class="question">🐾 1. What is Coach Max?</div>
+      <div class="answer">
+        Coach Max is a joyful, interactive learning app made for young children and their families. Every day, your child meets our friendly animal coaches—Benny, Luna, and Momo—for fun, positive sessions in counting, memory, rhyming, stories, and more. Coach Max turns everyday learning into a safe, happy adventure!
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">⭐ 2. How does the Premium subscription work?</div>
+      <div class="answer">
+        With Coach Max Premium, your child enjoys new learning adventures every day. For $9.99/month, you get unlimited access to all activities, rewards, and new sessions—no hidden fees or surprises. Your subscription renews automatically, but you can cancel any time, no questions asked.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">⏰ 3. How do daily unlocks work?</div>
+      <div class="answer">
+        Every morning at 6:00 AM, Coach Max unlocks a fresh set of 6 playful sessions for your child to explore. This helps keep learning exciting and supports a gentle, positive daily routine. You don’t need to do anything—just open the app and start your day!
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">📆 4. Do we have to play every day?</div>
+      <div class="answer">
+        Not at all! Coach Max is designed for real family life. If you miss a day, everything stays unlocked and ready to go. Your child can always catch up whenever you have time—no stress, just happy learning!
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">🔄 5. What happens if we miss a day?</div>
+      <div class="answer">
+        No worries! Nothing is ever lost or locked away. If your family takes a break, all previous days and activities stay available. Coach Max is about supporting your child’s curiosity at their own pace.
+      </div>
+    </div>
+
+    <div class="faq-item">
+  <div class="question">6. How do I cancel my subscription?</div>
+  <div class="answer">
+    You can easily cancel your subscription anytime in the parent account area of Coach Max. Just log in, go to “Account & Data Management,” and click <b>Cancel Subscription</b> – it takes just a few seconds and you’ll keep access until the end of your paid period. <br><br>
+    Alternatively, you can reply to your Coach Max receipt email or contact our support team at <b>support@coachmax.com</b> and we’ll take care of it for you. No hassle, no pressure.
+  </div>
+</div>
+
+    <div class="faq-item">
+      <div class="question">💸 7. Can I get a refund?</div>
+      <div class="answer">
+        We want you to be completely happy! If Coach Max isn’t a great fit, just contact us within 14 days of your first payment and we’ll provide a full refund—no questions asked.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">🔒 8. How is my child’s data protected?</div>
+      <div class="answer">
+        Your child’s privacy and safety are our top priority. We do not collect any personal information from children, and we never share your data with third parties. All information stays 100% private and secure.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">👶 9. Is Coach Max ad-free and safe for children?</div>
+      <div class="answer">
+        Yes! Coach Max is always ad-free, child-safe, and designed for kids. No pop-ups, no outside links, and no in-app purchases—just pure, positive learning.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">📧 10. How do I contact support?</div>
+      <div class="answer">
+        We’re here to help! You can reach us anytime at <b>support@coachmax.com</b> or by using the contact form on our website. We answer all emails as quickly as possible, usually within 24 hours.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">🎁 11. Can I try Coach Max before paying?</div>
+      <div class="answer">
+        Absolutely! Every family gets a free 7-day trial with full access to all activities—no payment needed up front. You can cancel during the trial at any time and you won’t be charged.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">💳 12. How does billing work after the free trial?</div>
+      <div class="answer">
+        After your 7-day free trial, your subscription will automatically begin at $9.99/month. We’ll send a reminder before your trial ends. You can cancel at any time—no hidden fees.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">💵 13. Are there any hidden fees?</div>
+      <div class="answer">
+        Never! Coach Max Premium is one simple monthly price—no extra costs, no ads, no surprises.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">📱 14. What devices can I use?</div>
+      <div class="answer">
+        Coach Max works on all modern devices—phones, tablets, and computers. For the best experience, we recommend using a recent iOS, Android, or Chrome browser.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="question">👨‍👩‍👧‍👦 15. Can siblings use the same account?</div>
+      <div class="answer">
+        Yes! Coach Max is made for families. All siblings can enjoy the daily adventures together using the same device and account.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="contact-box">
+    Didn’t find your answer?<br>
+    Email us any time at <a href="mailto:support@coachmax.com">support@coachmax.com</a> – we’re always happy to help!
+  </div>
+</div>
+  
+
 </body>
 </html>

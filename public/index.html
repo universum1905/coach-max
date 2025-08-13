@@ -94,14 +94,115 @@
 
     <!-- START BUTTON -->
     <button id="letsStartBtn"
-      class="bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700 font-bold text-lg transition disabled:opacity-40 disabled:cursor-not-allowed"
-      disabled>
+      class="bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700 font-bold text-lg transition"
+    >
       🎬 Let’s Start!
     </button>
   </div>
 
+  <footer class="mt-8 mb-3 text-center text-blue-600 text-base font-semibold">
+    Questions? <a href="/parents" class="underline hover:text-orange-400 font-bold">See our FAQ for Parents</a>
+  </footer>
+  
+  <!-- Setup / Login Overlay -->
+<div id="setupOverlay" class="fixed inset-0 bg-white/95 flex flex-col items-center justify-center z-50 p-6 hidden">
+  <button onclick="document.getElementById('setupOverlay').classList.add('hidden');"
+    class="absolute top-3 right-4 text-2xl font-bold text-gray-400 hover:text-gray-800">×</button>
+  <h2 class="text-2xl font-bold mb-4">Parent Login</h2>
+  <input id="parentEmail" type="email" placeholder="Parent Email" class="mb-3 p-2 border rounded w-64">
+  <input id="parentPassword" type="password" placeholder="Password" class="mb-3 p-2 border rounded w-64">
+  <button id="loginBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-4 w-64">Register / Login</button>
+  
+  <!-- Fehlerbox für Login-Fehlermeldungen -->
+  <div id="errorBox" style="display:none;color:#b91c1c;font-weight:bold;background:#fee;padding:10px 22px;border-radius:9px;margin-bottom:18px;text-align:center;"></div>
+</div>
+
+  <!-- Firebase Funktionen -->
+  <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { doc, setDoc, getDoc, collection, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const setupOverlay = document.getElementById('setupOverlay');
+    const loginBtn = document.getElementById('loginBtn');
+    const addChildBtn = document.getElementById('addChildBtn');
+    const continueBtn = document.getElementById('continueBtn');
+    const childrenList = document.getElementById('childrenList');
+    const childSection = document.getElementById('childSection');
+
+    let currentUser = null;
+    let selectedChildId = null;
+
+    // === Login/Register ===
+    // Fehleranzeige
+// Fehler-Anzeige als Overlay/Box (kannst du später schöner machen)
+function showError(msg) {
+  const box = document.getElementById('errorBox');
+  if (box) {
+    box.textContent = msg;
+    box.style.display = '';
+    setTimeout(() => { box.style.display = 'none'; }, 4000);
+  }
+}
+
+loginBtn.onclick = async () => {
+  const email = document.getElementById('parentEmail').value.trim();
+  const password = document.getElementById('parentPassword').value.trim();
+
+  // Mindestanforderung prüfen
+  if (!email || !password) {
+    showError("Please enter both email & password.");
+    return;
+  }
+  if (password.length < 6) {
+    showError("Password must be at least 6 characters.");
+    return;
+  }
+
+  try {
+    // LOGIN versuchen
+    let userCred;
+    try {
+      userCred = await signInWithEmailAndPassword(auth, email, password);
+      currentUser = userCred.user;
+      // Erfolg! Weiterleiten auf Elternseite:
+      window.location.href = "/parents";
+    } catch (err) {
+      if (err.code === "auth/user-not-found") {
+        // REGISTRIEREN wenn User nicht existiert
+        userCred = await createUserWithEmailAndPassword(auth, email, password);
+        currentUser = userCred.user;
+        // Optional: User-Doc anlegen
+        await setDoc(doc(db, "users", currentUser.uid), {
+          subscriptionStatus: "trial",
+          trialEnds: Date.now() + 7 * 24 * 60 * 60 * 1000,
+          createdAt: serverTimestamp(),
+        });
+        // Erfolg! Weiterleiten auf Elternseite:
+        window.location.href = "/parents";
+      } else if (err.code === "auth/wrong-password") {
+        showError("Wrong password for this email address.");
+      } else if (err.code === "auth/invalid-email") {
+        showError("Please enter a valid email address.");
+      } else if (err.code === "auth/too-many-requests") {
+        showError("Too many requests. Please try again later.");
+      } else if (err.code === "auth/email-already-in-use") {
+        showError("This email is already registered. Please use another email or reset your password.");
+      } else {
+        showError("Login failed: " + (err.message || err.code));
+      }
+    }
+  } catch (e) {
+    showError("Unexpected error: " + (e.message || e.code));
+  }
+};
+
+ 
+ 
+  </script>
+  
   <script>
-    // Avatar Video Functions
+    // Avatar Video Functions & Start-Button
     function playAvatarVideo(name) {
       stopAllVideosExcept(`${name}Video`);
       const img = document.getElementById(`${name}Image`);
@@ -140,6 +241,7 @@
     const parentVideo = document.getElementById('parentIntroVideo');
     const letsStartBtn = document.getElementById('letsStartBtn');
     const parentVideoHint = document.getElementById('parentVideoHint');
+    const setupOverlay = document.getElementById('setupOverlay');
     parentVideo.addEventListener('play', () => stopAllVideosExcept('parentIntroVideo'));
     parentVideo.onended = function() {
       letsStartBtn.disabled = false;
@@ -150,191 +252,11 @@
       const vid = document.getElementById(vidId);
       if (vid) vid.addEventListener('play', () => stopAllVideosExcept(vidId));
     });
-  </script>
 
-  <footer class="mt-8 mb-3 text-center text-blue-600 text-base font-semibold">
-    Questions? <a href="/parents" class="underline hover:text-orange-400 font-bold">See our FAQ for Parents</a>
-  </footer>
-
-  <!-- Setup / Login Overlay -->
-  <div id="setupOverlay" class="fixed inset-0 bg-white/95 flex flex-col items-center justify-center z-50 hidden p-6">
-    <h2 class="text-2xl font-bold mb-4">Set up your account</h2>
-    <input id="parentEmail" type="email" placeholder="Parent Email" class="mb-3 p-2 border rounded w-64">
-    <input id="parentPassword" type="password" placeholder="Password" class="mb-3 p-2 border rounded w-64">
-    <button id="loginBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-6 w-64">Register / Login</button>
-    <h3 class="text-xl font-semibold mb-2">Children Profiles</h3>
-    <div id="childrenList" class="w-full max-w-md space-y-2 mb-3"></div>
-    <div class="flex space-x-2 mb-4">
-      <input id="childName" type="text" placeholder="New child's name" class="p-2 border rounded w-48">
-      <button id="addChildBtn" class="bg-green-500 text-white px-4 py-2 rounded">Add</button>
-    </div>
-    <button id="continueBtn" class="bg-purple-600 text-white px-6 py-2 rounded-full shadow w-64">Continue</button>
-  </div>
-
-  <!-- Firebase Funktionen -->
-  <script type="module">
-    import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, setDoc, getDocs, collection, doc, serverTimestamp } from "./js/firebase.js";
-
-    const setupOverlay = document.getElementById('setupOverlay');
-    const loginBtn = document.getElementById('loginBtn');
-    const addChildBtn = document.getElementById('addChildBtn');
-    const continueBtn = document.getElementById('continueBtn');
-    const childrenList = document.getElementById('childrenList');
-    const letsStartBtn = document.getElementById('letsStartBtn');
-
-    let selectedChildId = null;
-    letsStartBtn.onclick = () => { setupOverlay.classList.remove('hidden'); loadChildren(); };
-
-    loginBtn.onclick = async () => {
-      const email = document.getElementById('parentEmail').value;
-      const password = document.getElementById('parentPassword').value;
-      if (!email || !password) return alert("Please enter email & password");
-      try {
-        let user;
-        try {
-          user = (await signInWithEmailAndPassword(auth, email, password)).user;
-        } catch {
-          user = (await createUserWithEmailAndPassword(auth, email, password)).user;
-          await setDoc(doc(db, "users", user.uid), {
-            subscriptionStatus: "trial",
-            trialEnds: Date.now() + 7*24*60*60*1000,
-            createdAt: serverTimestamp()
-          });
-        }
-        alert("Logged in as " + user.email);
-        await loadChildren();
-      } catch (e) { alert(e.message); }
-    };
-
-    async function loadChildren() {
-      childrenList.innerHTML = "";
-      const user = auth.currentUser;
-      if (!user) return;
-      const snap = await getDocs(collection(db, "users", user.uid, "children"));
-      snap.forEach(docSnap => {
-        const child = docSnap.data();
-        const div = document.createElement("div");
-        div.textContent = child.name;
-        div.className = "p-2 border rounded cursor-pointer hover:bg-purple-100";
-        div.onclick = () => { selectedChildId = docSnap.id; highlightChild(div); };
-        childrenList.appendChild(div);
-      });
-    }
-
-    function highlightChild(selectedDiv) {
-      Array.from(childrenList.children).forEach(div => div.classList.remove("bg-purple-200"));
-      selectedDiv.classList.add("bg-purple-200");
-    }
-
-    addChildBtn.onclick = async () => {
-      const name = document.getElementById('childName').value;
-      const user = auth.currentUser;
-      if (!user || !name) return alert("Please enter a name and login");
-      const childId = Date.now().toString();
-      await setDoc(doc(db, "users", user.uid, "children", childId), { name, createdAt: serverTimestamp(), progress: {}, stickers: [] });
-      document.getElementById('childName').value = "";
-      await loadChildren();
-    };
-
-    continueBtn.onclick = () => {
-      if (!selectedChildId) return alert("Please select a child profile");
-      localStorage.setItem("activeChildId", selectedChildId);
-      window.location.href = '/choose';
+    // WICHTIG: Start-Button aktiviert Overlay
+    letsStartBtn.onclick = () => {
+      setupOverlay.classList.remove('hidden');
     };
   </script>
-
-  
-  <script type="module">
-import { auth, db } from "./js/firebase.js";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-// === Elemente ===
-const setupOverlay = document.getElementById('setupOverlay');
-const loginBtn = document.getElementById('loginBtn');
-const addChildBtn = document.getElementById('addChildBtn');
-const continueBtn = document.getElementById('continueBtn');
-const childrenList = document.getElementById('childrenList');
-
-let currentUser = null;
-let selectedChildId = null;
-
-// === Login/Register ===
-loginBtn.onclick = async () => {
-  const email = document.getElementById('parentEmail').value.trim();
-  const password = document.getElementById('parentPassword').value.trim();
-  if (!email || !password) return alert("Please enter email & password");
-  try {
-    let userCred;
-    try {
-      userCred = await signInWithEmailAndPassword(auth, email, password);
-    } catch {
-      // Registrierung + 7-Tage-Test
-      userCred = await createUserWithEmailAndPassword(auth, email, password);
-      await setDoc(doc(db, "users", userCred.user.uid), {
-        subscriptionStatus: "trial",
-        trialEnds: Date.now() + 7 * 24 * 60 * 60 * 1000,
-        createdAt: serverTimestamp()
-      });
-    }
-    currentUser = userCred.user;
-    alert("Welcome " + currentUser.email + "!");
-    await loadChildren();
-  } catch (e) {
-    alert("Error: " + e.message);
-  }
-};
-
-// === Lade Kinderprofile ===
-async function loadChildren() {
-  childrenList.innerHTML = "";
-  if (!currentUser) return;
-  const childCol = collection(db, "users", currentUser.uid, "children");
-  const snapshot = await getDocs(childCol);
-  snapshot.forEach(docSnap => {
-    const child = docSnap.data();
-    const div = document.createElement("div");
-    div.textContent = child.name;
-    div.className = "p-2 border rounded cursor-pointer hover:bg-purple-100";
-    div.onclick = () => { selectedChildId = docSnap.id; highlightChild(div); };
-    childrenList.appendChild(div);
-  });
-}
-
-function highlightChild(selectedDiv) {
-  Array.from(childrenList.children).forEach(div => div.classList.remove("bg-purple-200"));
-  selectedDiv.classList.add("bg-purple-200");
-}
-
-// === Neues Kind hinzufügen ===
-addChildBtn.onclick = async () => {
-  const name = document.getElementById('childName').value.trim();
-  if (!currentUser || !name) return alert("Please enter a name and login first");
-  const childDoc = await addDoc(collection(db, "users", currentUser.uid, "children"), {
-    name,
-    createdAt: serverTimestamp(),
-    completedDays: [],
-    stickers: [],
-    puzzlePieces: []
-  });
-  document.getElementById('childName').value = "";
-  await loadChildren();
-};
-
-// === Fortfahren ===
-continueBtn.onclick = () => {
-  if (!selectedChildId) return alert("Please select a child profile");
-  localStorage.setItem("activeChildId", selectedChildId);
-  window.location.href = '/choose';
-};
-
-// === Falls eingeloggt: Automatisch Kinder laden ===
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    currentUser = user;
-    await loadChildren();
-  }
-});
-</script>
 </body>
 </html>
