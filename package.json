@@ -11,7 +11,7 @@
     "lint:css:fix": "stylelint \"public/**/*.css\" --fix",
     "lint:html": "htmlhint \"public/**/*.html\"",
     "lint:all": "npm run lint:js && npm run lint:css && npm run lint:html",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "lint-staged": {
     "*.js": "eslint --fix",
