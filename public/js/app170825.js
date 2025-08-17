@@ -12,13 +12,13 @@ const db = getFirestore(app);
 /* ==== Globale Variablen ==== */
 let sessions = [];
 let currentSession = DEV_MODE ? DEV_START_SESSION : 0;
-
+let lastSessionIdx = 0;
 let textTimeouts = [];
 let currentDay = DEV_MODE ? DEV_DAY : getDayParam();
-
+let currentMusic = null;
 let sessionStartTime = 0;
 const minSessionDuration = 60 * 1000;
-
+let ttsUtterance = null;
 
 
 /* ==== Day-Parameter ==== */
@@ -44,8 +44,30 @@ function getDayParam() {
 const jsonURL = `days/day${currentDay}.json`;
 
 /* ==== KI/TTS-Limit ==== */
-
-
+function canUseTTS(sessionIndex) {
+  let key = `ttsUsed_day${currentDay}_session${sessionIndex}`;
+  let alreadyDone = localStorage.getItem(key);
+  let charCount = parseInt(localStorage.getItem(`ttsCharCount_day${currentDay}`) || "0");
+  if (alreadyDone || charCount >= 1000) return false;
+  return true;
+}
+function registerTTS(sessionIndex, text) {
+  let key = `ttsUsed_day${currentDay}_session${sessionIndex}`;
+  localStorage.setItem(key, "1");
+  let charCount = parseInt(localStorage.getItem(`ttsCharCount_day${currentDay}`) || "0");
+  charCount += text.length;
+  localStorage.setItem(`ttsCharCount_day${currentDay}`, charCount);
+}
+function speakText(text) {
+  if (!window.speechSynthesis) return;
+  if (window.ttsUtterance) window.speechSynthesis.cancel();
+  window.ttsUtterance = new SpeechSynthesisUtterance(text);
+  window.ttsUtterance.lang = "en-US";
+  window.ttsUtterance.pitch = 1.1;
+  window.ttsUtterance.rate = 1;
+  window.ttsUtterance.volume = 1;
+  window.speechSynthesis.speak(window.ttsUtterance);
+}
 
 
 
@@ -270,13 +292,138 @@ function renderSessionHeader(title) {
 
 /* ==== Haupt-Session-Renderer ==== */
 
+function renderSession12(idx) {
+  sessionStartTime = Date.now();
+  const s = sessions[idx];
+  lastSessionIdx = idx;
+  clearTimeouts();
+  stopAllSounds();
+  document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
 
+  const textArea = document.getElementById("sessionTextArea");
+  if (textArea) textArea.innerHTML = "";
+
+  renderSessionHeader(s.title || "");
+  renderFrogProgress(currentSession, currentSession, sessions.length);
+
+  const gameContainer = document.createElement("div");
+  gameContainer.id = "gameContainer";
+  Object.assign(gameContainer.style, {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    maxWidth: "370px",
+    margin: "0 auto",
+    position: "relative",
+    zIndex: "3"
+  });
+  textArea.appendChild(gameContainer);
+
+  // --- Intro & Story ---
+  if (s.type === "intro" || s.type === "story") {
+    renderFloatingVideo(s);
+    if (s.type === "intro") renderIntroSession(s, idx, gameContainer);
+    else renderStorySession(s, idx, gameContainer);
+    return;
+  }
+
+  // --- Alle anderen Sessions ---
+  renderFloatingVideo(s, () => {
+    if (
+      s.type === "counting" ||
+      s.type === "animals-quiz" ||
+      s.type === "rhyme" ||
+      s.type === "chatgpt-quiz" ||
+      s.type === "color-quiz" ||
+      s.type === "shadow"
+    ) {
+      renderUniversalQuizSession(s, idx, gameContainer);
+    }
+    else if (s.type === "sequence") renderSequenceSession(s, idx, gameContainer);
+    else if (s.type === "memory") renderMemoryField(s, idx, gameContainer);
+    else if (s.type === "drawing") renderDrawingSession(s, idx, gameContainer);
+    else if (s.type === "animals") renderAnimalsSession(s, idx, gameContainer);
+    else if (s.type === "tapmatch") renderTapMatchSession(s, idx, gameContainer);
+    else if (s.type === "reaction") renderReactionSession(s, idx, gameContainer);
+    else renderUnknownSession(s, idx, gameContainer);
+  });
+}
+
+function renderSession123(idx) {
+  sessionStartTime = Date.now();
+  const s = sessions[idx];
+  lastSessionIdx = idx;
+  clearTimeouts();
+  stopAllSounds();
+  document.querySelectorAll(".floating-video, .centered-next-btn, .animals-reward-container").forEach(el => el.remove());
+
+  const textArea = document.getElementById("sessionTextArea");
+  if (textArea) textArea.innerHTML = "";
+
+  renderSessionHeader(s.title || "");
+  renderFrogProgress(currentSession, currentSession, sessions.length);
+
+  const gameContainer = document.createElement("div");
+  gameContainer.id = "gameContainer";
+  Object.assign(gameContainer.style, {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    maxWidth: "370px",
+    margin: "0 auto",
+    position: "relative",
+    zIndex: "3"
+  });
+  textArea.appendChild(gameContainer);
+
+  // --- Intro & Story ---
+  if (s.type === "intro" || s.type === "story") {
+    renderFloatingVideo(s);
+    if (s.type === "intro") renderIntroSession(s, idx, gameContainer);
+    else renderStorySession(s, idx, gameContainer);
+    return;
+  }
+
+  // --- Drawing braucht KEIN renderFloatingVideo! ---
+  if (s.type === "drawing") {
+    renderDrawingSession(s, idx, gameContainer);
+    return;
+  }
+  if (s.type === "explain") {
+  renderExplainSession(s, idx, gameContainer);
+  return;
+}
+
+  // --- Alle anderen Sessions ---
+  renderFloatingVideo(s, () => {
+    if (
+      s.type === "counting" ||
+      s.type === "animals-quiz" ||
+      s.type === "rhyme" ||
+      s.type === "chatgpt-quiz" ||
+      s.type === "color-quiz" ||
+      s.type === "shadow"
+    ) {
+      renderUniversalQuizSession(s, idx, gameContainer);
+    }
+    else if (s.type === "sequence") renderSequenceSession(s, idx, gameContainer);
+    else if (s.type === "memory") renderMemoryField(s, idx, gameContainer);
+    else if (s.type === "animals") renderAnimalsSession(s, idx, gameContainer);
+    else if (s.type === "tapmatch") renderTapMatchSession(s, idx, gameContainer);
+    else if (s.type === "reaction") renderReactionSession(s, idx, gameContainer);
+	else renderUnknownSession(s, idx, gameContainer);
+  });
+}
 
 
 function renderSession(idx) {
   sessionStartTime = Date.now();
   const s = sessions[idx];
-  
+  lastSessionIdx = idx;
 
   clearTimeouts();
   stopAllSounds();
@@ -2033,7 +2180,7 @@ function renderStorySession(s, idx, container) {
   stopAllSounds();
   container.innerHTML = "";
 
-  
+  let sessionStarted = Date.now();
   let textFinished = false;
   let videoFinished = false;
 
@@ -2157,12 +2304,712 @@ function renderStorySession(s, idx, container) {
 }
 
 
+function renderDrawingSession1(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // --- CSS-in-JS für zentrierte Drawing-Session ---
+  if (!document.getElementById('drawing-session-css')) {
+    const style = document.createElement("style");
+    style.id = "drawing-session-css";
+    style.textContent = `
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Quicksand:wght@700&display=swap');
+body, html { margin:0; padding:0; width:100vw; }
+#main, .main, .container, .outer { box-sizing: border-box !important; margin:0 auto !important; width:100vw !important; padding:0 !important;}
+.drawing-root * { font-family: 'Comic Neue', 'Comic Sans MS', 'Quicksand', cursive !important; }
+.drawing-root { 
+  max-width: 370px;
+  margin: 32px auto 0 auto;
+  background: #fff9ef;
+  padding: 16px 12px 10px 12px;
+  border-radius: 28px;
+  box-shadow: 0 2px 16px #ffd54f33;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.drawing-h2 { font-size: 1.7em; font-weight: bold; text-align: center; margin-bottom: 14px; margin-top: 6px; }
+.drawing-tabs { display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; width: 100%; }
+.drawing-tab { flex: 1; padding: 12px 0; font-size: 1.13em; font-weight: bold; border-radius: 18px; border: 2px solid #ffd54f; cursor: pointer; transition: background .15s; background: #fff; color: #555; }
+.drawing-tab.active { background: #ffe082; color: #222; box-shadow: 0 3px 12px #ffd54f77; }
+.drawing-canvas-wrap { display: flex; justify-content: center; align-items: center; width: 100%; }
+.drawing-canvas { border: 3px solid #ffd54f; border-radius: 22px; background: #fff; margin-bottom: 18px; display: block; touch-action: none; box-shadow: 0 2px 10px #ffd54f44; }
+.drawing-tools { display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; width: 100%; }
+.drawing-toolbtn { font-size: 1.13em; padding: 8px 24px; border: none; border-radius: 14px; background: #e0f7fa; color: #1976d2; font-weight: bold; cursor: pointer; transition: background .12s;}
+.drawing-toolbtn.active { background: #1976d2; color: #fff; }
+.drawing-color-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 13px; }
+.drawing-colorbtn { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #ffd54f; box-shadow: 0 2px 6px #ffd54f66; cursor: pointer; outline: none; transition: box-shadow .12s; }
+.drawing-colorbtn.selected { box-shadow: 0 0 0 4px #81d4fa, 0 2px 6px #ffd54f66; }
+.drawing-size-row { display: flex; justify-content: center; margin-bottom: 10px; }
+.drawing-size-sel { padding: 6px 12px; font-size: 1em; border-radius: 12px; border: 2px solid #ffd54f; background: #fffbe6; }
+.drawing-btnrow { display: flex; justify-content: center; gap: 28px; margin-bottom: 3px; }
+.drawing-actionbtn { font-size: 1.13em; font-weight: bold; padding: 11px 30px; border: none; border-radius: 16px; cursor: pointer; transition: background .14s; box-shadow: 0 1px 8px #ffd54f66; }
+.drawing-actionbtn.clear { background: #e57373; color: #fff; }
+.drawing-actionbtn.done  { background: #81c784; color: #222; }
+@media (max-width: 480px) {
+  .drawing-root { max-width: 99vw; left: 50% !important; transform: translateX(-50%) !important; }
+  .drawing-canvas { width: 96vw !important; max-width: 96vw; height: 62vw !important; max-height: 68vw; }
+}
+.floating-video { position:fixed;right:18px;bottom:90px;width:160px;height:160px;border-radius:50%;overflow:hidden;z-index:12;
+  box-shadow:0 6px 32px #b2ebf2, 0 2px 24px #fbc02d; background:#fff;display:flex;align-items:center;justify-content:center;}
+.floating-video video { width:140px; height:140px; border-radius:50%; object-fit:contain; background:#eee; pointer-events:none; }
+.custom-play-btn { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg, #ffd54f 60%, #81d4fa 100%);display:flex;align-items:center;justify-content:center;
+  border:none;box-shadow:0 2px 8px #b3e5fc;z-index:45;cursor:pointer; }
+.custom-play-btn svg { width:36px;height:36px;fill:#383838; }
+@media (max-width:600px) {
+  .floating-video { width:110px; height:110px; right:6px; bottom:68px; }
+  .floating-video video { width:90px; height:90px; }
+  .custom-play-btn { width:54px;height:54px; }
+}
+`;
+    document.head.appendChild(style);
+  }
+
+  // --- Floating Video wie überall ---
+  if (s.video) {
+    document.querySelectorAll(".floating-video").forEach(el => el.remove());
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    const videoEl = document.createElement("video");
+    videoEl.src = s.video;
+    videoEl.playsInline = true;
+    videoEl.style.width = "100%";
+    videoEl.style.height = "100%";
+    videoBox.appendChild(videoEl);
+
+    // Play overlay
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>`;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = () => {
+      videoEl.play();
+      playBtn.style.display = "none";
+      videoEl.style.pointerEvents = "auto";
+    };
+    videoEl.addEventListener("play",  () => playBtn.style.display = "none");
+    videoEl.addEventListener("pause", () => playBtn.style.display = "");
+    videoEl.addEventListener("ended", () => {
+      videoBox.remove();
+      buildDrawingUI();
+    });
+
+    document.body.appendChild(videoBox);
+    return;
+  }
+
+  // --- Drawing UI ---
+  buildDrawingUI();
+
+  function buildDrawingUI() {
+    let mode = "free";
+    let tool = "brush";
+    let brushSize = 8;
+    let brushColor = "#1976d2";
+    let lastX = null, lastY = null;
+    let drawing = false;
+    let templateLoaded = false;
+
+    // Root-Wrapper
+    const root = document.createElement("div");
+    root.className = "drawing-root";
+    container.appendChild(root);
+
+    // Heading
+    const h2 = document.createElement("div");
+    h2.className = "drawing-h2";
+    h2.textContent = s.title || "Draw Something!";
+    root.appendChild(h2);
+
+    // Tabs
+    const tabs = document.createElement("div");
+    tabs.className = "drawing-tabs";
+    const freeBtn  = document.createElement("button");
+    freeBtn.className = "drawing-tab active";
+    freeBtn.innerHTML = "🖍️ Free Drawing";
+    const traceBtn = document.createElement("button");
+    traceBtn.className = "drawing-tab";
+    traceBtn.innerHTML = "✏️ Trace Template";
+    tabs.append(freeBtn, traceBtn);
+    root.appendChild(tabs);
+
+    // Canvas
+    const canvasWrap = document.createElement("div");
+    canvasWrap.className = "drawing-canvas-wrap";
+    root.appendChild(canvasWrap);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 320; canvas.height = 400;
+    canvas.className = "drawing-canvas";
+    canvas.style.width = "320px";
+    canvas.style.height = "400px";
+    canvasWrap.appendChild(canvas);
+
+    const ctx  = canvas.getContext("2d");
+    const buf  = document.createElement("canvas");
+    buf.width = canvas.width; buf.height = canvas.height;
+    const bctx = buf.getContext("2d");
+
+    // Tools Row
+    const toolRow = document.createElement("div");
+    toolRow.className = "drawing-tools";
+    root.appendChild(toolRow);
+    const brushBtn = document.createElement("button");
+    brushBtn.className = "drawing-toolbtn active";
+    brushBtn.innerHTML = "🖌️ Brush";
+    const fillBtn  = document.createElement("button");
+    fillBtn.className = "drawing-toolbtn";
+    fillBtn.innerHTML = "🪣 Fill";
+    toolRow.append(brushBtn, fillBtn);
+
+    // Color Row
+    const colorRow = document.createElement("div");
+    colorRow.className = "drawing-color-row";
+    const colors = ["#1976d2","#e53935","#43a047","#fbc02d","#ab47bc","#ffb300","#000","#fff"];
+    colors.forEach(c => {
+      const btn = document.createElement("button");
+      btn.className = "drawing-colorbtn";
+      btn.style.background = c;
+      if (brushColor === c) btn.classList.add("selected");
+      btn.onclick = () => {
+        brushColor = c;
+        colorRow.querySelectorAll("button").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+      };
+      colorRow.appendChild(btn);
+    });
+    root.appendChild(colorRow);
+
+    // Brush Size Row (Dropdown)
+    const sizeRow = document.createElement("div");
+    sizeRow.className = "drawing-size-row";
+    const sizeSel = document.createElement("select");
+    sizeSel.className = "drawing-size-sel";
+    [{label:"Thin",v:4},{label:"Medium",v:8},{label:"Thick",v:16}].forEach(opt => {
+      const o = document.createElement("option");
+      o.value = opt.v;
+      o.textContent = opt.label;
+      if (opt.v === brushSize) o.selected = true;
+      sizeSel.appendChild(o);
+    });
+    sizeSel.onchange = e => brushSize = +e.target.value;
+    sizeRow.appendChild(sizeSel);
+    root.appendChild(sizeRow);
+
+    // Buttons: Clear & Done
+    const btnRow = document.createElement("div");
+    btnRow.className = "drawing-btnrow";
+    const clearBtn = document.createElement("button");
+    clearBtn.className = "drawing-actionbtn clear";
+    clearBtn.textContent = "🗑️ Clear";
+    clearBtn.onclick = () => { bctx.clearRect(0,0,buf.width,buf.height); redraw(); };
+    const doneBtn = document.createElement("button");
+    doneBtn.className = "drawing-actionbtn done";
+    doneBtn.textContent = "✅ Done";
+    doneBtn.onclick = () => {
+      tryShowNextButtonOrWait(() => {
+        const nextBtn = document.createElement("button");
+        nextBtn.textContent = idx < sessions.length-1 ? "➡️ Next" : "🎉 Finish";
+        nextBtn.className = "centered-next-btn";
+        nextBtn.onclick = () => { currentSession++; renderSession(currentSession); };
+        document.body.append(nextBtn);
+      });
+    };
+    btnRow.append(clearBtn, doneBtn);
+    root.appendChild(btnRow);
+
+    // Zeichenlogik
+    drawing = false;
+    let templateImg = new Image();
+    
+    if (s.drawingTemplate) {
+      templateImg.onload = () => { templateLoaded = true; if (mode === "trace") redraw(); };
+      templateImg.src = s.drawingTemplate;
+    }
+
+    canvas.addEventListener("pointerdown", e => {
+      if (tool === "brush") {
+        drawing = true;
+        lastX = e.offsetX; lastY = e.offsetY;
+        bctx.beginPath();
+        bctx.moveTo(lastX, lastY);
+      } else if (tool === "fill") {
+        floodFill(Math.floor(e.offsetX), Math.floor(e.offsetY), brushColor);
+        redraw();
+      }
+    });
+    canvas.addEventListener("pointermove", e => {
+      if (!drawing) return;
+      bctx.lineCap = "round";
+      bctx.lineJoin = "round";
+      bctx.lineWidth = brushSize;
+      bctx.strokeStyle = brushColor;
+      bctx.lineTo(e.offsetX, e.offsetY);
+      bctx.stroke();
+      bctx.beginPath();
+      bctx.moveTo(e.offsetX, e.offsetY);
+      redraw();
+    });
+    ["pointerup","pointerleave"].forEach(ev =>
+      canvas.addEventListener(ev, () => {
+        if (drawing) {
+          bctx.closePath();
+          drawing = false;
+        }
+      })
+    );
+
+    // Tabs switching
+    freeBtn.onclick = () => switchMode("free");
+    traceBtn.onclick = () => switchMode("trace");
+    function switchMode(m) {
+      mode = m;
+      freeBtn.classList.toggle("active", m==="free");
+      traceBtn.classList.toggle("active", m==="trace");
+      if (m==="free") {
+        // Lösche alles beim Umschalten auf free!
+        bctx.clearRect(0,0,buf.width,buf.height);
+      }
+      redraw();
+    }
+
+    // Tool switching
+    brushBtn.onclick = () => {
+      tool = "brush";
+      brushBtn.classList.add("active");
+      fillBtn.classList.remove("active");
+    };
+    fillBtn.onclick = () => {
+      tool = "fill";
+      fillBtn.classList.add("active");
+      brushBtn.classList.remove("active");
+    };
+
+    function redraw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      if (mode==="trace" && templateLoaded) {
+        ctx.globalAlpha = 0.27;
+        ctx.drawImage(templateImg, 0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1;
+      }
+      ctx.drawImage(buf, 0, 0);
+    }
+
+    function floodFill(x, y, color) {
+      const w = buf.width, h = buf.height;
+      const img = bctx.getImageData(0,0,w,h), d = img.data;
+      const idx0 = (y*w + x)*4;
+      const orig = [d[idx0],d[idx0+1],d[idx0+2],d[idx0+3]];
+      const tgt  = hexToRgba(color);
+      if (orig[0]===tgt[0]&&orig[1]===tgt[1]&&orig[2]===tgt[2]) return;
+      const stack = [[x,y]];
+      while (stack.length) {
+        const [cx,cy] = stack.pop(), i = (cy*w+cx)*4;
+        if (i<0||i>=d.length) continue;
+        if (d[i]===orig[0]&&d[i+1]===orig[1]&&d[i+2]===orig[2]) {
+          d[i]=tgt[0]; d[i+1]=tgt[1]; d[i+2]=tgt[2];
+          stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+        }
+      }
+      bctx.putImageData(img,0,0);
+    }
+    function hexToRgba(h) {
+      const v = h.replace("#",""), a = [...v.match(/.{2}/g)].map(x=>parseInt(x,16));
+      return a.length === 3 ? [...a,255] : a;
+    }
+    // Initial
+    switchMode("free");
+  }
+}
 
 
 
 
+function renderDrawingSession12(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
 
-function renderDrawingSession(s, idx, container) {
+  // --- CSS-in-JS für zentrierte Drawing-Session + Letterbox ---
+  if (!document.getElementById('drawing-session-css')) {
+    const style = document.createElement("style");
+    style.id = "drawing-session-css";
+    style.textContent = `
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Quicksand:wght@700&display=swap');
+body, html { margin:0; padding:0; width:100vw; }
+.drawing-root * { font-family: 'Comic Neue', 'Comic Sans MS', 'Quicksand', cursive !important; }
+.drawing-root { 
+  max-width: 370px;
+  margin: 8px auto 0 auto;
+  background: #fff9ef;
+  padding: 8px 7px 7px 7px;
+  border-radius: 26px;
+  box-shadow: 0 2px 16px #ffd54f33;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.drawing-h2 { font-size: 1.7em; font-weight: bold; text-align: center; margin-bottom: 12px; margin-top: 2px; }
+.drawing-tabs { display: flex; justify-content: center; gap: 12px; margin-bottom: 15px; width: 100%; }
+.drawing-tab { flex: 1; padding: 12px 0; font-size: 1.13em; font-weight: bold; border-radius: 18px; border: 2px solid #ffd54f; cursor: pointer; transition: background .15s; background: #fff; color: #555; }
+.drawing-tab.active { background: #ffe082; color: #222; box-shadow: 0 3px 12px #ffd54f77; }
+.drawing-canvas-wrap { display: flex; justify-content: center; align-items: center; width: 100%; }
+.drawing-canvas { border: 3px solid #ffd54f; border-radius: 22px; background: #fff; margin-bottom: 13px; display: block; touch-action: none; box-shadow: 0 2px 10px #ffd54f44; }
+.drawing-tools { display: flex; justify-content: center; gap: 12px; margin-bottom: 10px; width: 100%; }
+.drawing-toolbtn { font-size: 1.13em; padding: 8px 24px; border: none; border-radius: 14px; background: #e0f7fa; color: #1976d2; font-weight: bold; cursor: pointer; transition: background .12s;}
+.drawing-toolbtn.active { background: #1976d2; color: #fff; }
+.drawing-color-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 11px; }
+.drawing-colorbtn { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #ffd54f; box-shadow: 0 2px 6px #ffd54f66; cursor: pointer; outline: none; transition: box-shadow .12s; }
+.drawing-colorbtn.selected { box-shadow: 0 0 0 4px #81d4fa, 0 2px 6px #ffd54f66; }
+.drawing-size-row { display: flex; justify-content: center; margin-bottom: 7px; }
+.drawing-size-sel { padding: 6px 12px; font-size: 1em; border-radius: 12px; border: 2px solid #ffd54f; background: #fffbe6; }
+.drawing-btnrow { display: flex; justify-content: center; gap: 28px; margin-bottom: 3px; }
+.drawing-actionbtn { font-size: 1.13em; font-weight: bold; padding: 11px 30px; border: none; border-radius: 16px; cursor: pointer; transition: background .14s; box-shadow: 0 1px 8px #ffd54f66; }
+.drawing-actionbtn.clear { background: #e57373; color: #fff; }
+.drawing-actionbtn.done  { background: #81c784; color: #222; }
+@media (max-width: 480px) {
+  .drawing-root { max-width: 99vw; left: 50% !important; transform: translateX(-50%) !important; }
+  .drawing-canvas { width: 96vw !important; max-width: 96vw; height: 62vw !important; max-height: 68vw; }
+}
+.floating-video { position:fixed;right:18px;bottom:90px;width:160px;height:160px;border-radius:50%;overflow:hidden;z-index:12;
+  box-shadow:0 6px 32px #b2ebf2, 0 2px 24px #fbc02d; background:#fff;display:flex;align-items:center;justify-content:center;}
+.floating-video video { width:140px; height:140px; border-radius:50%; object-fit:contain; background:#eee; pointer-events:none; }
+.custom-play-btn { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg, #ffd54f 60%, #81d4fa 100%);display:flex;align-items:center;justify-content:center;
+  border:none;box-shadow:0 2px 8px #b3e5fc;z-index:45;cursor:pointer; }
+.custom-play-btn svg { width:36px;height:36px;fill:#383838; }
+@media (max-width:600px) {
+  .floating-video { width:110px; height:110px; right:6px; bottom:68px; }
+  .floating-video video { width:90px; height:90px; }
+  .custom-play-btn { width:54px;height:54px; }
+}
+`;
+    document.head.appendChild(style);
+  }
+
+  // --- Floating Video wie überall ---
+  if (s.video) {
+    document.querySelectorAll(".floating-video").forEach(el => el.remove());
+    const videoBox = document.createElement("div");
+    videoBox.className = "floating-video";
+    const videoEl = document.createElement("video");
+    videoEl.src = s.video;
+    videoEl.playsInline = true;
+    videoEl.style.width = "100%";
+    videoEl.style.height = "100%";
+    videoBox.appendChild(videoEl);
+
+    // Play overlay
+    const playBtn = document.createElement("button");
+    playBtn.className = "custom-play-btn";
+    playBtn.innerHTML = `
+      <svg viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="28" fill="none"/>
+        <polygon points="22,16 46,30 22,44" fill="#383838"/>
+      </svg>`;
+    videoBox.appendChild(playBtn);
+
+    playBtn.onclick = () => {
+      videoEl.play();
+      playBtn.style.display = "none";
+      videoEl.style.pointerEvents = "auto";
+    };
+    videoEl.addEventListener("play",  () => playBtn.style.display = "none");
+    videoEl.addEventListener("pause", () => playBtn.style.display = "");
+    videoEl.addEventListener("ended", () => {
+      videoBox.remove();
+      buildDrawingUI();
+    });
+
+    document.body.appendChild(videoBox);
+    return;
+  }
+
+  // --- Drawing UI ---
+  buildDrawingUI();
+
+  function buildDrawingUI() {
+    let mode = "free";
+    let tool = "brush";
+    let brushSize = 8;
+    let brushColor = "#1976d2";
+    let lastX = null, lastY = null;
+    let drawing = false;
+    let templateLoaded = false;
+    let templateImg = new Image();
+    let templateBox = { x: 0, y: 0, w: 0, h: 0 };
+
+    // Root-Wrapper
+    const root = document.createElement("div");
+    root.className = "drawing-root";
+    container.appendChild(root);
+
+    // Heading
+    const h2 = document.createElement("div");
+    h2.className = "drawing-h2";
+    h2.textContent = s.title || "Draw Something!";
+    root.appendChild(h2);
+
+    // Tabs
+    const tabs = document.createElement("div");
+    tabs.className = "drawing-tabs";
+    const freeBtn  = document.createElement("button");
+    freeBtn.className = "drawing-tab active";
+    freeBtn.innerHTML = "🖍️ Free Drawing";
+    const traceBtn = document.createElement("button");
+    traceBtn.className = "drawing-tab";
+    traceBtn.innerHTML = "✏️ Trace Template";
+    tabs.append(freeBtn, traceBtn);
+    root.appendChild(tabs);
+
+    // Canvas
+    const canvasWrap = document.createElement("div");
+    canvasWrap.className = "drawing-canvas-wrap";
+    root.appendChild(canvasWrap);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 320; canvas.height = 400;
+    canvas.className = "drawing-canvas";
+    canvas.style.width = "320px";
+    canvas.style.height = "400px";
+    canvasWrap.appendChild(canvas);
+
+    const ctx  = canvas.getContext("2d");
+    const buf  = document.createElement("canvas");
+    buf.width = canvas.width; buf.height = canvas.height;
+    const bctx = buf.getContext("2d");
+
+    // Tools Row
+    const toolRow = document.createElement("div");
+    toolRow.className = "drawing-tools";
+    root.appendChild(toolRow);
+    const brushBtn = document.createElement("button");
+    brushBtn.className = "drawing-toolbtn active";
+    brushBtn.innerHTML = "🖌️ Brush";
+    const fillBtn  = document.createElement("button");
+    fillBtn.className = "drawing-toolbtn";
+    fillBtn.innerHTML = "🪣 Fill";
+    toolRow.append(brushBtn, fillBtn);
+
+    // Color Row
+    const colorRow = document.createElement("div");
+    colorRow.className = "drawing-color-row";
+    const colors = ["#1976d2","#e53935","#43a047","#fbc02d","#ab47bc","#ffb300","#000","#fff"];
+    colors.forEach(c => {
+      const btn = document.createElement("button");
+      btn.className = "drawing-colorbtn";
+      btn.style.background = c;
+      if (brushColor === c) btn.classList.add("selected");
+      btn.onclick = () => {
+        brushColor = c;
+        colorRow.querySelectorAll("button").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+      };
+      colorRow.appendChild(btn);
+    });
+    root.appendChild(colorRow);
+
+    // Brush Size Row (Dropdown)
+    const sizeRow = document.createElement("div");
+    sizeRow.className = "drawing-size-row";
+    const sizeSel = document.createElement("select");
+    sizeSel.className = "drawing-size-sel";
+    [{label:"Thin",v:4},{label:"Medium",v:8},{label:"Thick",v:16}].forEach(opt => {
+      const o = document.createElement("option");
+      o.value = opt.v;
+      o.textContent = opt.label;
+      if (opt.v === brushSize) o.selected = true;
+      sizeSel.appendChild(o);
+    });
+    sizeSel.onchange = e => brushSize = +e.target.value;
+    sizeRow.appendChild(sizeSel);
+    root.appendChild(sizeRow);
+
+    // Buttons: Clear & Done
+    const btnRow = document.createElement("div");
+    btnRow.className = "drawing-btnrow";
+    const clearBtn = document.createElement("button");
+    clearBtn.className = "drawing-actionbtn clear";
+    clearBtn.textContent = "🗑️ Clear";
+    clearBtn.onclick = () => { bctx.clearRect(0,0,buf.width,buf.height); redraw(); };
+    const doneBtn = document.createElement("button");
+    doneBtn.className = "drawing-actionbtn done";
+    doneBtn.textContent = "✅ Done";
+    doneBtn.onclick = () => {
+      tryShowNextButtonOrWait(() => {
+        const nextBtn = document.createElement("button");
+        nextBtn.textContent = idx < sessions.length-1 ? "➡️ Next" : "🎉 Finish";
+        nextBtn.className = "centered-next-btn";
+        nextBtn.onclick = () => { currentSession++; renderSession(currentSession); };
+        document.body.append(nextBtn);
+      });
+    };
+    btnRow.append(clearBtn, doneBtn);
+    root.appendChild(btnRow);
+
+    // Zeichenlogik & Template
+    drawing = false;
+
+    // --- Template letterboxed einpassen ---
+    if (s.drawingTemplate) {
+      templateImg.onload = () => {
+        templateLoaded = true;
+        templateBox = getLetterboxBox(templateImg, canvas);
+        if (mode === "trace") redraw();
+      };
+      templateImg.src = s.drawingTemplate;
+    }
+
+    function getLetterboxBox(img, c) {
+      const iw = img.width, ih = img.height;
+      const cw = c.width, ch = c.height;
+      const ir = iw/ih, cr = cw/ch;
+      let dw, dh, dx, dy;
+      if (ir > cr) {
+        dw = cw;
+        dh = cw / ir;
+        dx = 0;
+        dy = (ch - dh) / 2;
+      } else {
+        dh = ch;
+        dw = ch * ir;
+        dy = 0;
+        dx = (cw - dw) / 2;
+      }
+      return {x:dx, y:dy, w:dw, h:dh};
+    }
+
+    // Für Touch UND Maus!
+    function getPointer(e) {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches && e.touches.length) {
+        return {
+          x: (e.touches[0].clientX - rect.left) * (canvas.width / rect.width),
+          y: (e.touches[0].clientY - rect.top) * (canvas.height / rect.height)
+        };
+      } else {
+        return {
+          x: (e.clientX - rect.left) * (canvas.width / rect.width),
+          y: (e.clientY - rect.top)  * (canvas.height / rect.height)
+        };
+      }
+    }
+
+    canvas.addEventListener("pointerdown", e => {
+      const {x, y} = getPointer(e);
+      if (tool === "brush") {
+        drawing = true;
+        lastX = x; lastY = y;
+        bctx.beginPath();
+        bctx.moveTo(lastX, lastY);
+      } else if (tool === "fill") {
+        floodFill(Math.floor(x), Math.floor(y), brushColor);
+        redraw();
+      }
+    });
+    canvas.addEventListener("pointermove", e => {
+      if (!drawing) return;
+      const {x, y} = getPointer(e);
+      bctx.lineCap = "round";
+      bctx.lineJoin = "round";
+      bctx.lineWidth = brushSize;
+      bctx.strokeStyle = brushColor;
+      bctx.lineTo(x, y);
+      bctx.stroke();
+      bctx.beginPath();
+      bctx.moveTo(x, y);
+      redraw();
+    });
+    ["pointerup","pointerleave"].forEach(ev =>
+      canvas.addEventListener(ev, () => {
+        if (drawing) {
+          bctx.closePath();
+          drawing = false;
+        }
+      })
+    );
+
+    // Tabs switching (löscht IMMER das Canvas)
+    freeBtn.onclick = () => switchMode("free");
+    traceBtn.onclick = () => switchMode("trace");
+    function switchMode(m) {
+      mode = m;
+      freeBtn.classList.toggle("active", m==="free");
+      traceBtn.classList.toggle("active", m==="trace");
+      // Immer beim Umschalten alles löschen!
+      bctx.clearRect(0,0,buf.width,buf.height);
+      redraw();
+    }
+
+    // Tool switching
+    brushBtn.onclick = () => {
+      tool = "brush";
+      brushBtn.classList.add("active");
+      fillBtn.classList.remove("active");
+    };
+    fillBtn.onclick = () => {
+      tool = "fill";
+      fillBtn.classList.add("active");
+      brushBtn.classList.remove("active");
+    };
+
+    // --- Letterbox-Template im Canvas korrekt einpassen ---
+    function redraw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      if (mode==="trace" && templateLoaded) {
+        ctx.globalAlpha = 0.27;
+        ctx.drawImage(templateImg, templateBox.x, templateBox.y, templateBox.w, templateBox.h);
+        ctx.globalAlpha = 1;
+      }
+      ctx.drawImage(buf, 0, 0);
+    }
+
+    // Flood Fill wie gehabt
+    function floodFill(x, y, color) {
+      const w = buf.width, h = buf.height;
+      const img = bctx.getImageData(0,0,w,h), d = img.data;
+      const idx0 = (y*w + x)*4;
+      const orig = [d[idx0],d[idx0+1],d[idx0+2],d[idx0+3]];
+      const tgt  = hexToRgba(color);
+      if (orig[0]===tgt[0]&&orig[1]===tgt[1]&&orig[2]===tgt[2]) return;
+      const stack = [[x,y]];
+      while (stack.length) {
+        const [cx,cy] = stack.pop(), i = (cy*w+cx)*4;
+        if (i<0||i>=d.length) continue;
+        if (d[i]===orig[0]&&d[i+1]===orig[1]&&d[i+2]===orig[2]) {
+         d[i]=tgt[0]; d[i+1]=tgt[1]; d[i+2]=tgt[2];
+          stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+        }
+      }
+      bctx.putImageData(img,0,0);
+    }
+    function hexToRgba(h) {
+      const v = h.replace("#",""), a = [...v.match(/.{2}/g)].map(x=>parseInt(x,16));
+      return a.length === 3 ? [...a,255] : a;
+    }
+    // Initial
+    switchMode("free");
+  }
+} 
+
+
+
+function renderDrawingSession123(s, idx, container) {
   clearTimeouts();
   stopAllSounds();
   container.innerHTML = "";
@@ -2404,6 +3251,130 @@ body, html { margin:0; padding:0; width:100vw; }
 
 
 
+function renderExplainSession1(s, idx, container) {
+  clearTimeouts();
+  stopAllSounds();
+  container.innerHTML = "";
+
+  // Universal Spinner entfernen
+  document.querySelectorAll(".universal-spinner").forEach(el => el.remove());
+
+  // Überschrift / Titel
+  const header = document.createElement("div");
+  header.className = "quiz-question";
+  header.textContent = s.title || "Let's learn something new!";
+  container.appendChild(header);
+
+  // Helfer: aktiven Kindernamen für TTS einsetzen
+  const childName = (localStorage.getItem("activeChildName") || "").trim() || "buddy";
+  const personalize = (txt) =>
+    (txt || "").replaceAll("{childName}", childName).replaceAll("{ChildName}", childName);
+
+  // Video-Box (zentriert, oben)
+  let videoEl = null;
+  const hasVideo = !s.reminder && s.video;
+  if (hasVideo) {
+    const videoWrap = document.createElement("div");
+    videoWrap.className = "explain-video-wrap";
+    const video = document.createElement("video");
+    video.src = (s.video.startsWith("videos/") ? s.video : "videos/" + s.video);
+    video.playsInline = true;
+    video.controls = true;        // Eltern können pausieren
+    video.autoplay = false;       // Autoplay ist mobil oft geblockt
+    video.muted = false;
+    video.className = "explain-video";
+    videoWrap.appendChild(video);
+    container.appendChild(videoWrap);
+    videoEl = video;
+  }
+
+  // Beispiele unten als Chips
+  const examples = Array.isArray(s.examples) ? s.examples : [];
+  if (examples.length) {
+    const exWrap = document.createElement("div");
+    exWrap.className = "explain-examples";
+    examples.forEach((t) => {
+      const chip = document.createElement("div");
+      chip.className = "explain-chip";
+      chip.textContent = t;
+      exWrap.appendChild(chip);
+    });
+    container.appendChild(exWrap);
+  }
+
+  // TTS-Logik: Buttons während TTS sperren
+  function setDisabled(disabled) {
+    container.querySelectorAll("button, video").forEach(el => {
+      if (el.tagName === "VIDEO") {
+        el.controls = !disabled;  // Video bleibt bedienbar, aber wir sperren sonst nichts Hartes
+      } else {
+        el.disabled = disabled;
+        el.style.opacity = disabled ? "0.6" : "1";
+      }
+    });
+  }
+  function speakWithLock(text, cb) {
+    if (!text) return cb && cb();
+    setDisabled(true);
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch(e){}
+    const u = new SpeechSynthesisUtterance(personalize(text));
+    u.lang = "en-US";
+    u.rate = 1;
+    u.pitch = 1.05;
+    u.onend = () => { setDisabled(false); cb && cb(); };
+    try { window.speechSynthesis.speak(u); } catch(e){ setDisabled(false); cb && cb(); }
+  }
+
+  // "Listen again" Button (nur wenn TTS-Text vorhanden)
+  let listenBtn = null;
+  if (s.ttsText) {
+    listenBtn = document.createElement("button");
+    listenBtn.className = "animal-listen-btn";
+    listenBtn.style.marginTop = "10px";
+    listenBtn.innerHTML = "🔊 Listen again";
+    listenBtn.onclick = () => speakWithLock(s.ttsText);
+    container.appendChild(listenBtn);
+  }
+
+  // Ablauf:
+  // - Falls Video existiert: erst Video ansehen, dann personalisiertes TTS
+  // - Falls Reminder: sofort TTS
+  function showNextBtn() {
+    tryShowNextButtonOrWait(() => {
+      const btn = document.createElement("button");
+      btn.className = "centered-next-btn";
+      btn.textContent = (idx < sessions.length - 1) ? "Next" : "Finish";
+      btn.onclick = () => {
+        if (idx < sessions.length - 1) { currentSession++; renderSession(currentSession); }
+        else { window.location.href = "/choose"; }
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  if (hasVideo && videoEl) {
+    // Start-Hinweis, optional TTS vor dem Video?
+    // Wir spielen TTS NACH dem Video, damit die Erklärung zusammenpasst.
+    videoEl.addEventListener("ended", () => {
+      if (s.ttsText) speakWithLock(s.ttsText, showNextBtn);
+      else showNextBtn();
+    }, { once: true });
+
+    // Falls Nutzer gar nicht abspielt → kleiner Hinweis
+    const hint = document.createElement("div");
+    hint.style.fontSize = "0.95rem";
+    hint.style.color = "#666";
+    hint.style.textAlign = "center";
+    hint.style.marginTop = "6px";
+    hint.textContent = "Tip: Play the short video, then we'll continue!";
+    container.appendChild(hint);
+  } else {
+    // Reminder-Variante: nur TTS/Text
+    if (s.ttsText) speakWithLock(s.ttsText, showNextBtn);
+    else showNextBtn();
+  }
+}
+
 
 function renderExplainSession(s, idx, container) { 
   console.log("renderExplainSession aufgerufen - ohne Wartungs-Overlay!");
@@ -2482,7 +3453,7 @@ function renderExplainSession(s, idx, container) {
 
   function showVideoAndExamples() {
     const hasVideo = !s.reminder && s.video;
-    
+    let videoEl = null;
     if (hasVideo) {
       const video = document.createElement("video");
       video.src = (s.video.startsWith("videos/") ? s.video : "videos/" + s.video);
@@ -2495,7 +3466,7 @@ function renderExplainSession(s, idx, container) {
       video.style.margin = "0 auto 8px auto";
       video.style.borderRadius = "16px";
       container.appendChild(video);
-      
+      videoEl = video;
     }
 
     const tip = document.createElement("div");
@@ -2551,7 +3522,7 @@ function renderExplainSession(s, idx, container) {
 
 
 /* Temporary stubs to satisfy linter – implement later */
-
+function renderDrawingSession() { /* no-op */ }
 function renderAnimalsSession() { /* no-op */ }
 
 
@@ -2848,9 +3819,22 @@ function showUniversalSpinner(container, ms = 3000, text = "Checking…", cb = n
 }
 
 // ==== Helper für Feedback (optional universal, je nach Bedarf) ====
-
-
-
+function showAnswerFeedback(container, text, color = "#219821", duration = 3000, callback = null) {
+  container.querySelectorAll('.quiz-feedback').forEach(fb => fb.remove());
+  const feedback = document.createElement("div");
+  feedback.className = "quiz-feedback";
+  feedback.innerText = text;
+  feedback.style.color = color;
+  feedback.style.marginTop = "12px";
+  const spinner = document.createElement('div');
+  spinner.className = "wait-spinner";
+  feedback.appendChild(spinner);
+  container.appendChild(feedback);
+  setTimeout(() => {
+    feedback.remove();
+    if (typeof callback === "function") callback();
+  }, duration);
+}
 
 // ==== Fallback: Tag abschließen (für DEV & LIVE) ====
 async function finishDay(stickers = [], puzzlePieces = []) {

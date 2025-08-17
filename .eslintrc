@@ -1,0 +1,35 @@
+{
+  "root": true,
+  "env": { "browser": true, "node": true, "es2022": true },
+  "extends": [
+    "eslint:recommended",
+    "plugin:json/recommended",
+    "plugin:markdown/recommended",
+    "plugin:import/recommended",
+    "prettier"
+  ],
+  "plugins": ["import"],
+  "overrides": [
+    {
+      "files": ["**/*.md"],
+      "rules": {
+        "markdown/no-multiple-h1": "off",
+        "markdown/heading-increment": "warn",
+        "markdown/no-missing-label-refs": "off"
+      }
+    },
+    {
+      "files": ["**/*.json"],
+      "rules": { "json/*": "error" }
+    },
+    {
+      "files": ["**/*.js", "**/*.mjs"],
+      "rules": {
+        "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+        "no-empty": ["warn", { "allowEmptyCatch": true }],
+        "no-dupe-else-if": "error",
+        "no-undef": "error"
+      }
+    }
+  ]
+}

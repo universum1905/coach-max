@@ -33,7 +33,7 @@ const firebaseConfig = {
   messagingSenderId: "156803412822",
   appId: "1:156803412822:web:4ce6340bde758ab3bfdcf7",
   measurementId: "G-C5J92W6SSS"
-};
+  };
 
 // === Initialisierung ===
 export const app = initializeApp(firebaseConfig);
@@ -43,8 +43,8 @@ export const db = getFirestore(app);
 
 // === Emulator nur lokal aktivieren ===
 if (location.hostname === "localhost") {
-  connectAuthEmulator(auth, "http://localhost:9099");
-  connectFirestoreEmulator(db, "localhost", 8080);
+  connectAuthEmulator(auth, "http://localhost:4002");
+  connectFirestoreEmulator(db, "localhost", 4001);
 }
 
 // === Exporte für alle Seiten (Auth & Firestore) ===

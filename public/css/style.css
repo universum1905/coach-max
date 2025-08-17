@@ -15,10 +15,12 @@ html, body {
     transform: scale(1) rotate(-2deg) ;
     box-shadow: 0 2px 22px #ffd54f99, 0 0 18px #fffde4;
   }
+
   60% {
     transform: scale(1.07) rotate(2deg);
     box-shadow: 0 4px 32px #fffde466, 0 0 36px #ffe082;
   }
+
   100% {
     transform: scale(1.12) rotate(-3deg);
     box-shadow: 0 6px 40px #ffd54faa, 0 0 44px #fffde4;
@@ -36,7 +38,7 @@ html, body {
   max-width: 480px;
   margin: 0 auto;
   min-height: 100vh;
-  padding: 0 20px 110px 20px; /* Unten Platz für Froschbalken! */
+  padding: 0 20px 110px; /* Unten Platz für Froschbalken! */
   background: none;
   box-shadow: none;
   overflow-x: hidden;
@@ -44,11 +46,11 @@ html, body {
 }
 
 /* Mobilanpassung: unten weniger Padding für kleinere Screens */
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .session-text-area {
     max-width: 98vw;
     width: 100vw;
-    padding: 0 12px 65px 12px; /* Weniger Abstand für Frog Bar */
+    padding: 0 12px 65px; /* Weniger Abstand für Frog Bar */
   }
 }
 
@@ -68,7 +70,7 @@ html, body {
   overflow: hidden;
 }
 
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .animated-lines {
     max-width: 98vw;
     width: 100vw;
@@ -81,7 +83,7 @@ html, body {
   width: 100%;
   box-sizing: border-box;
   font-size: 1.22rem;            /* Aus dem zweiten Block (oder 1.3rem wenn dir das besser gefällt) */
-  margin: 0 0 17px 0;            /* Aus dem zweiten Block, sieht harmonischer aus */
+  margin: 0 0 17px;            /* Aus dem zweiten Block, sieht harmonischer aus */
   background: none;
   border-radius: 0;
   box-shadow: none;
@@ -90,23 +92,26 @@ html, body {
   color: #383838;
   font-weight: 500;
 }
+
 @keyframes fadeInText {
   from { opacity: 0; transform: translateY(20px);}
   to   { opacity: 1; transform: translateY(0);}
 }
+
 .animated-text.glitter {
   position: relative;
   overflow: visible;
 }
+
 .animated-text.glitter::after {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  inset: 0;
   pointer-events: none;
   background: linear-gradient(
     120deg,
     transparent,
-    rgba(255,255,255,0.7),
+    rgb(255 255 255 / 70%),
     #ffe082bb 65%,
     transparent
   );
@@ -115,6 +120,7 @@ html, body {
   z-index: 2;
   border-radius: 12px;
 }
+
 @keyframes glitterShine {
   from { background-position: -180% 0; }
   to   { background-position: 180% 0; }
@@ -136,19 +142,19 @@ html, body {
   align-items: center;
   justify-content: center;
 }
+
 .floating-video video, 
 .floating-video img.avatar {
   width: 140px;
   height: 140px;
   border-radius: 50%;
   object-fit: contain;
-  background: url('images/video-placeholder.png') center center no-repeat #fff;
-  background-size: cover;
   background: #eee;
+  background-size: cover;
   pointer-events: none;
 }
 
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .floating-video { width: 110px; height: 110px; right: 6px; bottom: 68px; }
   .floating-video video, .floating-video img.avatar { width: 90px; height: 90px; }
 }
@@ -172,6 +178,7 @@ html, body {
   cursor: pointer;
   transition: transform 0.1s;
 }
+
 .custom-play-btn svg {
   width: 36px;
   height: 36px;
@@ -198,28 +205,31 @@ html, body {
   z-index: 101;
   transition: background 0.22s, transform 0.12s;
 }
-@media (max-width: 600px) {
+
+@media (width <= 600px) {
   .centered-next-btn { font-size: 1rem; padding: 0.8rem 1.7rem; bottom: 90px;}
 }
 
 /* Buttons-Container für animals & rhyme */
 .animals-buttons {
   display: flex;
-  flex-direction: row;
+  flex-flow: row nowrap;
   justify-content: center;
   gap: 14px;
   margin-top: 22px;
-  flex-wrap: nowrap;
   overflow-x: auto;
   max-width: 100vw;
 }
+
 .animals-buttons button {
   min-width: 64px;
   max-width: 92px;
-  padding: 0.7em 0.7em;
+  padding: 0.7em;
   font-size: 1.15rem;
+
   /* weitere Styles wie gewünscht */
 }
+
 .rhyme-buttons {
   display: flex;
   flex-direction: column;
@@ -245,11 +255,13 @@ html, body {
   cursor: pointer;
   margin: 0;                     /* Kein zusätzlicher Außenabstand */
 }
-@media (max-width: 600px) {
+
+@media (width <= 600px) {
   .rhyme-buttons {
     max-width: 100vw;
     padding: 0 3vw;
   }
+
   .rhyme-buttons button {
     max-width: 96vw;
   }
@@ -267,6 +279,7 @@ html, body {
   margin: 0 auto;
   justify-content: center;
 }
+
 #progressFrogBar {
   position: fixed;
   left: 0;
@@ -279,6 +292,7 @@ html, body {
   pointer-events: none;
   height: 60px;
 }
+
 .frog-bar-spot {
   width: 38px;
   height: 38px;
@@ -291,14 +305,17 @@ html, body {
   position: relative;
   z-index: 1;
 }
+
 .frog-bar-done {
   background: #b2dfdb;
   border: 2.5px solid #388e3c;
 }
+
 .frog-bar-spot.active {
   box-shadow: 0 0 18px #ffd54f;
   border: 3.2px solid #ffd54f;
 }
+
 #jumpingFrog {
   position: absolute;
   bottom: 22px;
@@ -310,6 +327,7 @@ html, body {
   transition: left 0.5s cubic-bezier(.39,1.35,.51,1.01);
   animation: frogHop 0.45s;
 }
+
 @keyframes frogHop {
   0% { transform: translateY(0);}
   30% { transform: translateY(-22px);}
@@ -326,14 +344,16 @@ html, body {
   position: fixed;
   inset: 0;
   z-index: 10001;
-  background: rgba(230,249,255, 0.93);
+  background: rgb(230 249 255 / 93%);
   text-align: center;
   pointer-events: auto;
 }
+
 .rotate-icon {
   width: 70px; height: 70px; margin-bottom: 18px;
 }
-@media (max-width: 600px) {
+
+@media (width <= 600px) {
   .rotate-icon { width: 45px; height: 45px; margin-bottom: 8px;}
 }
 
@@ -347,6 +367,7 @@ html, body {
   letter-spacing: 0.03em;
   text-shadow: 0 2px 10px #fffbe6, 0 1px 8px #b3e5fc88;
 }
+
 .intro-avatar-small {
   width: 62px;
   height: 62px;
@@ -358,6 +379,7 @@ html, body {
 }
 
 /* Glitzer und Pop Animationen, Buttons usw. */
+
 /* ... (Deine weiteren bestehenden Animations- und Modul-Styles kannst du einfach unten dranhängen) ... */
 
 /* Schattierte Tierbilder (Shadow-Game) */
@@ -365,6 +387,7 @@ html, body {
   filter: grayscale(1) brightness(0.12) blur(0.5px);
   opacity: 0.92;
 }
+
 .shadow-buttons {
   display: flex;
   flex-direction: row;   /* Hauptunterschied: horizontal! */
@@ -390,12 +413,27 @@ html, body {
   cursor: pointer;
   transition: border 0.18s, box-shadow 0.18s;
 }
+
+.memory-card img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+
 .shadow-buttons button img {
   width: 60px;
   height: 60px;
   object-fit: contain;
   pointer-events: none;
 }
+
 #countingOverlay {
   width: 100vw;
   display: flex;
@@ -407,6 +445,7 @@ html, body {
   z-index: 999;
   pointer-events: none;
 }
+
 .count-overlay {
   display: flex;
   align-items: center;
@@ -419,12 +458,13 @@ html, body {
   min-height: 68px;
   font-family: inherit;
 }
+
 .chatgpt-quiz-header {
   position: sticky;
   top: 0;
   z-index: 50;
   background: #fffbe6;
-  padding: 12px 8px 8px 8px;
+  padding: 12px 8px 8px;
   text-align: center;
   border-bottom: 2px dashed #ffd54f;
   box-shadow: 0 2px 6px #ffd54f55;
@@ -444,12 +484,13 @@ html, body {
   font-size: 1.6rem;
   font-weight: bold;
   text-align: center;
-  margin: 18px 0 18px 0;
+  margin: 18px 0;
   max-width: 90vw;
   line-height: 1.35;
   color: #383838;
   font-family: 'Baloo 2', 'Comic Neue', Arial, sans-serif;
 }
+
 .chatgpt-quiz-buttons {
   display: flex;
   flex-direction: column;
@@ -457,6 +498,7 @@ html, body {
   gap: 14px;
   margin: 10px auto;
 }
+
 @keyframes fadeInUp {
   0% { opacity: 0; transform: translateY(24px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -465,10 +507,12 @@ html, body {
 .fade-in-up {
   animation: fadeInUp 0.6s ease both;
 }
+
 @keyframes yay-bounce {
   0%, 100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-5px);
   }
@@ -480,6 +524,7 @@ html, body {
   text-shadow: 0 0 4px #fff9c4, 0 0 12px #ffd54f;
   font-weight: 700;
 }
+
 .yay-over-image {
   position: absolute;
   top: -24px;
@@ -492,17 +537,20 @@ html, body {
   color: #ffa000;
   pointer-events: none;
 }
+
 @keyframes sticker-fly {
   0% {
     transform: translateX(-120px) translateY(0) rotate(0deg) scale(0.8);
     opacity: 0.5;
     filter: brightness(1.2);
   }
+
   50% {
     transform: translateX(50vw) translateY(-40px) rotate(20deg) scale(1.1);
     opacity: 1;
     filter: brightness(1.6);
   }
+
   100% {
     transform: translateX(90vw) translateY(-100px) rotate(45deg) scale(0.9);
     opacity: 0;
@@ -525,24 +573,29 @@ html, body {
   animation: reward-glow 2s ease-in-out infinite;
   transition: transform 0.3s ease;
 }
+
 @keyframes reward-pulse {
   0%   { transform: scale(1.04); box-shadow: 0 0 32px #fff9c4; }
   100% { transform: scale(1.13); box-shadow: 0 0 42px 8px #ffe082; }
 }
+
 @keyframes reward-glow {
   0%, 100% {
     transform: scale(1);
     filter: drop-shadow(0 0 8px #fff176) brightness(1.1);
   }
+
   50% {
     transform: scale(1.12);
     filter: drop-shadow(0 0 14px #ffe082) brightness(1.4);
   }
 }
+
 /* wird im JS gesetzt: */
 .reward-star-animals {
   animation: reward-pulse 1.25s infinite alternate, reward-glow 2s infinite linear;
 }
+
 .animals-reward-container {
   position: fixed;
   left: 50%;
@@ -550,7 +603,7 @@ html, body {
   top: 15vh;
   z-index: 500;
   background: #fffbe6;
-  padding: 26px 30px 30px 30px;
+  padding: 26px 30px 30px;
   border-radius: 30px;
   box-shadow: 0 10px 40px #b2ebf2, 0 4px 24px #ffd54f99;
   display: flex;
@@ -567,6 +620,7 @@ html, body {
   margin-bottom: 12px;
   box-shadow: 0 2px 8px #ffd54faa;
 }
+
 .animals-reward-yay {
   font-size: 1.16rem;
   font-weight: bold;
@@ -576,6 +630,7 @@ html, body {
   margin-bottom: 10px;
   animation: yay-bounce 1.6s infinite;
 }
+
 .animals-correct-text {
   font-size: 1.25rem;
   font-weight: 600;
@@ -583,13 +638,16 @@ html, body {
   color: #43a047;
   text-align: center;
 }
+
 .rainbow-btn-animated {
   animation: rainbowPulse 1.1s infinite alternate;
 }
+
 @keyframes rainbowPulse {
   0%   { filter: brightness(1); }
   100% { filter: brightness(1.16) drop-shadow(0 0 18px #ffd54f88); }
 }
+
 .main-wrap {
   display: flex;
   flex-direction: column;
@@ -602,7 +660,7 @@ html, body {
 .color-circle {
   width: 110px;
   height: 110px;
-  margin: 0 auto 16px auto;
+  margin: 0 auto 16px;
   border-radius: 50%;
   border: 5px solid #ffd54f;
   box-shadow: 0 2px 32px #ffd54faa, 0 0 32px #aeea00aa;
@@ -616,6 +674,7 @@ html, body {
   z-index: 9999;
   overflow: visible;
 }
+
 .confetti-piece {
   position: absolute;
   top: -2vh;
@@ -624,6 +683,7 @@ html, body {
   opacity: 0.9;
   animation: confetti-fall 1.6s cubic-bezier(.2,.7,.7,1) forwards;
 }
+
 @keyframes confetti-fall {
   to {
     top: 92vh;
@@ -631,10 +691,12 @@ html, body {
     opacity: 0.3;
   }
 }
+
 .glow-effect {
   box-shadow: 0 0 18px 8px #ffe082, 0 0 60px 12px #fff17666 !important;
   transition: box-shadow 0.24s;
 }
+
 .party-emoji {
   position: fixed;
   z-index: 9999;
@@ -642,20 +704,24 @@ html, body {
   pointer-events: none;
   user-select: none;
 }
+
 @keyframes emoji-pop {
   0% { transform: scale(0.5) translateY(0); opacity: 0.5; }
   60% { transform: scale(1.25) translateY(-30px) rotate(10deg);}
   100% { transform: scale(0.9) translateY(-130px) rotate(-8deg); opacity: 0; }
 }
+
 .shake {
   animation: shake-anim 0.45s cubic-bezier(.19, .46, .75, .85);
 }
+
 @keyframes shake-anim {
   10%, 90% { transform: translateX(-2px);}
   20%, 80% { transform: translateX(4px);}
   30%, 50%, 70% { transform: translateX(-8px);}
   40%, 60% { transform: translateX(8px);}
 }
+
 .sparkle-anim {
   position: fixed;
   left: 50vw;
@@ -667,20 +733,24 @@ html, body {
   filter: blur(0.6px) brightness(1.5);
   animation: sparkle-fade 1.1s;
 }
+
 @keyframes sparkle-fade {
   0% { opacity: 0; transform: scale(0.7);}
   30% { opacity: 1; transform: scale(1.4);}
   100% { opacity: 0; transform: scale(0.7);}
 }
+
 .bounce-anim {
   animation: bounce-pop 0.55s cubic-bezier(.5,1.6,.7,1.0);
 }
+
 @keyframes bounce-pop {
   0%   { transform: scale(1); }
   30%  { transform: scale(1.18); }
   70%  { transform: scale(0.92);}
   100% { transform: scale(1); }
 }
+
 .rainbow-emoji-anim {
   position: fixed;
   left: 44vw;
@@ -690,22 +760,26 @@ html, body {
   pointer-events: none;
   animation: rainbow-float 1s cubic-bezier(.5,.1,.7,1.3);
 }
+
 @keyframes rainbow-float {
   0%   { opacity: 0; transform: scale(0.7) translateY(0);}
   35%  { opacity: 1; transform: scale(1.1) translateY(-15px);}
   85%  { opacity: 1; }
   100% { opacity: 0; transform: scale(1.1) translateY(-100px);}
 }
+
 @keyframes bounce {
   0%,100% { transform: translateY(0);}
   50% { transform: translateY(-28px);}
 }
+
 @keyframes wiggle {
   0%,100% { transform: rotate(0deg);}
   25% { transform: rotate(-10deg);}
   50% { transform: rotate(10deg);}
   75% { transform: rotate(-5deg);}
 }
+
 @keyframes tada {
   0% { transform: scale(1);}
   10%, 20% { transform: scale(0.9) rotate(-3deg);}
@@ -735,6 +809,7 @@ html, body {
   align-items: center;
   justify-content: center;
 }
+
 #videoAvatarBox video,
 #videoAvatarBox img.avatar {
   width: 100%;
@@ -744,6 +819,7 @@ html, body {
   background: #eee;
   display: block;
 }
+
 .quiz-question {
   font-size: 1.35rem;
   font-family: 'Comic Neue', 'Baloo 2', Arial, sans-serif;
@@ -752,7 +828,7 @@ html, body {
   text-align: center;
   margin-top: 16px;
   margin-bottom: 18px;
-  padding: 12px 6px 6px 6px;
+  padding: 12px 6px 6px;
   background: linear-gradient(90deg, #fffbe6 80%, #e3f2fd 100%);
   border-radius: 12px;
   box-shadow: 0 2px 12px #b2ebf288;
@@ -763,7 +839,7 @@ html, body {
   flex-direction: column;
   gap: 16px;
   align-items: center;
-  margin: 18px auto 0 auto;
+  margin: 18px auto 0;
   width: 100%;
   max-width: 340px;
 }
@@ -776,39 +852,23 @@ html, body {
   width: 100%;
   display: block;
 }
+
 .btn-correct {
   background: #b9f6ca !important;
   color: #267323 !important;
 }
+
 .btn-wrong {
   background: #ffd1d1 !important;
   color: #b71c1c !important;
 }
-.quiz-feedback {
-  min-height: 2em;
-  font-size: 1.16rem;
-  font-weight: bold;
-  text-align: center;
-  margin: 13px 0 60px 0; 
-  transition: color 0.2s;
-}
+
+
 .memory-card {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
   cursor: pointer;
-}
-
-.memory-card img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 12px;
-  backface-visibility: hidden;
-  transition: opacity 0.3s ease;
 }
 
 .memory-card img.front {
@@ -819,6 +879,7 @@ html, body {
 .memory-card.flipped img.front {
   opacity: 1;
 }
+
 #memoryGameContainer {
   margin: 0 auto;
   max-width: 360px;
@@ -837,29 +898,18 @@ html, body {
   width: 100%;
   max-width: 340px;
   margin: 0 auto;
-  background: rgba(255,255,246,0.97);
+  background: rgb(255 255 246 / 97%);
   border-radius: 22px;
   box-shadow: 0 4px 22px #ffd54f44;
   padding: 12px;
   box-sizing: border-box;
 }
-@media (max-width: 600px) {
+
+@media (width <= 600px) {
   #memoryGameContainer, .memory-grid {
     max-width: 96vw;
     width: 96vw;
   }
-}
-.wait-spinner {
-  display: inline-block;
-  margin-left: 14px;
-  width: 28px;
-  height: 28px;
-  border: 4px solid #ffd54f;
-  border-radius: 50%;
-  border-top: 4px solid #4fc3f7;
-  animation: spin 0.8s linear infinite;
-  vertical-align: middle;
-  box-shadow: 0 2px 12px #ffe08255;
 }
 
 
@@ -872,6 +922,7 @@ html, body {
   animation: spin 1s linear infinite;
   margin: 0 auto;
 }
+
 @keyframes spin {
   0% { transform: rotate(0deg);}
   100% { transform: rotate(360deg);}
@@ -880,11 +931,13 @@ html, body {
 .puzzle-complete-popup {
   animation: popupBounce 0.65s cubic-bezier(.38,2.2,.7,.9);
 }
+
 @keyframes popupBounce {
   0% { transform: scale(0.7) translate(-50%,-50%);}
   65% { transform: scale(1.06) translate(-50%,-50%);}
   100% { transform: scale(1) translate(-50%,-50%);}
 }
+
 .quiz-choice-btn, .sequence-choice-btn {
   width: 100%;
   min-width: 120px;
@@ -899,7 +952,7 @@ html, body {
   color: #383838;
   box-shadow: 0 4px 18px #81d4fa55, 0 2px 12px #ffd54faa;
   text-align: center;
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
   transition: background 0.18s, box-shadow 0.18s, transform 0.12s, color 0.14s;
   cursor: pointer;
   outline: none;
@@ -931,169 +984,6 @@ html, body {
   box-shadow: 0 0 14px #ffadad88;
 }
 
-.quiz-choice-btn:disabled,
-.sequence-choice-btn:disabled {
-  opacity: 0.64;
-  cursor: not-allowed;
-}
-.animal-funfact {
-  margin: 18px 0 0 0;
-  padding: 10px 18px;
-  font-size: 1.13em;
-  background: #fffde4;
-  border-radius: 18px;
-  color: #34495e;
-  box-shadow: 0 2px 8px #ffe08244;
-  text-align: center;
-  font-weight: 600;
-  max-width: 360px;
-}
-
-.animal-listen-btn {
-  font-size: 1.11rem;
-  font-family: 'Comic Neue', 'Baloo 2', Arial, sans-serif;
-  font-weight: bold;
-  background: linear-gradient(90deg, #ffd54f 60%, #81d4fa 100%);
-  color: #333;
-  border: none;
-  border-radius: 14px;
-  padding: 0.72em 1.6em 0.72em 1.3em;
-  margin-left: 8px;
-  box-shadow: 0 2px 10px #ffd54f55;
-  cursor: pointer;
-  transition: background 0.18s, transform 0.12s;
-  outline: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.animal-listen-btn:active {
-  background: #ffe082;
-  transform: scale(0.95);
-}
-.animal-listen-btn.bounce-anim {
-  animation: bounce-pop 0.45s cubic-bezier(.4,1.8,.8,1.0);
-}
-@keyframes bounce-pop {
-  0%   { transform: scale(1);}
-  40%  { transform: scale(1.12);}
-  60%  { transform: scale(0.93);}
-  100% { transform: scale(1);}
-}
-@media (max-width: 600px) {
-  .animal-listen-btn {
-    font-size: 1rem;
-    padding: 0.66em 1.1em 0.66em 1em;
-    min-width: 74px;
-  }
-}
-
-
-.sequence-container {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 10px;
-  min-height: 52px;
-}
-.sequence-box {
-  min-width: 38px;
-  min-height: 38px;
-  max-width: 46px;
-  max-height: 46px;
-  border-radius: 12px;
-  margin: 0 2px;
-  box-shadow: 0 2px 10px #eee;
-  display: inline-block;
-  transition: background 0.2s;
-  border: 2px solid #fff;
-}
-.sequence-box.sequence-highlight {
-  outline: 2.5px solid #ffd54f;
-  box-shadow: 0 0 13px #ffd54faa;
-  animation: sequenceHighlight 0.6s;
-}
-@keyframes sequenceHighlight {
-  0% { transform: scale(1.00);}
-  60% { transform: scale(1.09);}
-  100% { transform: scale(1.00);}
-}
-.sequence-row-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-.repeat-sequence-btn {
-  background: #e0f2f1;
-  color: #1976d2;
-  font-size: 1.3em;
-  border-radius: 50%;
-  border: 1.5px solid #4fc3f7;
-  width: 38px; height: 38px;
-  margin-left: 8px;
-  cursor: pointer;
-  box-shadow: 0 1px 6px #b3e5fc44;
-  display: flex; align-items: center; justify-content: center;
-  transition: background 0.19s, box-shadow 0.19s;
-}
-.repeat-sequence-btn:hover {
-  background: #b2ebf2;
-  color: #0d47a1;
-}
-
-.user-sequence-row {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  margin: 14px 0 10px 0;
-  min-height: 44px;
-}
-.user-sequence-row .user-sequence-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 38px;
-  min-height: 38px;
-  max-width: 46px;
-  max-height: 46px;
-  border-radius: 12px;
-  box-shadow: 0 1px 7px #ffecb3;
-  font-weight: bold;
-  color: #fff;
-  font-size: 1em;
-  margin-right: 2px;
-  transition: background 0.16s, color 0.16s;
-}
-.user-sequence-row .user-sequence-item .remove-x {
-  position: absolute;
-  top: -8px; right: -8px;
-  font-size: 1.1em;
-  background: #fff2;
-  color: #c82121;
-  border-radius: 50%;
-  padding: 2px 5px;
-  cursor: pointer;
-  font-weight: bold;
-  line-height: 1;
-  z-index: 2;
-  transition: background 0.16s, color 0.16s;
-}
-.user-sequence-row .user-sequence-item .remove-x:hover {
-  color: #9a1313;
-  background: #fff6;
-}
-
-/* Quiz Button Styling: 2 Buttons pro Reihe, farblich */
-.quiz-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 8px;
-}
 .quiz-choice-btn {
   flex: 0 0 48%;        /* immer 2 pro Reihe, auch mobil */
   min-width: 38vw;
@@ -1116,24 +1006,195 @@ html, body {
   word-break: break-word;
   background: #4fa6ff;
 }
+
+
+
+.quiz-choice-btn:disabled,
+.sequence-choice-btn:disabled {
+  opacity: 0.64;
+  cursor: not-allowed;
+}
+
+.animal-listen-btn {
+  font-size: 1.11rem;
+  font-family: 'Comic Neue', 'Baloo 2', Arial, sans-serif;
+  font-weight: bold;
+  background: linear-gradient(90deg, #ffd54f 60%, #81d4fa 100%);
+  color: #333;
+  border: none;
+  border-radius: 14px;
+  padding: 0.72em 1.6em 0.72em 1.3em;
+  margin-left: 8px;
+  box-shadow: 0 2px 10px #ffd54f55;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.animal-listen-btn:active {
+  background: #ffe082;
+  transform: scale(0.95);
+}
+
+.animal-listen-btn.bounce-anim {
+  animation: bounce-pop 0.45s cubic-bezier(.4,1.8,.8,1.0);
+}
+
+@keyframes bounce-pop {
+  0%   { transform: scale(1);}
+  40%  { transform: scale(1.12);}
+  60%  { transform: scale(0.93);}
+  100% { transform: scale(1);}
+}
+
+@media (width <= 600px) {
+  .animal-listen-btn {
+    font-size: 1rem;
+    padding: 0.66em 1.1em 0.66em 1em;
+    min-width: 74px;
+  }
+}
+
+
+.sequence-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 10px;
+  min-height: 52px;
+}
+
+.sequence-box {
+  min-width: 38px;
+  min-height: 38px;
+  max-width: 46px;
+  max-height: 46px;
+  border-radius: 12px;
+  margin: 0 2px;
+  box-shadow: 0 2px 10px #eee;
+  display: inline-block;
+  transition: background 0.2s;
+  border: 2px solid #fff;
+}
+
+.sequence-box.sequence-highlight {
+  outline: 2.5px solid #ffd54f;
+  box-shadow: 0 0 13px #ffd54faa;
+  animation: sequenceHighlight 0.6s;
+}
+
+@keyframes sequenceHighlight {
+  0% { transform: scale(1.00);}
+  60% { transform: scale(1.09);}
+  100% { transform: scale(1.00);}
+}
+
+.sequence-row-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.repeat-sequence-btn {
+  background: #e0f2f1;
+  color: #1976d2;
+  font-size: 1.3em;
+  border-radius: 50%;
+  border: 1.5px solid #4fc3f7;
+  width: 38px; height: 38px;
+  margin-left: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 6px #b3e5fc44;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.19s, box-shadow 0.19s;
+}
+
+.repeat-sequence-btn:hover {
+  background: #b2ebf2;
+  color: #0d47a1;
+}
+
+.user-sequence-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 14px 0 10px;
+  min-height: 44px;
+}
+
+.user-sequence-row .user-sequence-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  min-height: 38px;
+  max-width: 46px;
+  max-height: 46px;
+  border-radius: 12px;
+  box-shadow: 0 1px 7px #ffecb3;
+  font-weight: bold;
+  color: #fff;
+  font-size: 1em;
+  margin-right: 2px;
+  transition: background 0.16s, color 0.16s;
+}
+
+.user-sequence-row .user-sequence-item .remove-x {
+  position: absolute;
+  top: -8px; right: -8px;
+  font-size: 1.1em;
+  background: #fff2;
+  color: #c82121;
+  border-radius: 50%;
+  padding: 2px 5px;
+  cursor: pointer;
+  font-weight: bold;
+  line-height: 1;
+  z-index: 2;
+  transition: background 0.16s, color 0.16s;
+}
+
+.user-sequence-row .user-sequence-item .remove-x:hover {
+  color: #9a1313;
+  background: #fff6;
+}
+
+/* Quiz Button Styling: 2 Buttons pro Reihe, farblich */
+.quiz-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+
 .quiz-choice-btn.yellow, 
 .quiz-choice-btn[style*="background: yellow"], 
 .quiz-choice-btn[style*="background: #ffff00"], 
 .quiz-choice-btn[style*="background: rgb(255, 255, 0)"] {
   color: #222 !important;
 }
+
 .quiz-choice-btn.selected {
   box-shadow: 0 0 0 3px #ffd54f;
   border: 2.2px solid #ffd54f;
   opacity: 0.9;
 }
+
 .quiz-choice-btn:disabled {
   opacity: 0.4;
   pointer-events: none;
 }
 
 .wait-spinner {
-  margin: 14px auto 6px auto;
+  margin: 14px auto 6px;
   border: 5px solid #f3f3f3;
   border-top: 5px solid #7ec1ff;
   border-radius: 50%;
@@ -1141,10 +1202,12 @@ html, body {
   height: 36px;
   animation: spin 1.1s linear infinite;
 }
+
 @keyframes spin {
   0% { transform: rotate(0deg);}
   100% { transform: rotate(360deg);}
 }
+
 .quiz-feedback {
   font-size: 1.1em;
   text-align: center;
@@ -1159,10 +1222,11 @@ html, body {
   margin-top: 14px;
 }
 
-@media (max-width: 440px) {
+@media (width <= 440px) {
   .sequence-container { gap: 4px !important; }
   .user-sequence-row { gap: 4px !important; }
   .quiz-buttons { gap: 4px !important; }
+
   .quiz-choice-btn {
     flex: 0 0 48% !important;
     min-width: 30vw !important;
@@ -1170,6 +1234,7 @@ html, body {
     padding: 8px 0 !important;
     margin-bottom: 7px !important;
   }
+
   .user-sequence-row .user-sequence-item {
     font-size: 0.96em;
     min-width: 32px;
@@ -1178,39 +1243,46 @@ html, body {
     max-height: 36px;
   }
 }
+
 .center-spinner {
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .dragdrop-draggable, .dragdrop-target {
   touch-action: none !important;
   user-select: none !important;
 }
+
 .tapmatch-item.selected {
   background: #ffe082 !important;
   box-shadow: 0 0 12px #ffe082;
 }
+
 .tapmatch-item.matched, .tapmatch-target.matched {
   filter: grayscale(0.5) brightness(1.1);
   opacity: 0.65;
   pointer-events: none;
 }
+
 .tapmatch-item.wrong, .tapmatch-target.wrong {
   background: #ffd1d1 !important;
 }
+
 .tapmatch-locked {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
   pointer-events: none !important;
   transition: opacity 0.3s;
 }
+
 .drawing-root { 
   max-width: 370px;
-  margin: 10px auto 0 auto;      /* <- war vorher 32px */
+  margin: 10px auto 0;      /* <- war vorher 32px */
   background: #fff9ef;
-  padding: 10px 12px 4px 12px;   /* padding oben etwas reduziert */
+  padding: 10px 12px 4px;   /* padding oben etwas reduziert */
   border-radius: 28px;
   box-shadow: 0 2px 16px #ffd54f33;
   display: flex;
@@ -1221,6 +1293,7 @@ html, body {
   left: 50%;
   transform: translateX(-50%);
 }
+
 .faq-list {
   display: flex;
   flex-direction: column;
@@ -1232,7 +1305,7 @@ html, body {
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 2px 10px #e0e0e099;
-  padding: 20px 22px 18px 22px;
+  padding: 20px 22px 18px;
   transition: box-shadow 0.17s, background 0.13s;
   border-left: 7px solid #81d4fa;
   margin-bottom: 0;
@@ -1258,7 +1331,7 @@ html, body {
   line-height: 1.54;
 }
 
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .faq-item {
     padding: 13px 10px;
     font-size: 0.96em;
@@ -1266,6 +1339,7 @@ html, body {
   }
   .faq-list { gap: 32px; }
 }
+
 .parent-btn-row {
   display: flex;
   justify-content: center;
@@ -1299,6 +1373,7 @@ html, body {
   color: #fff;
   border: 2.5px solid #fff3;
 }
+
 .danger-btn:hover, .danger-btn:focus {
   background: linear-gradient(90deg, #d32f2f 0%, #ff6a00 100%);
   color: #fffbe8;
@@ -1312,12 +1387,14 @@ html, body {
   color: #8c4800;
   border: 2.5px solid #fff7b3;
 }
+
 .logout-btn:hover, .logout-btn:focus {
   background: linear-gradient(90deg, #ffe082 10%, #ffc46b 100%);
   color: #442300;
   box-shadow: 0 3px 18px #ffd54f77;
   transform: scale(1.04) translateY(-1px);
 }
+
 .explain-video-wrap {
   display: flex;
   justify-content: center;

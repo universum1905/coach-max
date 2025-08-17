@@ -269,98 +269,136 @@
     <button id="confirmDeleteBtn">Yes, delete everything</button>
     <button id="cancelDeleteBtn">Cancel</button>
   </div>
-
+</div>
 
 <script type="module">
+// Performance-Optimierung: DOM-Elemente cachen
+const DOM = {
+  accountBox: document.getElementById('parentAccountBox'),
+  aboBox: document.getElementById('aboBox'),
+  childrenList: document.getElementById('childrenList'),
+  addChildBtn: document.getElementById('addChildBtn'),
+  childName: document.getElementById('childName'),
+  childAge: document.getElementById('childAge'),
+  deleteBtn: document.getElementById('deleteAccountBtn'),
+  confirmBox: document.getElementById('deleteConfirmBox'),
+  confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
+  cancelDeleteBtn: document.getElementById('cancelDeleteBtn'),
+  childDeleteConfirmBox: document.getElementById("childDeleteConfirmBox"),
+  confirmChildDeleteBtn: document.getElementById("confirmChildDeleteBtn"),
+  cancelChildDeleteBtn: document.getElementById("cancelChildDeleteBtn"),
+  logoutBtn: document.getElementById("logoutBtn"),
+  addChildForm: document.querySelector('.add-child-form')
+};
+
+// Performance-Optimierung: Timeout-Management
+const timeouts = new Set();
+
+function addTimeout(timeoutId) {
+  timeouts.add(timeoutId);
+}
+
+function clearAllTimeouts() {
+  timeouts.forEach(id => clearTimeout(id));
+  timeouts.clear();
+}
+
 function showChildError(msg) {
   let box = document.getElementById('childErrorBox');
   if (!box) {
     box = document.createElement('div');
     box.id = 'childErrorBox';
     box.style = "color:#b91c1c;font-weight:bold;background:#fee;padding:8px 18px;border-radius:9px;margin:12px 0;text-align:center;";
-    addChildBtn.parentNode.insertBefore(box, addChildBtn.nextSibling);
+    DOM.addChildBtn.parentNode.insertBefore(box, DOM.addChildBtn.nextSibling);
   }
   box.textContent = msg;
   box.style.display = '';
-  setTimeout(() => { box.style.display = 'none'; }, 4000);
+  
+  // Performance-Optimierung: Timeout in Set speichern
+  const timeoutId = setTimeout(() => { 
+    box.style.display = 'none'; 
+  }, 4000);
+  addTimeout(timeoutId);
 }
 
 import { auth, db, onAuthStateChanged, deleteUser, signOut, doc, getDoc, getDocs, collection, setDoc, deleteDoc, addDoc, serverTimestamp } from "/js/firebase.js";
 
 let user = null, deleteChildId = null;
 
-const accountBox = document.getElementById('parentAccountBox');
-const aboBox = document.getElementById('aboBox');
-const childrenList = document.getElementById('childrenList');
-const addChildBtn = document.getElementById('addChildBtn');
-const childName = document.getElementById('childName');
-const childAge = document.getElementById('childAge');
-const deleteBtn = document.getElementById('deleteAccountBtn');
-const confirmBox = document.getElementById('deleteConfirmBox');
-const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-const childDeleteConfirmBox = document.getElementById("childDeleteConfirmBox");
-const confirmChildDeleteBtn = document.getElementById("confirmChildDeleteBtn");
-const cancelChildDeleteBtn = document.getElementById("cancelChildDeleteBtn");
-const logoutBtn = document.getElementById("logoutBtn");
+// Performance-Optimierung: Event-Listener mit Event-Delegation
+DOM.childrenList.addEventListener('click', (e) => {
+  if (e.target.classList.contains('delete-child-btn')) {
+    deleteChildId = e.target.dataset.childid;
+    DOM.childDeleteConfirmBox.style.display = "";
+  }
+});
 
+// Performance-Optimierung: Auth-State-Handler optimiert
 onAuthStateChanged(auth, async (u) => {
   if (!u) {
-    accountBox.innerHTML = "<b>Please log in first to manage your data.</b>";
-    document.querySelector('.add-child-form').style.display = "none";
-    childrenList.innerHTML = "";
-    aboBox.innerHTML = "";
-    deleteBtn.style.display = "none";
-    logoutBtn.style.display = "none";
+    DOM.accountBox.innerHTML = "<b>Please log in first to manage your data.</b>";
+    DOM.addChildForm.style.display = "none";
+    DOM.childrenList.innerHTML = "";
+    DOM.aboBox.innerHTML = "";
+    DOM.deleteBtn.style.display = "none";
+    DOM.logoutBtn.style.display = "none";
     return;
   }
+  
   user = u;
-  accountBox.innerHTML = `<b>Email:</b> ${user.email}`;
-  document.querySelector('.add-child-form').style.display = "";
-  deleteBtn.style.display = "";
-  logoutBtn.style.display = "";
-  await loadChildren();
-  await loadAbo();
+  DOM.accountBox.innerHTML = `<b>Email:</b> ${user.email}`;
+  DOM.addChildForm.style.display = "";
+  DOM.deleteBtn.style.display = "";
+  DOM.logoutBtn.style.display = "";
+  
+  // Performance-Optimierung: Parallele Ausführung
+  await Promise.all([loadChildren(), loadAbo()]);
 });
 
 async function loadChildren() {
-  childrenList.innerHTML = "";
+  DOM.childrenList.innerHTML = "";
   if (!user) return;
-  const children = await getDocs(collection(db, "users", user.uid, "children"));
-  if (!children.empty) {
-    children.forEach(docSnap => {
-      const data = docSnap.data();
-      const li = document.createElement("li");
-      li.innerHTML = `<span>${data.name} <span style="color:#888;font-size:0.98em;">(Age: ${data.age || "-"})</span></span>
-        <button class="delete-child-btn" data-childid="${docSnap.id}">Delete</button>`;
-      childrenList.appendChild(li);
-    });
-    document.querySelectorAll('.delete-child-btn').forEach(btn => {
-      btn.onclick = () => {
-        deleteChildId = btn.dataset.childid;
-        childDeleteConfirmBox.style.display = "";
-      };
-    });
-  } else {
-    childrenList.innerHTML = "<li style='text-align:center;color:#aaa;'>No children added yet.</li>";
+  
+  try {
+    const children = await getDocs(collection(db, "users", user.uid, "children"));
+    if (!children.empty) {
+      // Performance-Optimierung: DocumentFragment für bessere DOM-Performance
+      const fragment = document.createDocumentFragment();
+      
+      children.forEach(docSnap => {
+        const data = docSnap.data();
+        const li = document.createElement("li");
+        li.innerHTML = `<span>${data.name} <span style="color:#888;font-size:0.98em;">(Age: ${data.age || "-"})</span></span>
+          <button class="delete-child-btn" data-childid="${docSnap.id}">Delete</button>`;
+        fragment.appendChild(li);
+      });
+      
+      DOM.childrenList.appendChild(fragment);
+    } else {
+      DOM.childrenList.innerHTML = "<li style='text-align:center;color:#aaa;'>No children added yet.</li>";
+    }
+  } catch (error) {
+    console.error('Error loading children:', error);
+    DOM.childrenList.innerHTML = "<li style='text-align:center;color:#b91c1c;'>Error loading children. Please try again.</li>";
   }
 }
 
-addChildBtn.onclick = async () => {
-  const name = childName.value.trim();
-  const ageVal = childAge.value.trim();
+// Performance-Optimierung: Event-Handler optimiert
+DOM.addChildBtn.onclick = async () => {
+  const name = DOM.childName.value.trim();
+  const ageVal = DOM.childAge.value.trim();
   const age = parseInt(ageVal);
 
   if (!name && !ageVal) {
-    showChildError("Please enter your child’s name and age.");
+    showChildError("Please enter your child's name and age.");
     return;
   }
   if (!name) {
-    showChildError("Please enter your child’s name.");
+    showChildError("Please enter your child's name.");
     return;
   }
   if (!ageVal) {
-    showChildError("Please enter your child’s age (3-12).");
+    showChildError("Please enter your child's age (3-12).");
     return;
   }
   if (isNaN(age) || age < 4 || age > 12) {
@@ -368,65 +406,112 @@ addChildBtn.onclick = async () => {
     return;
   }
 
-  await addDoc(collection(db, "users", user.uid, "children"), {
-    name,
-    age,
-    createdAt: serverTimestamp()
-  });
-  childName.value = "";
-  childAge.value = "";
-  await loadChildren();
+  try {
+    await addDoc(collection(db, "users", user.uid, "children"), {
+      name,
+      age,
+      createdAt: serverTimestamp()
+    });
+    DOM.childName.value = "";
+    DOM.childAge.value = "";
+    await loadChildren();
+  } catch (error) {
+    console.error('Error adding child:', error);
+    showChildError("Error adding child. Please try again.");
+  }
 };
 
-confirmChildDeleteBtn.onclick = async () => {
+DOM.confirmChildDeleteBtn.onclick = async () => {
   if (!user || !deleteChildId) return;
-  await deleteDoc(doc(db, "users", user.uid, "children", deleteChildId));
-  childDeleteConfirmBox.style.display = "none";
-  await loadChildren();
+  
+  try {
+    await deleteDoc(doc(db, "users", user.uid, "children", deleteChildId));
+    DOM.childDeleteConfirmBox.style.display = "none";
+    await loadChildren();
+  } catch (error) {
+    console.error('Error deleting child:', error);
+    alert("Error deleting child. Please try again.");
+  }
 };
-cancelChildDeleteBtn.onclick = () => {
-  childDeleteConfirmBox.style.display = "none";
+
+DOM.cancelChildDeleteBtn.onclick = () => {
+  DOM.childDeleteConfirmBox.style.display = "none";
 };
 
 async function loadAbo() {
   if (!user) return;
-  const userDocRef = doc(db, "users", user.uid);
-  const userDocSnap = await getDoc(userDocRef);
-  let data = userDocSnap.exists() ? userDocSnap.data() : {};
-  const status = data.subscriptionStatus || "trial";
-  let trialEnd = data.trialEnds ? new Date(data.trialEnds).toLocaleDateString() : "-";
-  let statusText = (status === "active") ? "Premium (active)" : (status === "trial" ? "Trial (free)" : status);
-  aboBox.innerHTML = `<b>Subscription status:</b> ${statusText}` +
-    (status === "trial" && trialEnd !== "-" ? ` <span style="color:#888;">(trial ends: ${trialEnd})</span>` : "") +
-    ((status === "active" || status === "trial") ?
-      `<button id="cancelAboBtn" class="cancel-abo-btn">Cancel Subscription</button>` : "");
-  if (document.getElementById("cancelAboBtn")) {
-    document.getElementById("cancelAboBtn").onclick = cancelAbo;
+  
+  try {
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    let data = userDocSnap.exists() ? userDocSnap.data() : {};
+    const status = data.subscriptionStatus || "trial";
+    let trialEnd = data.trialEnds ? new Date(data.trialEnds).toLocaleDateString() : "-";
+    let statusText = (status === "active") ? "Premium (active)" : (status === "trial" ? "Trial (free)" : status);
+    
+    DOM.aboBox.innerHTML = `<b>Subscription status:</b> ${statusText}` +
+      (status === "trial" && trialEnd !== "-" ? ` <span style="color:#888;">(trial ends: ${trialEnd})</span>` : "") +
+      ((status === "active" || status === "trial") ?
+        `<button id="cancelAboBtn" class="cancel-abo-btn">Cancel Subscription</button>` : "");
+    
+    // Performance-Optimierung: Event-Listener direkt hinzufügen
+    const cancelAboBtn = document.getElementById("cancelAboBtn");
+    if (cancelAboBtn) {
+      cancelAboBtn.onclick = cancelAbo;
+    }
+  } catch (error) {
+    console.error('Error loading subscription:', error);
+    DOM.aboBox.innerHTML = "<b>Error loading subscription status.</b>";
   }
 }
+
 async function cancelAbo() {
   if (!user) return;
-  await setDoc(doc(db, "users", user.uid), { subscriptionStatus: "cancelled" }, { merge: true });
-  alert("Subscription cancelled. You will retain access until the end of your paid period.");
-  await loadAbo();
+  
+  try {
+    await setDoc(doc(db, "users", user.uid), { subscriptionStatus: "cancelled" }, { merge: true });
+    alert("Subscription cancelled. You will retain access until the end of your paid period.");
+    await loadAbo();
+  } catch (error) {
+    console.error('Error cancelling subscription:', error);
+    alert("Error cancelling subscription. Please try again.");
+  }
 }
 
-deleteBtn.onclick = () => { confirmBox.style.display = ""; };
-cancelDeleteBtn.onclick = () => { confirmBox.style.display = "none"; };
-confirmDeleteBtn.onclick = async () => {
+// Performance-Optimierung: Event-Handler optimiert
+DOM.deleteBtn.onclick = () => { DOM.confirmBox.style.display = ""; };
+DOM.cancelDeleteBtn.onclick = () => { DOM.confirmBox.style.display = "none"; };
+
+DOM.confirmDeleteBtn.onclick = async () => {
   if (!user) return;
-  // Alle Kinderprofile löschen
-  const children = await getDocs(collection(db, "users", user.uid, "children"));
-  for (const docSnap of children.docs) await deleteDoc(doc(db, "users", user.uid, "children", docSnap.id));
-  // User-Doc löschen
-  await deleteDoc(doc(db, "users", user.uid));
-  // Auth-Account löschen
-  await deleteUser(user);
-  alert("All data deleted. We're sorry to see you go.");
-  location.href = "/index";
+  
+  try {
+    // Performance-Optimierung: Parallele Löschung für bessere Performance
+    const children = await getDocs(collection(db, "users", user.uid, "children"));
+    const deletePromises = children.docs.map(docSnap => 
+      deleteDoc(doc(db, "users", user.uid, "children", docSnap.id))
+    );
+    
+    await Promise.all(deletePromises);
+    await deleteDoc(doc(db, "users", user.uid));
+    await deleteUser(user);
+    
+    alert("All data deleted. We're sorry to see you go.");
+    location.href = "/index";
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    alert("Error deleting account. Please try again.");
+  }
 };
 
-logoutBtn.onclick = () => { signOut(auth).then(()=>location.href="/index"); };
+DOM.logoutBtn.onclick = () => { 
+  signOut(auth).then(() => location.href = "/index"); 
+};
+
+// Performance-Optimierung: Cleanup bei Seitenwechsel
+window.addEventListener('beforeunload', () => {
+  clearAllTimeouts();
+});
 
 </script>
 

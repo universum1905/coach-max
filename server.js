@@ -8,34 +8,25 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const HOST = "0.0.0.0";
-
-// Pfade
 const PUBLIC = path.join(__dirname, "public");
 
-// Statische Dateien aus public/ ausliefern
-app.use(express.static(PUBLIC));
+// Statische Dateien aus /public bedienen; /choose -> choose.html etc. dank extensions
+app.use(express.static(PUBLIC, { extensions: ["html"], maxAge: 0 }));
 
-// Seiten-Routen (alle Dateien liegen in /public)
-app.get("/",              (req, res) => res.sendFile(path.join(PUBLIC, "index.html")));
-app.get("/choose",        (req, res) => res.sendFile(path.join(PUBLIC, "choose.html")));
-app.get("/day/*",         (req, res) => res.sendFile(path.join(PUBLIC, "day.html")));
-app.get("/stickerboard",  (req, res) => res.sendFile(path.join(PUBLIC, "stickerboard.html")));
-app.get("/puzzleboard",   (req, res) => res.sendFile(path.join(PUBLIC, "puzzleboard.html")));
-app.get("/gallery",       (req, res) => res.sendFile(path.join(PUBLIC, "gallery.html")));
-app.get("/parents",       (req, res) => res.sendFile(path.join(PUBLIC, "parents.html")));
-app.get("/thankyou",      (req, res) => res.sendFile(path.join(PUBLIC, "thankyou.html")));
+// Spezieller Rewrite für /day/* -> day.html
+app.get("/day/*", (_req, res) => {
+  res.sendFile(path.join(PUBLIC, "day.html"));
+});
 
-// 404-Fallback (EN) – liegt in /public
-app.get("*", (req, res) => {
+// 404-Fallback (liefert /public/404.html, falls vorhanden)
+app.use((req, res) => {
   const notFound = path.join(PUBLIC, "404.html");
   res.status(404).sendFile(notFound, (err) => {
-    if (err) res.status(404).type("text/plain").send("404 Not Found");
+    if (err) res.status(404).send("404 Not Found");
   });
 });
 
-// Start
-app.listen(PORT, HOST, () => {
-  console.log(`Dev server running on http://${HOST}:${PORT}`);
-  console.log(`Phone test: http://<your-laptop-ip>:${PORT}`);
+// Auf allen Interfaces lauschen -> Handy im WLAN kann zugreifen
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Dev server running on http://localhost:${PORT}`);
 });

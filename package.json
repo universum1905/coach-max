@@ -2,23 +2,41 @@
   "name": "coach-max",
   "version": "1.0.0",
   "type": "module",
-  "main": "server.js",
+  "private": true,
   "scripts": {
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "lint:js": "eslint . --ext .js,.mjs",
+    "lint:js:fix": "eslint . --ext .js,.mjs --fix",
+    "lint:css": "stylelint \"public/**/*.css\"",
+    "lint:css:fix": "stylelint \"public/**/*.css\" --fix",
+    "lint:html": "htmlhint \"public/**/*.html\"",
+    "lint:all": "npm run lint:js && npm run lint:css && npm run lint:html",
+    "prepare": "husky install",
+	"prepare": "husky install"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/universum1905/coach-max.git"
+  "lint-staged": {
+    "*.js": "eslint --fix",
+    "*.css": "stylelint --fix",
+    "*.html": "htmlhint"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/universum1905/coach-max/issues"
-  },
-  "homepage": "https://github.com/universum1905/coach-max#readme",
-  "description": "",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@eslint/css": "^0.10.0",
+    "@eslint/js": "^9.33.0",
+    "@eslint/json": "^0.13.1",
+    "@eslint/markdown": "^7.1.0",
+    "eslint": "^9.33.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-json": "^4.0.1",
+    "eslint-plugin-markdown": "^5.1.0",
+    "globals": "^16.3.0",
+    "htmlhint": "^1.6.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2",
+    "stylelint": "^16.23.1",
+    "stylelint-config-standard": "^39.0.0"
   }
 }

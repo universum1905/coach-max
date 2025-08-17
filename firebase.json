@@ -6,6 +6,17 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "headers": [
+      {
+        "source": "**/*.@(html|js|css)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
+    ],
     "rewrites": [
       {
         "source": "/",
@@ -20,24 +31,8 @@
         "destination": "/day.html"
       },
       {
-        "source": "/stickerboard",
-        "destination": "/stickerboard.html"
-      },
-      {
-        "source": "/puzzleboard",
-        "destination": "/puzzleboard.html"
-      },
-      {
-        "source": "/gallery",
-        "destination": "/gallery.html"
-      },
-      {
         "source": "/parents",
         "destination": "/parents.html"
-      },
-      {
-        "source": "/thankyou",
-        "destination": "/thankyou.html"
       },
       {
         "source": "**",
@@ -46,21 +41,26 @@
     ]
   },
   "emulators": {
-    "hosting": {
-      "host": "0.0.0.0",
-      "port": 5000
-    },
     "auth": {
-      "port": 9099
+      "port": 4002,
+      "host": "0.0.0.0"
+    },
+    "firestore": {
+      "port": 4001,
+      "rules": "firestore.rules",
+      "seed": "firestore_mock_data.json"
+    },
+    "hosting": {
+      "port": 5000,
+      "host": "0.0.0.0"
     },
     "ui": {
-      "enabled": true
+      "enabled": true,
+      "port": 4000
     },
     "singleProjectMode": true
   },
   "firestore": {
-    "database": "(default)",
-    "location": "nam5",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   }

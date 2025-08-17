@@ -1,0 +1,36 @@
+# Medienordner ignorieren
+images/
+videos/
+audio/
+stickers/
+animations/
+
+# Große Mediendateien ignorieren
+*.mp4
+*.mp3
+*.wav
+*.mov
+*.avi
+*.webm
+*.ogg
+
+# Bilder ignorieren
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+
+# Cache und temporäre Dateien ignorieren
+node_modules/
+.cache/
+dist/
+build/
+
+# Sonstige große Dateien
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
