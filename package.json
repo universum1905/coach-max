@@ -4,14 +4,14 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "node server.js",
-    "lint:js": "eslint . --ext .js,.mjs",
-    "lint:js:fix": "eslint . --ext .js,.mjs --fix",
-    "lint:css": "stylelint \"public/**/*.css\"",
-    "lint:css:fix": "stylelint \"public/**/*.css\" --fix",
-    "lint:html": "htmlhint \"public/**/*.html\"",
-    "lint:all": "npm run lint:js && npm run lint:css && npm run lint:html",
-    "prepare": "husky"
+  "lint:js": "eslint .",
+  "lint:js:fix": "eslint . --fix",
+  "lint:css": "stylelint \"**/*.css\"",
+  "lint:css:fix": "stylelint \"**/*.css\" --fix",
+  "lint:html": "htmlhint \"**/*.html\"",
+  "lint:all": "npm run lint:js && npm run lint:css && npm run lint:html",
+  "lint:all:fix": "npm run lint:js:fix && npm run lint:css:fix"
+} "prepare": "husky"
   },
   "lint-staged": {
     "*.js": "eslint --fix",
@@ -22,6 +22,7 @@
     "express": "^4.19.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
     "@eslint/css": "^0.10.0",
     "@eslint/js": "^9.33.0",
     "@eslint/json": "^0.13.1",
@@ -34,6 +35,7 @@
     "htmlhint": "^1.6.3",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
+    "oxlint": "^1.12.0",
     "prettier": "^3.6.2",
     "stylelint": "^16.23.1",
     "stylelint-config-standard": "^39.0.0"

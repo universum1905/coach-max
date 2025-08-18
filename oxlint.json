@@ -1,0 +1,4 @@
+{
+  "env": { "browser": true, "es2022": true, "node": true },
+  "ignore": ["node_modules/**", "public/js/*backup*.js"]
+}
