@@ -4,15 +4,16 @@
   "type": "module",
   "private": true,
   "scripts": {
-  "lint:js": "eslint .",
-  "lint:js:fix": "eslint . --fix",
-  "lint:css": "stylelint \"**/*.css\"",
-  "lint:css:fix": "stylelint \"**/*.css\" --fix",
-  "lint:html": "htmlhint \"**/*.html\"",
-  "lint:all": "npm run lint:js && npm run lint:css && npm run lint:html",
-  "lint:all:fix": "npm run lint:js:fix && npm run lint:css:fix"
-} "prepare": "husky"
+    "dev": "nodemon server.js",
+    "lint:js": "eslint .",
+    "lint:js:fix": "eslint . --fix",
+    "lint:css": "stylelint \"**/*.css\"",
+    "lint:css:fix": "stylelint \"**/*.css\" --fix",
+    "lint:html": "htmlhint \"**/*.html\"",
+    "lint:all": "npm run lint:js && npm run lint:css && npm run lint:html",
+    "lint:all:fix": "npm run lint:js:fix && npm run lint:css:fix"
   },
+  "prepare": "husky",
   "lint-staged": {
     "*.js": "eslint --fix",
     "*.css": "stylelint --fix",
