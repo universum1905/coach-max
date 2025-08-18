@@ -6,12 +6,29 @@ yarn-debug.log*
 yarn-error.log*
 firebase-debug.log*
 firebase-debug.*.log*
+firestore-debug.log
+storage-debug.log
 
-# Firebase cache
+# Dependency directories
+node_modules/
+bower_components/
+
+# Build outputs
+dist/
+out/
+build/
+build/Release
+.next/
+coverage/
+.nyc_output
+lib-cov
+.grunt
+
+# Firebase cache/config
 .firebase/
-
-# Firebase config
-# .firebaserc  # nur auskommentiert, falls jeder sein eigenes Projekt nutzen soll
+# Falls jeder eigenes Projekt hat, evtl. ignorieren:
+# .firebaserc
+# firebase.json
 
 # Runtime data
 pids
@@ -19,41 +36,39 @@ pids
 *.seed
 *.pid.lock
 
-# Coverage & build outputs
-lib-cov
-coverage
-.nyc_output
-.grunt
-bower_components
-.lock-wscript
-build/Release
+# Package managers
+package-lock.json
+yarn.lock
 
-# Dependency directories
-node_modules/
-
-# Optional npm cache directory
+# Cache
 .npm
-
-# Optional eslint cache
+.yarn-integrity
 .eslintcache
 
-# Optional REPL history
+# REPL history
 .node_repl_history
 
 # Output of 'npm pack'
 *.tgz
 
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
+# dotenv environment variables
 .env
+.env.local
+.env.*.local
 
-# dataconnect generated files
+# Dataconnect / AI Tools
 .dataconnect
 .aider*
+.mgx*
+.cursor*
+windsurf*
 
 # Editor/OS junk
 .vscode/
+.idea/
+*.swp
 .DS_Store
 Thumbs.db
+
+# Optional: test snapshots
+*.snap
